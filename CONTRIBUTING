@@ -1,0 +1,85 @@
+Contributing to Handly
+======================
+
+Thanks for your interest in this project.
+
+Project description:
+--------------------
+
+The Eclipse Handly project aims to provide a foundation for 
+construction of handle-based models not unlike the JDT Java Model 
+in their essential qualities. It borrows from core design patterns 
+and principles used in the Java Model, but aims for a generalized 
+albeit partial basic implementation, on top of which complete handle-
+based models of diverse kinds could be built with relative ease. 
+The project includes a layer of integration with Xtext.
+
+- https://projects.eclipse.org/projects/technology.handly
+
+Handly is very much a work in progress. The intent is to come up 
+with a really nice design in that problem area through an open and 
+transparent development process informed by community feedback.
+
+Your participation would be much appreciated. Bugzilla can be used 
+to provide suggestions for enhancements and (obviously) report bugs. 
+Questions can be sent to the project's users forum or developers 
+mailing list. Please see the details below about contributing to 
+the project.
+
+Developer resources:
+--------------------
+
+Information regarding source code management, builds, coding standards, 
+and more.
+
+- https://projects.eclipse.org/projects/technology.handly/developer
+
+In particular, the Handly's build is based on Maven and Tycho (see 
+the `build` project for the `pom.xml` file that drives the build)
+
+Setting up a developer workspace:
+---------------------------------
+
+Handly currently uses `JavaSE-1.6` for compilation. Please add a matching JRE. 
+Perfect match (i.e. JDK 1.6) is recommended to avoid build warnings.
+
+Handly employs specific code formatting conventions. Please import and use 
+the formatter profile from `tools/formatter.xml`.
+
+To set up a workspace for the Handly Framework (as opposed to Handly Examples), 
+import all projects located in the root of the git repository and set the 
+target platform using a definition file in the `target` project.
+
+For information on how to set up a workspace for Handly Examples, 
+please see `examples/README`.
+
+Contributor License Agreement:
+------------------------------
+
+Before your contribution can be accepted by the project, you need to create 
+and electronically sign the Eclipse Foundation Contributor License Agreement 
+(CLA).
+
+- http://www.eclipse.org/legal/CLA.php
+
+Contact:
+--------
+
+Contact the project developers via the project's "dev" list.
+
+- https://dev.eclipse.org/mailman/listinfo/handly-dev
+
+Search for bugs:
+----------------
+
+This project uses Bugzilla to track ongoing development and issues.
+
+- https://bugs.eclipse.org/bugs/buglist.cgi?product=Handly
+
+Create a new bug:
+-----------------
+
+Be sure to search for existing bugs before you create another one. Remember 
+that contributions are always welcome!
+
+- https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Handly

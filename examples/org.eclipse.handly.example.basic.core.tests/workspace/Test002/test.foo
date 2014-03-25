@@ -1,0 +1,6 @@
+var x;
+var y;
+
+def f() {}
+def f(x) {}
+def f(x, y) {}

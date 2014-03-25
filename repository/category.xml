@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.eclipse.handly_0.1.0.qualifier.jar" id="org.eclipse.handly" version="0.1.0.qualifier">
+      <category name="org.eclipse.handly.category"/>
+   </feature>
+   <feature url="features/org.eclipse.handly.source_0.1.0.qualifier.jar" id="org.eclipse.handly.source" version="0.1.0.qualifier">
+      <category name="org.eclipse.handly.category"/>
+   </feature>
+   <feature url="features/org.eclipse.handly.xtext_0.1.0.qualifier.jar" id="org.eclipse.handly.xtext" version="0.1.0.qualifier">
+      <category name="org.eclipse.handly.category"/>
+   </feature>
+   <feature url="features/org.eclipse.handly.xtext.source_0.1.0.qualifier.jar" id="org.eclipse.handly.xtext.source" version="0.1.0.qualifier">
+      <category name="org.eclipse.handly.category"/>
+   </feature>
+   <category-def name="org.eclipse.handly.category" label="Eclipse Handly (Incubation)">
+      <description>
+         Eclipse Handly
+      </description>
+   </category-def>
+</site>

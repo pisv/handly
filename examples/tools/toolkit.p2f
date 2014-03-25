@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?p2f version='1.0.0'?>
+<p2f version='1.0.0'>
+  <ius size='13'>
+    <iu id='org.eclipse.sdk.ide' version='4.3.1.M20130911-1000'>
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.egit.feature.group' version='3.0.3.201309161630-r'>
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.4.0.20130601-0317'>
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.emf.sdk.feature.group" version="2.9.1.v20130902-0605">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.9.1.v20130902-0605">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.gef.sdk.feature.group" version="3.9.1.201308190730">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.4.3.v201309030823">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.4.3.v201309030823">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.xpand.sdk.feature.group" version="1.4.0.v201306110406">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.1.v201309030422">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.4.1.v201309030422">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.4.1.v201309030840">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.uml2.sdk.feature.group" version="4.1.1.v20130902-0826">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/kepler'/>
+      </repositories>
+    </iu>
+  </ius>
+</p2f>
