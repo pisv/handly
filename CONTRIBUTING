@@ -34,8 +34,19 @@ and more.
 
 - https://projects.eclipse.org/projects/technology.handly/developer
 
-In particular, the Handly's build is based on Maven and Tycho (see 
-the `build` project for the `pom.xml` file that drives the build)
+Building locally:
+-----------------
+
+The build is based on Maven and Tycho and is easy to run on a local machine.
+
+ 1. Make sure you have JDK 6 and Maven 3 installed. Both should be on the path.
+ 2. Clone the Handly Git repository and pick the desired branch.
+ 3. Open a shell to the Git workspace and execute
+    $ cd releng
+    $ mvn clean install
+
+Once the build completes, the `repository/target` folder will contain 
+a repository of build artifacts.
 
 Setting up a developer workspace:
 ---------------------------------
@@ -46,12 +57,25 @@ Perfect match (i.e. JDK 1.6) is recommended to avoid build warnings.
 Handly employs specific code formatting conventions. Please import and use 
 the formatter profile from `tools/formatter.xml`.
 
-To set up a workspace for the Handly Framework (as opposed to Handly Examples), 
-import all projects located in the root of the git repository and set the 
-target platform using a definition file in the `target` project.
+Import all projects located in the root of the Git repository (don't search 
+for nested projects) and set the target platform. We strongly recommend using 
+the base target platform (as defined in the `targets/base/base.target` file) 
+for building the workspace: it defines the base API level against which 
+Handly must compile without errors.
 
-For information on how to set up a workspace for Handly Examples, 
-please see `examples/README`.
+Please note that for generation of Xtext-based language infrastructure to work, 
+the developer tool and the target platform should contain Xtext of the same 
+version. A simple way to achieve that is to install the developer tool from 
+the file `tools/toolkit.p2f`, which is designed to be consistent with 
+the base target platform.
+
+Examples:
+---------
+
+Some examples of Handly use are provided under the `org.eclipse.handly.example` 
+namespace. You might want to set up a developer workspace (see above) 
+to be able to play with the examples most productively. Each example 
+has the accompanying `README` file.
 
 Contributor License Agreement:
 ------------------------------
