@@ -34,6 +34,11 @@ and more.
 
 - https://projects.eclipse.org/projects/technology.handly/developer
 
+As well, the project Committer FAQ is available.
+
+- https://wiki.eclipse.org/Handly/Committer_FAQ
+
+
 Building locally:
 -----------------
 
@@ -57,25 +62,17 @@ Perfect match (i.e. JDK 1.6) is recommended to avoid build warnings.
 Handly employs specific code formatting conventions. Please import and use 
 the formatter profile from `tools/formatter.xml`.
 
-Import all projects located in the root of the Git repository (don't search 
-for nested projects) and set the target platform. We strongly recommend using 
-the base target platform (as defined in the `targets/base/base.target` file) 
-for building the workspace: it defines the base API level against which 
-Handly must compile without errors.
+Import all projects located in the root of your local clone of the Handly Git 
+repository (don't search for nested projects) and set the target platform. 
+We strongly recommend using the base target platform (as defined in the 
+`targets/base/base.target` file) for building the workspace: it defines 
+the base API level against which Handly must compile without errors.
 
 Please note that for generation of Xtext-based language infrastructure to work, 
 the developer tool and the target platform should contain Xtext of the same 
 version. A simple way to achieve that is to install the developer tool from 
 the file `tools/toolkit.p2f`, which is designed to be consistent with 
 the base target platform.
-
-Examples:
----------
-
-Some examples of Handly use are provided under the `org.eclipse.handly.example` 
-namespace. You might want to set up a developer workspace (see above) 
-to be able to play with the examples most productively. Each example 
-has the accompanying `README` file.
 
 Contributor License Agreement:
 ------------------------------

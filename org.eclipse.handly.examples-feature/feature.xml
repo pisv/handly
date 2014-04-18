@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.handly.examples"
+      label="%featureName"
+      version="0.1.0.qualifier"
+      provider-name="%providerName"
+      plugin="org.eclipse.handly.examples"
+      license-feature="org.eclipse.license"
+      license-feature-version="1.0.0.qualifier">
+
+   <description url="http://www.eclipse.org/handly/">
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <requires>
+      <import feature="org.eclipse.handly" version="0.1.0"/>
+      <import feature="org.eclipse.handly.xtext" version="0.1.0"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.handly.junit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.handly.examples"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.handly.examples.basic"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.handly.examples.basic.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.handly.examples.basic.ui.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+</feature>
