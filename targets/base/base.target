@@ -14,7 +14,7 @@
 <locations>
 <location includeConfigurePhase="true" includeMode="slicer" type="InstallableUnit">
 <repository location="http://download.eclipse.org/cbi/updates/license"/>
-<unit id="org.eclipse.license.feature.group" version="1.0.0.v20131003-1638"/>
+<unit id="org.eclipse.license.feature.group" version="0.0.0"/>
 </location>
 <location includeConfigurePhase="true" includeMode="slicer" type="InstallableUnit">
 <repository location="http://download.eclipse.org/releases/kepler"/>

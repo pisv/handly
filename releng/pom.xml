@@ -27,8 +27,6 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
-    <buildType>I</buildType>
-    <qualifierPrefix>v</qualifierPrefix>
   </properties>
   <pluginRepositories>
     <pluginRepository>
@@ -124,7 +122,7 @@
           <artifactId>tycho-packaging-plugin</artifactId>
           <version>${tycho.version}</version>
           <configuration>
-            <forceContextQualifier>${qualifierPrefix}${buildTimestamp}</forceContextQualifier>
+            <forceContextQualifier>${buildTimestamp}</forceContextQualifier>
             <archive>
                <addMavenDescriptor>false</addMavenDescriptor>
             </archive>
@@ -140,7 +138,7 @@
           <artifactId>tycho-p2-repository-plugin</artifactId>
           <version>${tycho.version}</version>
           <configuration>
-            <repositoryName>Eclipse Handly (Incubation) ${buildType}${buildTimestamp}</repositoryName>
+            <repositoryName>Eclipse Handly (Incubation)</repositoryName>
           </configuration>
         </plugin>
         <plugin>
@@ -164,17 +162,6 @@
     </pluginManagement>
   </build>
   <profiles>
-    <profile>
-      <activation>
-        <property>
-          <name>buildType</name>
-          <value>N</value>
-        </property>
-      </activation>
-      <properties>
-        <qualifierPrefix>N</qualifierPrefix>
-      </properties>
-    </profile>
     <profile>
       <id>sign</id>
       <build>

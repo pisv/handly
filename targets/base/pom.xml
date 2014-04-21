@@ -20,6 +20,6 @@
   </parent>
   <groupId>org.eclipse.handly.targets</groupId>
   <artifactId>base</artifactId>
-  <name>targets:base</name>
+  <name>base.target</name>
   <packaging>eclipse-target-definition</packaging>
 </project>

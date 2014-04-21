@@ -19,7 +19,6 @@
     <relativePath>../releng</relativePath>
   </parent>
   <artifactId>targets</artifactId>
-  <name>targets</name>
   <packaging>pom</packaging>
   <modules>
     <module>base</module>
