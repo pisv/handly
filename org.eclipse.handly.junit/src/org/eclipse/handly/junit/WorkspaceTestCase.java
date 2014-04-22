@@ -32,8 +32,6 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.Job;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleReference;
 
 /**
  * A workspace test case.
@@ -98,16 +96,6 @@ public abstract class WorkspaceTestCase
     }
 
     /**
-     * Returns the bundle of this test case.
-     */
-    protected Bundle getBundle()
-    {
-        BundleReference bundleRef =
-            (BundleReference)getClass().getProtectionDomain();
-        return bundleRef.getBundle();
-    }
-
-    /**
      * Shortcut to <code>ResourcesPlugin.getWorkspace()</code>
      */
     protected final IWorkspace getWorkspace()
@@ -148,7 +136,18 @@ public abstract class WorkspaceTestCase
         IOException
     {
         // copy the project's content
-        File sourceRoot = getBundleEntry(getBundle(), "workspace"); //$NON-NLS-1$
+        URL url = getClass().getClassLoader().getResource("workspace"); //$NON-NLS-1$
+        assertNotNull(url);
+        URL fileURL = FileLocator.toFileURL(url);
+        File sourceRoot;
+        try
+        {
+            sourceRoot = new File(fileURL.toURI());
+        }
+        catch (URISyntaxException e)
+        {
+            throw new IOException(e);
+        }
         assertNotNull(sourceRoot);
         File source = new File(sourceRoot, name);
         assertTrue(source.exists());
@@ -229,23 +228,6 @@ public abstract class WorkspaceTestCase
     protected final void cleanUpWorkspace() throws CoreException
     {
         getWorkspaceRoot().delete(true, null);
-    }
-
-    private static File getBundleEntry(Bundle bundle, String path)
-        throws IOException
-    {
-        URL url = bundle.getEntry(path);
-        if (url == null)
-            return null;
-        URL fileURL = FileLocator.toFileURL(url);
-        try
-        {
-            return new File(fileURL.toURI());
-        }
-        catch (URISyntaxException e)
-        {
-            throw new IOException(e);
-        }
     }
 
     /*
