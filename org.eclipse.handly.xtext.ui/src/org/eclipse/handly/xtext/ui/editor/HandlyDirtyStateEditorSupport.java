@@ -236,8 +236,7 @@ public class HandlyDirtyStateEditorSupport
                 size++;
             }
             IResourceDescription.Event event =
-                new ResourceDescriptionChangeEvent(uriToDelta.values(),
-                    getDirtyStateManager());
+                new ResourceDescriptionChangeEvent(uriToDelta.values());
             return Tuples.create(event, size);
         }
 

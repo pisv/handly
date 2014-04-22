@@ -2,12 +2,12 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='13'>
-    <iu id='org.eclipse.sdk.ide' version='4.3.1.M20130911-1000'>
+    <iu id='org.eclipse.sdk.ide' version='4.3.2.M20140221-1700'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/kepler'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='3.0.3.201309161630-r'>
+    <iu id='org.eclipse.egit.feature.group' version='3.2.0.201312181205-r'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/kepler'/>
       </repositories>
@@ -17,12 +17,12 @@
         <repository location='http://download.eclipse.org/releases/kepler'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.sdk.feature.group" version="2.9.1.v20130902-0605">
+    <iu id="org.eclipse.emf.sdk.feature.group" version="2.9.2.v20140203-1126">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/kepler'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.9.1.v20130902-0605">
+    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.9.2.v20140203-1126">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/kepler'/>
       </repositories>
@@ -32,37 +32,37 @@
         <repository location='http://download.eclipse.org/releases/kepler'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.4.3.v201309030823">
+    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.5.1.v201401280830">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/kepler'/>
+        <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.4.3.v201309030823">
+    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.5.1.v201401280830">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/kepler'/>
+        <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xpand.sdk.feature.group" version="1.4.0.v201306110406">
+    <iu id="org.eclipse.xpand.sdk.feature.group" version="2.0.0.v201401280744">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/kepler'/>
+        <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.1.v201309030422">
+    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.1.v201401280349">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/kepler'/>
+        <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.4.1.v201309030422">
+    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.5.1.v201401280349">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/kepler'/>
+        <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.4.1.v201309030840">
+    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.5.1.v201401280850">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/kepler'/>
+        <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.uml2.sdk.feature.group" version="4.1.1.v20130902-0826">
+    <iu id="org.eclipse.uml2.sdk.feature.group" version="4.1.2.v20140202-2055">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/kepler'/>
       </repositories>
