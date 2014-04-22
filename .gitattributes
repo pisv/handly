@@ -1,15 +1,5 @@
-* text=auto
-
-*.java text diff=java
-*.properties text
-*.prefs text
-*.html text
-*.xml text
-*.txt text
-
-.project text
-.classpath text
-manifest.mf text
+* text eol=lf
 
 *.png binary
 *.gif binary
+*.xtexbin binary
