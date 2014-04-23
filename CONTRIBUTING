@@ -1,43 +1,34 @@
-Contributing to Handly
-======================
+Handly Contributor Guide
+========================
 
-Thanks for your interest in this project.
+Welcome to Handly, and thanks for your interest in this project.
 
 Project description:
 --------------------
 
-The Eclipse Handly project aims to provide a foundation for 
-construction of handle-based models not unlike the JDT Java Model 
-in their essential qualities. It borrows from core design patterns 
-and principles used in the Java Model, but aims for a generalized 
-albeit partial basic implementation, on top of which complete handle-
-based models of diverse kinds could be built with relative ease. 
-The project includes a layer of integration with Xtext.
+Handly provides basic building blocks that help developers create 
+handle-based models similar in essential qualities to the JDT Java model. 
+The uniform API makes it possible to develop common IDE components 
+dealing with such models. Integration with Xtext is provided.
 
-- https://projects.eclipse.org/projects/technology.handly
+The intent is to come up with a really nice design in this problem area 
+through an open and transparent development process primarily driven by 
+community feedback.
 
-Handly is very much a work in progress. The intent is to come up 
-with a really nice design in that problem area through an open and 
-transparent development process informed by community feedback.
+For more information, visit the project's website.
 
-Your participation would be much appreciated. Bugzilla can be used 
-to provide suggestions for enhancements and (obviously) report bugs. 
-Questions can be sent to the project's users forum or developers 
-mailing list. Please see the details below about contributing to 
-the project.
+- http://eclipse.org/handly
 
 Developer resources:
 --------------------
 
-Information regarding source code management, builds, coding standards, 
-and more.
+Information regarding source code management and builds.
 
 - https://projects.eclipse.org/projects/technology.handly/developer
 
-As well, the project Committer FAQ is available.
+Coding standards, bugs lifecycle, and more.
 
 - https://wiki.eclipse.org/Handly/Committer_FAQ
-
 
 Building locally:
 -----------------
@@ -51,8 +42,8 @@ The build is based on Maven and Tycho and is easy to run on a local machine.
     $ cd releng
     $ mvn clean install
 
-Once the build completes, the `repository/target` folder will contain 
-a repository of build artifacts.
+Once the build completes, the `repository/target` folder in the Git workspace 
+will contain a repository of build artifacts.
 
 Setting up a developer workspace:
 ---------------------------------
@@ -79,6 +70,17 @@ version. A simple way to achieve that is to install the developer tool using
 a `.p2f` file provided in the `tools` folder. It is designed to be consistent 
 with its namesake `.target` file.
 
+Contributing:
+-------------
+
+General process and policy for making a contribution.
+
+- https://wiki.eclipse.org/Development_Resources/Contributing_via_Git
+
+Project-specific details and further references.
+
+- https://wiki.eclipse.org/Handly/Committer_FAQ
+
 Contributor License Agreement:
 ------------------------------
 
@@ -87,6 +89,10 @@ and electronically sign the Eclipse Foundation Contributor License Agreement
 (CLA).
 
 - http://www.eclipse.org/legal/CLA.php
+
+For more information, see CLA FAQ.
+
+- https://www.eclipse.org/legal/clafaq.php
 
 Contact:
 --------
@@ -105,7 +111,8 @@ This project uses Bugzilla to track ongoing development and issues.
 Create a new bug:
 -----------------
 
-Be sure to search for existing bugs before you create another one. Remember 
-that contributions are always welcome!
+Be sure to search for existing bugs before you create another one.
 
 - https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Handly
+
+Remember that contributions are always welcome!
