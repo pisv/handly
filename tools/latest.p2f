@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?p2f version='1.0.0'?>
+<p2f version='1.0.0'>
+  <ius size='13'>
+    <iu id='org.eclipse.sdk.ide' version='4.4.0.I20140306-1200'>
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.egit.feature.group' version='3.3.0.201403021825-r'>
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.5.0.20140309-1847'>
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.emf.sdk.feature.group" version="2.10.0.v20140310-0546">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140310-0546">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.gef.sdk.feature.group" version="3.10.0.201401270305">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.6.0.v201403111428">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.6.0.v201403111428">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.xpand.sdk.feature.group" version="2.0.0.v201403111353">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.2.v201403111231">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.6.0.v201403111231">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.6.0.v201403111450">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.0.0.v20140310-0733">
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/luna'/>
+      </repositories>
+    </iu>
+  </ius>
+</p2f>

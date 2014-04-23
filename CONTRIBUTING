@@ -47,6 +47,7 @@ The build is based on Maven and Tycho and is easy to run on a local machine.
  1. Make sure you have JDK 6 and Maven 3 installed. Both should be on the path.
  2. Clone the Handly Git repository and pick the desired branch.
  3. Open a shell to the Git workspace and execute
+
     $ cd releng
     $ mvn clean install
 
@@ -63,16 +64,20 @@ Handly employs specific code formatting conventions. Please import and use
 the formatter profile from `tools/formatter.xml`.
 
 Import all projects located in the root of your local clone of the Handly Git 
-repository (don't search for nested projects) and set the target platform. 
-We strongly recommend using the base target platform (as defined in the 
-`targets/base/base.target` file) for building the workspace: it defines 
-the base API level against which Handly must compile without errors.
+repository (don't search for nested projects) and set the target platform 
+using a `.target` file provided under the `targets` folder.
 
-Please note that for generation of Xtext-based language infrastructure to work, 
+There are currently two target platforms defined. The base platform 
+(`base.target`) defines the base API level, whereas the latest platform 
+(`latest.target`) defines the latest functional level. Development tends 
+to be done against the base platform, while continuous integration tends 
+to be done against the latest platform.
+
+Note that for generation of Xtext-based language infrastructure to work, 
 the developer tool and the target platform should contain Xtext of the same 
-version. A simple way to achieve that is to install the developer tool from 
-the file `tools/toolkit.p2f`, which is designed to be consistent with 
-the base target platform.
+version. A simple way to achieve that is to install the developer tool using 
+a `.p2f` file provided in the `tools` folder. It is designed to be consistent 
+with its namesake `.target` file.
 
 Contributor License Agreement:
 ------------------------------
