@@ -7,7 +7,7 @@ Project description:
 --------------------
 
 Handly provides basic building blocks that help developers create 
-handle-based models similar in essential qualities to the JDT Java model. 
+handle-based models similar in design principles to the JDT Java model. 
 The uniform API makes it possible to develop common IDE components 
 dealing with such models. Integration with Xtext is provided.
 
@@ -54,9 +54,9 @@ Perfect match (i.e. JDK 1.6) is recommended to avoid build warnings.
 Handly employs specific code formatting conventions. Please import and use 
 the formatter profile from `tools/formatter.xml`.
 
-Import all projects located in the root of your local clone of the Handly Git 
-repository (don't search for nested projects) and set the target platform 
-using a `.target` file provided under the `targets` folder.
+Import all projects from the Git workspace (don't search for nested projects) 
+and set the target platform using a `.target` file provided within the 
+`targets` project.
 
 There are currently two target platforms defined. The base platform 
 (`base.target`) defines the base API level, whereas the latest platform 
@@ -64,11 +64,12 @@ There are currently two target platforms defined. The base platform
 to be done against the base platform, while continuous integration tends 
 to be done against the latest platform.
 
-Note that for generation of Xtext-based language infrastructure to work, 
-the developer tool and the target platform should contain Xtext of the same 
-version. A simple way to achieve that is to install the developer tool using 
-a `.p2f` file provided in the `tools` folder. It is designed to be consistent 
-with its namesake `.target` file.
+Handly Examples define some auxiliary Xtext-based languages. Note that for 
+the MWE2 generator of the language Xtext infrastructure to work, the developer 
+tool and the target platform should contain Xtext of the same version. A simple 
+way to achieve that is to install the developer tool using one of the provided 
+`.p2f` files that can be found in the Git workspace `tools` folder. They are 
+designed to be consistent with their namesake `.target` files.
 
 Contributing:
 -------------
