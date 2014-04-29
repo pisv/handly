@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.navigator;
 
-import org.eclipse.handly.examples.basic.core.FooModelCore;
+import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.jface.viewers.TreePath;

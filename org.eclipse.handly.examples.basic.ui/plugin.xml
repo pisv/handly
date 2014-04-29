@@ -241,7 +241,7 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.eclipse.handly.internal.examples.basic.core.FooProjectNature">
+               class="org.eclipse.handly.internal.examples.basic.ui.model.FooProjectNature">
          </run>
       </runtime>
       <requires-nature
@@ -251,8 +251,8 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="org.eclipse.handly.examples.basic.core.IFooElement"
-            class="org.eclipse.handly.internal.examples.basic.core.FooElementAdapterFactory">
+            adaptableType="org.eclipse.handly.examples.basic.ui.model.IFooElement"
+            class="org.eclipse.handly.internal.examples.basic.ui.model.FooElementAdapterFactory">
          <adapter
                type="org.eclipse.core.resources.IResource">
          </adapter>
@@ -326,7 +326,7 @@
          <triggerPoints>
             <or>
                <instanceof
-                     value="org.eclipse.handly.examples.basic.core.IFooElement">
+                     value="org.eclipse.handly.examples.basic.ui.model.IFooElement">
                </instanceof>
                <instanceof
                      value="org.eclipse.core.resources.IFolder">
@@ -336,7 +336,7 @@
          <possibleChildren>
             <or>
                <instanceof
-                     value="org.eclipse.handly.examples.basic.core.IFooElement">
+                     value="org.eclipse.handly.examples.basic.ui.model.IFooElement">
                </instanceof>
                <instanceof
                      value="org.eclipse.core.resources.IFolder">
@@ -368,7 +368,7 @@
          <selectionEnablement>
             <or>
                <instanceof
-                     value="org.eclipse.handly.examples.basic.core.IFooElement">
+                     value="org.eclipse.handly.examples.basic.ui.model.IFooElement">
                </instanceof>
                <instanceof
                      value="org.eclipse.core.resources.IResource">

@@ -12,7 +12,7 @@ package org.eclipse.handly.examples.basic.ui;
 
 import org.eclipse.handly.examples.basic.ui.AbstractFooUiModule;
 import org.eclipse.handly.examples.basic.ui.internal.FooActivator;
-import org.eclipse.handly.internal.examples.basic.core.FooFileFactory;
+import org.eclipse.handly.internal.examples.basic.ui.model.FooFileFactory;
 import org.eclipse.handly.internal.examples.basic.ui.outline.FooOutlinePage;
 import org.eclipse.handly.model.ISourceFileFactory;
 import org.eclipse.handly.xtext.ui.editor.HandlyDirtyStateEditorSupport;

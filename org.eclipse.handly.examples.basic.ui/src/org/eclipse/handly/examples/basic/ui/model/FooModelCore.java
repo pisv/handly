@@ -8,12 +8,12 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.examples.basic.core;
+package org.eclipse.handly.examples.basic.ui.model;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.handly.internal.examples.basic.core.FooModelManager;
+import org.eclipse.handly.internal.examples.basic.ui.model.FooModelManager;
 
 /**
  * Facade to the Foo Model.

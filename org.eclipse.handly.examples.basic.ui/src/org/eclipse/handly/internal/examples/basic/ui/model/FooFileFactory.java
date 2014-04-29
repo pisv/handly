@@ -8,10 +8,10 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.core;
+package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.handly.examples.basic.core.FooModelCore;
+import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.ISourceFileFactory;
 

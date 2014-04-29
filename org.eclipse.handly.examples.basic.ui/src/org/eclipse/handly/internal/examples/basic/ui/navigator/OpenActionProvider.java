@@ -11,7 +11,7 @@
 package org.eclipse.handly.internal.examples.basic.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.handly.examples.basic.core.IFooFile;
+import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;

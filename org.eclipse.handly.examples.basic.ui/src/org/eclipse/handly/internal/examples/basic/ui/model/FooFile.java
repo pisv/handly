@@ -8,7 +8,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.core;
+package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,11 +20,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.handly.examples.basic.core.IFooDef;
-import org.eclipse.handly.examples.basic.core.IFooFile;
-import org.eclipse.handly.examples.basic.core.IFooModel;
-import org.eclipse.handly.examples.basic.core.IFooVar;
 import org.eclipse.handly.examples.basic.foo.Module;
+import org.eclipse.handly.examples.basic.ui.model.IFooDef;
+import org.eclipse.handly.examples.basic.ui.model.IFooFile;
+import org.eclipse.handly.examples.basic.ui.model.IFooModel;
+import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;

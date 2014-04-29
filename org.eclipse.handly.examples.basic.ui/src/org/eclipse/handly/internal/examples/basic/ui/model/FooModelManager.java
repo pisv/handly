@@ -8,7 +8,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.core;
+package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.handly.examples.basic.core.IFooModel;
+import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;

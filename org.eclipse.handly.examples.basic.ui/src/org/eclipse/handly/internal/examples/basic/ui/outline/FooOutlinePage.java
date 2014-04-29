@@ -11,7 +11,7 @@
 package org.eclipse.handly.internal.examples.basic.ui.outline;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.handly.examples.basic.core.FooModelCore;
+import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.internal.examples.basic.ui.FooContentProvider;
 import org.eclipse.handly.internal.examples.basic.ui.FooLabelProvider;
 import org.eclipse.handly.internal.examples.basic.ui.SourceElementUtil;

@@ -8,7 +8,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.examples.basic.core;
+package org.eclipse.handly.examples.basic.ui.model;
 
 import java.net.URI;
 
@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.internal.examples.basic.core.FooProjectNature;
+import org.eclipse.handly.internal.examples.basic.ui.model.FooProjectNature;
 
 /**
  * Represents a Foo project.

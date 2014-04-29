@@ -8,7 +8,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.core;
+package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -24,10 +24,10 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.handly.examples.basic.core.FooModelCore;
-import org.eclipse.handly.examples.basic.core.IFooElement;
-import org.eclipse.handly.examples.basic.core.IFooFile;
-import org.eclipse.handly.examples.basic.core.IFooProject;
+import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
+import org.eclipse.handly.examples.basic.ui.model.IFooElement;
+import org.eclipse.handly.examples.basic.ui.model.IFooFile;
+import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
 import org.eclipse.handly.model.impl.Body;

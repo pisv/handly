@@ -15,9 +15,9 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.examples.basic.core.FooModelCore;
-import org.eclipse.handly.examples.basic.core.IFooElement;
-import org.eclipse.handly.examples.basic.core.IFooProject;
+import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
+import org.eclipse.handly.examples.basic.ui.model.IFooElement;
+import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

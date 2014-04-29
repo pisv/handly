@@ -14,11 +14,11 @@ import java.util.Arrays;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.examples.basic.core.IFooDef;
-import org.eclipse.handly.examples.basic.core.IFooElement;
-import org.eclipse.handly.examples.basic.core.IFooFile;
-import org.eclipse.handly.examples.basic.core.IFooProject;
-import org.eclipse.handly.examples.basic.core.IFooVar;
+import org.eclipse.handly.examples.basic.ui.model.IFooDef;
+import org.eclipse.handly.examples.basic.ui.model.IFooElement;
+import org.eclipse.handly.examples.basic.ui.model.IFooFile;
+import org.eclipse.handly.examples.basic.ui.model.IFooProject;
+import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;

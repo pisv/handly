@@ -8,7 +8,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.core;
+package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import junit.framework.TestCase;
 
@@ -16,10 +16,10 @@ import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.handly.examples.basic.core.FooModelCore;
-import org.eclipse.handly.examples.basic.core.IFooFile;
-import org.eclipse.handly.examples.basic.core.IFooProject;
-import org.eclipse.handly.internal.examples.basic.core.FooFile;
+import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
+import org.eclipse.handly.examples.basic.ui.model.IFooFile;
+import org.eclipse.handly.examples.basic.ui.model.IFooProject;
+import org.eclipse.handly.internal.examples.basic.ui.model.FooFile;
 
 /**
  * <code>FooProject</code> tests.

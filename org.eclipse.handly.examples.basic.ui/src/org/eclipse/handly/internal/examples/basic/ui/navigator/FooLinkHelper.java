@@ -12,9 +12,9 @@ package org.eclipse.handly.internal.examples.basic.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.handly.examples.basic.core.FooModelCore;
-import org.eclipse.handly.examples.basic.core.IFooElement;
-import org.eclipse.handly.examples.basic.core.IFooFile;
+import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
+import org.eclipse.handly.examples.basic.ui.model.IFooElement;
+import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.internal.examples.basic.ui.SourceElementUtil;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.jface.viewers.IStructuredSelection;

@@ -8,7 +8,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.core;
+package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,8 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.examples.basic.core.FooModelCore;
-import org.eclipse.handly.examples.basic.core.IFooProject;
+import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
+import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.impl.Body;
 
 /**

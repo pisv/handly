@@ -8,14 +8,14 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.core;
+package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eclipse.handly.examples.basic.core.IFooElement;
-import org.eclipse.handly.examples.basic.core.IFooFile;
-import org.eclipse.handly.examples.basic.core.IFooModel;
-import org.eclipse.handly.examples.basic.core.IFooProject;
+import org.eclipse.handly.examples.basic.ui.model.IFooElement;
+import org.eclipse.handly.examples.basic.ui.model.IFooFile;
+import org.eclipse.handly.examples.basic.ui.model.IFooModel;
+import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 
 /**
  * Adapts an appropriate Foo element to the corresponding <code>IResource</code>.

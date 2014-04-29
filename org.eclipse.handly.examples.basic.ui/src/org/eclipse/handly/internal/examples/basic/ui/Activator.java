@@ -13,7 +13,7 @@ package org.eclipse.handly.internal.examples.basic.ui;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.handly.examples.basic.ui.internal.FooActivator;
-import org.eclipse.handly.internal.examples.basic.core.FooModelManager;
+import org.eclipse.handly.internal.examples.basic.ui.model.FooModelManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;

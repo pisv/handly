@@ -8,7 +8,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.examples.basic.core;
+package org.eclipse.handly.examples.basic.ui.model;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
