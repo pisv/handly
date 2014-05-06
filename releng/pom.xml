@@ -27,6 +27,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
+    <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/handly/org.eclipse.handly.git</tycho.scmUrl>
   </properties>
   <pluginRepositories>
     <pluginRepository>
@@ -115,9 +116,19 @@
           <configuration>
             <forceContextQualifier>${buildTimestamp}</forceContextQualifier>
             <archive>
-               <addMavenDescriptor>false</addMavenDescriptor>
+              <addMavenDescriptor>false</addMavenDescriptor>
             </archive>
+            <sourceReferences>
+              <generate>true</generate>
+            </sourceReferences>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.tycho.extras</groupId>
+              <artifactId>tycho-sourceref-jgit</artifactId>
+              <version>${tycho.extras.version}</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
