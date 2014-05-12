@@ -18,22 +18,22 @@
 </location>
 <location includeConfigurePhase="true" includeMode="slicer" type="InstallableUnit">
 <repository location="http://download.eclipse.org/releases/luna"/>
-<unit id="org.eclipse.sdk.feature.group" version="4.4.0.v20140306-1642"/>
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.10.0.v20140310-0546"/>
-<unit id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140310-0546"/>
-<unit id="org.eclipse.gef.sdk.feature.group" version="3.10.0.201401270305"/>
-<unit id="org.eclipse.xtext.sdk.feature.group" version="2.6.0.v201403111428"/>
-<unit id="org.eclipse.xtend.sdk.feature.group" version="2.6.0.v201403111428"/>
-<unit id="org.eclipse.xpand.sdk.feature.group" version="2.0.0.v201403111353"/>
-<unit id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.2.v201403111231"/>
-<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.6.0.v201403111231"/>
-<unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.6.0.v201403111450"/>
-<unit id="org.eclipse.uml2.sdk.feature.group" version="5.0.0.v20140310-0733"/>
-<unit id="org.eclipse.emf.validation.feature.group" version="1.8.0.201403111711"/>
-<unit id="org.eclipse.ecf.core.feature.feature.group" version="1.1.0.v20140228-1838"/>
-<unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="1.0.0.v20140228-1838"/>
-<unit id="org.eclipse.ecf.filetransfer.feature.feature.group" version="3.9.0.v20140228-1838"/>
-<unit id="org.eclipse.ecf.filetransfer.ssl.feature.feature.group" version="1.0.0.v20140228-1838"/>
+<unit id="org.eclipse.sdk.feature.group" version="4.4.0.v20140501-0200"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.10.0.v20140428-0403"/>
+<unit id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140428-0403"/>
+<unit id="org.eclipse.gef.sdk.feature.group" version="3.9.100.201405050205"/>
+<unit id="org.eclipse.xtext.sdk.feature.group" version="2.6.0.v201405060919"/>
+<unit id="org.eclipse.xtend.sdk.feature.group" version="2.6.0.v201405060919"/>
+<unit id="org.eclipse.xpand.sdk.feature.group" version="2.0.0.v201404280756"/>
+<unit id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.2.v201404280517"/>
+<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.6.0.v201404280517"/>
+<unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.6.0.v201405060937"/>
+<unit id="org.eclipse.uml2.sdk.feature.group" version="5.0.0.v20140505-0725"/>
+<unit id="org.eclipse.emf.validation.feature.group" version="1.8.0.201405051541"/>
+<unit id="org.eclipse.ecf.core.feature.feature.group" version="1.1.0.v20140505-2203"/>
+<unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="1.0.0.v20140505-2203"/>
+<unit id="org.eclipse.ecf.filetransfer.feature.feature.group" version="3.9.0.v20140505-2203"/>
+<unit id="org.eclipse.ecf.filetransfer.ssl.feature.feature.group" version="1.0.0.v20140505-2203"/>
 </location>
 </locations>
 </target>
