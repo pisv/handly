@@ -23,6 +23,7 @@
   <properties>
     <tycho.version>0.20.0</tycho.version>
     <tycho.extras.version>0.20.0</tycho.extras.version>
+    <antrun.version>1.7</antrun.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
@@ -159,6 +160,11 @@
           <groupId>org.eclipse.tycho.extras</groupId>
           <artifactId>tycho-eclipserun-plugin</artifactId>
           <version>${tycho.extras.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${antrun.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>

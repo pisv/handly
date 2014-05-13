@@ -23,6 +23,8 @@
   <packaging>eclipse-repository</packaging>
   <properties>
 	  <handly.version>0.1.0.${buildTimestamp}</handly.version>
+	  <ant-optional.version>1.5.3-1</ant-optional.version>
+	  <ant-xalan2.version>1.9.4</ant-xalan2.version>
   </properties>
   <build>
     <plugins>
@@ -42,9 +44,9 @@
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.6</version>
         <executions>
           <execution>
+			<id>version</id>  
             <phase>package</phase>
             <goals>
               <goal>run</goal>
@@ -55,7 +57,36 @@
               </target>
             </configuration>
           </execution>
+          <execution>
+			<id>test-report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+				  <junitreport todir="${project.build.directory}">
+				    <fileset dir="${project.build.directory}/../../">
+				      <include name="**/target/surefire-reports/TEST-*.xml"/>
+				    </fileset>
+				    <report format="noframes" todir="${project.build.directory}"/>
+				  </junitreport>
+              </target>
+            </configuration>
+          </execution>
         </executions>
+		<dependencies>
+		  <dependency>
+		    <groupId>ant</groupId>
+		    <artifactId>ant-optional</artifactId>
+		    <version>${ant-optional.version}</version>
+		  </dependency>
+		  <dependency>
+		    <groupId>org.apache.ant</groupId>
+		    <artifactId>ant-apache-xalan2</artifactId>
+		    <version>${ant-xalan2.version}</version>
+		  </dependency>
+		</dependencies>						
       </plugin>
     </plugins>
   </build>    
