@@ -21,45 +21,42 @@
   </parent>
   <artifactId>repository</artifactId>
   <packaging>eclipse-repository</packaging>
-
-  <profiles>
-    <profile>
-      <id>hudson-build</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>tycho-p2-repository-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>archive-repository</goal>
-                </goals>
-                <configuration>
-                  <finalName>handly-repository-incubation-${buildTimestamp}</finalName>  
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.6</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <target>
-                    <echo message="${buildTimestamp}" file="${project.build.directory}/VERSION"/>
-                  </target>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>    
-    </profile>
-  </profiles>
+  <properties>
+	  <handly.version>0.1.0.${buildTimestamp}</handly.version>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-repository-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>archive-repository</goal>
+            </goals>
+            <configuration>
+              <finalName>handly-repository-incubation-${handly.version}</finalName>  
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <echo message="${handly.version}" file="${project.build.directory}/VERSION"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>    
 </project>
