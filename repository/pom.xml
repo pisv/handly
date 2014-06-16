@@ -22,7 +22,7 @@
   <artifactId>repository</artifactId>
   <packaging>eclipse-repository</packaging>
   <properties>
-	  <handly.version>0.1.0.${buildTimestamp}</handly.version>
+	  <handly.version>0.1.0.${buildQualifier}</handly.version>
 	  <ant-optional.version>1.5.3-1</ant-optional.version>
 	  <ant-xalan2.version>1.9.4</ant-xalan2.version>
   </properties>
