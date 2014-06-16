@@ -2,69 +2,69 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='13'>
-    <iu id='org.eclipse.sdk.ide' version='4.4.0.I20140501-0200'>
+    <iu id='org.eclipse.sdk.ide' version='4.4.0.I20140606-1215'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='3.4.0.201405051725-m7'>
+    <iu id='org.eclipse.egit.feature.group' version='3.4.0.201406110918-r'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='1.5.0.20140505-1712'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.5.0.20140606-0033'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.sdk.feature.group" version="2.10.0.v20140428-0403">
+    <iu id="org.eclipse.emf.sdk.feature.group" version="2.10.0.v20140519-0339">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140428-0403">
+    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140519-0339">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.gef.sdk.feature.group" version="3.9.100.201405050205">
+    <iu id="org.eclipse.gef.sdk.feature.group" version="3.9.100.201405261516">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.6.0.v201405060919">
+    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.6.0.v201405210727">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.6.0.v201405060919">
+    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.6.0.v201405210727">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xpand.sdk.feature.group" version="2.0.0.v201404280756">
+    <iu id="org.eclipse.xpand.sdk.feature.group" version="2.0.0.v201406030414">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.2.v201404280517">
+    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.2.v201405200714">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.6.0.v201404280517">
+    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.6.0.v201405200714">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.6.0.v201405060937">
+    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.6.0.v201405200939">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.0.0.v20140505-0725">
+    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.0.0.v20140602-0749">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/staging'/>
       </repositories>
     </iu>
   </ius>
