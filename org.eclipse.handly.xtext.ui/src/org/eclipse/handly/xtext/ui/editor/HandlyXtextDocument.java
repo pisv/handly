@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.WrappedException;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.handly.document.DocumentChange;
@@ -152,20 +153,7 @@ public class HandlyXtextDocument
     @Override
     public void reconcile(boolean force)
     {
-        reconcile(force, CancelIndicator.NullImpl);
-    }
-
-    /**
-     * Delegates to {@link #reconcile(boolean, CancelIndicator, Processor)} 
-     * passing <code>null</code> as a processor. For internal use only.
-     *
-     * @param force indicates whether reconciling has to be performed 
-     *  even if it is not {@link #needsReconciling() needed}
-     * @param cancelIndicator a {@link CancelIndicator}
-     */
-    public void reconcile(boolean force, CancelIndicator cancelIndicator)
-    {
-        reconcile(force, cancelIndicator, null);
+        reconcile(force, null);
     }
 
     /**
@@ -175,22 +163,16 @@ public class HandlyXtextDocument
      *
      * @param force indicates whether reconciling has to be performed 
      *  even if it is not {@link #needsReconciling() needed}
-     * @param cancelIndicator a {@link CancelIndicator}
      * @param processor the processor to execute the reconciling unit of work 
      *  or <code>null</code> if no special processor is needed
      */
-    public void reconcile(boolean force, CancelIndicator cancelIndicator,
-        Processor processor)
+    public void reconcile(boolean force, Processor processor)
     {
-        if (cancelIndicator.isCanceled())
-            return;
-
-        PendingChange change = getAndResetPendingChange();
-        if (change == null && !force)
+        if (!hasPendingChange() && !force)
             return;
 
         T2MReconcilingUnitOfWork reconcilingUnitOfWork =
-            new T2MReconcilingUnitOfWork(change, cancelIndicator);
+            new T2MReconcilingUnitOfWork(force);
         if (processor != null)
             processor.process(reconcilingUnitOfWork);
         else
@@ -290,15 +272,11 @@ public class HandlyXtextDocument
      * @param snapshot the reconciled snapshot - must not be <code>null</code>
      * @param forced whether reconciling was forced, i.e. the document has not 
      *  changed since it was reconciled the last time
-     * @param cancelIndicator a {@link CancelIndicator}
      */
     private void reconciled(final NonExpiringSnapshot snapshot,
-        final boolean forced, final CancelIndicator cancelIndicator)
+        final boolean forced)
     {
         reconciledSnapshot = snapshot;
-
-        if (cancelIndicator.isCanceled())
-            return;
 
         locker.notify(new IUnitOfWork.Void<XtextResource>()
         {
@@ -308,9 +286,6 @@ public class HandlyXtextDocument
                 Object[] listeners = reconcilingListeners.getListeners();
                 for (final Object listener : listeners)
                 {
-                    if (cancelIndicator.isCanceled())
-                        return;
-
                     SafeRunner.run(new ISafeRunnable()
                     {
                         @Override
@@ -333,8 +308,7 @@ public class HandlyXtextDocument
     private void internalReconcile(XtextResource resource, boolean force)
         throws Exception
     {
-        reconcile(force, CancelIndicator.NullImpl, new InternalProcessor(
-            resource));
+        reconcile(force, new InternalProcessor(resource));
     }
 
     private void detachResource()
@@ -441,38 +415,27 @@ public class HandlyXtextDocument
      * Should only be called when the document's write lock is held.
      */
     private class T2MReconcilingUnitOfWork
-        implements ICanceleableUnitOfWork<Object, XtextResource>
+        implements IUnitOfWork<Object, XtextResource>
     {
-        private final PendingChange change;
-        private final CancelIndicator cancelIndicator;
+        private final boolean force;
 
-        /*
-         * The given document change must be effectively immutable.
-         * 
-         * @param change <code>null</code> iff reconciling is forced
-         * @param cancelIndicator
-         */
-        public T2MReconcilingUnitOfWork(PendingChange change,
-            CancelIndicator cancelIndicator)
+        public T2MReconcilingUnitOfWork(boolean force)
         {
-            this.change = change;
-            this.cancelIndicator = cancelIndicator;
-        }
-
-        @Override
-        public boolean isCanceled()
-        {
-            return cancelIndicator.isCanceled();
+            this.force = force;
         }
 
         @Override
         public Object exec(XtextResource resource) throws Exception
         {
-            if (change == null) // reconciling is forced
+            PendingChange change = getAndResetPendingChange();
+            if (change == null)
             {
-                NonExpiringSnapshot snapshot = reconciledSnapshot;
-                resource.reparse(snapshot.getContents());
-                reconciled(snapshot, true, cancelIndicator);
+                if (force) // reconciling is forced
+                {
+                    NonExpiringSnapshot snapshot = reconciledSnapshot;
+                    resource.reparse(snapshot.getContents());
+                    reconciled(snapshot, true);
+                }
             }
             else
             {
@@ -505,7 +468,7 @@ public class HandlyXtextDocument
                     }
                 }
                 if (reconciled)
-                    reconciled(snapshot, false, cancelIndicator);
+                    reconciled(snapshot, false);
             }
             return null;
         }
@@ -578,12 +541,6 @@ public class HandlyXtextDocument
         }
     }
 
-    private interface ICanceleableUnitOfWork<R, P>
-        extends IUnitOfWork<R, P>
-    {
-        boolean isCanceled();
-    }
-
     private class HandlyXtextDocumentLocker
         extends XtextDocumentLocker
     {
@@ -615,6 +572,14 @@ public class HandlyXtextDocument
                 {
                     throw new WrappedException(e);
                 }
+                finally
+                {
+                    Job validationJob = getValidationJob();
+                    if (validationJob != null)
+                    {
+                        validationJob.cancel();
+                    }
+                }
             }
             finally
             {
@@ -623,25 +588,9 @@ public class HandlyXtextDocument
         }
 
         @Override
-        public <T> T readOnly(IUnitOfWork<T, XtextResource> work)
-        {
-            if (isCanceled(work))
-                return null;
-
-            return super.readOnly(work);
-        }
-
-        @Override
         public <T> T modify(IUnitOfWork<T, XtextResource> work)
         {
-            if (isCanceled(work))
-                return null;
-
             aboutToModify(work);
-
-            if (isCanceled(work))
-                return null;
-
             return super.modify(work);
         }
 
@@ -664,25 +613,12 @@ public class HandlyXtextDocument
         protected void beforeReadOnly(XtextResource resource,
             IUnitOfWork<?, XtextResource> work)
         {
-            if (isCanceled(work))
-                return;
-
             if (rwLock.getReadHoldCount() == 1
                 && !rwLock.isWriteLockedByCurrentThread())
             {
                 if (!(work instanceof IStraightReadingUnitOfWork))
                     updateContentBeforeRead(); // reconcile
             }
-        }
-
-        @Override
-        protected void afterModify(XtextResource resource, Object result,
-            IUnitOfWork<?, XtextResource> work)
-        {
-            if (isCanceled(work))
-                return;
-
-            super.afterModify(resource, result, work);
         }
 
         private int downgradeWriteLock()
@@ -717,9 +653,6 @@ public class HandlyXtextDocument
             Object[] listeners = modificationListeners.getListeners();
             for (final Object listener : listeners)
             {
-                if (isCanceled(work))
-                    return;
-
                 SafeRunner.run(new ISafeRunnable()
                 {
                     @Override
@@ -734,13 +667,6 @@ public class HandlyXtextDocument
                     }
                 });
             }
-        }
-
-        private boolean isCanceled(IUnitOfWork<?, XtextResource> unitOfWork)
-        {
-            if (unitOfWork instanceof ICanceleableUnitOfWork)
-                return ((ICanceleableUnitOfWork<?, XtextResource>)unitOfWork).isCanceled();
-            return false;
         }
     }
 
