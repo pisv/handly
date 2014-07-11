@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
@@ -33,6 +37,7 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.parser.antlr.IReferableElementsUnloader;
 import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.ui.editor.DirtyStateEditorSupport;
 import org.eclipse.xtext.ui.editor.model.DocumentTokenSource;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver.Processor;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
@@ -58,8 +63,8 @@ public class HandlyXtextDocument
         new BooleanThreadLocal();
 
     private ITextEditComposer composer2; // unfortunately had to duplicate
-    private final ListenerList modelListeners2 = new ListenerList(
-        ListenerList.IDENTITY); // unfortunately had to duplicate
+    private final List<IXtextModelListener> modelListeners2 =
+        new ArrayList<IXtextModelListener>(); // unfortunately had to duplicate
     private NonExpiringSnapshot reconciledSnapshot;
     private final ListenerList reconcilingListeners = new ListenerList(
         ListenerList.IDENTITY);
@@ -91,11 +96,16 @@ public class HandlyXtextDocument
         getAndResetPendingChange();
         reconciledSnapshot = null;
         reconcilingListeners.clear();
-        modelListeners2.clear(); // fixes issue with holding XtextEditor from disposed document (see DefaultFoldingStructureProvider)
+        synchronized (modelListeners2)
+        {
+            modelListeners2.clear(); // fixes issue with holding XtextEditor from disposed document (see DefaultFoldingStructureProvider)
+        }
         locker.dispose();
+        Job validationJob = getValidationJob();
+        if (validationJob != null)
+            validationJob.cancel();
         setValidationJob(null);
         detachResource(); // unfortunately can't just set resource to null
-        super.disposeInput();
     }
 
     @Override
@@ -135,13 +145,26 @@ public class HandlyXtextDocument
     @Override
     public void addModelListener(IXtextModelListener listener)
     {
-        modelListeners2.add(listener);
+        Assert.isNotNull(listener);
+        synchronized (modelListeners2)
+        {
+            if (modelListeners2.contains(listener))
+                return;
+            if (listener instanceof DirtyStateEditorSupport)
+                modelListeners2.add(0, listener); // DirtyStateEditorSupport must be the first ModelChangelistener to be called, since it updates the resource descriptions used by subsequent listeners
+            else
+                modelListeners2.add(listener);
+        }
     }
 
     @Override
     public void removeModelListener(IXtextModelListener listener)
     {
-        modelListeners2.remove(listener);
+        Assert.isNotNull(listener);
+        synchronized (modelListeners2)
+        {
+            modelListeners2.remove(listener);
+        }
     }
 
     @Override
@@ -213,10 +236,23 @@ public class HandlyXtextDocument
     @Override
     protected void notifyModelListeners(XtextResource resource)
     {
-        Object[] listeners = modelListeners2.getListeners();
-        for (int i = 0; i < listeners.length; i++)
+        List<IXtextModelListener> modelListenersCopy;
+        synchronized (modelListeners2)
         {
-            ((IXtextModelListener)listeners[i]).modelChanged(resource);
+            modelListenersCopy =
+                new ArrayList<IXtextModelListener>(modelListeners2);
+        }
+        for (IXtextModelListener listener : modelListenersCopy)
+        {
+            try
+            {
+                listener.modelChanged(resource);
+            }
+            catch (Exception e)
+            {
+                Activator.log(Activator.createErrorStatus(
+                    "Error in IXtextModelListener", e)); //$NON-NLS-1$
+            }
         }
     }
 
@@ -381,6 +417,7 @@ public class HandlyXtextDocument
     {
         private NonExpiringSnapshot snapshotToReconcile;
         private ReplaceRegion replaceRegionToReconcile;
+        private long modificationStamp;
 
         public NonExpiringSnapshot getSnapshotToReconcile()
         {
@@ -390,6 +427,11 @@ public class HandlyXtextDocument
         public ReplaceRegion getReplaceRegionToReconcile()
         {
             return replaceRegionToReconcile;
+        }
+
+        public long getModificationStamp()
+        {
+            return modificationStamp;
         }
 
         /**
@@ -442,12 +484,12 @@ public class HandlyXtextDocument
                 NonExpiringSnapshot snapshot = change.getSnapshotToReconcile();
                 ReplaceRegion replaceRegion =
                     change.getReplaceRegionToReconcile();
-                boolean reconciled = false;
+                long modificationStamp = change.getModificationStamp();
                 try
                 {
                     resource.update(replaceRegion.getOffset(),
                         replaceRegion.getLength(), replaceRegion.getText());
-                    reconciled = true;
+                    resource.setModificationStamp(modificationStamp);
                 }
                 catch (Exception e)
                 {
@@ -456,7 +498,7 @@ public class HandlyXtextDocument
                     try
                     {
                         resource.reparse(snapshot.getContents());
-                        reconciled = true;
+                        resource.setModificationStamp(modificationStamp);
                     }
                     catch (Exception e2)
                     {
@@ -467,8 +509,7 @@ public class HandlyXtextDocument
                         throw e2;
                     }
                 }
-                if (reconciled)
-                    reconciled(snapshot, false);
+                reconciled(snapshot, false);
             }
             return null;
         }

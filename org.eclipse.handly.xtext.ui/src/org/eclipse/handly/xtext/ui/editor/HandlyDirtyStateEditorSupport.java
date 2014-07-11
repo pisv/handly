@@ -12,11 +12,11 @@
 package org.eclipse.handly.xtext.ui.editor;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -26,10 +26,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.impl.ResourceDescriptionChangeEvent;
 import org.eclipse.xtext.ui.editor.DirtyStateEditorSupport;
+import org.eclipse.xtext.ui.editor.Messages;
 import org.eclipse.xtext.ui.editor.SchedulingRuleFactory;
 import org.eclipse.xtext.util.Pair;
 import org.eclipse.xtext.util.Tuples;
@@ -99,13 +101,14 @@ public class HandlyDirtyStateEditorSupport
 
     protected final void scheduleReconciler(IResourceDescription.Event event)
     {
-        DirtyStateReconciler reconciler = dirtyStateReconciler;
-        if (reconciler == null)
+        synchronized (this)
         {
-            reconciler = createReconciler();
-            dirtyStateReconciler = reconciler;
+            if (dirtyStateReconciler == null)
+            {
+                dirtyStateReconciler = createReconciler();
+            }
         }
-        reconciler.scheduleFor(event);
+        dirtyStateReconciler.scheduleFor(event);
     }
 
     /**
@@ -115,17 +118,19 @@ public class HandlyDirtyStateEditorSupport
     protected class DirtyStateReconciler
         extends Job
     {
+        protected final AtomicInteger coarseGrainedChanges;
         protected final Queue<IResourceDescription.Delta> pendingChanges;
 
         public DirtyStateReconciler(ISchedulingRule rule)
         {
-            this(rule, "Xtext Editor Reconciler"); //$NON-NLS-1$
+            this(rule, Messages.DirtyStateEditorSupport_JobName);
         }
 
         public DirtyStateReconciler(ISchedulingRule rule, String name)
         {
             super(name);
             setRule(rule);
+            coarseGrainedChanges = new AtomicInteger();
             pendingChanges =
                 new ConcurrentLinkedQueue<IResourceDescription.Delta>();
         }
@@ -133,7 +138,10 @@ public class HandlyDirtyStateEditorSupport
         public void scheduleFor(IResourceDescription.Event event)
         {
             cancel();
-            pendingChanges.addAll(event.getDeltas());
+            if (event instanceof IResourceDescription.CoarseGrainedEvent)
+                coarseGrainedChanges.incrementAndGet();
+            else
+                pendingChanges.addAll(event.getDeltas());
             schedule(getDelay());
         }
 
@@ -146,65 +154,60 @@ public class HandlyDirtyStateEditorSupport
         @Override
         protected IStatus run(final IProgressMonitor monitor)
         {
-            IDirtyStateEditorSupportClient myClient = currentClient;
-            if (myClient == null || monitor.isCanceled())
-                return Status.OK_STATUS;
-            final HandlyXtextDocument document =
-                (HandlyXtextDocument)myClient.getDocument();
-            if (document == null)
-                return Status.OK_STATUS;
-            final boolean[] isReparseRequired = new boolean[] { false };
-            final Pair<IResourceDescription.Event, Integer> event =
-                mergePendingDeltas();
-            final Collection<Resource> affectedResources =
-                document.readOnly(new IUnitOfWork<Collection<Resource>, XtextResource>()
-                {
-                    public Collection<Resource> exec(XtextResource resource)
-                        throws Exception
-                    {
-                        if (resource == null
-                            || resource.getResourceSet() == null)
-                            return null;
-                        Collection<Resource> affectedResources =
-                            collectAffectedResources(resource, event.getFirst());
-                        if (monitor.isCanceled())
-                            return Collections.emptySet();
-                        isReparseRequired[0] =
-                            isReparseRequired(resource, event.getFirst());
-                        return affectedResources;
-                    }
-                });
-            if (monitor.isCanceled())
-                return Status.OK_STATUS;
-            if (affectedResources != null && !affectedResources.isEmpty()
-                || isReparseRequired[0])
+            try
             {
-                document.internalModify(new IUnitOfWork.Void<XtextResource>()
-                {
-                    @Override
-                    public void process(XtextResource resource)
-                        throws Exception
+                IDirtyStateEditorSupportClient myClient = currentClient;
+                if (myClient == null || monitor.isCanceled())
+                    return Status.OK_STATUS;
+                final HandlyXtextDocument document =
+                    (HandlyXtextDocument)myClient.getDocument();
+                if (document == null)
+                    return Status.OK_STATUS;
+                int coarseGrainedChangesSeen = coarseGrainedChanges.get();
+                final boolean[] isReparseRequired =
+                    new boolean[] { coarseGrainedChangesSeen > 0 };
+                final Pair<IResourceDescription.Event, Integer> event =
+                    mergePendingDeltas();
+                final Collection<Resource> affectedResources =
+                    document.readOnly(new IUnitOfWork<Collection<Resource>, XtextResource>()
                     {
-                        if (resource == null
-                            || resource.getResourceSet() == null)
-                            return;
-                        ResourceSet resourceSet = resource.getResourceSet();
-                        if (affectedResources != null)
+                        public Collection<Resource> exec(XtextResource resource)
+                            throws Exception
                         {
-                            for (Resource affectedResource : affectedResources)
+                            if (resource == null
+                                || resource.getResourceSet() == null)
+                                return null;
+                            Collection<Resource> affectedResources =
+                                collectAffectedResources(resource,
+                                    event.getFirst());
+                            if (monitor.isCanceled()
+                                || !affectedResources.isEmpty())
                             {
-                                affectedResource.unload();
-                                resourceSet.getResources().remove(
-                                    affectedResource);
+                                return affectedResources;
                             }
+                            if (!isReparseRequired[0])
+                            {
+                                isReparseRequired[0] =
+                                    isReparseRequired(resource,
+                                        event.getFirst());
+                            }
+                            return affectedResources;
                         }
-                        document.reconcile(true);
-                    }
-                });
+                    });
+                if (monitor.isCanceled())
+                    return Status.OK_STATUS;
+                unloadAffectedResourcesAndReparseDocument(document,
+                    affectedResources, isReparseRequired[0]);
+                for (int i = 0; i < event.getSecond(); i++)
+                {
+                    pendingChanges.poll();
+                }
+                coarseGrainedChanges.addAndGet(-coarseGrainedChangesSeen);
             }
-            for (int i = 0; i < event.getSecond(); i++)
+            catch (Throwable e)
             {
-                pendingChanges.poll();
+                Activator.log(Activator.createErrorStatus(
+                    "Error updating editor state", e)); //$NON-NLS-1$
             }
             return Status.OK_STATUS;
         }
@@ -222,17 +225,11 @@ public class HandlyDirtyStateEditorSupport
                 URI uri = delta.getUri();
                 IResourceDescription.Delta prev = uriToDelta.get(uri);
                 if (prev == null)
-                {
                     uriToDelta.put(uri, delta);
-                }
                 else if (prev.getOld() != delta.getNew())
-                {
                     uriToDelta.put(uri, createDelta(delta, prev));
-                }
                 else
-                {
                     uriToDelta.remove(uri);
-                }
                 size++;
             }
             IResourceDescription.Event event =
@@ -243,6 +240,35 @@ public class HandlyDirtyStateEditorSupport
         protected int getDelay()
         {
             return 500;
+        }
+
+        private void unloadAffectedResourcesAndReparseDocument(
+            final HandlyXtextDocument document,
+            final Collection<Resource> affectedResources,
+            boolean reparseRequired)
+        {
+            if ((affectedResources == null || affectedResources.isEmpty())
+                && !reparseRequired)
+                return;
+            document.internalModify(new IUnitOfWork.Void<XtextResource>()
+            {
+                @Override
+                public void process(XtextResource resource) throws Exception
+                {
+                    if (resource == null || resource.getResourceSet() == null)
+                        return;
+                    ResourceSet resourceSet = resource.getResourceSet();
+                    if (affectedResources != null)
+                    {
+                        for (Resource affectedResource : affectedResources)
+                        {
+                            affectedResource.unload();
+                            resourceSet.getResources().remove(affectedResource);
+                        }
+                    }
+                    document.reconcile(true);
+                }
+            });
         }
     }
 }
