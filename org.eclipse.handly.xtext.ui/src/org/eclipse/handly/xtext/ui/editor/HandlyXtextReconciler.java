@@ -29,7 +29,6 @@ import org.eclipse.jface.text.source.ContentAssistantFacade;
 import org.eclipse.jface.text.source.ISourceViewerExtension4;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver;
 import org.eclipse.xtext.ui.editor.reconciler.XtextReconciler;
-import org.eclipse.xtext.util.CancelIndicator;
 
 /**
  * Adapted from <code>org.eclipse.xtext.ui.editor.reconciler.XtextReconciler</code>. 
@@ -137,15 +136,7 @@ public class HandlyXtextReconciler
         IDocument document = viewer.getDocument();
         if (document instanceof HandlyXtextDocument)
         {
-            ((HandlyXtextDocument)document).reconcile(false,
-                new CancelIndicator()
-                {
-                    @Override
-                    public boolean isCanceled()
-                    {
-                        return monitor.isCanceled();
-                    }
-                });
+            ((HandlyXtextDocument)document).reconcile(false);
         }
         return Status.OK_STATUS;
     }
@@ -189,8 +180,7 @@ public class HandlyXtextReconciler
             IDocument document = viewer.getDocument();
             if (document instanceof HandlyXtextDocument && !paused)
             {
-                ((HandlyXtextDocument)document).reconcile(false,
-                    CancelIndicator.NullImpl, processor);
+                ((HandlyXtextDocument)document).reconcile(false, processor);
             }
             if (sessionStarted && !paused)
             {
