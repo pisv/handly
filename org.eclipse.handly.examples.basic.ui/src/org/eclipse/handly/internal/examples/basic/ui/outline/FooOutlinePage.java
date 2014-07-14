@@ -34,7 +34,9 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.eclipse.xtext.ui.editor.IXtextEditorAware;
@@ -55,6 +57,16 @@ public final class FooOutlinePage
 {
     private XtextEditor editor;
     private LinkingHelper linkingHelper;
+    private IPropertyListener editorInputListener = new IPropertyListener()
+    {
+        public void propertyChanged(Object source, int propId)
+        {
+            if (propId == IEditorPart.PROP_INPUT)
+            {
+                getTreeViewer().setInput(computeInput());
+            }
+        }
+    };
 
     @Inject
     private FooContentProvider contentProvider;
@@ -75,6 +87,7 @@ public final class FooOutlinePage
         getTreeViewer().setLabelProvider(labelProvider);
         getTreeViewer().setInput(computeInput());
         linkingHelper = new LinkingHelper();
+        editor.addPropertyListener(editorInputListener);
         FooModelCore.getFooModel().addElementChangeListener(this);
     }
 
@@ -82,7 +95,9 @@ public final class FooOutlinePage
     public void dispose()
     {
         FooModelCore.getFooModel().removeElementChangeListener(this);
-        linkingHelper.dispose();
+        editor.removePropertyListener(editorInputListener);
+        if (linkingHelper != null)
+            linkingHelper.dispose();
         editor.outlinePageClosed();
         super.dispose();
     }
