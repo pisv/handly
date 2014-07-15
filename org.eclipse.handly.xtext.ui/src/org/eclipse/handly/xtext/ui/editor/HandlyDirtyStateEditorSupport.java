@@ -1,13 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC. 
+ * Copyright (c) 2009, 2014 itemis AG (http://www.itemis.eu) and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *     Vladimir Piskarev (1C) - initial API and implementation
- *     (inspired by Eclipse Xtext work)
+ *     Vladimir Piskarev (1C) - adaptation of DirtyStateEditorSupport code
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 

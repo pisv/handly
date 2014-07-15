@@ -6,9 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *     Jan Koehnlein - initial contribution and API
- *     Michael Clay - contribution
- *     Vladimir Piskarev (1C) - adaptation
+ *     Vladimir Piskarev (1C) - adaptation of XtextReconciler code
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
