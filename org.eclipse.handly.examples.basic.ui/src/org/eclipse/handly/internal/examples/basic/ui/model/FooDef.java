@@ -80,10 +80,10 @@ public class FooDef
     }
 
     @Override
-    protected void toStringName(StringBuffer buffer)
+    protected void toStringName(StringBuilder builder)
     {
-        super.toStringName(buffer);
-        buffer.append('/');
-        buffer.append(arity);
+        super.toStringName(builder);
+        builder.append('/');
+        builder.append(arity);
     }
 }

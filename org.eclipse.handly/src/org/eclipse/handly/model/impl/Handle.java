@@ -215,9 +215,9 @@ public abstract class Handle
     @Override
     public String toString()
     {
-        StringBuffer buffer = new StringBuffer();
-        toString(0, buffer);
-        return buffer.toString();
+        StringBuilder builder = new StringBuilder();
+        toString(0, builder);
+        return builder.toString();
     }
 
     /**
@@ -225,9 +225,9 @@ public abstract class Handle
      */
     public String toDebugString()
     {
-        StringBuffer buffer = new StringBuffer();
-        toStringBody(0, buffer, NO_BODY, true/*show resolved info*/);
-        return buffer.toString();
+        StringBuilder builder = new StringBuilder();
+        toStringBody(0, builder, NO_BODY, true/*show resolved info*/);
+        return builder.toString();
     }
 
     /**
@@ -243,92 +243,92 @@ public abstract class Handle
      */
     public String toStringWithAncestors(boolean showResolvedInfo)
     {
-        StringBuffer buffer = new StringBuffer();
-        toStringBody(0, buffer, NO_BODY, showResolvedInfo);
-        toStringAncestors(buffer);
-        return buffer.toString();
+        StringBuilder builder = new StringBuilder();
+        toStringBody(0, builder, NO_BODY, showResolvedInfo);
+        toStringAncestors(builder);
+        return builder.toString();
     }
 
     /**
      * Debugging purposes
      */
-    public Body toStringBody(int tab, StringBuffer buffer)
+    public Body toStringBody(int tab, StringBuilder builder)
     {
         Body body = peekAtBody();
-        toStringBody(tab, buffer, body, true/*show resolved info*/);
+        toStringBody(tab, builder, body, true/*show resolved info*/);
         return body;
     }
 
     /**
      * Debugging purposes
      */
-    protected void toStringAncestors(StringBuffer buffer)
+    protected void toStringAncestors(StringBuilder builder)
     {
         if (parent != null && parent.getParent() != null)
         {
-            buffer.append(" [in "); //$NON-NLS-1$
-            parent.toStringBody(0, buffer, NO_BODY, false/*don't show resolved info*/);
-            parent.toStringAncestors(buffer);
-            buffer.append("]"); //$NON-NLS-1$
+            builder.append(" [in "); //$NON-NLS-1$
+            parent.toStringBody(0, builder, NO_BODY, false/*don't show resolved info*/);
+            parent.toStringAncestors(builder);
+            builder.append("]"); //$NON-NLS-1$
         }
     }
 
     /**
      * Debugging purposes
      */
-    protected void toString(int tab, StringBuffer buffer)
+    protected void toString(int tab, StringBuilder builder)
     {
-        Body body = toStringBody(tab, buffer);
+        Body body = toStringBody(tab, builder);
         if (tab == 0)
         {
-            toStringAncestors(buffer);
+            toStringAncestors(builder);
         }
-        toStringChildren(tab, buffer, body);
+        toStringChildren(tab, builder, body);
     }
 
     /**
      * Debugging purposes
      */
-    protected void toStringChildren(int tab, StringBuffer buffer, Body body)
+    protected void toStringChildren(int tab, StringBuilder builder, Body body)
     {
         if (body == null)
             return;
         IHandle[] children = body.getChildren();
         for (int i = 0; i < children.length; i++)
         {
-            buffer.append("\n"); //$NON-NLS-1$
-            ((Handle)children[i]).toString(tab + 1, buffer);
+            builder.append("\n"); //$NON-NLS-1$
+            ((Handle)children[i]).toString(tab + 1, builder);
         }
     }
 
     /**
      * Debugging purposes
      */
-    protected void toStringBody(int tab, StringBuffer buffer, Body body,
+    protected void toStringBody(int tab, StringBuilder builder, Body body,
         boolean showResolvedInfo)
     {
-        buffer.append(tabString(tab));
-        toStringName(buffer);
+        builder.append(tabString(tab));
+        toStringName(builder);
         if (body == null)
         {
-            buffer.append(" (not open)"); //$NON-NLS-1$
+            builder.append(" (not open)"); //$NON-NLS-1$
         }
     }
 
     /**
      * Debugging purposes
      */
-    protected void toStringName(StringBuffer buffer)
+    protected void toStringName(StringBuilder builder)
     {
-        buffer.append(getName());
+        builder.append(getName());
     }
 
     protected String tabString(int tab)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (int i = tab; i > 0; i--)
-            buffer.append("  "); //$NON-NLS-1$
-        return buffer.toString();
+            builder.append("  "); //$NON-NLS-1$
+        return builder.toString();
     }
 
     /**

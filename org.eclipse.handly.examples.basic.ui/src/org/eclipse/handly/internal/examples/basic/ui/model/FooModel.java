@@ -131,9 +131,9 @@ public class FooModel
     }
 
     @Override
-    protected void toStringName(StringBuffer buffer)
+    protected void toStringName(StringBuilder builder)
     {
-        buffer.append("FooModel"); //$NON-NLS-1$
+        builder.append("FooModel"); //$NON-NLS-1$
     }
 
     @Override
