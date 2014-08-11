@@ -17,7 +17,7 @@ community feedback.
 
 For more information, visit the project's website.
 
-- http://eclipse.org/handly
+- http://eclipse.org/handly/
 
 Developer resources:
 --------------------
@@ -111,6 +111,10 @@ This project uses Bugzilla to track ongoing development and issues.
 
 Create a new bug:
 -----------------
+
+Bug reporting FAQ.
+
+- https://wiki.eclipse.org/Bug_Reporting_FAQ
 
 Be sure to search for existing bugs before you create another one.
 
