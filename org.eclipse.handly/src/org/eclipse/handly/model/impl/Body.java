@@ -27,7 +27,7 @@ public class Body
      * Handles of immediate children of the element. 
      * This is an empty array if the element has no children.
      */
-    private IHandle[] children = NO_CHILDREN;
+    private volatile IHandle[] children = NO_CHILDREN;
 
     public IHandle[] getChildren()
     {
@@ -41,18 +41,19 @@ public class Body
 
     public void addChild(IHandle child)
     {
-        int length = children.length;
+        IHandle[] oldChildren = children;
+        int length = oldChildren.length;
         if (length == 0)
             children = new IHandle[] { child };
         else
         {
             for (int i = 0; i < length; i++)
             {
-                if (children[i].equals(child))
+                if (oldChildren[i].equals(child))
                     return; // already exists
             }
             IHandle[] newChildren = new IHandle[length + 1];
-            System.arraycopy(children, 0, newChildren, 0, length);
+            System.arraycopy(oldChildren, 0, newChildren, 0, length);
             newChildren[length] = child;
             children = newChildren;
         }
@@ -60,18 +61,19 @@ public class Body
 
     public void removeChild(IHandle child)
     {
-        for (int i = 0, length = children.length; i < length; i++)
+        IHandle[] oldChildren = children;
+        for (int i = 0, length = oldChildren.length; i < length; i++)
         {
-            if (children[i].equals(child))
+            if (oldChildren[i].equals(child))
             {
                 if (length == 1)
                     children = NO_CHILDREN;
                 else
                 {
                     IHandle[] newChildren = new IHandle[length - 1];
-                    System.arraycopy(children, 0, newChildren, 0, i);
+                    System.arraycopy(oldChildren, 0, newChildren, 0, i);
                     if (i < length - 1)
-                        System.arraycopy(children, i + 1, newChildren, i,
+                        System.arraycopy(oldChildren, i + 1, newChildren, i,
                             length - i - 1);
                     children = newChildren;
                 }
