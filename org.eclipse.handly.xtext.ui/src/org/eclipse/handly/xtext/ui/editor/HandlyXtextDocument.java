@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,6 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.WrappedException;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.handly.document.DocumentChange;
 import org.eclipse.handly.document.DocumentChangeOperation;
 import org.eclipse.handly.document.IDocumentChange;
@@ -35,7 +36,6 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.xtext.EcoreUtil2;
-import org.eclipse.xtext.parser.antlr.IReferableElementsUnloader;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.DirtyStateEditorSupport;
 import org.eclipse.xtext.ui.editor.model.DocumentTokenSource;
@@ -354,21 +354,31 @@ public class HandlyXtextDocument
             @Override
             public void process(XtextResource resource) throws Exception
             {
-                IReferableElementsUnloader unloader = resource.getUnloader();
-                if (unloader != null)
-                {
-                    for (EObject content : resource.getContents())
-                    {
-                        unloader.unloadRoot(content);
-                    }
-                }
-                resource.getContents().clear();
-                resource.getErrors().clear();
-                resource.getWarnings().clear();
-                resource.setParseResult(null);
+                clearInternalState(resource);
                 resource.getResourceSet().getResources().clear();
             }
         });
+    }
+
+    private static void clearInternalState(XtextResource resource)
+        throws Exception
+    {
+        // Ensure that the resource's derived state (if any) is discarded 
+        // and that clear doesn't make derived state to be installed
+        Field isUpdating = XtextResource.class.getDeclaredField("isUpdating"); //$NON-NLS-1$
+        isUpdating.setAccessible(true);
+        Method clearInternalState =
+            XtextResource.class.getDeclaredMethod("clearInternalState"); //$NON-NLS-1$
+        clearInternalState.setAccessible(true);
+        try
+        {
+            isUpdating.set(resource, true);
+            clearInternalState.invoke(resource);
+        }
+        finally
+        {
+            isUpdating.set(resource, false);
+        }
     }
 
     /**
