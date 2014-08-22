@@ -21,6 +21,7 @@ import java.nio.channels.FileChannel;
 import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -227,7 +228,7 @@ public abstract class WorkspaceTestCase
      */
     protected final void cleanUpWorkspace() throws CoreException
     {
-        getWorkspaceRoot().delete(true, null);
+        getWorkspaceRoot().delete(IResource.ALWAYS_DELETE_PROJECT_CONTENT, null);
     }
 
     /*
