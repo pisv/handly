@@ -33,7 +33,6 @@ import org.eclipse.handly.model.IHandleDelta;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Handle;
 import org.eclipse.handly.model.impl.HandleDelta;
-import org.eclipse.handly.model.impl.SourceFile;
 
 /**
  * This class is used by the <code>FooModelManager</code> to convert 
@@ -374,14 +373,11 @@ class FooDeltaProcessor
 
     private void contentChanged(IFooFile fooFile)
     {
-        if (fooFile instanceof SourceFile)
+        if (fooFile.isWorkingCopy())
         {
-            if (((SourceFile)fooFile).isWorkingCopy())
-            {
-                currentDelta.insertChanged(fooFile, IHandleDelta.F_CONTENT
-                    | IHandleDelta.F_UNDERLYING_RESOURCE);
-                return;
-            }
+            currentDelta.insertChanged(fooFile, IHandleDelta.F_CONTENT
+                | IHandleDelta.F_UNDERLYING_RESOURCE);
+            return;
         }
 
         close(fooFile);
