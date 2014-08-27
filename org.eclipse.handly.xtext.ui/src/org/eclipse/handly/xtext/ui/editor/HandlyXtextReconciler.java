@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextInputListener;
@@ -173,21 +174,40 @@ public class HandlyXtextReconciler
         }
 
         @Override
-        public void performNecessaryUpdates(Processor processor)
+        public boolean performNecessaryUpdates(Processor processor)
         {
             // Note: this method is always called with the doc's readLock held
 
+            boolean hadUpdates = false;
             IDocument document = viewer.getDocument();
             if (document instanceof HandlyXtextDocument && !paused)
             {
                 HandlyXtextDocument doc = (HandlyXtextDocument)document;
-                if (doc.needsReconciling()) // this check is required to avoid constant rescheduling of ValidationJob
-                    doc.reconcile(false, processor);
+                try
+                {
+                    if (doc.needsReconciling()) // this check is required to avoid constant rescheduling of ValidationJob
+                        hadUpdates = doc.reconcile(false, processor);
+                }
+                catch (Exception e)
+                {
+                    Activator.log(Activator.createErrorStatus(
+                        "Error while forcing reconciliation", e)); //$NON-NLS-1$
+                }
             }
             if (sessionStarted && !paused)
             {
                 pause();
             }
+            return hadUpdates;
+        }
+
+        @Override
+        public boolean hasPendingUpdates()
+        {
+            IDocument document = viewer.getDocument();
+            if (document instanceof HandlyXtextDocument)
+                return ((HandlyXtextDocument)document).needsReconciling();
+            return false;
         }
 
         @Override

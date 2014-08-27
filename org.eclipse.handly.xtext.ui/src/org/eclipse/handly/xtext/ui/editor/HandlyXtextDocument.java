@@ -70,7 +70,6 @@ public class HandlyXtextDocument
     private final DocumentListener selfListener = new DocumentListener();
     private PendingChange pendingChange;
     private final Object pendingChangeLock = new Object();
-    private HandlyXtextDocumentLocker locker;
 
     @Inject
     public HandlyXtextDocument(DocumentTokenSource tokenSource,
@@ -99,7 +98,6 @@ public class HandlyXtextDocument
         {
             modelListeners2.clear(); // fixes issue with holding XtextEditor from disposed document (see DefaultFoldingStructureProvider)
         }
-        locker.dispose();
         Job validationJob = getValidationJob();
         if (validationJob != null)
             validationJob.cancel();
@@ -127,18 +125,6 @@ public class HandlyXtextDocument
     public void removeReconcilingListener(IReconcilingListener listener)
     {
         reconcilingListeners.remove(listener);
-    }
-
-    @Override
-    public void addModificationListener(IModificationListener listener)
-    {
-        locker.addModificationListener(listener);
-    }
-
-    @Override
-    public void removeModificationListener(IModificationListener listener)
-    {
-        locker.removeModificationListener(listener);
     }
 
     @Override
@@ -173,9 +159,9 @@ public class HandlyXtextDocument
     }
 
     @Override
-    public void reconcile(boolean force)
+    public boolean reconcile(boolean force)
     {
-        reconcile(force, null);
+        return reconcile(force, null);
     }
 
     /**
@@ -187,15 +173,17 @@ public class HandlyXtextDocument
      *  even if it is not {@link #needsReconciling() needed}
      * @param processor the processor to execute the reconciling unit of work 
      *  or <code>null</code> if no special processor is needed
+     * @return <code>true</code> if the document had any changes to be reconciled,
+     *   <code>false</code> otherwise
      */
-    public void reconcile(boolean force, Processor processor)
+    public boolean reconcile(boolean force, Processor processor)
     {
         T2MReconcilingUnitOfWork reconcilingUnitOfWork =
             new T2MReconcilingUnitOfWork(force);
         if (processor != null)
-            processor.process(reconcilingUnitOfWork);
+            return processor.process(reconcilingUnitOfWork);
         else
-            internalModify(reconcilingUnitOfWork);
+            return internalModify(reconcilingUnitOfWork);
     }
 
     @Override
@@ -221,12 +209,6 @@ public class HandlyXtextDocument
         UiDocumentChangeRunner runner =
             new UiDocumentChangeRunner(UiSynchronizer.DEFAULT, operation);
         return runner.run();
-    }
-
-    @Override
-    protected XtextDocumentLocker createDocumentLocker()
-    {
-        return (locker = new HandlyXtextDocumentLocker());
     }
 
     @Override
@@ -286,38 +268,32 @@ public class HandlyXtextDocument
      * Notifies reconciling listerners (if any). Should only be called 
      * in the dynamic context of {@link XtextDocument#internalModify}. 
      *
+     * @param resource the reconciled resource - must not be <code>null</code>
      * @param snapshot the reconciled snapshot - must not be <code>null</code>
      * @param forced whether reconciling was forced, i.e. the document has not 
      *  changed since it was reconciled the last time
      */
-    private void reconciled(final NonExpiringSnapshot snapshot,
-        final boolean forced)
+    private void reconciled(final XtextResource resource,
+        final NonExpiringSnapshot snapshot, final boolean forced)
     {
-        locker.notify(new IUnitOfWork.Void<XtextResource>()
+        Object[] listeners = reconcilingListeners.getListeners();
+        for (final Object listener : listeners)
         {
-            @Override
-            public void process(final XtextResource resource) throws Exception
+            SafeRunner.run(new ISafeRunnable()
             {
-                Object[] listeners = reconcilingListeners.getListeners();
-                for (final Object listener : listeners)
+                @Override
+                public void run() throws Exception
                 {
-                    SafeRunner.run(new ISafeRunnable()
-                    {
-                        @Override
-                        public void run() throws Exception
-                        {
-                            ((IReconcilingListener)listener).reconciled(
-                                resource, snapshot, forced);
-                        }
-
-                        @Override
-                        public void handleException(Throwable exception)
-                        {
-                        }
-                    });
+                    ((IReconcilingListener)listener).reconciled(resource,
+                        snapshot, forced);
                 }
-            }
-        });
+
+                @Override
+                public void handleException(Throwable exception)
+                {
+                }
+            });
+        }
         reconciledSnapshot = snapshot;
     }
 
@@ -448,7 +424,7 @@ public class HandlyXtextDocument
      * Should only be called when the document's write lock is held.
      */
     private class T2MReconcilingUnitOfWork
-        implements IUnitOfWork<Object, XtextResource>
+        implements IUnitOfWork<Boolean, XtextResource>
     {
         private final boolean force;
 
@@ -458,7 +434,7 @@ public class HandlyXtextDocument
         }
 
         @Override
-        public Object exec(XtextResource resource) throws Exception
+        public Boolean exec(XtextResource resource) throws Exception
         {
             PendingChange change = getAndResetPendingChange();
             if (change == null)
@@ -467,8 +443,9 @@ public class HandlyXtextDocument
                 {
                     NonExpiringSnapshot snapshot = reconciledSnapshot;
                     resource.reparse(snapshot.getContents());
-                    reconciled(snapshot, true);
+                    reconciled(resource, snapshot, true);
                 }
+                return false;
             }
             else
             {
@@ -500,9 +477,9 @@ public class HandlyXtextDocument
                         throw e2;
                     }
                 }
-                reconciled(snapshot, false);
+                reconciled(resource, snapshot, false);
+                return true;
             }
-            return null;
         }
     }
 
@@ -569,135 +546,6 @@ public class HandlyXtextDocument
             finally
             {
                 hasTopLevelModification.remove();
-            }
-        }
-    }
-
-    private class HandlyXtextDocumentLocker
-        extends XtextDocumentLocker
-    {
-        private final ListenerList modificationListeners = new ListenerList(
-            ListenerList.IDENTITY);
-
-        /** 
-         * Expects that the current thread holds one or more write locks 
-         * and no read locks. Downgrades the write lock to the read lock, 
-         * executes the given unit of work, then regains the write lock. 
-         * Note that while regaining the write lock (i.e. after the read 
-         * lock has been released and before the write lock is obtained) 
-         * the resource may get modified.
-         */
-        public void notify(IUnitOfWork.Void<XtextResource> notifyingUoW)
-        {
-            int writeHoldCount = downgradeWriteLock();
-            try
-            {
-                try
-                {
-                    notifyingUoW.exec(getState());
-                }
-                catch (RuntimeException e)
-                {
-                    throw e;
-                }
-                catch (Exception e)
-                {
-                    throw new WrappedException(e);
-                }
-                finally
-                {
-                    Job validationJob = getValidationJob();
-                    if (validationJob != null)
-                    {
-                        validationJob.cancel();
-                    }
-                }
-            }
-            finally
-            {
-                regainWriteLock(writeHoldCount);
-            }
-        }
-
-        @Override
-        public <T> T modify(IUnitOfWork<T, XtextResource> work)
-        {
-            aboutToModify(work);
-            return super.modify(work);
-        }
-
-        public void addModificationListener(IModificationListener listener)
-        {
-            modificationListeners.add(listener);
-        }
-
-        public void removeModificationListener(IModificationListener listener)
-        {
-            modificationListeners.remove(listener);
-        }
-
-        public void dispose()
-        {
-            modificationListeners.clear();
-        }
-
-        @Override
-        protected void beforeReadOnly(XtextResource resource,
-            IUnitOfWork<?, XtextResource> work)
-        {
-            if (rwLock.getReadHoldCount() == 1
-                && !rwLock.isWriteLockedByCurrentThread())
-            {
-                if (!(work instanceof IStraightReadingUnitOfWork))
-                    updateContentBeforeRead(); // reconcile
-            }
-        }
-
-        private int downgradeWriteLock()
-        {
-            if (rwLock.getWriteHoldCount() == 0)
-                throw new IllegalStateException();
-            if (rwLock.getReadHoldCount() > 0)
-                throw new IllegalStateException();
-            readLock.lock();
-            int count = rwLock.getWriteHoldCount();
-            for (int i = 0; i < count; i++)
-                writeLock.unlock();
-            return count;
-        }
-
-        private void regainWriteLock(int count)
-        {
-            if (count <= 0)
-                throw new IllegalArgumentException();
-            if (rwLock.getWriteHoldCount() > 0)
-                throw new IllegalStateException();
-            if (rwLock.getReadHoldCount() != 1)
-                throw new IllegalStateException();
-            readLock.unlock();
-            // -----> NOTE: resource is unlocked and may get modified here
-            for (int i = 0; i < count; i++)
-                writeLock.lock();
-        }
-
-        private void aboutToModify(final IUnitOfWork<?, XtextResource> work)
-        {
-            Object[] listeners = modificationListeners.getListeners();
-            for (final Object listener : listeners)
-            {
-                SafeRunner.run(new ISafeRunnable()
-                {
-                    @Override
-                    public void run() throws Exception
-                    {
-                        ((IModificationListener)listener).aboutToModify(work);
-                    }
-
-                    @Override
-                    public void handleException(Throwable exception)
-                    {
-                    }
-                });
             }
         }
     }

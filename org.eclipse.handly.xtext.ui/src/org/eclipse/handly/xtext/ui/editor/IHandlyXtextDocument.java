@@ -44,8 +44,10 @@ public interface IHandlyXtextDocument
      *
      * @param force indicates whether reconciling has to be performed 
      *  even if it is not {@link #needsReconciling() needed}
+     * @return <code>true</code> if the document had any changes to be reconciled,
+     *   <code>false</code> otherwise
      */
-    void reconcile(boolean force);
+    boolean reconcile(boolean force);
 
     /**
      * Returns the snapshot from which the document's resource was parsed 
@@ -57,7 +59,9 @@ public interface IHandlyXtextDocument
     ISnapshot getReconciledSnapshot();
 
     /**
-     * Executes the given unit of work under the (shared) read lock. 
+     * Executes the given unit of work under the read lock.
+     * The read lock may be shared or exclusive, depending on
+     * the underlying implementation of the document's concurrency model.
      * The unit of work <b>must not</b> modify the resource or return 
      * any references to it. Read-only units of work may nest into each other. 
      * <p>
@@ -116,22 +120,6 @@ public interface IHandlyXtextDocument
     <T> T modify(IUnitOfWork<T, XtextResource> work);
 
     /**
-     * Registers the modification listener with the document. 
-     * Does nothing if the given listener is already registered.
-     *
-     * @param listener must not be <code>null</code>
-     */
-    void addModificationListener(IModificationListener listener);
-
-    /**
-     * Removes the listener from the document's list of modification listeners.
-     * If the listener is not registered with the document nothing happens.
-     *
-     * @param listener must not be <code>null</code>
-     */
-    void removeModificationListener(IModificationListener listener);
-
-    /**
      * Applies the given change to the document. Note that an update conflict 
      * may occur if the document's contents have changed since the inception 
      * of the snapshot on which the change is based. In that case, a 
@@ -166,39 +154,5 @@ public interface IHandlyXtextDocument
          * @param undoChange never <code>null</code>
          */
         void acceptUndoChange(IDocumentChange undoChange);
-    }
-
-    /**
-     * Marker interface for read-only units of work which don't require 
-     * reconciling before execution.
-     */
-    interface IStraightReadingUnitOfWork<R, P>
-        extends IUnitOfWork<R, P>
-    {
-    }
-
-    /**
-     * Document modification listener protocol. Clients should extend from 
-     * {@link NullImpl} rather than implementing this interface directly. 
-     */
-    interface IModificationListener
-    {
-        /**
-         * Called before the given modification unit of work is going to be 
-         * performed. In particular, called before a write lock is obtained.
-         */
-        void aboutToModify(IUnitOfWork<?, XtextResource> work);
-
-        /**
-         * Implements all methods of {@link IModificationListener} as no-op.
-         */
-        class NullImpl
-            implements IModificationListener
-        {
-            @Override
-            public void aboutToModify(IUnitOfWork<?, XtextResource> work)
-            {
-            }
-        }
     }
 }
