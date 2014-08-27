@@ -68,31 +68,26 @@
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
-      <category
-            id="org.eclipse.handly.examples.basic.ui.fooCategory"
-            name="Foo">
-      </category>
       <wizard
             id="org.eclipse.handly.examples.basic.ui.wizards.new.fooProject"
             name="Foo Project"
             icon="icons/etool16/newprj_wiz.gif"
             class="org.eclipse.handly.examples.basic.ui.FooExecutableExtensionFactory:org.eclipse.handly.internal.examples.basic.ui.wizards.NewFooProjectWizard"
-            category="org.eclipse.handly.examples.basic.ui.fooCategory"
+            category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true">
+         <description>
+            Create a Foo project
+         </description>
       </wizard>
    </extension>
 
    <extension
          point="org.eclipse.ui.views">
-      <category
-            id="org.eclipse.handly.examples.basic.ui.fooCategory"
-            name="Foo">
-      </category>
       <view
             id="org.eclipse.handly.examples.basic.ui.views.fooNavigator"
             name="Foo Navigator"
             class="org.eclipse.handly.internal.examples.basic.ui.navigator.FooNavigator"
-            category="org.eclipse.handly.examples.basic.ui.fooCategory"
+            category="org.eclipse.handly.examples"
             restorable="true">
       </view>
    </extension>
