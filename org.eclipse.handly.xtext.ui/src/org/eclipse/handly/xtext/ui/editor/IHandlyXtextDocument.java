@@ -120,6 +120,8 @@ public interface IHandlyXtextDocument
      * Does nothing if the given listener is already registered.
      *
      * @param listener must not be <code>null</code>
+     * 
+     * @deprecated This method will be removed in the Handly 0.2 release.
      */
     void addModificationListener(IModificationListener listener);
 
@@ -128,6 +130,8 @@ public interface IHandlyXtextDocument
      * If the listener is not registered with the document nothing happens.
      *
      * @param listener must not be <code>null</code>
+     * 
+     * @deprecated This method will be removed in the Handly 0.2 release.
      */
     void removeModificationListener(IModificationListener listener);
 
@@ -171,6 +175,8 @@ public interface IHandlyXtextDocument
     /**
      * Marker interface for read-only units of work which don't require 
      * reconciling before execution.
+     * 
+     * @deprecated This interface will be removed in the Handly 0.2 release.
      */
     interface IStraightReadingUnitOfWork<R, P>
         extends IUnitOfWork<R, P>
@@ -179,7 +185,9 @@ public interface IHandlyXtextDocument
 
     /**
      * Document modification listener protocol. Clients should extend from 
-     * {@link NullImpl} rather than implementing this interface directly. 
+     * {@link NullImpl} rather than implementing this interface directly.
+     * 
+     * @deprecated This interface will be removed in the Handly 0.2 release.
      */
     interface IModificationListener
     {
