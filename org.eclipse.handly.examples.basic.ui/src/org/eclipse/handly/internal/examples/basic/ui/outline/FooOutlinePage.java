@@ -11,6 +11,10 @@
 package org.eclipse.handly.internal.examples.basic.ui.outline;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.internal.examples.basic.ui.FooContentProvider;
 import org.eclipse.handly.internal.examples.basic.ui.FooLabelProvider;
@@ -30,9 +34,11 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
@@ -164,6 +170,7 @@ public final class FooOutlinePage
     private class LinkingHelper
         extends OpenAndLinkWithEditorHelper
     {
+        private OutlineSyncJob outlineSyncJob = new OutlineSyncJob();
         private ISelectionChangedListener editorListener =
             new ISelectionChangedListener()
             {
@@ -197,6 +204,7 @@ public final class FooOutlinePage
                 ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(editorListener);
             else
                 selectionProvider.removeSelectionChangedListener(editorListener);
+            cancelOutlineSyncJob();
             super.dispose();
         }
 
@@ -223,6 +231,7 @@ public final class FooOutlinePage
         @Override
         protected void linkToEditor(ISelection selection)
         {
+            cancelOutlineSyncJob();
             if (selection == null || selection.isEmpty())
                 return;
             Object element =
@@ -233,39 +242,90 @@ public final class FooOutlinePage
                 (ISourceElement)element);
         }
 
-        @SuppressWarnings("unchecked")
         protected void linkToOutline(ISelection selection)
         {
             if (selection == null || selection.isEmpty())
                 return;
-            IStructuredSelection linkedSelection = null;
             if (selection instanceof ITextSelection)
-                linkedSelection = getLinkedSelection((ITextSelection)selection);
-            if (linkedSelection != null)
-            {
-                IStructuredSelection currentSelection =
-                    (IStructuredSelection)getTreeViewer().getSelection();
-                if (currentSelection == null
-                    || !currentSelection.toList().containsAll(
-                        linkedSelection.toList()))
-                {
-                    getTreeViewer().setSelection(linkedSelection, true);
-                }
-            }
+                scheduleOutlineSyncJob((ITextSelection)selection);
         }
 
-        private IStructuredSelection getLinkedSelection(ITextSelection selection)
+        private void cancelOutlineSyncJob()
         {
-            Object input = getTreeViewer().getInput();
-            if (!(input instanceof ISourceElement))
-                return null;
-            ISourceFile sourceFile = ((ISourceElement)input).getSourceFile();
-            ISourceElement element =
-                SourceElementUtil.getSourceElement(sourceFile,
-                    selection.getOffset());
-            if (element == null)
-                return null;
-            return new StructuredSelection(element);
+            outlineSyncJob.cancel();
+            outlineSyncJob.setSelection(null);
+        }
+
+        private void scheduleOutlineSyncJob(ITextSelection selection)
+        {
+            outlineSyncJob.cancel();
+            outlineSyncJob.setSelection(selection);
+            outlineSyncJob.schedule();
+        }
+
+        private class OutlineSyncJob
+            extends Job
+        {
+            private volatile ITextSelection selection;
+
+            public OutlineSyncJob()
+            {
+                super(""); //$NON-NLS-1$
+                setSystem(true);
+            }
+
+            public void setSelection(ITextSelection selection)
+            {
+                this.selection = selection;
+            }
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor)
+            {
+                final ITextSelection baseSelection = selection;
+                if (baseSelection == null || baseSelection.isEmpty())
+                    return Status.OK_STATUS;
+                Object input = getTreeViewer().getInput();
+                if (!(input instanceof ISourceElement))
+                    return Status.OK_STATUS;
+                ISourceFile sourceFile =
+                    ((ISourceElement)input).getSourceFile();
+                final ISourceElement element =
+                    SourceElementUtil.getSourceElement(sourceFile,
+                        baseSelection.getOffset()); // reconciles the source file as a side effect
+                if (element == null)
+                    return Status.OK_STATUS;
+                if (monitor.isCanceled())
+                    return Status.CANCEL_STATUS;
+                // note that reconciling will have asyncExec'ed #refresh by this time
+                Display.getDefault().asyncExec(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        TreeViewer treeViewer = getTreeViewer();
+                        Control control = treeViewer.getControl();
+                        Object input = treeViewer.getInput();
+                        if (control == null
+                            || control.isDisposed()
+                            || !(input instanceof ISourceElement)
+                            || !element.getSourceFile().equals(
+                                ((ISourceElement)input).getSourceFile())
+                            || !baseSelection.equals(selection)
+                            || !baseSelection.equals(editor.getSelectionProvider().getSelection()))
+                            return; // the world has changed -> no work needs to be done
+                        final IStructuredSelection currentSelection =
+                            (IStructuredSelection)treeViewer.getSelection();
+                        if (currentSelection == null
+                            || !currentSelection.toList().contains(element))
+                        {
+                            treeViewer.setSelection(new StructuredSelection(
+                                element), true);
+                        }
+                    }
+                });
+                return Status.OK_STATUS;
+            }
         }
     }
 }
