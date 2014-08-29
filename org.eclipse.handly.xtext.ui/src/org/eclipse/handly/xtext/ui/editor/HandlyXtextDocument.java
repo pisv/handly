@@ -460,6 +460,7 @@ public class HandlyXtextDocument
             else
                 replaceRegionToReconcile.mergeWith(replaceRegion,
                     snapshotToReconcile.getContents());
+            modificationStamp = event.getModificationStamp();
         }
     }
 
