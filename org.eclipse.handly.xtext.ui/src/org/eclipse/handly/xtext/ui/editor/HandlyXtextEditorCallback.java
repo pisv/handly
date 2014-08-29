@@ -15,6 +15,10 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFileFactory;
@@ -27,6 +31,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.xtext.ui.editor.IXtextEditorCallback;
 import org.eclipse.xtext.ui.editor.XtextEditor;
@@ -54,6 +59,8 @@ public class HandlyXtextEditorCallback
         new HashMap<XtextEditor, SourceFile>();
     private Map<XtextEditor, ISelectionChangedListener> selectionListeners =
         new HashMap<XtextEditor, ISelectionChangedListener>();
+    private SetHighlightRangeJob setHighlightRangeJob =
+        new SetHighlightRangeJob();
 
     @Override
     public void afterCreatePartControl(XtextEditor editor)
@@ -94,44 +101,7 @@ public class HandlyXtextEditorCallback
         SourceFile sourceFile = getWorkingCopy(editor);
         if (sourceFile == null)
             return;
-        ISourceElement selectedElement = null;
-        if (selection instanceof ITextSelection)
-        {
-            int position = ((ITextSelection)selection).getOffset();
-            if (position >= 0)
-            {
-                try
-                {
-                    sourceFile.reconcile(false, null);
-                }
-                catch (CoreException e)
-                {
-                    Activator.log(e.getStatus());
-                    editor.resetHighlightRange();
-                    return;
-                }
-                selectedElement = sourceFile.getElementAt(position, null);
-                if (sourceFile.equals(selectedElement))
-                    selectedElement = null;
-            }
-        }
-        if (selectedElement == null || !selectedElement.exists())
-            editor.resetHighlightRange();
-        else
-        {
-            TextRange r;
-            try
-            {
-                r = selectedElement.getSourceElementInfo().getFullRange();
-            }
-            catch (CoreException e)
-            {
-                Activator.log(e.getStatus());
-                editor.resetHighlightRange();
-                return;
-            }
-            editor.setHighlightRange(r.getOffset(), r.getLength(), false);
-        }
+        scheduleHighlightRangeJob(editor, sourceFile, selection);
     }
 
     protected SourceFile getSourceFile(XtextEditor editor)
@@ -216,6 +186,135 @@ public class HandlyXtextEditorCallback
         if (sourceFile != null)
         {
             sourceFile.discardWorkingCopy();
+        }
+    }
+
+    private void setEditorHighlightRange(final XtextEditor editor,
+        final int offset, final int length, final boolean moveCursor)
+    {
+        if (Display.getCurrent() == null)
+        {
+            Display.getDefault().asyncExec(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    editor.setHighlightRange(offset, length, moveCursor);
+                }
+            });
+        }
+        else
+            editor.setHighlightRange(offset, length, moveCursor);
+    }
+
+    private void resetEditorHighlightRange(final XtextEditor editor)
+    {
+        if (Display.getCurrent() == null)
+        {
+            Display.getDefault().asyncExec(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    editor.resetHighlightRange();
+                }
+            });
+        }
+        else
+            editor.resetHighlightRange();
+    }
+
+    private void scheduleHighlightRangeJob(XtextEditor editor,
+        SourceFile sourceFile, ISelection selection)
+    {
+        setHighlightRangeJob.cancel();
+        setHighlightRangeJob.setArgs(new HighlightArgs(editor, sourceFile,
+            selection));
+        setHighlightRangeJob.schedule();
+    }
+
+    private class SetHighlightRangeJob
+        extends Job
+    {
+        private volatile HighlightArgs args;
+
+        public SetHighlightRangeJob()
+        {
+            super(""); //$NON-NLS-1$
+            setSystem(true);
+        }
+
+        public void setArgs(HighlightArgs args)
+        {
+            this.args = args;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor)
+        {
+            HighlightArgs args = this.args;
+            XtextEditor editor = args.editor;
+            SourceFile sourceFile = args.sourceFile;
+            ISelection selection = args.selection;
+            ISourceElement selectedElement = null;
+            if (selection instanceof ITextSelection)
+            {
+                int position = ((ITextSelection)selection).getOffset();
+                if (position >= 0)
+                {
+                    try
+                    {
+                        sourceFile.reconcile(false, null);
+                    }
+                    catch (CoreException e)
+                    {
+                        Activator.log(e.getStatus());
+                        resetEditorHighlightRange(editor);
+                        return e.getStatus();
+                    }
+                    if (monitor.isCanceled())
+                        return Status.CANCEL_STATUS;
+                    selectedElement = sourceFile.getElementAt(position, null);
+                    if (sourceFile.equals(selectedElement))
+                        selectedElement = null;
+                }
+            }
+            if (monitor.isCanceled())
+                return Status.CANCEL_STATUS;
+            if (selectedElement == null || !selectedElement.exists())
+                resetEditorHighlightRange(editor);
+            else
+            {
+                TextRange r;
+                try
+                {
+                    r = selectedElement.getSourceElementInfo().getFullRange();
+                }
+                catch (CoreException e)
+                {
+                    Activator.log(e.getStatus());
+                    resetEditorHighlightRange(editor);
+                    return e.getStatus();
+                }
+                setEditorHighlightRange(editor, r.getOffset(), r.getLength(),
+                    false);
+            }
+            return Status.OK_STATUS;
+        }
+    }
+
+    private static class HighlightArgs
+    {
+        public final XtextEditor editor;
+        public final SourceFile sourceFile;
+        public final ISelection selection;
+
+        HighlightArgs(XtextEditor editor, SourceFile sourceFile,
+            ISelection selection)
+        {
+            this.editor = editor;
+            this.sourceFile = sourceFile;
+            this.selection = selection;
         }
     }
 }
