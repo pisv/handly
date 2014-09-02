@@ -67,7 +67,6 @@ public class HandlyXtextDocument
     private final DocumentListener selfListener = new DocumentListener();
     private PendingChange pendingChange;
     private final Object pendingChangeLock = new Object();
-    private final Object reconcilingLock = new Object();
     private HandlyXtextDocumentLocker locker;
 
     @Inject
@@ -170,18 +169,12 @@ public class HandlyXtextDocument
      */
     public void reconcile(boolean force, Processor processor)
     {
-        synchronized (reconcilingLock)
-        {
-            if (!hasPendingChange() && !force)
-                return;
-
-            T2MReconcilingUnitOfWork reconcilingUnitOfWork =
-                new T2MReconcilingUnitOfWork(force);
-            if (processor != null)
-                processor.process(reconcilingUnitOfWork);
-            else
-                internalModify(reconcilingUnitOfWork);
-        }
+        T2MReconcilingUnitOfWork reconcilingUnitOfWork =
+            new T2MReconcilingUnitOfWork(force);
+        if (processor != null)
+            processor.process(reconcilingUnitOfWork);
+        else
+            internalModify(reconcilingUnitOfWork);
     }
 
     @Override
