@@ -27,7 +27,7 @@ public final class DelegatingWorkingCopyBuffer
     private final IBuffer delegate;
     private final IWorkingCopyReconciler reconciler;
     private final Object reconcilingLock = new Object();
-    private ISnapshot reconciledSnapshot;
+    private volatile ISnapshot reconciledSnapshot;
     private int refCount = 1;
 
     /**
@@ -99,10 +99,7 @@ public final class DelegatingWorkingCopyBuffer
     @Override
     public boolean needsReconciling()
     {
-        synchronized (reconcilingLock)
-        {
-            return !getSnapshot().isEqualTo(reconciledSnapshot);
-        }
+        return !getSnapshot().isEqualTo(reconciledSnapshot);
     }
 
     @Override

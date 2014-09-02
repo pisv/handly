@@ -169,7 +169,7 @@ public class HandlyXtextDocument
     @Override
     public boolean needsReconciling()
     {
-        return hasPendingChange();
+        return !getSnapshot().isEqualTo(getReconciledSnapshot());
     }
 
     @Override
@@ -249,14 +249,6 @@ public class HandlyXtextDocument
                 Activator.log(Activator.createErrorStatus(
                     "Error in IXtextModelListener", e)); //$NON-NLS-1$
             }
-        }
-    }
-
-    private boolean hasPendingChange()
-    {
-        synchronized (pendingChangeLock)
-        {
-            return pendingChange != null;
         }
     }
 
