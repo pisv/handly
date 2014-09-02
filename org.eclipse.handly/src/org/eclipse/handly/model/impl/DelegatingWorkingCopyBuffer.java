@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
-import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 
@@ -102,15 +101,7 @@ public final class DelegatingWorkingCopyBuffer
     {
         synchronized (reconcilingLock)
         {
-            try
-            {
-                return !getSnapshot().isEqualTo(reconciledSnapshot);
-            }
-            catch (CoreException e)
-            {
-                Activator.log(e.getStatus());
-                return true;
-            }
+            return !getSnapshot().isEqualTo(reconciledSnapshot);
         }
     }
 

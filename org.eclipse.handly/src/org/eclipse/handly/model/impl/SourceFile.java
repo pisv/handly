@@ -330,7 +330,7 @@ public abstract class SourceFile
                 new NonExpiringSnapshot(new ISnapshotProvider()
                 {
                     @Override
-                    public ISnapshot getSnapshot() throws CoreException
+                    public ISnapshot getSnapshot()
                     {
                         return new TextFileSnapshot(getFile());
                     }

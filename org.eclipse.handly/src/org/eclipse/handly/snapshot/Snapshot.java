@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.snapshot;
 
-import org.eclipse.core.runtime.CoreException;
-
 /**
  * Abstract superclass of snapshots. 
  * Implements an equivalence relation on snapshots.
@@ -39,7 +37,7 @@ public abstract class Snapshot
      * </p>
      */
     @Override
-    public final boolean isEqualTo(ISnapshot other) throws CoreException
+    public final boolean isEqualTo(ISnapshot other)
     {
         if (this == other)
             return true;
@@ -61,9 +59,8 @@ public abstract class Snapshot
      * @param other the other snapshot (not <code>null</code> 
      *  and not identical to the receiver)
      * @return whether the two snapshots are predicted to be equal
-     * @throws CoreException in case of underlying resource failure
      */
-    protected Boolean predictEquality(Snapshot other) throws CoreException
+    protected Boolean predictEquality(Snapshot other)
     {
         return null;
     }

@@ -32,6 +32,7 @@ public final class TextFileSnapshot
     private final IFile file;
     private final long modificationStamp;
     private Reference<String> contents;
+    private volatile boolean readError;
 
     /**
      * Takes a snapshot of the given text file.
@@ -45,7 +46,7 @@ public final class TextFileSnapshot
     }
 
     @Override
-    public synchronized String getContents() throws CoreException
+    public synchronized String getContents()
     {
         String result = null;
         boolean sync = isSynchronized();
@@ -58,15 +59,23 @@ public final class TextFileSnapshot
         }
         if (result == null && sync)
         {
-            String currentContents = readContents();
-            if (isSynchronized()) // still current
-                contents = new SoftReference<String>(result = currentContents);
+            try
+            {
+                String currentContents = readContents();
+                if (isSynchronized()) // still current
+                    contents = new SoftReference<String>(result = currentContents);
+            }
+            catch (CoreException e)
+            {
+                Activator.log(e.getStatus());
+                readError = true;
+            }
         }
         return result;
     }
 
     @Override
-    protected Boolean predictEquality(Snapshot other) throws CoreException
+    protected Boolean predictEquality(Snapshot other)
     {
         if (!isSynchronized())
             return false;
@@ -86,7 +95,7 @@ public final class TextFileSnapshot
 
     private boolean isSynchronized()
     {
-        return modificationStamp == file.getModificationStamp();
+        return modificationStamp == file.getModificationStamp() && !readError;
     }
 
     private String readContents() throws CoreException

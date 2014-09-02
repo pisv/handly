@@ -18,7 +18,6 @@ import org.eclipse.core.filebuffers.IFileBufferListener;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
@@ -54,7 +53,7 @@ public final class TextFileBufferSnapshot
     }
 
     @Override
-    public synchronized String getContents() throws CoreException
+    public synchronized String getContents()
     {
         if (delegate != null)
             return delegate.getContents();
@@ -70,7 +69,6 @@ public final class TextFileBufferSnapshot
 
     @Override
     protected synchronized Boolean predictEquality(Snapshot other)
-        throws CoreException
     {
         if (delegate != null)
             return delegate.isEqualTo(other);

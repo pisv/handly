@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
@@ -286,14 +285,7 @@ public class HandlyXtextDocument
 
     private NonExpiringSnapshot getNonExpiringSnapshot()
     {
-        try
-        {
-            return new NonExpiringSnapshot(this);
-        }
-        catch (CoreException e) // cannot happen
-        {
-            throw new AssertionError(e);
-        }
+        return new NonExpiringSnapshot(this);
     }
 
     /*

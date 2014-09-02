@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.snapshot;
 
-import org.eclipse.core.runtime.CoreException;
-
 /**
  * A snapshot that never expires (i.e. never returns <code>null</code> from 
  * {@link #getContents()}). It wraps another snapshot and holds on its contents. 
@@ -33,9 +31,8 @@ public final class NonExpiringSnapshot
      * 
      * @param provider a snapshot provider from which a snapshot is to be taken
      *  (not <code>null</code>)
-     * @throws CoreException if no snapshot could be taken
      */
-    public NonExpiringSnapshot(ISnapshotProvider provider) throws CoreException
+    public NonExpiringSnapshot(ISnapshotProvider provider)
     {
         // get a snapshot and make sure it has not expired yet
         ISnapshot snapshot = null;

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.document;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.snapshot.DocumentSnapshot;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
@@ -113,18 +112,11 @@ public class DocumentChangeOperation
 
     protected void checkChange()
     {
-        try
+        ISnapshot baseSnapshot = change.getBase();
+        if (baseSnapshot != null
+            && !baseSnapshot.isEqualTo(getCurrentSnapshot()))
         {
-            ISnapshot baseSnapshot = change.getBase();
-            if (baseSnapshot != null
-                && !baseSnapshot.isEqualTo(getCurrentSnapshot()))
-            {
-                throw new StaleSnapshotException();
-            }
-        }
-        catch (CoreException e) // should not happen
-        {
-            throw new AssertionError(e);
+            throw new StaleSnapshotException();
         }
     }
 

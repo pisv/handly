@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.snapshot;
 
-import org.eclipse.core.runtime.CoreException;
-
 /**
  * Common protocol of snapshot providers.
  *
@@ -25,7 +23,6 @@ public interface ISnapshotProvider
      * Note that the returned snapshot may immediately become stale or expire.
      *
      * @return the current snapshot (never <code>null</code>)
-     * @throws CoreException if no snapshot could be taken
      */
-    ISnapshot getSnapshot() throws CoreException;
+    ISnapshot getSnapshot();
 }

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.snapshot;
 
-import org.eclipse.core.runtime.CoreException;
-
 /**
  * A snapshot of the character contents of a resource or buffer. 
  * The client may hold on a snapshot for an extended period of time, 
@@ -37,9 +35,8 @@ public interface ISnapshot
      * 
      * @return the contents of the snapshot, or <code>null</code> if 
      *  the snapshot has expired
-     * @throws CoreException in case of underlying resource failure
      */
-    String getContents() throws CoreException;
+    String getContents();
 
     /**
      * Returns whether the two snapshots are equal. If the snapshots are equal 
@@ -58,7 +55,6 @@ public interface ISnapshot
      * @param other a snapshot to compare or <code>null</code>
      * @return <code>true</code> if the snapshots are equal, 
      *  <code>false</code> otherwise
-     * @throws CoreException in case of underlying resource failure
      */
-    boolean isEqualTo(ISnapshot other) throws CoreException;
+    boolean isEqualTo(ISnapshot other);
 }
