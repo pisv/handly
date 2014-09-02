@@ -65,12 +65,13 @@ public class HandlyXtextDocument
     private ITextEditComposer composer2; // unfortunately had to duplicate
     private final List<IXtextModelListener> modelListeners2 =
         new ArrayList<IXtextModelListener>(); // unfortunately had to duplicate
-    private NonExpiringSnapshot reconciledSnapshot;
+    private volatile NonExpiringSnapshot reconciledSnapshot;
     private final ListenerList reconcilingListeners = new ListenerList(
         ListenerList.IDENTITY);
     private final DocumentListener selfListener = new DocumentListener();
     private PendingChange pendingChange;
     private final Object pendingChangeLock = new Object();
+    private final Object reconcilingLock = new Object();
     private HandlyXtextDocumentLocker locker;
 
     @Inject
@@ -191,15 +192,18 @@ public class HandlyXtextDocument
      */
     public void reconcile(boolean force, Processor processor)
     {
-        if (!hasPendingChange() && !force)
-            return;
+        synchronized (reconcilingLock)
+        {
+            if (!hasPendingChange() && !force)
+                return;
 
-        T2MReconcilingUnitOfWork reconcilingUnitOfWork =
-            new T2MReconcilingUnitOfWork(force);
-        if (processor != null)
-            processor.process(reconcilingUnitOfWork);
-        else
-            internalModify(reconcilingUnitOfWork);
+            T2MReconcilingUnitOfWork reconcilingUnitOfWork =
+                new T2MReconcilingUnitOfWork(force);
+            if (processor != null)
+                processor.process(reconcilingUnitOfWork);
+            else
+                internalModify(reconcilingUnitOfWork);
+        }
     }
 
     @Override
@@ -312,8 +316,6 @@ public class HandlyXtextDocument
     private void reconciled(final NonExpiringSnapshot snapshot,
         final boolean forced)
     {
-        reconciledSnapshot = snapshot;
-
         locker.notify(new IUnitOfWork.Void<XtextResource>()
         {
             @Override
@@ -339,6 +341,7 @@ public class HandlyXtextDocument
                 }
             }
         });
+        reconciledSnapshot = snapshot;
     }
 
     private void internalReconcile(XtextResource resource, boolean force)
