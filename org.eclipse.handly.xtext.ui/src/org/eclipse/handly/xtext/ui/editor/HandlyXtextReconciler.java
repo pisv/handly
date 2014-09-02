@@ -175,10 +175,14 @@ public class HandlyXtextReconciler
         @Override
         public void performNecessaryUpdates(Processor processor)
         {
+            // Note: this method is always called with the doc's readLock held
+
             IDocument document = viewer.getDocument();
             if (document instanceof HandlyXtextDocument && !paused)
             {
-                ((HandlyXtextDocument)document).reconcile(false, processor);
+                HandlyXtextDocument doc = (HandlyXtextDocument)document;
+                if (doc.needsReconciling()) // this check is required to avoid constant rescheduling of ValidationJob
+                    doc.reconcile(false, processor);
             }
             if (sessionStarted && !paused)
             {
