@@ -38,12 +38,12 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.OpenAndLinkWithEditorHelper;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import org.eclipse.xtext.ui.editor.IXtextEditorAware;
 import org.eclipse.xtext.ui.editor.XtextEditor;
@@ -113,12 +113,12 @@ public final class FooOutlinePage
     {
         if (affects(event.getDelta(), (IHandle)getTreeViewer().getInput()))
         {
-            final Control control = getTreeViewer().getControl();
-            control.getDisplay().asyncExec(new Runnable()
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
             {
                 public void run()
                 {
-                    if (!control.isDisposed())
+                    Control control = getTreeViewer().getControl();
+                    if (control != null && !control.isDisposed())
                     {
                         refresh();
                     }
@@ -170,7 +170,7 @@ public final class FooOutlinePage
     private class LinkingHelper
         extends OpenAndLinkWithEditorHelper
     {
-        private OutlineSyncJob outlineSyncJob = new OutlineSyncJob();
+        private LinkToOutlineJob linkToOutlineJob = new LinkToOutlineJob();
         private ISelectionChangedListener editorListener =
             new ISelectionChangedListener()
             {
@@ -204,7 +204,7 @@ public final class FooOutlinePage
                 ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(editorListener);
             else
                 selectionProvider.removeSelectionChangedListener(editorListener);
-            cancelOutlineSyncJob();
+            cancelLinkToOutlineJob();
             super.dispose();
         }
 
@@ -231,7 +231,7 @@ public final class FooOutlinePage
         @Override
         protected void linkToEditor(ISelection selection)
         {
-            cancelOutlineSyncJob();
+            cancelLinkToOutlineJob();
             if (selection == null || selection.isEmpty())
                 return;
             Object element =
@@ -247,28 +247,28 @@ public final class FooOutlinePage
             if (selection == null || selection.isEmpty())
                 return;
             if (selection instanceof ITextSelection)
-                scheduleOutlineSyncJob((ITextSelection)selection);
+                scheduleLinkToOutlineJob((ITextSelection)selection);
         }
 
-        private void cancelOutlineSyncJob()
+        private void cancelLinkToOutlineJob()
         {
-            outlineSyncJob.cancel();
-            outlineSyncJob.setSelection(null);
+            linkToOutlineJob.cancel();
+            linkToOutlineJob.setSelection(null);
         }
 
-        private void scheduleOutlineSyncJob(ITextSelection selection)
+        private void scheduleLinkToOutlineJob(ITextSelection selection)
         {
-            outlineSyncJob.cancel();
-            outlineSyncJob.setSelection(selection);
-            outlineSyncJob.schedule();
+            linkToOutlineJob.cancel();
+            linkToOutlineJob.setSelection(selection);
+            linkToOutlineJob.schedule();
         }
 
-        private class OutlineSyncJob
+        private class LinkToOutlineJob
             extends Job
         {
             private volatile ITextSelection selection;
 
-            public OutlineSyncJob()
+            public LinkToOutlineJob()
             {
                 super(""); //$NON-NLS-1$
                 setSystem(true);
@@ -285,7 +285,8 @@ public final class FooOutlinePage
                 final ITextSelection baseSelection = selection;
                 if (baseSelection == null || baseSelection.isEmpty())
                     return Status.OK_STATUS;
-                Object input = getTreeViewer().getInput();
+                final TreeViewer treeViewer = getTreeViewer();
+                Object input = treeViewer.getInput();
                 if (!(input instanceof ISourceElement))
                     return Status.OK_STATUS;
                 ISourceFile sourceFile =
@@ -298,12 +299,10 @@ public final class FooOutlinePage
                 if (monitor.isCanceled())
                     return Status.CANCEL_STATUS;
                 // note that reconciling will have asyncExec'ed #refresh by this time
-                Display.getDefault().asyncExec(new Runnable()
+                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
                 {
-                    @Override
                     public void run()
                     {
-                        TreeViewer treeViewer = getTreeViewer();
                         Control control = treeViewer.getControl();
                         Object input = treeViewer.getInput();
                         if (control == null
