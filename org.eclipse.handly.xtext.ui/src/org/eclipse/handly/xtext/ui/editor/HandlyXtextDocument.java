@@ -16,8 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.WrappedException;
@@ -35,6 +37,8 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.resource.DerivedStateAwareResource;
+import org.eclipse.xtext.resource.IBatchLinkableResource;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.DirtyStateEditorSupport;
 import org.eclipse.xtext.ui.editor.model.DocumentTokenSource;
@@ -42,6 +46,7 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver.Processor
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.eclipse.xtext.ui.editor.model.edit.ITextEditComposer;
+import org.eclipse.xtext.ui.editor.reconciler.CancelIndicatorBasedProgressMonitor;
 import org.eclipse.xtext.ui.editor.reconciler.ReplaceRegion;
 import org.eclipse.xtext.util.CancelIndicator;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
@@ -70,6 +75,7 @@ public class HandlyXtextDocument
     private final DocumentListener selfListener = new DocumentListener();
     private PendingChange pendingChange;
     private final Object pendingChangeLock = new Object();
+    private DirtyStateEditorSupport dirtyStateEditorSupport;
 
     @Inject
     public HandlyXtextDocument(DocumentTokenSource tokenSource,
@@ -234,6 +240,12 @@ public class HandlyXtextDocument
         }
     }
 
+    void setDirtyStateEditorSupport(
+        DirtyStateEditorSupport dirtyStateEditorSupport)
+    {
+        this.dirtyStateEditorSupport = dirtyStateEditorSupport;
+    }
+
     private PendingChange getAndResetPendingChange()
     {
         final PendingChange result;
@@ -276,6 +288,8 @@ public class HandlyXtextDocument
     private void reconciled(final XtextResource resource,
         final NonExpiringSnapshot snapshot, final boolean forced)
     {
+        postProcess(resource, new CancelIndicatorBasedProgressMonitor(
+            getOutdatedStateCancelIndicator(resource)));
         Object[] listeners = reconcilingListeners.getListeners();
         for (final Object listener : listeners)
         {
@@ -295,6 +309,39 @@ public class HandlyXtextDocument
             });
         }
         reconciledSnapshot = snapshot;
+    }
+
+    // initially copied from XtextDocumentReconcileStrategy#postParse
+    private void postProcess(XtextResource resource,
+        final IProgressMonitor monitor)
+    {
+        if (dirtyStateEditorSupport != null)
+            dirtyStateEditorSupport.announceDirtyState(resource);
+        CancelIndicator cancelIndicator = new CancelIndicator()
+        {
+            public boolean isCanceled()
+            {
+                return monitor.isCanceled();
+            }
+        };
+        try
+        {
+            if (resource instanceof DerivedStateAwareResource)
+                ((DerivedStateAwareResource)resource).installDerivedState(false);
+            if (resource instanceof IBatchLinkableResource)
+            {
+                ((IBatchLinkableResource)resource).linkBatched(cancelIndicator);
+            }
+        }
+        catch (OperationCanceledException e)
+        {
+            resource.getCache().clear(resource);
+        }
+        catch (RuntimeException e)
+        {
+            Activator.log(Activator.createErrorStatus(
+                "Error post-processing resource", e)); //$NON-NLS-1$
+        }
     }
 
     private void internalReconcile(XtextResource resource, boolean force)
@@ -442,7 +489,8 @@ public class HandlyXtextDocument
                 if (force) // reconciling is forced
                 {
                     NonExpiringSnapshot snapshot = reconciledSnapshot;
-                    resource.reparse(snapshot.getContents());
+                    // no need to reparse -- just update internal state
+                    resource.update(0, 0, ""); //$NON-NLS-1$
                     reconciled(resource, snapshot, true);
                 }
                 return false;

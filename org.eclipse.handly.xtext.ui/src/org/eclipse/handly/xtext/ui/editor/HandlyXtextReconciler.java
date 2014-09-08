@@ -42,6 +42,8 @@ public class HandlyXtextReconciler
 {
     /**
      * Constant identifying the job family identifier for the reconciler job.
+     * @deprecated Use <code>org.eclipse.xtext.ui.refactoring.ui.SyncUtil</code>
+     *  to wait for XtextEditor reconciler.
      */
     public static final Object FAMILY_RECONCILER =
         XtextReconciler.class.getName();
@@ -135,7 +137,9 @@ public class HandlyXtextReconciler
         IDocument document = viewer.getDocument();
         if (document instanceof HandlyXtextDocument)
         {
-            ((HandlyXtextDocument)document).reconcile(false);
+            HandlyXtextDocument doc = (HandlyXtextDocument)document;
+            if (doc.needsReconciling())
+                doc.reconcile(false);
         }
         return Status.OK_STATUS;
     }

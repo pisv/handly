@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -32,6 +31,7 @@ import org.eclipse.xtext.resource.impl.ResourceDescriptionChangeEvent;
 import org.eclipse.xtext.ui.editor.DirtyStateEditorSupport;
 import org.eclipse.xtext.ui.editor.Messages;
 import org.eclipse.xtext.ui.editor.SchedulingRuleFactory;
+import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.util.Pair;
 import org.eclipse.xtext.util.Tuples;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
@@ -48,20 +48,24 @@ public class HandlyDirtyStateEditorSupport
     /**
      * Constant identifying the job family identifier 
      * for the dirty state reconciler job.
+     * @deprecated Use <code>org.eclipse.xtext.ui.refactoring.ui.SyncUtil</code>
+     *  to wait for XtextEditor dirty state reconciler.
      */
     public static final Object FAMILY_DIRTY_STATE_RECONCILER = new Object();
 
-    protected static final ISchedulingRule RECONCILER_RULE =
+    protected static final ISchedulingRule SCHEDULING_RULE =
         SchedulingRuleFactory.INSTANCE.newSequence();
 
     private volatile IDirtyStateEditorSupportClient currentClient; // unfortunately had to duplicate
-    private DirtyStateReconciler dirtyStateReconciler;
 
     @Override
     public void initializeDirtyStateSupport(
         IDirtyStateEditorSupportClient client)
     {
         super.initializeDirtyStateSupport(client);
+        IXtextDocument document = client.getDocument();
+        if (document instanceof HandlyXtextDocument)
+            ((HandlyXtextDocument)document).setDirtyStateEditorSupport(this);
         this.currentClient = client;
     }
 
@@ -69,21 +73,18 @@ public class HandlyDirtyStateEditorSupport
     public void removeDirtyStateSupport(IDirtyStateEditorSupportClient client)
     {
         super.removeDirtyStateSupport(client);
+        IXtextDocument document = client.getDocument();
+        if (document instanceof HandlyXtextDocument)
+            ((HandlyXtextDocument)document).setDirtyStateEditorSupport(null);
         this.currentClient = null;
     }
 
     @Override
-    public void descriptionsChanged(final IResourceDescription.Event event)
+    protected UpdateEditorStateJob createUpdateEditorJob()
     {
-        if (!getDirtyResource().isInitialized())
-            return;
-        for (IResourceDescription.Delta delta : event.getDeltas())
-        {
-            if (delta.getOld() == getDirtyResource().getDescription()
-                || delta.getNew() == getDirtyResource().getDescription())
-                return;
-        }
-        scheduleReconciler(event);
+        // default is sequential execution to ensure a minimum number of
+        // spawned worker threads
+        return new UpdateEditorStateJob(SCHEDULING_RULE);
     }
 
     protected final IDirtyStateEditorSupportClient getCurrentClient()
@@ -91,49 +92,33 @@ public class HandlyDirtyStateEditorSupport
         return currentClient;
     }
 
-    protected DirtyStateReconciler createReconciler()
-    {
-        // default is sequential execution to ensure a minimum number of
-        // spawned worker threads
-        return new DirtyStateReconciler(RECONCILER_RULE);
-    }
-
-    protected final void scheduleReconciler(IResourceDescription.Event event)
-    {
-        synchronized (this)
-        {
-            if (dirtyStateReconciler == null)
-            {
-                dirtyStateReconciler = createReconciler();
-            }
-        }
-        dirtyStateReconciler.scheduleFor(event);
-    }
-
     /**
-     * Initially copied from <code>DirtyStateEditorSupport.UpdateEditorStateJob</code>. 
-     * Unfortunately had to fork, could not subclass.
+     * Initially copied from <code>DirtyStateEditorSupport.UpdateEditorStateJob</code>.
+     * <p>
+     * Although effectively a fork, it extends <code>DirtyStateEditorSupport.UpdateEditorStateJob</code>
+     * in order to retain assignment compatibility.
+     * </p>
      */
-    protected class DirtyStateReconciler
-        extends Job
+    protected class UpdateEditorStateJob
+        extends DirtyStateEditorSupport.UpdateEditorStateJob
     {
         protected final AtomicInteger coarseGrainedChanges;
         protected final Queue<IResourceDescription.Delta> pendingChanges;
 
-        public DirtyStateReconciler(ISchedulingRule rule)
+        public UpdateEditorStateJob(ISchedulingRule rule)
         {
             this(rule, Messages.DirtyStateEditorSupport_JobName);
         }
 
-        public DirtyStateReconciler(ISchedulingRule rule, String name)
+        public UpdateEditorStateJob(ISchedulingRule rule, String name)
         {
-            super(name);
-            setRule(rule);
+            super(rule, name);
             coarseGrainedChanges = new AtomicInteger();
             pendingChanges =
                 new ConcurrentLinkedQueue<IResourceDescription.Delta>();
         }
 
+        @Override
         public void scheduleFor(IResourceDescription.Event event)
         {
             cancel();
@@ -156,12 +141,14 @@ public class HandlyDirtyStateEditorSupport
             try
             {
                 IDirtyStateEditorSupportClient myClient = currentClient;
-                if (myClient == null || monitor.isCanceled())
+                if (myClient == null)
                     return Status.OK_STATUS;
                 final HandlyXtextDocument document =
                     (HandlyXtextDocument)myClient.getDocument();
                 if (document == null)
                     return Status.OK_STATUS;
+                if (monitor.isCanceled())
+                    return Status.CANCEL_STATUS;
                 int coarseGrainedChangesSeen = coarseGrainedChanges.get();
                 final boolean[] isReparseRequired =
                     new boolean[] { coarseGrainedChangesSeen > 0 };
@@ -194,7 +181,7 @@ public class HandlyDirtyStateEditorSupport
                         }
                     });
                 if (monitor.isCanceled())
-                    return Status.OK_STATUS;
+                    return Status.CANCEL_STATUS;
                 unloadAffectedResourcesAndReparseDocument(document,
                     affectedResources, isReparseRequired[0]);
                 for (int i = 0; i < event.getSecond(); i++)
@@ -211,6 +198,7 @@ public class HandlyDirtyStateEditorSupport
             return Status.OK_STATUS;
         }
 
+        @Override
         protected Pair<IResourceDescription.Event, Integer> mergePendingDeltas()
         {
             Map<URI, IResourceDescription.Delta> uriToDelta =
@@ -234,11 +222,6 @@ public class HandlyDirtyStateEditorSupport
             IResourceDescription.Event event =
                 new ResourceDescriptionChangeEvent(uriToDelta.values());
             return Tuples.create(event, size);
-        }
-
-        protected int getDelay()
-        {
-            return 500;
         }
 
         private void unloadAffectedResourcesAndReparseDocument(
