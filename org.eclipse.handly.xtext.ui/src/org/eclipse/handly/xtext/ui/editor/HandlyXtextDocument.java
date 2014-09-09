@@ -49,7 +49,7 @@ import com.google.inject.Inject;
  * Extends {@link XtextDocument} for our reconciling story. 
  * Implements {@link IHandlyXtextDocument}.
  * 
- * @noextend This class is not indended to be extended by clients.
+ * @noextend This class is not intended to be extended by clients.
  */
 public class HandlyXtextDocument
     extends XtextDocument

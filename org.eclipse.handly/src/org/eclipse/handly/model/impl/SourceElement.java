@@ -19,7 +19,7 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
 /**
  * Common superclass of {@link ISourceElement} implementations.
  * 
- * @noextend This class is not indended to be extended by clients. Clients 
+ * @noextend This class is not intended to be extended by clients. Clients 
  *  should extend either {@link SourceFile} or {@link SourceConstruct} instead.
  */
 public abstract class SourceElement
