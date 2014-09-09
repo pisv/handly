@@ -34,7 +34,7 @@ import org.eclipse.xtext.ui.editor.reconciler.XtextReconciler;
  * Customized for our reconciling story. Should be used together with 
  * {@link HandlyXtextDocument}.
  * 
- * @noextend This class is not indended to be extended by clients.
+ * @noextend This class is not intended to be extended by clients.
  */
 public class HandlyXtextReconciler
     extends Job
