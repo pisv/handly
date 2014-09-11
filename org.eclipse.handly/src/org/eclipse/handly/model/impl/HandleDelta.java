@@ -12,7 +12,9 @@
 package org.eclipse.handly.model.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
@@ -44,6 +46,7 @@ public class HandleDelta
     protected IHandle movedFromElement;
     protected IHandle movedToElement;
     protected IHandleDelta[] affectedChildren = EMPTY_HANDLE_DELTAS;
+    protected Map<Key, Integer> childIndex;
     protected IMarkerDelta[] markerDeltas;
     protected IResourceDelta[] resourceDeltas;
     protected int resourceDeltasCounter;
@@ -203,6 +206,7 @@ public class HandleDelta
             actualDelta.kind = REMOVED;
             actualDelta.flags = flags;
             actualDelta.affectedChildren = EMPTY_HANDLE_DELTAS;
+            actualDelta.childIndex = null;
         }
         return this;
     }
@@ -341,34 +345,19 @@ public class HandleDelta
             flags |= F_FINE_GRAINED;
         }
 
-        if (affectedChildren == null || affectedChildren.length == 0)
-        {
-            affectedChildren = new IHandleDelta[] { child };
-            return;
-        }
-
-        HandleDelta existingChild = null;
-        int existingChildIndex = -1;
-        if (affectedChildren != null)
-        {
-            for (int i = 0; i < affectedChildren.length; i++)
-            {
-                if (equalsAndSameParent(affectedChildren[i].getElement(),
-                    child.getElement()))
-                {
-                    existingChild = (HandleDelta)affectedChildren[i];
-                    existingChildIndex = i;
-                    break;
-                }
-            }
-        }
-
-        if (existingChild == null) // new affected child
+        if (childIndex == null)
+            childIndex = new HashMap<Key, Integer>();
+        Key childKey = new Key(child.getElement());
+        Integer existingChildIndex = childIndex.get(childKey);
+        if (existingChildIndex == null) // new affected child
         {
             affectedChildren = growAndAddToArray(affectedChildren, child);
+            childIndex.put(childKey, affectedChildren.length - 1);
         }
         else
         {
+            HandleDelta existingChild =
+                (HandleDelta)affectedChildren[existingChildIndex];
             switch (existingChild.getKind())
             {
             case ADDED:
@@ -381,6 +370,7 @@ public class HandleDelta
                     affectedChildren =
                         removeAndShrinkArray(affectedChildren,
                             existingChildIndex);
+                    childIndex.remove(childKey);
                     return;
                 }
                 break;
@@ -470,20 +460,11 @@ public class HandleDelta
         if (child == null)
             throw new IllegalArgumentException();
 
-        int index = -1;
-        if (affectedChildren != null)
-        {
-            for (int i = 0; i < affectedChildren.length; i++)
-            {
-                if (equalsAndSameParent(affectedChildren[i].getElement(),
-                    child.getElement()))
-                {
-                    index = i;
-                    break;
-                }
-            }
-        }
-        if (index >= 0)
+        if (affectedChildren.length == 0)
+            return;
+
+        Integer index = childIndex.remove(new Key(child.getElement()));
+        if (index != null)
         {
             affectedChildren = removeAndShrinkArray(affectedChildren, index);
         }
@@ -502,16 +483,7 @@ public class HandleDelta
             return null;
         if (equalsAndSameParent(getElement(), element))
             return this;
-        for (int i = 0; i < affectedChildren.length; i++)
-        {
-            HandleDelta delta =
-                ((HandleDelta)affectedChildren[i]).getDeltaFor(element);
-            if (delta != null)
-            {
-                return delta;
-            }
-        }
-        return null;
+        return findDescendant(new Key(element));
     }
 
     /**
@@ -903,6 +875,22 @@ public class HandleDelta
         return childrenOfType;
     }
 
+    protected final HandleDelta findDescendant(Key key)
+    {
+        if (affectedChildren.length == 0)
+            return null;
+        Integer index = childIndex.get(key);
+        if (index != null)
+            return (HandleDelta)affectedChildren[index];
+        for (IHandleDelta child : affectedChildren)
+        {
+            HandleDelta delta = ((HandleDelta)child).findDescendant(key);
+            if (delta != null)
+                return delta;
+        }
+        return null;
+    }
+
     /**
      * Returns whether the two elements are equal and have the same parent.
      */
@@ -953,5 +941,29 @@ public class HandleDelta
         if (rest > 0)
             System.arraycopy(old, index + 1, array, index, rest);
         return array;
+    }
+
+    protected static class Key
+    {
+        private final IHandle element;
+
+        public Key(IHandle element)
+        {
+            this.element = element;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return element.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof Key))
+                return false;
+            return equalsAndSameParent(element, ((Key)obj).element);
+        }
     }
 }
