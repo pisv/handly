@@ -40,6 +40,9 @@ public class HandleDelta
     private static final IResourceDelta[] EMPTY_RESOURCE_DELTAS =
         new IResourceDelta[0];
 
+    // child index is needed iff affectedChildren.length >= NEED_CHILD_INDEX 
+    private static int NEED_CHILD_INDEX = 3;
+
     protected int kind;
     protected int flags;
     protected final IHandle element;
@@ -205,8 +208,7 @@ public class HandleDelta
         {
             actualDelta.kind = REMOVED;
             actualDelta.flags = flags;
-            actualDelta.affectedChildren = EMPTY_HANDLE_DELTAS;
-            actualDelta.childIndex = null;
+            actualDelta.clearAffectedChildren();
         }
         return this;
     }
@@ -345,14 +347,11 @@ public class HandleDelta
             flags |= F_FINE_GRAINED;
         }
 
-        if (childIndex == null)
-            childIndex = new HashMap<Key, Integer>();
         Key childKey = new Key(child.getElement());
-        Integer existingChildIndex = childIndex.get(childKey);
+        Integer existingChildIndex = getChildIndex(childKey);
         if (existingChildIndex == null) // new affected child
         {
-            affectedChildren = growAndAddToArray(affectedChildren, child);
-            childIndex.put(childKey, affectedChildren.length - 1);
+            addNewChild(child);
         }
         else
         {
@@ -367,10 +366,7 @@ public class HandleDelta
                 case CHANGED: // child was added then changed -> it is added
                     return;
                 case REMOVED: // child was added then removed -> noop
-                    affectedChildren =
-                        removeAndShrinkArray(affectedChildren,
-                            existingChildIndex);
-                    childIndex.remove(childKey);
+                    removeExistingChild(childKey, existingChildIndex);
                     return;
                 }
                 break;
@@ -463,11 +459,21 @@ public class HandleDelta
         if (affectedChildren.length == 0)
             return;
 
-        Integer index = childIndex.remove(new Key(child.getElement()));
-        if (index != null)
+        Key childKey = new Key(child.getElement());
+        Integer exisingChildIndex = getChildIndex(childKey);
+        if (exisingChildIndex != null)
         {
-            affectedChildren = removeAndShrinkArray(affectedChildren, index);
+            removeExistingChild(childKey, exisingChildIndex);
         }
+    }
+
+    /**
+     * Clears the collection of affected children.
+     */
+    public void clearAffectedChildren()
+    {
+        affectedChildren = EMPTY_HANDLE_DELTAS;
+        childIndex = null;
     }
 
     /**
@@ -857,6 +863,13 @@ public class HandleDelta
         return parents;
     }
 
+    /**
+     * @param type one of {@link IHandleDelta#ADDED ADDED},
+     *  {@link IHandleDelta#REMOVED REMOVED}, or
+     *  {@link IHandleDelta#CHANGED CHANGED}
+     * @return deltas for the affected children of the given type
+     *  (never <code>null</code>)
+     */
     protected final IHandleDelta[] getChildrenOfType(int type)
     {
         int length = affectedChildren.length;
@@ -875,11 +888,18 @@ public class HandleDelta
         return childrenOfType;
     }
 
+    /**
+     * Returns the descendant delta for the given key in the delta tree, 
+     * or <code>null</code> if no delta for the given key is found.
+     * 
+     * @param key the key to search delta for (not <code>null</code>)
+     * @return the delta for the given key, or <code>null</code> if not found
+     */
     protected final HandleDelta findDescendant(Key key)
     {
         if (affectedChildren.length == 0)
             return null;
-        Integer index = childIndex.get(key);
+        Integer index = getChildIndex(key);
         if (index != null)
             return (HandleDelta)affectedChildren[index];
         for (IHandleDelta child : affectedChildren)
@@ -889,6 +909,75 @@ public class HandleDelta
                 return delta;
         }
         return null;
+    }
+
+    /**
+     * Returns the index of the delta in the collection of affected children,
+     * or <code>null</code> if the child delta for the given key is not found. 
+     *
+     * @param key the key to search child delta for (not <code>null</code>)
+     * @return the index of the child delta for the given key,
+     *  or <code>null</code> if not found
+     */
+    protected Integer getChildIndex(Key key)
+    {
+        int length = affectedChildren.length;
+        if (length < NEED_CHILD_INDEX)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                if (equalsAndSameParent(key.getElement(),
+                    affectedChildren[i].getElement()))
+                {
+                    return i;
+                }
+            }
+            return null;
+        }
+        if (childIndex == null)
+        {
+            childIndex = new HashMap<Key, Integer>();
+            for (int i = 0; i < length; i++)
+            {
+                childIndex.put(new Key(affectedChildren[i].getElement()), i);
+            }
+        }
+        return childIndex.get(key);
+    }
+
+    /**
+     * Adds the new child delta to the collection of affected children.
+     * 
+     * @param child the child delta to add (not <code>null</code>)
+     */
+    protected void addNewChild(HandleDelta child)
+    {
+        affectedChildren = growAndAddToArray(affectedChildren, child);
+        if (childIndex != null)
+        {
+            childIndex.put(new Key(child.getElement()),
+                affectedChildren.length - 1);
+        }
+    }
+
+    /**
+     * Removes the existing child delta from the collection of affected children.
+     * 
+     * @param key
+     *  the child delta key (not <code>null</code>)
+     * @param index
+     *  the index of the child delta in the collection of affected children
+     */
+    protected void removeExistingChild(Key key, int index)
+    {
+        affectedChildren = removeAndShrinkArray(affectedChildren, index);
+        if (childIndex != null)
+        {
+            if (affectedChildren.length < NEED_CHILD_INDEX)
+                childIndex = null;
+            else
+                childIndex.remove(key);
+        }
     }
 
     /**
@@ -943,13 +1032,31 @@ public class HandleDelta
         return array;
     }
 
+    /**
+     * The delta key.
+     */
     protected static class Key
     {
         private final IHandle element;
 
+        /**
+         * Constructs a new delta key for the given element. 
+         *
+         * @param element an {@link IHandle} (not <code>null</code>)
+         */
         public Key(IHandle element)
         {
+            if (element == null)
+                throw new IllegalArgumentException();
             this.element = element;
+        }
+
+        /**
+         * @return the element of the key (never <code>null</code>)
+         */
+        public IHandle getElement()
+        {
+            return element;
         }
 
         @Override

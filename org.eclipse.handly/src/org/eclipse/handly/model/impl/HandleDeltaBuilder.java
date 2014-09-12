@@ -331,11 +331,7 @@ public class HandleDeltaBuilder
     {
         if (delta.getKind() == IHandleDelta.REMOVED)
         {
-            IHandleDelta[] children = delta.getAffectedChildren();
-            for (IHandleDelta child : children)
-            {
-                delta.removeAffectedChild((HandleDelta)child);
-            }
+            delta.clearAffectedChildren();
         }
         else
         {
