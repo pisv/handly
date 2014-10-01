@@ -2,12 +2,12 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='13'>
-    <iu id='org.eclipse.sdk.ide' version='4.4.0.I20140606-1215'>
+    <iu id='org.eclipse.sdk.ide' version='4.4.1.M20140925-0400'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='3.4.0.201406110918-r'>
+    <iu id='org.eclipse.egit.feature.group' version='3.4.1.201406201815-r'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
@@ -17,27 +17,27 @@
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.sdk.feature.group" version="2.10.0.v20140519-0339">
+    <iu id="org.eclipse.emf.sdk.feature.group" version="2.10.1.v20140901-1055">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140519-0339">
+    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140901-1055">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.gef.sdk.feature.group" version="3.9.100.201405261516">
+    <iu id="org.eclipse.gef.sdk.feature.group" version="3.9.101.201408150207">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.7.0.v201409021032">
+    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.7.2.v201409160908">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.7.0.v201409021032">
+    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.7.2.v201409160908">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases'/>
       </repositories>
@@ -62,7 +62,7 @@
         <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.0.0.v20140602-0749">
+    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.0.1.v20140910-1354">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
