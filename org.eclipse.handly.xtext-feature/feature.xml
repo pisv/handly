@@ -9,20 +9,20 @@
       license-feature-version="1.0.1.qualifier">
 
    <description url="http://www.eclipse.org/handly/">
-     %description
+      %description
    </description>
 
    <copyright>
-     %copyright
+      %copyright
    </copyright>
 
    <license url="%licenseURL">
-     %license
+      %license
    </license>
 
    <requires>
       <import feature="org.eclipse.handly" version="0.2.0" match="equivalent"/>
-      <import feature="org.eclipse.xtext.ui" version="2.5.0" match="compatible"/>
+      <import feature="org.eclipse.xtext.ui" version="2.7.0" match="compatible"/>
    </requires>
 
    <plugin
