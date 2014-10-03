@@ -113,7 +113,12 @@ public class HandlyXtextEditorCallback
         IFile file = (IFile)editorInput.getAdapter(IFile.class);
         if (file == null)
             return null;
-        return (SourceFile)sourceFileFactory.getSourceFile(file);
+        return (SourceFile)getSourceFileFactory().getSourceFile(file);
+    }
+    
+    protected ISourceFileFactory getSourceFileFactory()
+    {
+        return sourceFileFactory;
     }
 
     protected final SourceFile getWorkingCopy(XtextEditor editor)

@@ -35,7 +35,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 public class SourceFileDocumentProvider
     extends TextFileDocumentProvider
 {
-    private final ISourceFileFactory sourceFileFactory;
+    protected final ISourceFileFactory sourceFileFactory;
 
     /**
      * Creates a new source file document provider with no parent.
