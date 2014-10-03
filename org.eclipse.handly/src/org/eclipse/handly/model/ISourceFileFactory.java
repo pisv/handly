@@ -13,7 +13,8 @@ package org.eclipse.handly.model;
 import org.eclipse.core.resources.IFile;
 
 /**
- * In essence, {@link ISourceFile} adapter factory for {@link IFile}.
+ * Returns {@link ISourceFile} corresponding to the given {@link IFile}.
+ * Essentially, an adapter factory.
  * <p>
  * This interface may be implemented by clients.
  * </p>
