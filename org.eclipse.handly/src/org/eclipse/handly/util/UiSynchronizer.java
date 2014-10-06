@@ -20,6 +20,8 @@ public abstract class UiSynchronizer
     /**
      * The default instance of the synchronizer or  
      * <code>null</code> if in headless mode.
+     * 
+     * @noassign This field is not intended to be assigned by clients.
      */
     public static UiSynchronizer DEFAULT;
 
