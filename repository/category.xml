@@ -18,6 +18,12 @@
    <feature url="features/org.eclipse.handly.examples.source_0.3.0.qualifier.jar" id="org.eclipse.handly.examples.source" version="0.3.0.qualifier">
       <category name="org.eclipse.handly.category"/>
    </feature>
+   <feature url="features/org.eclipse.handly.tests_0.3.0.qualifier.jar" id="org.eclipse.handly.tests" version="0.3.0.qualifier">
+      <category name="org.eclipse.handly.category"/>
+   </feature>
+   <feature url="features/org.eclipse.handly.tests.source_0.3.0.qualifier.jar" id="org.eclipse.handly.tests.source" version="0.3.0.qualifier">
+      <category name="org.eclipse.handly.category"/>
+   </feature>
    <category-def name="org.eclipse.handly.category" label="Eclipse Handly (Incubation)">
       <description>
          Eclipse Handly

@@ -46,6 +46,7 @@
   </pluginRepositories>
   <modules>
     <module>../org.eclipse.handly</module>
+    <module>../org.eclipse.handly.tests</module>
     <module>../org.eclipse.handly.ui</module>
     <module>../org.eclipse.handly.xtext</module>
     <module>../org.eclipse.handly.xtext.ui</module>
@@ -57,6 +58,7 @@
     <module>../org.eclipse.handly-feature</module>
     <module>../org.eclipse.handly.xtext-feature</module>
     <module>../org.eclipse.handly.examples-feature</module>
+    <module>../org.eclipse.handly.tests-feature</module>
     <module>../repository</module>
     <module>../targets</module>
   </modules>

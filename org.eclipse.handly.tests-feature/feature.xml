@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.handly.examples"
+      id="org.eclipse.handly.tests"
       label="%featureName"
       version="0.3.0.qualifier"
       provider-name="%providerName"
-      plugin="org.eclipse.handly.examples"
       license-feature="org.eclipse.license"
       license-feature-version="1.0.1.qualifier">
 
@@ -20,30 +19,27 @@
       %license
    </license>
 
-   <requires>
-      <import feature="org.eclipse.handly" version="0.3.0"/>
-      <import feature="org.eclipse.handly.xtext" version="0.3.0"/>
-   </requires>
-
    <plugin
-         id="org.eclipse.handly.examples"
+         id="org.eclipse.handly.junit"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.handly.examples.basic"
+         id="org.eclipse.handly.tests"
          download-size="0"
          install-size="0"
          version="0.0.0"
+         fragment="true"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.handly.examples.basic.ui"
+         id="org.eclipse.handly.examples.basic.ui.tests"
          download-size="0"
          install-size="0"
          version="0.0.0"
+         fragment="true"
          unpack="false"/>
 
 </feature>
