@@ -352,13 +352,13 @@ public class LruCache<K, V>
 
     public String toStringFillingRation(String cacheName)
     {
-        StringBuffer buffer = new StringBuffer(cacheName);
-        buffer.append('[');
-        buffer.append(getSpaceLimit());
-        buffer.append("]: "); //$NON-NLS-1$
-        buffer.append(NumberFormat.getInstance().format(fillingRatio()));
-        buffer.append("% full"); //$NON-NLS-1$
-        return buffer.toString();
+        StringBuilder builder = new StringBuilder(cacheName);
+        builder.append('[');
+        builder.append(getSpaceLimit());
+        builder.append("]: "); //$NON-NLS-1$
+        builder.append(NumberFormat.getInstance().format(fillingRatio()));
+        builder.append("% full"); //$NON-NLS-1$
+        return builder.toString();
     }
 
     /**
@@ -507,7 +507,7 @@ public class LruCache<K, V>
      */
     protected String toStringContents()
     {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         int length = this.entryTable.size();
         Object[] unsortedKeys = new Object[length];
         String[] unsortedToStrings = new String[length];
@@ -573,19 +573,19 @@ public class LruCache<K, V>
             {
                 return "No elements in cache"; //$NON-NLS-1$
             }
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder builder = new StringBuilder();
 
-            buffer.append("Number of elements in cache: "); //$NON-NLS-1$
-            buffer.append(numberOfElements);
+            builder.append("Number of elements in cache: "); //$NON-NLS-1$
+            builder.append(numberOfElements);
 
             final int numberOfGroups = 5;
             int numberOfElementsPerGroup = numberOfElements / numberOfGroups;
-            buffer.append("\n("); //$NON-NLS-1$
-            buffer.append(numberOfGroups);
-            buffer.append(" groups of "); //$NON-NLS-1$
-            buffer.append(numberOfElementsPerGroup);
-            buffer.append(" elements)"); //$NON-NLS-1$
-            buffer.append("\n\nAverage age:"); //$NON-NLS-1$
+            builder.append("\n("); //$NON-NLS-1$
+            builder.append(numberOfGroups);
+            builder.append(" groups of "); //$NON-NLS-1$
+            builder.append(numberOfElementsPerGroup);
+            builder.append(" elements)"); //$NON-NLS-1$
+            builder.append("\n\nAverage age:"); //$NON-NLS-1$
             int groupNumber = 1;
             int elementCounter = 0;
             LruCacheEntry<K, V> entry = LruCache.this.entryQueueTail;
@@ -602,31 +602,31 @@ public class LruCache<K, V>
                 if (elementCounter >= numberOfElementsPerGroup
                     && (groupNumber < numberOfGroups))
                 {
-                    buffer.append("\nGroup "); //$NON-NLS-1$
-                    buffer.append(groupNumber);
+                    builder.append("\nGroup "); //$NON-NLS-1$
+                    builder.append(groupNumber);
                     if (groupNumber == 1)
                     {
-                        buffer.append(" (oldest)\t: "); //$NON-NLS-1$
+                        builder.append(" (oldest)\t: "); //$NON-NLS-1$
                     }
                     else
                     {
-                        buffer.append("\t\t: "); //$NON-NLS-1$
+                        builder.append("\t\t: "); //$NON-NLS-1$
                     }
                     groupNumber++;
-                    buffer.append(getAverageAge(accumulatedTime,
+                    builder.append(getAverageAge(accumulatedTime,
                         elementCounter, currentTime));
                     elementCounter = 0;
                     accumulatedTime = 0;
                 }
                 entry = entry.previous;
             }
-            buffer.append("\nGroup "); //$NON-NLS-1$
-            buffer.append(numberOfGroups);
-            buffer.append(" (youngest)\t: "); //$NON-NLS-1$
-            buffer.append(getAverageAge(accumulatedTime, elementCounter,
+            builder.append("\nGroup "); //$NON-NLS-1$
+            builder.append(numberOfGroups);
+            builder.append(" (youngest)\t: "); //$NON-NLS-1$
+            builder.append(getAverageAge(accumulatedTime, elementCounter,
                 currentTime));
 
-            return buffer.toString();
+            return builder.toString();
         }
 
         public synchronized void snapshot()
@@ -705,25 +705,25 @@ public class LruCache<K, V>
             {
                 seconds = (int)ageInSeconds;
             }
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder builder = new StringBuilder();
             if (days > 0)
             {
-                buffer.append(days);
-                buffer.append(" days "); //$NON-NLS-1$
+                builder.append(days);
+                builder.append(" days "); //$NON-NLS-1$
             }
             if (hours > 0)
             {
-                buffer.append(hours);
-                buffer.append(" hours "); //$NON-NLS-1$
+                builder.append(hours);
+                builder.append(" hours "); //$NON-NLS-1$
             }
             if (minutes > 0)
             {
-                buffer.append(minutes);
-                buffer.append(" minutes "); //$NON-NLS-1$
+                builder.append(minutes);
+                builder.append(" minutes "); //$NON-NLS-1$
             }
-            buffer.append(seconds);
-            buffer.append(" seconds"); //$NON-NLS-1$
-            return buffer.toString();
+            builder.append(seconds);
+            builder.append(" seconds"); //$NON-NLS-1$
+            return builder.toString();
         }
 
         private long getTimestamps(int counter)

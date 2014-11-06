@@ -569,166 +569,166 @@ public class HandleDelta
      */
     public String toDebugString(int depth)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < depth; i++)
         {
-            buffer.append('\t');
+            builder.append('\t');
         }
-        buffer.append(((Handle)getElement()).toDebugString());
-        toDebugString(buffer);
+        builder.append(((Handle)getElement()).toDebugString());
+        toDebugString(builder);
         IHandleDelta[] children = getAffectedChildren();
         if (children != null)
         {
             for (int i = 0; i < children.length; ++i)
             {
-                buffer.append("\n"); //$NON-NLS-1$
-                buffer.append(((HandleDelta)children[i]).toDebugString(depth + 1));
+                builder.append("\n"); //$NON-NLS-1$
+                builder.append(((HandleDelta)children[i]).toDebugString(depth + 1));
             }
         }
         for (int i = 0; i < resourceDeltasCounter; i++)
         {
-            buffer.append("\n");//$NON-NLS-1$
+            builder.append("\n");//$NON-NLS-1$
             for (int j = 0; j < depth + 1; j++)
             {
-                buffer.append('\t');
+                builder.append('\t');
             }
             IResourceDelta resourceDelta = resourceDeltas[i];
-            buffer.append(resourceDelta.toString());
-            buffer.append("["); //$NON-NLS-1$
+            builder.append(resourceDelta.toString());
+            builder.append("["); //$NON-NLS-1$
             switch (resourceDelta.getKind())
             {
             case IResourceDelta.ADDED:
-                buffer.append('+');
+                builder.append('+');
                 break;
             case IResourceDelta.REMOVED:
-                buffer.append('-');
+                builder.append('-');
                 break;
             case IResourceDelta.CHANGED:
-                buffer.append('*');
+                builder.append('*');
                 break;
             default:
-                buffer.append('?');
+                builder.append('?');
                 break;
             }
-            buffer.append("]"); //$NON-NLS-1$
+            builder.append("]"); //$NON-NLS-1$
         }
-        return buffer.toString();
+        return builder.toString();
     }
 
     /**
      * Debugging purposes
      */
-    protected void toDebugString(StringBuffer buffer)
+    protected void toDebugString(StringBuilder builder)
     {
-        buffer.append("["); //$NON-NLS-1$
+        builder.append("["); //$NON-NLS-1$
         switch (getKind())
         {
         case IHandleDelta.ADDED:
-            buffer.append('+');
+            builder.append('+');
             break;
         case IHandleDelta.REMOVED:
-            buffer.append('-');
+            builder.append('-');
             break;
         case IHandleDelta.CHANGED:
-            buffer.append('*');
+            builder.append('*');
             break;
         default:
-            buffer.append('?');
+            builder.append('?');
             break;
         }
-        buffer.append("]: {"); //$NON-NLS-1$
-        toDebugString(buffer, getFlags());
-        buffer.append("}"); //$NON-NLS-1$
+        builder.append("]: {"); //$NON-NLS-1$
+        toDebugString(builder, getFlags());
+        builder.append("}"); //$NON-NLS-1$
     }
 
     /**
      * Debugging purposes
      */
-    protected boolean toDebugString(StringBuffer buffer, int flags)
+    protected boolean toDebugString(StringBuilder builder, int flags)
     {
         boolean prev = false;
         if ((flags & IHandleDelta.F_CONTENT) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("CONTENT"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("CONTENT"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_CHILDREN) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("CHILDREN"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("CHILDREN"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_MOVED_FROM) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("MOVED_FROM(" + ((Handle)getMovedFromElement()).toStringWithAncestors() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("MOVED_FROM(" + ((Handle)getMovedFromElement()).toStringWithAncestors() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
             prev = true;
         }
         if ((flags & IHandleDelta.F_MOVED_TO) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("MOVED_TO(" + ((Handle)getMovedToElement()).toStringWithAncestors() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("MOVED_TO(" + ((Handle)getMovedToElement()).toStringWithAncestors() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
             prev = true;
         }
         if ((flags & IHandleDelta.F_REORDER) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("REORDERED"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("REORDERED"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_FINE_GRAINED) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("FINE GRAINED"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("FINE GRAINED"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_OPEN) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("OPEN"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("OPEN"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_DESCRIPTION) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("DESCRIPTION"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("DESCRIPTION"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_WORKING_COPY) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("WORKING COPY"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("WORKING COPY"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_UNDERLYING_RESOURCE) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("UNDERLYING_RESOURCE"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("UNDERLYING_RESOURCE"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_MARKERS) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("MARKERS"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("MARKERS"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & IHandleDelta.F_SYNC) != 0)
         {
             if (prev)
-                buffer.append(" | "); //$NON-NLS-1$
-            buffer.append("SYNC"); //$NON-NLS-1$
+                builder.append(" | "); //$NON-NLS-1$
+            builder.append("SYNC"); //$NON-NLS-1$
             prev = true;
         }
         return prev;

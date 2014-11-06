@@ -111,10 +111,10 @@ public class HandleDeltaBuilder
     @Override
     public String toString()
     {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("Built delta:\n"); //$NON-NLS-1$
-        buffer.append(delta == null ? "<null>" : delta.toString()); //$NON-NLS-1$
-        return buffer.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("Built delta:\n"); //$NON-NLS-1$
+        builder.append(delta == null ? "<null>" : delta.toString()); //$NON-NLS-1$
+        return builder.toString();
     }
 
     /**
