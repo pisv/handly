@@ -73,19 +73,19 @@ public class FooWorkingCopyNotificationTest
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                assertEquality(new HandleDelta(fooModel).insertChanged(
+                assertDelta(new HandleDelta(fooModel).insertChanged(
                     workingCopy, HandleDelta.F_WORKING_COPY), listener.delta);
 
                 workingCopy.getFile().touch(null);
 
-                assertEquality(new HandleDelta(fooModel).insertChanged(
+                assertDelta(new HandleDelta(fooModel).insertChanged(
                     workingCopy, HandleDelta.F_CONTENT
                         | HandleDelta.F_UNDERLYING_RESOURCE), listener.delta);
 
                 listener.delta = null;
             }
         });
-        assertEquality(new HandleDelta(fooModel).insertChanged(workingCopy,
+        assertDelta(new HandleDelta(fooModel).insertChanged(workingCopy,
             HandleDelta.F_WORKING_COPY), listener.delta);
     }
 
@@ -111,13 +111,13 @@ public class FooWorkingCopyNotificationTest
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
-                assertEquality(null, listener.delta);
+                assertDelta(null, listener.delta);
 
                 workingCopy.reconcile(false, null);
 
                 assertFalse(def.exists());
 
-                assertEquality(
+                assertDelta(
                     new HandleDelta(workingCopy).insertChanged(workingCopy,
                         HandleDelta.F_CHILDREN | HandleDelta.F_FINE_GRAINED).insertAdded(
                         workingCopy.getDef("g", 0)).insertRemoved(def),
@@ -154,11 +154,11 @@ public class FooWorkingCopyNotificationTest
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
-                assertEquality(null, listener.delta);
+                assertDelta(null, listener.delta);
 
                 workingCopy.reconcile(false, null);
 
-                assertEquality(
+                assertDelta(
                     new HandleDelta(workingCopy).insertChanged(workingCopy,
                         HandleDelta.F_CHILDREN | HandleDelta.F_FINE_GRAINED).insertRemoved(
                         varY), listener.delta);
@@ -173,11 +173,11 @@ public class FooWorkingCopyNotificationTest
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
-                assertEquality(null, listener.delta);
+                assertDelta(null, listener.delta);
 
                 workingCopy.reconcile(false, null);
 
-                assertEquality(
+                assertDelta(
                     new HandleDelta(workingCopy).insertChanged(workingCopy,
                         HandleDelta.F_CHILDREN | HandleDelta.F_FINE_GRAINED).insertAdded(
                         varY), listener.delta);
@@ -208,11 +208,11 @@ public class FooWorkingCopyNotificationTest
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
-                assertEquality(null, listener.delta);
+                assertDelta(null, listener.delta);
 
                 workingCopy.reconcile(false, null);
 
-                assertEquality(
+                assertDelta(
                     new HandleDelta(workingCopy).insertChanged(workingCopy,
                         HandleDelta.F_CHILDREN | HandleDelta.F_FINE_GRAINED).insertChanged(
                         def, HandleDelta.F_CONTENT), listener.delta); // 'parameterNames' property changed
@@ -234,8 +234,7 @@ public class FooWorkingCopyNotificationTest
         }
     }
 
-    private static void assertEquality(IHandleDelta expected,
-        IHandleDelta actual)
+    private static void assertDelta(IHandleDelta expected, IHandleDelta actual)
     {
         if (expected == null)
         {
@@ -253,7 +252,7 @@ public class FooWorkingCopyNotificationTest
         IHandleDelta[] actualChildren = actual.getAffectedChildren();
         assertEquals(expectedChildren.length, actualChildren.length);
         for (int i = 0; i < expectedChildren.length; i++)
-            assertEquality(expectedChildren[i], actualChildren[i]);
+            assertDelta(expectedChildren[i], actualChildren[i]);
     }
 
     private static class FooModelListener

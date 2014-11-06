@@ -56,32 +56,31 @@ public class FooModelNotificationTest
         IFooProject fooProject2 = fooModel.getFooProject("Test002");
 
         setUpProject("Test002");
-        assertEquality(newDelta().insertAdded(fooProject2), listener.delta);
+        assertDelta(newDelta().insertAdded(fooProject2), listener.delta);
 
         IFooFile fooFile1 = fooProject1.getFooFile("test.foo");
         fooFile1.getFile().touch(null);
-        assertEquality(
-            newDelta().insertChanged(fooFile1, HandleDelta.F_CONTENT),
+        assertDelta(newDelta().insertChanged(fooFile1, HandleDelta.F_CONTENT),
             listener.delta);
 
         fooFile1.getFile().copy(new Path("/Test002/test1.foo"), true, null);
-        assertEquality(
+        assertDelta(
             newDelta().insertAdded(fooProject2.getFooFile("test1.foo")),
             listener.delta);
 
         fooFile1.getFile().delete(true, null);
-        assertEquality(newDelta().insertRemoved(fooFile1), listener.delta);
+        assertDelta(newDelta().insertRemoved(fooFile1), listener.delta);
 
         IFooFile fooFile2 = fooProject2.getFooFile("test.foo");
         IFooFile movedFooFile2 = fooProject1.getFooFile("test1.foo");
         fooFile2.getFile().move(new Path("/Test001/test1.foo"), true, null);
-        assertEquality(
+        assertDelta(
             newDelta().insertMovedTo(movedFooFile2, fooFile2).insertMovedFrom(
                 fooFile2, movedFooFile2), listener.delta);
 
         IFolder aFolder = fooProject1.getProject().getFolder("a");
         aFolder.delete(true, null);
-        assertEquality(
+        assertDelta(
             newDelta().insertChanged(fooProject1, HandleDelta.F_CONTENT),
             listener.delta);
         assertEquals(0, listener.delta.getResourceDeltas().length);
@@ -93,7 +92,7 @@ public class FooModelNotificationTest
 
         IFile bFile = fooProject1.getProject().getFile("b");
         bFile.touch(null);
-        assertEquality(
+        assertDelta(
             newDelta().insertChanged(fooProject1, HandleDelta.F_CONTENT),
             listener.delta);
         assertEquals(0, listener.delta.getResourceDeltas().length);
@@ -104,8 +103,7 @@ public class FooModelNotificationTest
         assertEquals(bFile, resourceDelta.getResource());
 
         IProject simpleProject = setUpProject("SimpleProject");
-        assertEquality(
-            newDelta().insertChanged(fooModel, HandleDelta.F_CONTENT),
+        assertDelta(newDelta().insertChanged(fooModel, HandleDelta.F_CONTENT),
             listener.delta);
         assertEquals(1, listener.delta.getResourceDeltas().length);
         resourceDelta = listener.delta.getResourceDeltas()[0];
@@ -113,35 +111,34 @@ public class FooModelNotificationTest
         assertEquals(simpleProject, resourceDelta.getResource());
 
         fooProject2.getProject().close(null);
-        assertEquality(
-            newDelta().insertRemoved(fooProject2, HandleDelta.F_OPEN),
+        assertDelta(newDelta().insertRemoved(fooProject2, HandleDelta.F_OPEN),
             listener.delta);
 
         fooProject2.getProject().open(null);
-        assertEquality(newDelta().insertAdded(fooProject2, HandleDelta.F_OPEN),
+        assertDelta(newDelta().insertAdded(fooProject2, HandleDelta.F_OPEN),
             listener.delta);
 
         fooProject2.getProject().delete(true, null);
-        assertEquality(newDelta().insertRemoved(fooProject2), listener.delta);
+        assertDelta(newDelta().insertRemoved(fooProject2), listener.delta);
 
         IProjectDescription description =
             fooProject1.getProject().getDescription();
         String[] oldNatures = description.getNatureIds();
         description.setNatureIds(new String[0]);
         fooProject1.getProject().setDescription(description, null);
-        assertEquality(
+        assertDelta(
             newDelta().insertRemoved(fooProject1, HandleDelta.F_DESCRIPTION),
             listener.delta);
 
         description.setNatureIds(oldNatures);
         fooProject1.getProject().setDescription(description, null);
-        assertEquality(
+        assertDelta(
             newDelta().insertAdded(fooProject1, HandleDelta.F_DESCRIPTION),
             listener.delta);
 
         IFooProject movedFooProject1 = fooModel.getFooProject("Test");
         fooProject1.getProject().move(new Path("Test"), true, null);
-        assertEquality(
+        assertDelta(
             newDelta().insertMovedTo(movedFooProject1, fooProject1).insertMovedFrom(
                 fooProject1, movedFooProject1), listener.delta);
     }
@@ -151,8 +148,7 @@ public class FooModelNotificationTest
         return new HandleDelta(fooModel);
     }
 
-    private static void assertEquality(IHandleDelta expected,
-        IHandleDelta actual)
+    private static void assertDelta(IHandleDelta expected, IHandleDelta actual)
     {
         if (expected == null)
         {
@@ -170,7 +166,7 @@ public class FooModelNotificationTest
         IHandleDelta[] actualChildren = actual.getAffectedChildren();
         assertEquals(expectedChildren.length, actualChildren.length);
         for (int i = 0; i < expectedChildren.length; i++)
-            assertEquality(expectedChildren[i], actualChildren[i]);
+            assertDelta(expectedChildren[i], actualChildren[i]);
     }
 
     private static class FooModelListener
