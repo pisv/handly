@@ -33,15 +33,12 @@ import org.eclipse.handly.model.ISourceFile;
 public class HandleDelta
     implements IHandleDelta
 {
-    private static final IHandleDelta[] EMPTY_HANDLE_DELTAS =
+    protected static final IHandleDelta[] EMPTY_HANDLE_DELTAS =
         new IHandleDelta[0];
-    private static final IMarkerDelta[] EMPTY_MARKER_DELTAS =
+    protected static final IMarkerDelta[] EMPTY_MARKER_DELTAS =
         new IMarkerDelta[0];
-    private static final IResourceDelta[] EMPTY_RESOURCE_DELTAS =
+    protected static final IResourceDelta[] EMPTY_RESOURCE_DELTAS =
         new IResourceDelta[0];
-
-    // child index is needed iff affectedChildren.length >= NEED_CHILD_INDEX 
-    private static int NEED_CHILD_INDEX = 3;
 
     protected int kind;
     protected int flags;
@@ -49,7 +46,14 @@ public class HandleDelta
     protected IHandle movedFromElement;
     protected IHandle movedToElement;
     protected IHandleDelta[] affectedChildren = EMPTY_HANDLE_DELTAS;
+
+    /**
+     * On-demand index into <code>affectedChildren</code>
+     * @see #needsChildIndex()
+     * @see #indexOfChild(Key)
+     */
     protected Map<Key, Integer> childIndex;
+
     protected IMarkerDelta[] markerDeltas;
     protected IResourceDelta[] resourceDeltas;
     protected int resourceDeltasCounter;
@@ -347,16 +351,15 @@ public class HandleDelta
             flags |= F_FINE_GRAINED;
         }
 
-        Key childKey = new Key(child.getElement());
-        Integer existingChildIndex = getChildIndex(childKey);
-        if (existingChildIndex == null) // new affected child
+        Key key = new Key(child.getElement());
+        Integer index = indexOfChild(key);
+        if (index == null) // new affected child
         {
             addNewChild(child);
         }
         else
         {
-            HandleDelta existingChild =
-                (HandleDelta)affectedChildren[existingChildIndex];
+            HandleDelta existingChild = (HandleDelta)affectedChildren[index];
             switch (existingChild.getKind())
             {
             case ADDED:
@@ -366,7 +369,7 @@ public class HandleDelta
                 case CHANGED: // child was added then changed -> it is added
                     return;
                 case REMOVED: // child was added then removed -> noop
-                    removeExistingChild(childKey, existingChildIndex);
+                    removeExistingChild(key, index);
                     return;
                 }
                 break;
@@ -375,7 +378,7 @@ public class HandleDelta
                 {
                 case ADDED: // child was removed then added -> it is changed
                     child.kind = CHANGED;
-                    affectedChildren[existingChildIndex] = child;
+                    affectedChildren[index] = child;
                     return;
                 case CHANGED: // child was removed then changed -> it is removed
                 case REMOVED: // child was removed then removed -> it is removed
@@ -387,7 +390,7 @@ public class HandleDelta
                 {
                 case ADDED: // child was changed then added -> it is added
                 case REMOVED: // child was changed then removed -> it is removed
-                    affectedChildren[existingChildIndex] = child;
+                    affectedChildren[index] = child;
                     return;
                 case CHANGED: // child was changed then changed -> it is changed
                     IHandleDelta[] children = child.getAffectedChildren();
@@ -440,7 +443,7 @@ public class HandleDelta
             default:
                 // unknown -> existing child becomes the child with the existing child's flags
                 int flags = existingChild.getFlags();
-                affectedChildren[existingChildIndex] = child;
+                affectedChildren[index] = child;
                 child.flags |= flags;
             }
         }
@@ -459,11 +462,11 @@ public class HandleDelta
         if (affectedChildren.length == 0)
             return;
 
-        Key childKey = new Key(child.getElement());
-        Integer exisingChildIndex = getChildIndex(childKey);
-        if (exisingChildIndex != null)
+        Key key = new Key(child.getElement());
+        Integer index = indexOfChild(key);
+        if (index != null)
         {
-            removeExistingChild(childKey, exisingChildIndex);
+            removeExistingChild(key, index);
         }
     }
 
@@ -899,7 +902,7 @@ public class HandleDelta
     {
         if (affectedChildren.length == 0)
             return null;
-        Integer index = getChildIndex(key);
+        Integer index = indexOfChild(key);
         if (index != null)
             return (HandleDelta)affectedChildren[index];
         for (IHandleDelta child : affectedChildren)
@@ -919,10 +922,10 @@ public class HandleDelta
      * @return the index of the child delta for the given key,
      *  or <code>null</code> if not found
      */
-    protected Integer getChildIndex(Key key)
+    protected Integer indexOfChild(Key key)
     {
         int length = affectedChildren.length;
-        if (length < NEED_CHILD_INDEX)
+        if (!needsChildIndex())
         {
             for (int i = 0; i < length; i++)
             {
@@ -973,11 +976,23 @@ public class HandleDelta
         affectedChildren = removeAndShrinkArray(affectedChildren, index);
         if (childIndex != null)
         {
-            if (affectedChildren.length < NEED_CHILD_INDEX)
+            if (!needsChildIndex())
                 childIndex = null;
             else
                 childIndex.remove(key);
         }
+    }
+
+    /**
+     * Returns whether {@link #childIndex} needs to be used for child lookup.
+     * <p>
+     * Default implementation answers <code>true</code> iff
+     * <code>affectedChildren.length >= 3</code>.
+     * </p>
+     */
+    protected boolean needsChildIndex()
+    {
+        return affectedChildren.length >= 3;
     }
 
     /**
