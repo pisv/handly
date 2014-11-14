@@ -56,6 +56,11 @@ import com.google.inject.Inject;
  * Note that much of the code is free from specifics of the Foo Model, 
  * thanks to the uniform API provided by Handly.
  * </p>
+ * 
+ * @deprecated This class implements a basic Foo Outline page from scratch.
+ *  Since 0.3, you can use Handly outline framework to easily build
+ *  outline pages of rich functionality. {@link FooOutlinePage2}
+ *  provides an example. 
  */
 public final class FooOutlinePage
     extends ContentOutlinePage

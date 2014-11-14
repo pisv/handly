@@ -39,13 +39,13 @@ import org.eclipse.xtext.ui.editor.XtextEditor;
 import com.google.inject.Inject;
 
 /**
- * Integrates XtextEditor with our working copy management facility. 
+ * Integrates Xtext editor with Handly working copy management facility. 
  * Should be used together with {@link HandlyXtextDocument}.
- * Creates a working copy when a source file is opened in XtextEditor. 
+ * Creates a working copy when a source file is opened in Xtext editor. 
  * Discards the working copy when the editor is being disposed. Also, 
  * sets the editor highlight range for the currently selected element.
  * <p>
- * Note that this implementation relies on the language-specific 
+ * Note that this implementation relies on a language-specific 
  * {@link ISourceFileFactory} being available through injection.
  * </p>
  */

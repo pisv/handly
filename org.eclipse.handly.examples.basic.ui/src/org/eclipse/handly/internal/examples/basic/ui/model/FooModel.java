@@ -45,7 +45,7 @@ public class FooModel
      */
     public FooModel(IWorkspace workspace)
     {
-        super(null, null);
+        super(null, ""); //$NON-NLS-1$
         if (workspace == null)
             throw new IllegalArgumentException();
         this.workspace = workspace;

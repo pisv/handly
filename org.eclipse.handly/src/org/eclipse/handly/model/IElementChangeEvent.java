@@ -13,7 +13,7 @@ package org.eclipse.handly.model;
 
 /**
  * Describes a change to the structure or contents of a tree of elements 
- * of a handle-based model. The changes to the elements are described by 
+ * of a Handly-based model. The changes to the elements are described by 
  * the associated delta object carried by this event.
  * <p>
  * Adapted from <code>org.eclipse.jdt.core.ElementChangedEvent</code>.

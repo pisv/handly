@@ -23,6 +23,11 @@ public interface IElementChangeListener
      * Notifies that one or more attributes of one or more elements 
      * of a handle-based model have changed. The specific details 
      * of the change are described by the given event.
+     * <p>
+     * <b>Note</b> This method may be called in any thread. 
+     * The event object (and the delta within it) is valid only 
+     * for the duration of the invocation of this method.
+     * </p>
      *
      * @param event the change event (not <code>null</code>)
      */

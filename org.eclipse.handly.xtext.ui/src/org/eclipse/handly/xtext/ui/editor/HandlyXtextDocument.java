@@ -56,7 +56,7 @@ import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 import com.google.inject.Inject;
 
 /**
- * Extends {@link XtextDocument} for our reconciling story. 
+ * Extends {@link XtextDocument} for Handly reconciling story. 
  * Implements {@link IHandlyXtextDocument}.
  * 
  * @noextend This class is not intended to be extended by clients.

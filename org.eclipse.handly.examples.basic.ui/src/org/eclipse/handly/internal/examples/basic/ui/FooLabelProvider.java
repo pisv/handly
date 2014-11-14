@@ -22,7 +22,9 @@ import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.xtext.util.Strings;
@@ -32,9 +34,20 @@ import org.eclipse.xtext.util.Strings;
  */
 public class FooLabelProvider
     extends LabelProvider
+    implements IStyledLabelProvider
 {
     private ResourceManager resourceManager = new LocalResourceManager(
         JFaceResources.getResources());
+
+    @Override
+    public StyledString getStyledText(Object element)
+    {
+        String text = getText(element);
+        if (text == null)
+            return new StyledString();
+        else
+            return new StyledString(text);
+    }
 
     @Override
     public String getText(Object element)

@@ -39,7 +39,7 @@ import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 import com.google.common.collect.Maps;
 
 /**
- * Extends {@link DirtyStateEditorSupport} for our reconciling story.
+ * Extends {@link DirtyStateEditorSupport} for Handly reconciling story.
  * Should be used together with {@link HandlyXtextDocument}.
  */
 public class HandlyDirtyStateEditorSupport

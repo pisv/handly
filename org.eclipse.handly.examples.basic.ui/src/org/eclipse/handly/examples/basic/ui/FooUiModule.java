@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.basic.ui;
 
-import org.eclipse.handly.examples.basic.ui.AbstractFooUiModule;
 import org.eclipse.handly.examples.basic.ui.internal.FooActivator;
 import org.eclipse.handly.internal.examples.basic.ui.model.FooFileFactory;
-import org.eclipse.handly.internal.examples.basic.ui.outline.FooOutlinePage;
+import org.eclipse.handly.internal.examples.basic.ui.outline.FooOutlinePage2;
 import org.eclipse.handly.model.ISourceFileFactory;
 import org.eclipse.handly.xtext.ui.editor.HandlyDirtyStateEditorSupport;
 import org.eclipse.handly.xtext.ui.editor.HandlyXtextDocument;
@@ -46,7 +45,7 @@ public class FooUiModule
     @Override
     public Class<? extends IContentOutlinePage> bindIContentOutlinePage()
     {
-        return FooOutlinePage.class;
+        return FooOutlinePage2.class;
     }
 
 // the following bindings are required for Handly/Xtext integration:

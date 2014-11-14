@@ -12,6 +12,9 @@ package org.eclipse.handly.internal.ui;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -22,6 +25,13 @@ public class Activator
     extends AbstractUIPlugin
 {
     public static final String PLUGIN_ID = "org.eclipse.handly.ui"; //$NON-NLS-1$
+
+    public static final String T_ELCL16 = "/elcl16/"; //$NON-NLS-1$
+
+    public static final String IMG_ELCL_EXPANDALL = PLUGIN_ID + T_ELCL16
+        + "expandall.gif"; //$NON-NLS-1$
+    public static final String IMG_ELCL_LEXICAL_SORT = PLUGIN_ID + T_ELCL16
+        + "lexical_sort.gif"; //$NON-NLS-1$
 
     private static Activator plugin;
 
@@ -50,6 +60,16 @@ public class Activator
         return new Status(IStatus.WARNING, PLUGIN_ID, 0, msg, null);
     }
 
+    public static Image getImage(String symbolicName)
+    {
+        return plugin.getImageRegistry().get(symbolicName);
+    }
+
+    public static ImageDescriptor getImageDescriptor(String symbolicName)
+    {
+        return plugin.getImageRegistry().getDescriptor(symbolicName);
+    }
+
     @Override
     public void start(BundleContext context) throws Exception
     {
@@ -61,5 +81,21 @@ public class Activator
     {
         super.stop(context);
         plugin = null;
+    }
+
+    @Override
+    protected void initializeImageRegistry(ImageRegistry reg)
+    {
+        reg.put(IMG_ELCL_EXPANDALL,
+            imageDescriptorFromSymbolicName(IMG_ELCL_EXPANDALL));
+        reg.put(IMG_ELCL_LEXICAL_SORT,
+            imageDescriptorFromSymbolicName(IMG_ELCL_LEXICAL_SORT));
+    }
+
+    private static ImageDescriptor imageDescriptorFromSymbolicName(
+        String symbolicName)
+    {
+        String path = "/icons" + symbolicName.substring(PLUGIN_ID.length()); //$NON-NLS-1$
+        return imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
 }

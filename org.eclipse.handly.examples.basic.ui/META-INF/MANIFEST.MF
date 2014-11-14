@@ -10,6 +10,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.handly.examples.basic,
  org.eclipse.handly,
+ org.eclipse.handly.ui,
  org.eclipse.handly.xtext.ui,
  org.eclipse.xtext.ui,
  org.eclipse.xtext.ui.shared,
