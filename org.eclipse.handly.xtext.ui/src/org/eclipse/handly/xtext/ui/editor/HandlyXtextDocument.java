@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
+ *     George Suaridze (1C) - ongoing maintenance  
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
@@ -44,6 +45,7 @@ import org.eclipse.xtext.ui.editor.DirtyStateEditorSupport;
 import org.eclipse.xtext.ui.editor.model.DocumentTokenSource;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver.Processor;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
+import org.eclipse.xtext.ui.editor.model.IXtextModelListenerExtension;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.eclipse.xtext.ui.editor.model.edit.ITextEditComposer;
 import org.eclipse.xtext.ui.editor.reconciler.CancelIndicatorBasedProgressMonitor;
@@ -230,7 +232,25 @@ public class HandlyXtextDocument
         {
             try
             {
-                listener.modelChanged(resource);
+                if (isOutdated())
+                {
+                    return;
+                }
+                if (listener instanceof IXtextModelListenerExtension)
+                {
+                    ((IXtextModelListenerExtension)listener).modelChanged(
+                        resource, new CancelIndicator()
+                        {
+                            public boolean isCanceled()
+                            {
+                                return isOutdated();
+                            }
+                        });
+                }
+                else
+                {
+                    listener.modelChanged(resource);
+                }
             }
             catch (Exception e)
             {
