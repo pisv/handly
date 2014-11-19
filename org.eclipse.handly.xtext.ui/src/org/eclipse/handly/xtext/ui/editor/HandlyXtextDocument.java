@@ -65,6 +65,14 @@ public class HandlyXtextDocument
     extends XtextDocument
     implements IHandlyXtextDocument
 {
+    private final static IUnitOfWork.Void<XtextResource> NO_OP =
+        new IUnitOfWork.Void<XtextResource>()
+        {
+            public void process(XtextResource resource)
+            {
+            }
+        };
+
     private final BooleanThreadLocal hasTopLevelModification =
         new BooleanThreadLocal();
 
@@ -169,35 +177,35 @@ public class HandlyXtextDocument
     @Override
     public boolean reconcile(boolean force)
     {
-        return reconcile(force, null);
+        if (!force)
+        {
+            readOnly(NO_OP);
+        }
+        else
+        {
+            T2MReconcilingUnitOfWork reconcilingUnitOfWork =
+                new T2MReconcilingUnitOfWork(true);
+            internalModify(reconcilingUnitOfWork);
+        }
+        // FIXME API deficiency -- this method should return 'void'.
+        // Clients should not rely on the currently returned value
+        return true;
     }
 
     /**
-     * Reparses the resource so it becomes reconciled with the document contents. 
-     * Does nothing if already reconciled and <code>force == false</code>.
-     * For internal use only.
+     * Re-parses the resource so it becomes reconciled with the document contents. 
+     * Does nothing if already reconciled. <b>For internal use only.</b>
      *
-     * @param force indicates whether reconciling has to be performed 
-     *  even if it is not {@link #needsReconciling() needed}
      * @param processor the processor to execute the reconciling unit of work 
-     *  or <code>null</code> if no special processor is needed
+     *  (not <code>null</code>)
      * @return <code>true</code> if the document had any changes to be reconciled,
      *   <code>false</code> otherwise
      */
-    public boolean reconcile(boolean force, Processor processor)
+    public boolean reconcile(Processor processor)
     {
         T2MReconcilingUnitOfWork reconcilingUnitOfWork =
-            new T2MReconcilingUnitOfWork(force);
-        if (processor != null)
-            return processor.process(reconcilingUnitOfWork);
-        else
-            return internalModify(reconcilingUnitOfWork);
-    }
-
-    @Override
-    public <T> T readOnly(IUnitOfWork<T, XtextResource> work)
-    {
-        return super.readOnly(work);
+            new T2MReconcilingUnitOfWork(false);
+        return processor.process(reconcilingUnitOfWork);
     }
 
     @Override
@@ -364,10 +372,9 @@ public class HandlyXtextDocument
         }
     }
 
-    private void internalReconcile(XtextResource resource, boolean force)
-        throws Exception
+    private void internalReconcile(XtextResource resource)
     {
-        reconcile(force, new InternalProcessor(resource));
+        reconcile(new InternalProcessor(resource));
     }
 
     private void detachResource()
@@ -571,7 +578,7 @@ public class HandlyXtextDocument
             hasTopLevelModification.set(true);
             try
             {
-                internalReconcile(resource, false); // ensure a fresh base snapshot
+                internalReconcile(resource); // ensure a fresh base snapshot
                 baseSnapshot = getReconciledSnapshot();
                 T result;
                 try
@@ -608,7 +615,7 @@ public class HandlyXtextDocument
                     resource.reparse(reconciledSnapshot.getContents());
                     throw e;
                 }
-                internalReconcile(resource, false); // reconcile resource with changed document
+                internalReconcile(resource); // reconcile resource with changed document
                 return result;
             }
             finally
