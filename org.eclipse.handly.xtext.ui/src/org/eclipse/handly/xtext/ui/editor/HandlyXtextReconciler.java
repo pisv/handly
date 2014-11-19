@@ -190,7 +190,7 @@ public class HandlyXtextReconciler
                 try
                 {
                     if (doc.needsReconciling()) // this check is required to avoid constant rescheduling of ValidationJob
-                        hadUpdates = doc.reconcile(false, processor);
+                        hadUpdates = doc.reconcile(processor);
                 }
                 catch (Exception e)
                 {
