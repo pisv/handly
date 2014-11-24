@@ -26,11 +26,19 @@
 # WTP releng tool addRepoProperties.
 #
 # Requirements:
-# 1. JAVA_HOME properly set
-# 2. ECLIPSE_HOME pointing to an Eclipse installation that contains
-#    org.eclipse.wtp.releng.tools.feature (the feature can be installed from
-#    http://download.eclipse.org/webtools/releng/repository/)
-# 3. pwd, curl and unzip utilities
+# * JAVA_HOME properly set
+# * ECLIPSE_HOME pointing to an Eclipse installation that contains
+#   org.eclipse.wtp.releng.tools.feature (the feature can be installed from
+#   http://download.eclipse.org/webtools/releng/repository/)
+# * pwd, curl and unzip utilities
+#
+# Optional:
+# * DOWNLOADS_AREA may specify a directory name so that the path
+#   ~/downloads/handly/$DOWNLOADS_AREA/ will point to a directory
+#   on build.eclipse.org in which Handly downloads are stored.
+#   This is where you will upload the result subdirectory.
+#   If this variable is not set, "releases" is assumed.
+#   Use "drops" for non-release builds.
 # 
 # Usage: ./promote.sh <hudson-job-name> <hudson-build-number> [<build-tag>]
 #   
@@ -129,7 +137,8 @@ fi
 # Configuring additional p2 properties
 #
 
-REPOSITORY_PATH=${REPOSITORY_PATH:-"/handly/releases/$REPO_VERSION/repository"}
+DOWNLOADS_AREA=${DOWNLOADS_AREA:-"releases"}
+REPOSITORY_PATH="/handly/$DOWNLOADS_AREA/$REPO_VERSION/repository"
 P2_MIRRORS_URL="http://www.eclipse.org/downloads/download.php?file=$REPOSITORY_PATH&format=xml"
 P2_MIRRORS_ARGS=" -DartifactRepoDirectory=$(pwd)/$REPO_VERSION/repository -Dp2MirrorsURL=$P2_MIRRORS_URL"
 
