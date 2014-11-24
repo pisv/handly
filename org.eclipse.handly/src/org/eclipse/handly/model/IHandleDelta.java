@@ -21,7 +21,7 @@ import org.eclipse.core.resources.IResourceDelta;
  * <p>
  * Deltas have a different status depending on the kind of change they represent. 
  * The list below summarizes each status (as returned by {@link #getKind}) 
- * and its meaning (see individual constants for a more detailled description):
+ * and its meaning (see individual constants for a more detailed description):
  * <ul>
  * <li>{@link #ADDED} - The element described by the delta has been added.
  * <li>{@link #REMOVED} - The element described by the delta has been removed.
@@ -55,13 +55,13 @@ public interface IHandleDelta
 {
     /**
      * Status constant indicating that the element has been added. Note that 
-     * an added element delta has no children, as they are all implicitely added.
+     * an added element delta has no children, as they are all implicitly added.
      */
     int ADDED = 1;
 
     /**
      * Status constant indicating that the element has been removed. Note that 
-     * a removed element delta has no children, as they are all implicitely removed.
+     * a removed element delta has no children, as they are all implicitly removed.
      */
     int REMOVED = 2;
 
