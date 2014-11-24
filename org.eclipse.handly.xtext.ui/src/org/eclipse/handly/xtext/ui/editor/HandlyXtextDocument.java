@@ -175,7 +175,7 @@ public class HandlyXtextDocument
     }
 
     @Override
-    public boolean reconcile(boolean force)
+    public void reconcile(boolean force)
     {
         if (!force)
         {
@@ -187,9 +187,6 @@ public class HandlyXtextDocument
                 new T2MReconcilingUnitOfWork(true);
             internalModify(reconcilingUnitOfWork);
         }
-        // FIXME API deficiency -- this method should return 'void'.
-        // Clients should not rely on the currently returned value
-        return true;
     }
 
     /**

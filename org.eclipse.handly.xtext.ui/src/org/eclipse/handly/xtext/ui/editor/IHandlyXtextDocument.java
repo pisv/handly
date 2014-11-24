@@ -39,19 +39,13 @@ public interface IHandlyXtextDocument
     boolean needsReconciling();
 
     /**
-     * FIXME <b>API deficiency</b> -- this method should return 'void'.
-     * Clients should not rely on the currently returned value.
-     * <p>
      * Re-parses the resource so it becomes reconciled with the document contents. 
      * Does nothing if already reconciled and <code>force == false</code>.
-     * </p>
      *
      * @param force indicates whether reconciling has to be performed 
      *  even if it is not {@link #needsReconciling() needed}
-     * @return <code>true</code> if the document had any changes to be reconciled,
-     *   <code>false</code> otherwise
      */
-    boolean reconcile(boolean force);
+    void reconcile(boolean force);
 
     /**
      * Returns the snapshot from which the document's resource was parsed 
