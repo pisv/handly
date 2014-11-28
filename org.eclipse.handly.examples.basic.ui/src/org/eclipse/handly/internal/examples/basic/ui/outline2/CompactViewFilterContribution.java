@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.outline2;
 
-import org.eclipse.handly.internal.examples.basic.ui.model.FooDef;
+import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.ui.outline.OutlineFilterContribution;
 import org.eclipse.handly.ui.preference.IBooleanPreference;
 import org.eclipse.jface.viewers.Viewer;
@@ -43,7 +43,7 @@ public class CompactViewFilterContribution
             public boolean select(Viewer viewer, Object parentElement,
                 Object element)
             {
-                return (element instanceof FooDef);
+                return (element instanceof IFooDef);
             }
         };
     }
