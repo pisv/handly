@@ -8,31 +8,50 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.ui.outline;
+package org.eclipse.handly.internal.examples.basic.ui.outline2;
 
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.internal.examples.basic.ui.FooContentProvider;
 import org.eclipse.handly.internal.examples.basic.ui.FooLabelProvider;
 import org.eclipse.handly.model.IElementChangeListener;
+import org.eclipse.handly.ui.outline.ProblemMarkerListenerContribution;
+import org.eclipse.handly.ui.viewer.ProblemMarkerLabelDecorator;
 import org.eclipse.handly.xtext.ui.outline.HandlyXtextOutlinePage;
+import org.eclipse.jface.viewers.DecoratingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
 import com.google.inject.Inject;
 
 /**
- * This implementation of Foo Outline page employs Handly outline framework
- * and is both richer in ability and less in size than the class {@link FooOutlinePage},
- * which implements a similar functionality from scratch. See also the
- * <code>outline2</code> package, which provides a more advanced example.
+ * A more advanced implementation of Foo Outline page with Handly outline
+ * framework.
+ * <p>
+ * Over the basic implementation in the <code>outline</code> package,
+ * this one provides problem marker decoration and a custom filter.
+ * </p>
  */
-public class FooOutlinePage2
+public class FooOutlinePage
     extends HandlyXtextOutlinePage
 {
+    @Inject
+    private CompactViewActionContribution compactViewActionContribution;
+    @Inject
+    private CompactViewFilterContribution compactViewFilterContribution;
     @Inject
     private FooContentProvider contentProvider;
     @Inject
     private FooLabelProvider labelProvider;
+
+    @Inject
+    @Override
+    protected void addOutlineContributions()
+    {
+        super.addOutlineContributions();
+        addOutlineContribution(new ProblemMarkerListenerContribution());
+        addOutlineContribution(compactViewActionContribution);
+        addOutlineContribution(compactViewFilterContribution);
+    }
 
     @Override
     protected ITreeContentProvider getContentProvider()
@@ -43,7 +62,8 @@ public class FooOutlinePage2
     @Override
     protected IBaseLabelProvider getLabelProvider()
     {
-        return labelProvider;
+        return new DecoratingStyledCellLabelProvider(labelProvider,
+            new ProblemMarkerLabelDecorator(), null);
     }
 
     @Override
