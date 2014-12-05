@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.outline2;
 
-import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.ui.outline.OutlineFilterContribution;
 import org.eclipse.handly.ui.preference.IBooleanPreference;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
 import com.google.inject.Inject;
@@ -28,6 +26,8 @@ public class CompactViewFilterContribution
 {
     @Inject
     private CompactViewPreference preference;
+    @Inject
+    private CompactViewFilter filter;
 
     @Override
     protected IBooleanPreference getPreference()
@@ -38,13 +38,6 @@ public class CompactViewFilterContribution
     @Override
     protected ViewerFilter getFilter()
     {
-        return new ViewerFilter()
-        {
-            public boolean select(Viewer viewer, Object parentElement,
-                Object element)
-            {
-                return (element instanceof IFooDef);
-            }
-        };
+        return filter;
     }
 }

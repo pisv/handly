@@ -13,7 +13,9 @@ package org.eclipse.handly.examples.basic.ui;
 import org.eclipse.handly.examples.basic.ui.internal.FooActivator;
 import org.eclipse.handly.internal.examples.basic.ui.model.FooFileFactory;
 import org.eclipse.handly.internal.examples.basic.ui.outline2.FooOutlinePage;
+import org.eclipse.handly.internal.examples.basic.ui.outline2.FooOutlinePopup;
 import org.eclipse.handly.model.ISourceFileFactory;
+import org.eclipse.handly.ui.quickoutline.OutlinePopup;
 import org.eclipse.handly.xtext.ui.editor.HandlyDirtyStateEditorSupport;
 import org.eclipse.handly.xtext.ui.editor.HandlyXtextDocument;
 import org.eclipse.handly.xtext.ui.editor.HandlyXtextEditorCallback;
@@ -46,6 +48,11 @@ public class FooUiModule
     public Class<? extends IContentOutlinePage> bindIContentOutlinePage()
     {
         return FooOutlinePage.class;
+    }
+
+    public Class<? extends OutlinePopup> bindOutlinePopup()
+    {
+        return FooOutlinePopup.class;
     }
 
 // the following bindings are required for Handly/Xtext integration:

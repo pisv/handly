@@ -8,10 +8,9 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.ui.outline;
+package org.eclipse.handly.internal.ui;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.ISourceFile;
@@ -20,7 +19,7 @@ import org.eclipse.handly.util.TextRange;
 /**
  * Utilities for <code>ISourceElement</code>s.
  */
-class SourceElementUtil
+public class SourceElementUtil
 {
     /**
      * Returns the smallest element within the given source file 
