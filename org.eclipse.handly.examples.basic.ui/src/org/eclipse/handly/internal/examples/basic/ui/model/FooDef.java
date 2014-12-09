@@ -74,6 +74,15 @@ public class FooDef
     }
 
     @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + arity;
+        return result;
+    }
+
+    @Override
     protected HandleManager getHandleManager()
     {
         return FooModelManager.INSTANCE.getHandleManager();
