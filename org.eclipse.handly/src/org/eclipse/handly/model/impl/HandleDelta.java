@@ -979,7 +979,13 @@ public class HandleDelta
             if (!needsChildIndex())
                 childIndex = null;
             else
+            {
                 childIndex.remove(key);
+                for (int i = index; i < affectedChildren.length; i++)
+                {
+                    childIndex.put(new Key(affectedChildren[i].getElement()), i);
+                }
+            }
         }
     }
 
