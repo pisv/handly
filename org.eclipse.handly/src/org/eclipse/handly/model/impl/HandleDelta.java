@@ -973,10 +973,17 @@ public class HandleDelta
         affectedChildren = removeAndShrinkArray(affectedChildren, index);
         if (childIndex != null)
         {
-            if (affectedChildren.length < NEED_CHILD_INDEX)
+            int length = affectedChildren.length;
+            if (length < NEED_CHILD_INDEX)
                 childIndex = null;
             else
+            {
                 childIndex.remove(key);
+                for (int i = index; i < length; i++)
+                {
+                    childIndex.put(new Key(affectedChildren[i].getElement()), i);
+                }
+            }
         }
     }
 

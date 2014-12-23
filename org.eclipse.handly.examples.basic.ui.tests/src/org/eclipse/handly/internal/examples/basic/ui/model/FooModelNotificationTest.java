@@ -146,6 +146,24 @@ public class FooModelNotificationTest
                 fooProject1, movedFooProject1), listener.delta);
     }
 
+    /**
+     * Regression test for bug 456060 - AIOOB in HandleDelta.addAffectedChild.
+     *
+     * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=456060
+     */
+    public void testBug456060()
+    {
+        HandleDelta delta = newDelta();
+        delta.insertAdded(fooModel.getFooProject("A"));
+        delta.insertAdded(fooModel.getFooProject("B"));
+        delta.insertAdded(fooModel.getFooProject("C"));
+        delta.insertAdded(fooModel.getFooProject("D"));
+        delta.insertMovedFrom(fooModel.getFooProject("C"),
+            fooModel.getFooProject("X"));
+        delta.insertMovedFrom(fooModel.getFooProject("D"),
+            fooModel.getFooProject("D"));
+    }
+
     private HandleDelta newDelta()
     {
         return new HandleDelta(fooModel);
