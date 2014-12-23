@@ -7,9 +7,9 @@
         <repository location='http://download.eclipse.org/releases/kepler'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='3.2.0.201312181205-r'>
+    <iu id='org.eclipse.egit.feature.group' version='3.4.2.201412180340-r'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/kepler'/>
+        <repository location='http://download.eclipse.org/egit/updates-3.4.2'/>
       </repositories>
     </iu>
     <iu id='org.eclipse.m2e.feature.feature.group' version='1.4.0.20130601-0317'>
