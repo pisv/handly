@@ -22,4 +22,5 @@ Export-Package: org.eclipse.handly.ui.outline,
  org.eclipse.handly.ui.preference,
  org.eclipse.handly.ui.quickoutline,
  org.eclipse.handly.ui.texteditor,
- org.eclipse.handly.ui.viewer
+ org.eclipse.handly.ui.viewer,
+ org.eclipse.handly.ui.workingset
