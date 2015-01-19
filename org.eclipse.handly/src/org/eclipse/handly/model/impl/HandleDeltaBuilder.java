@@ -89,7 +89,7 @@ public class HandleDeltaBuilder
      */
     public final void buildDelta()
     {
-        delta = new HandleDelta(element);
+        delta = newDelta(element);
         recordNewPositions(element, 0);
         findAdditions(element, 0);
         findDeletions();
@@ -115,6 +115,19 @@ public class HandleDeltaBuilder
         builder.append("Built delta:\n"); //$NON-NLS-1$
         builder.append(delta == null ? "<null>" : delta.toString()); //$NON-NLS-1$
         return builder.toString();
+    }
+
+    /**
+     * Returns a new, initially empty delta for the given element.
+     *
+     * @param element the element that this delta describes a change to
+     *  (not <code>null</code>)
+     * @return a new, initially empty delta for the given element
+     *  (never <code>null</code>)
+     */
+    protected HandleDelta newDelta(IHandle element)
+    {
+        return new HandleDelta(element);
     }
 
     /**
