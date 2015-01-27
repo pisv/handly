@@ -13,10 +13,8 @@ package org.eclipse.handly.xtext.ui.editor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
@@ -45,7 +43,6 @@ import org.eclipse.xtext.ui.editor.DirtyStateEditorSupport;
 import org.eclipse.xtext.ui.editor.model.DocumentTokenSource;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver.Processor;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
-import org.eclipse.xtext.ui.editor.model.IXtextModelListenerExtension;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.eclipse.xtext.ui.editor.model.edit.ITextEditComposer;
 import org.eclipse.xtext.ui.editor.reconciler.CancelIndicatorBasedProgressMonitor;
@@ -77,8 +74,6 @@ public class HandlyXtextDocument
         new BooleanThreadLocal();
 
     private ITextEditComposer composer2; // unfortunately had to duplicate
-    private final List<IXtextModelListener> modelListeners2 =
-        new ArrayList<IXtextModelListener>(); // unfortunately had to duplicate
     private volatile NonExpiringSnapshot reconciledSnapshot;
     private final ListenerList reconcilingListeners = new ListenerList(
         ListenerList.IDENTITY);
@@ -110,10 +105,7 @@ public class HandlyXtextDocument
         getAndResetPendingChange();
         reconciledSnapshot = null;
         reconcilingListeners.clear();
-        synchronized (modelListeners2)
-        {
-            modelListeners2.clear(); // fixes issue with holding XtextEditor from disposed document (see DefaultFoldingStructureProvider)
-        }
+        clearModelListeners(); // fixes issue with holding XtextEditor from disposed document (see DefaultFoldingStructureProvider)
         Job validationJob = getValidationJob();
         if (validationJob != null)
             validationJob.cancel();
@@ -141,31 +133,6 @@ public class HandlyXtextDocument
     public void removeReconcilingListener(IReconcilingListener listener)
     {
         reconcilingListeners.remove(listener);
-    }
-
-    @Override
-    public void addModelListener(IXtextModelListener listener)
-    {
-        Assert.isNotNull(listener);
-        synchronized (modelListeners2)
-        {
-            if (modelListeners2.contains(listener))
-                return;
-            if (listener instanceof DirtyStateEditorSupport)
-                modelListeners2.add(0, listener); // DirtyStateEditorSupport must be the first ModelChangelistener to be called, since it updates the resource descriptions used by subsequent listeners
-            else
-                modelListeners2.add(listener);
-        }
-    }
-
-    @Override
-    public void removeModelListener(IXtextModelListener listener)
-    {
-        Assert.isNotNull(listener);
-        synchronized (modelListeners2)
-        {
-            modelListeners2.remove(listener);
-        }
     }
 
     @Override
@@ -222,47 +189,6 @@ public class HandlyXtextDocument
         UiDocumentChangeRunner runner =
             new UiDocumentChangeRunner(UiSynchronizer.DEFAULT, operation);
         return runner.run();
-    }
-
-    @Override
-    protected void notifyModelListeners(XtextResource resource)
-    {
-        List<IXtextModelListener> modelListenersCopy;
-        synchronized (modelListeners2)
-        {
-            modelListenersCopy =
-                new ArrayList<IXtextModelListener>(modelListeners2);
-        }
-        for (IXtextModelListener listener : modelListenersCopy)
-        {
-            try
-            {
-                if (isOutdated())
-                {
-                    return;
-                }
-                if (listener instanceof IXtextModelListenerExtension)
-                {
-                    ((IXtextModelListenerExtension)listener).modelChanged(
-                        resource, new CancelIndicator()
-                        {
-                            public boolean isCanceled()
-                            {
-                                return isOutdated();
-                            }
-                        });
-                }
-                else
-                {
-                    listener.modelChanged(resource);
-                }
-            }
-            catch (Exception e)
-            {
-                Activator.log(Activator.createErrorStatus(
-                    "Error in IXtextModelListener", e)); //$NON-NLS-1$
-            }
-        }
     }
 
     void setDirtyStateEditorSupport(
@@ -372,6 +298,31 @@ public class HandlyXtextDocument
     private void internalReconcile(XtextResource resource)
     {
         reconcile(new InternalProcessor(resource));
+    }
+
+    private void clearModelListeners()
+    {
+        try
+        {
+            Field modelListenersField =
+                XtextDocument.class.getDeclaredField("modelListeners"); //$NON-NLS-1$
+            modelListenersField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            List<IXtextModelListener> modelListeners =
+                (List<IXtextModelListener>)modelListenersField.get(this);
+            synchronized (modelListeners)
+            {
+                modelListeners.clear();
+            }
+        }
+        catch (NoSuchFieldException e) // should not happen
+        {
+            throw new Error(e);
+        }
+        catch (IllegalAccessException e) // should not happen
+        {
+            throw new Error(e);
+        }
     }
 
     private void detachResource()
