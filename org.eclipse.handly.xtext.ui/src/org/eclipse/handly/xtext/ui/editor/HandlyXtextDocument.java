@@ -228,7 +228,7 @@ public class HandlyXtextDocument
     /*
      * Called just after a reconciling operation has been performed. Informs 
      * that the document's XtextResource contents is based on the given snapshot. 
-     * Notifies reconciling listerners (if any). Should only be called 
+     * Notifies reconciling listeners (if any). Should only be called 
      * in the dynamic context of {@link XtextDocument#internalModify}. 
      *
      * @param resource the reconciled resource - must not be <code>null</code>
