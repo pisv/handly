@@ -6,10 +6,10 @@ Welcome to Handly, and thanks for your interest in this project.
 Project description:
 --------------------
 
-Handly provides basic building blocks that help developers create 
-handle-based models similar in design principles to the JDT Java model. 
-The uniform API makes it possible to develop common IDE components 
-dealing with such models. Integration with Xtext is provided.
+Handly, a technology project at Eclipse, provides basic building blocks that
+help developers create handle-based models similar in design principles to
+the JDT Java model. The uniform API makes it possible to develop common
+IDE components dealing with such models. Integration with Xtext is provided.
 
 The intent is to come up with a really nice design in this problem area 
 through an open and transparent development process primarily driven by 
