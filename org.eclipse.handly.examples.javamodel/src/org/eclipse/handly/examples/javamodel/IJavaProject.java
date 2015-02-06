@@ -77,4 +77,14 @@ public interface IJavaProject
      *  occurs while accessing its corresponding resource
      */
     IResource[] getNonJavaResources() throws CoreException;
+
+    /**
+     * Returns the package fragment on this project's classpath
+     * the given resource corresponds to, or <code>null</code> if none.
+     *
+     * @param resource the given resource (not <code>null</code>)
+     * @return the package fragment on this project's classpath
+      * the given resource corresponds to, or <code>null</code> if none
+     */
+    IPackageFragment findPackageFragment(IResource resource);
 }
