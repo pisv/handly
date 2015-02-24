@@ -19,23 +19,6 @@ package org.eclipse.handly.snapshot;
 public abstract class Snapshot
     implements ISnapshot
 {
-    /**
-     * Implements an equivalence relation on snapshots:
-     * <ul>
-     * <li>Identical snapshots are always equal
-     * <li>A snapshot is never equal to <code>null</code>
-     * <li><code>Snapshot</code>s can only be equal to <code>Snapshot</code>s
-     * <li><code>Snapshot</code>s which have not yet expired are equal  
-     *  iff their contents are equal
-     * <li><code>Snapshot</code>s which have expired are not equal 
-     *  to all other snapshots
-     * </ul>
-     * <p>
-     * Subclasses may override {@link #predictEquality(Snapshot)} 
-     * if in some cases they can decide on snapshots equality without actually 
-     * obtaining their {@link #getContents() contents}.
-     * </p>
-     */
     @Override
     public final boolean isEqualTo(ISnapshot other)
     {
@@ -54,7 +37,7 @@ public abstract class Snapshot
      * Predicts whether the two snapshots are {@link #isEqualTo(ISnapshot) equal} 
      * without actually obtaining their {@link #getContents() contents}. 
      * Must return <code>null</code> if cannot tell for sure. Any non-null 
-     * result must meet the contract of {@link Snapshot#isEqualTo(ISnapshot)}.
+     * result must meet the contract of {@link ISnapshot#isEqualTo(ISnapshot)}.
      *
      * @param other the other snapshot (not <code>null</code> 
      *  and not identical to the receiver)
