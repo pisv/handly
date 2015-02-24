@@ -53,8 +53,12 @@
 USAGE="Usage: ./promote.sh <hudson-job-name> <hudson-build-number> [<build-tag>]"
 
 if [[ "$ECLIPSE_HOME" == "" ]]; then
-    echo "ECLIPSE_HOME must be set"
-    exit -1
+    if [[ -d "./eclipse" ]]; then
+        ECLIPSE_HOME="./eclipse"
+    else
+        echo "ECLIPSE_HOME must be set"
+        exit -1
+    fi
 fi
 
 if [[ "$1" != "" ]]; then
