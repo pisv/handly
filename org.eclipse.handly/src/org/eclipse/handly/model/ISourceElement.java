@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,9 +13,8 @@ package org.eclipse.handly.model;
 import org.eclipse.core.runtime.CoreException;
 
 /**
- * Represents a source file or a construct inside a source file. 
- * The children are source constructs and appear in the order 
- * in which they are declared in the source.
+ * Common protocol for elements that have associated source code.
+ * The children are source constructs and appear in declaration order.
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
@@ -24,13 +23,13 @@ public interface ISourceElement
     extends IHandle
 {
     /**
-     * Returns the source file containing this element. 
-     * Returns this element if it is a source file. 
+     * Returns the module containing this element.
+     * Returns this element if it is a module.
      * This is a handle-only method.
      * 
-     * @return the source file (never <code>null</code>)
+     * @return the element's module (never <code>null</code>)
      */
-    ISourceFile getSourceFile();
+    IModule getModule();
 
     /**
      * Returns an object holding cached structure and properties for this element.

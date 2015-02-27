@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,8 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
  * Common superclass of {@link ISourceElement} implementations.
  * 
  * @noextend This class is not intended to be extended by clients. Clients 
- *  should extend either {@link SourceFile} or {@link SourceConstruct} instead.
+ *  should extend {@link SourceFile}, {@link SourceConstruct} or {@link Module}
+ *  instead.
  */
 public abstract class SourceElement
     extends Handle
@@ -47,7 +48,8 @@ public abstract class SourceElement
         return (ISourceElementInfo)getBody();
     }
 
-    public abstract SourceFile getSourceFile();
+    @Override
+    public abstract Module getModule();
 
     /**
      * Returns the smallest element within the given element that includes 
