@@ -22,29 +22,26 @@
 <unit id="org.eclipse.license.feature.group" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/eclipse/updates/3.8"/>
-<unit id="org.eclipse.sdk.feature.group" version="3.8.2.v20130116-114247-7Q85DVDQQ3JLtb_hNUm3_MTesRM5RqdjCSfXEI7waiJ_N"/>
+<repository location="http://download.eclipse.org/eclipse/updates/3.8/R-3.8.2-201301310800"/>
+<unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases"/>
-<unit id="org.eclipse.xtext.sdk.feature.group" version="2.7.2.v201409160908"/>
-<unit id="org.eclipse.xtend.sdk.feature.group" version="2.7.2.v201409160908"/>
-<unit id="org.eclipse.xpand.sdk.feature.group" version="2.0.0.v201406030414"/>
-<unit id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.4.v201409021027"/>
-<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.7.0.v201409021027"/>
-<unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.7.0.v201409021051"/>
-<unit id="com.google.guava" version="15.0.0.v201403281430"/>
-<unit id="com.google.inject" version="3.0.0.v201312141243"/>
-<unit id="javax.inject" version="1.0.0.v20091030"/>
-<unit id="org.objectweb.asm" version="5.0.1.v201404251740"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/luna"/>
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.10.1.v20140901-1055"/>
-<unit id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140901-1055"/>
-<unit id="org.eclipse.gef.sdk.feature.group" version="3.9.101.201408150207"/>
-<unit id="org.eclipse.uml2.sdk.feature.group" version="5.0.1.v20140910-1354"/>
-<unit id="org.eclipse.emf.validation.feature.group" version="1.8.0.201405281429"/>
+<repository location="http://download.eclipse.org/releases/luna/201409261001"/>
+<unit id="org.eclipse.xtext.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.xtend.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.xpand.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.emf.mwe.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.xsd.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.gef.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.uml2.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.emf.validation.feature.group" version="0.0.0"/>
+<unit id="com.google.guava" version="0.0.0"/>
+<unit id="com.google.inject" version="0.0.0"/>
+<unit id="javax.inject" version="0.0.0"/>
+<unit id="org.objectweb.asm" version="0.0.0"/>
 </location>
 </locations>
 </target>
