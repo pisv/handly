@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-   Copyright (c) 2014 1C LLC.
+   Copyright (c) 2014, 2015 1C-Soft LLC and others.
    All rights reserved. This program and the accompanying materials
    are made available under the terms of the Eclipse Public License v1.0
    which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@
 <!--
    Currently, the Base Platform includes:
    * Eclipse Project SDK 3.8.2 (Juno SR2)
-   * SDKs for Xtext/Xtend 2.7.2 and dependencies (Luna SR1)
+   * SDKs for Xtext/Xtend 2.8.1 and dependencies (Mars M6)
 -->
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
@@ -26,7 +26,7 @@
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/luna/201409261001"/>
+<repository location="http://download.eclipse.org/releases/mars/201503271000"/>
 <unit id="org.eclipse.xtext.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xtend.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xpand.sdk.feature.group" version="0.0.0"/>

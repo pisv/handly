@@ -2,7 +2,7 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='13'>
-    <iu id='org.eclipse.sdk.ide' version='4.4.1.M20140925-0400'>
+    <iu id='org.eclipse.sdk.ide' version='4.4.2.M20150204-1700'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
@@ -12,59 +12,59 @@
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='1.5.0.20140606-0033'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.5.1.20150109-1820'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/luna'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.7.2.v201409160908">
+    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.8.1.v201503230617">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.7.2.v201409160908">
+    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.8.1.v201503230617">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xpand.sdk.feature.group" version="2.0.0.v201406030414">
+    <iu id="org.eclipse.xpand.sdk.feature.group" version="2.1.0.v201503240650">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.4.v201409021027">
+    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.10.v201503240644">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.7.0.v201409021027">
+    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.8.0.v201503240644">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.7.0.v201409021051">
+    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.8.0.v201503240833">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.sdk.feature.group" version="2.10.1.v20140901-1055">
+    <iu id="org.eclipse.emf.sdk.feature.group" version="2.11.0.v20150323-0420">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20140901-1055">
+    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.10.0.v20150323-0420">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.gef.sdk.feature.group" version="3.9.101.201408150207">
+    <iu id="org.eclipse.gef.sdk.feature.group" version="3.10.0.201502020307">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.0.1.v20140910-1354">
+    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.1.0.v20150323-0944">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/luna'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
   </ius>

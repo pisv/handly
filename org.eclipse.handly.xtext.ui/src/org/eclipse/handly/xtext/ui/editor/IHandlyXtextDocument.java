@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,11 +48,12 @@ public interface IHandlyXtextDocument
     void reconcile(boolean force);
 
     /**
-     * Returns the snapshot from which the document's resource was parsed 
-     * in the last {@link #reconcile(boolean) reconcile} operation. 
-     * Note that this snapshot may turn out to be stale. 
+     * Returns the snapshot from which the document's resource was parsed
+     * in the last {@link #reconcile(boolean) reconcile} operation, or
+     * <code>null</code> if the document's resource is not set or already disposed.
+     * Note that the returned snapshot may turn out to be stale.
      * 
-     * @return the last reconciled snapshot (never <code>null</code>)
+     * @return the last reconciled snapshot or <code>null</code>
      */
     ISnapshot getReconciledSnapshot();
 

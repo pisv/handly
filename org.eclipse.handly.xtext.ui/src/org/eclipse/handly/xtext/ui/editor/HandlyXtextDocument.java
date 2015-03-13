@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,20 +7,13 @@
  * 
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
- *     George Suaridze (1C) - ongoing maintenance  
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.List;
-
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.WrappedException;
 import org.eclipse.handly.document.DocumentChange;
 import org.eclipse.handly.document.DocumentChangeOperation;
@@ -36,20 +29,18 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.xtext.EcoreUtil2;
-import org.eclipse.xtext.resource.DerivedStateAwareResource;
-import org.eclipse.xtext.resource.IBatchLinkableResource;
 import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.service.OperationCanceledError;
 import org.eclipse.xtext.ui.editor.DirtyStateEditorSupport;
 import org.eclipse.xtext.ui.editor.model.DocumentTokenSource;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver.Processor;
-import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.eclipse.xtext.ui.editor.model.edit.ITextEditComposer;
-import org.eclipse.xtext.ui.editor.reconciler.CancelIndicatorBasedProgressMonitor;
 import org.eclipse.xtext.ui.editor.reconciler.ReplaceRegion;
 import org.eclipse.xtext.util.CancelIndicator;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 
+import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 
 /**
@@ -88,11 +79,14 @@ public class HandlyXtextDocument
     {
         super(tokenSource, composer);
         this.composer2 = composer;
+        addReconcilingListener(new PostReconcileProcessor());
     }
 
     @Override
     public void setInput(XtextResource resource)
     {
+        if (resource == null)
+            throw new IllegalArgumentException();
         super.setInput(resource);
         reconciledSnapshot = getNonExpiringSnapshot(); // initial snapshot
         addDocumentListener(selfListener);
@@ -101,16 +95,14 @@ public class HandlyXtextDocument
     @Override
     public void disposeInput()
     {
+        super.disposeInput(); // sets resource to null under the document's write lock
+        // After this, T2MReconcilingUnitOfWork and M2TReconcilingUnitOfWork for the document
+        // are guaranteed to be passed null resource, which effectively causes them to become noop.
+
         removeDocumentListener(selfListener);
         getAndResetPendingChange();
         reconciledSnapshot = null;
         reconcilingListeners.clear();
-        clearModelListeners(); // fixes issue with holding XtextEditor from disposed document (see DefaultFoldingStructureProvider)
-        Job validationJob = getValidationJob();
-        if (validationJob != null)
-            validationJob.cancel();
-        setValidationJob(null);
-        detachResource(); // unfortunately can't just set resource to null
     }
 
     @Override
@@ -122,6 +114,9 @@ public class HandlyXtextDocument
     @Override
     public ISnapshot getReconciledSnapshot()
     {
+        NonExpiringSnapshot reconciledSnapshot = this.reconciledSnapshot;
+        if (reconciledSnapshot == null)
+            return null;
         return reconciledSnapshot.getWrappedSnapshot();
     }
 
@@ -138,11 +133,28 @@ public class HandlyXtextDocument
     @Override
     public boolean needsReconciling()
     {
-        return !getSnapshot().isEqualTo(getReconciledSnapshot());
+        ISnapshot reconciledSnapshot = getReconciledSnapshot();
+        if (reconciledSnapshot == null)
+            return false;
+        return !getSnapshot().isEqualTo(reconciledSnapshot);
     }
 
     @Override
     public void reconcile(boolean force)
+    {
+        reconcile(force, CancelIndicator.NullImpl);
+    }
+
+    /**
+     * Re-parses the resource so it becomes reconciled with the document contents.
+     * Does nothing if already reconciled. <b>For internal use only.</b>
+     *
+     * @param force indicates whether reconciling has to be performed
+     *  even if it is not {@link #needsReconciling() needed}
+     * @param cancelIndicator a {@link CancelIndicator}
+     * @throws OperationCanceledException
+     */
+    public void reconcile(boolean force, CancelIndicator cancelIndicator)
     {
         if (!force)
         {
@@ -151,7 +163,7 @@ public class HandlyXtextDocument
         else
         {
             T2MReconcilingUnitOfWork reconcilingUnitOfWork =
-                new T2MReconcilingUnitOfWork(true);
+                new T2MReconcilingUnitOfWork(true, cancelIndicator);
             internalModify(reconcilingUnitOfWork);
         }
     }
@@ -168,7 +180,7 @@ public class HandlyXtextDocument
     public boolean reconcile(Processor processor)
     {
         T2MReconcilingUnitOfWork reconcilingUnitOfWork =
-            new T2MReconcilingUnitOfWork(false);
+            new T2MReconcilingUnitOfWork(false, CancelIndicator.NullImpl);
         return processor.process(reconcilingUnitOfWork);
     }
 
@@ -231,16 +243,16 @@ public class HandlyXtextDocument
      * Notifies reconciling listeners (if any). Should only be called 
      * in the dynamic context of {@link XtextDocument#internalModify}. 
      *
-     * @param resource the reconciled resource - must not be <code>null</code>
-     * @param snapshot the reconciled snapshot - must not be <code>null</code>
+     * @param resource the reconciled resource (never <code>null</code>)
+     * @param snapshot the reconciled snapshot (never <code>null</code>)
      * @param forced whether reconciling was forced, i.e. the document has not 
      *  changed since it was reconciled the last time
+     * @param cancelIndicator a {@link CancelIndicator} (never <code>null</code>)
      */
     private void reconciled(final XtextResource resource,
-        final NonExpiringSnapshot snapshot, final boolean forced)
+        final NonExpiringSnapshot snapshot, final boolean forced,
+        final CancelIndicator cancelIndicator)
     {
-        postProcess(resource, new CancelIndicatorBasedProgressMonitor(
-            getOutdatedStateCancelIndicator(resource)));
         Object[] listeners = reconcilingListeners.getListeners();
         for (final Object listener : listeners)
         {
@@ -250,7 +262,7 @@ public class HandlyXtextDocument
                 public void run() throws Exception
                 {
                     ((IReconcilingListener)listener).reconciled(resource,
-                        snapshot, forced);
+                        snapshot, forced, cancelIndicator);
                 }
 
                 @Override
@@ -262,101 +274,9 @@ public class HandlyXtextDocument
         reconciledSnapshot = snapshot;
     }
 
-    // initially copied from XtextDocumentReconcileStrategy#postParse
-    private void postProcess(XtextResource resource,
-        final IProgressMonitor monitor)
-    {
-        if (dirtyStateEditorSupport != null)
-            dirtyStateEditorSupport.announceDirtyState(resource);
-        CancelIndicator cancelIndicator = new CancelIndicator()
-        {
-            public boolean isCanceled()
-            {
-                return monitor.isCanceled();
-            }
-        };
-        try
-        {
-            if (resource instanceof DerivedStateAwareResource)
-                ((DerivedStateAwareResource)resource).installDerivedState(false);
-            if (resource instanceof IBatchLinkableResource)
-            {
-                ((IBatchLinkableResource)resource).linkBatched(cancelIndicator);
-            }
-        }
-        catch (OperationCanceledException e)
-        {
-            resource.getCache().clear(resource);
-        }
-        catch (RuntimeException e)
-        {
-            Activator.log(Activator.createErrorStatus(
-                "Error post-processing resource", e)); //$NON-NLS-1$
-        }
-    }
-
     private void internalReconcile(XtextResource resource)
     {
         reconcile(new InternalProcessor(resource));
-    }
-
-    private void clearModelListeners()
-    {
-        try
-        {
-            Field modelListenersField =
-                XtextDocument.class.getDeclaredField("modelListeners"); //$NON-NLS-1$
-            modelListenersField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            List<IXtextModelListener> modelListeners =
-                (List<IXtextModelListener>)modelListenersField.get(this);
-            synchronized (modelListeners)
-            {
-                modelListeners.clear();
-            }
-        }
-        catch (NoSuchFieldException e) // should not happen
-        {
-            throw new Error(e);
-        }
-        catch (IllegalAccessException e) // should not happen
-        {
-            throw new Error(e);
-        }
-    }
-
-    private void detachResource()
-    {
-        internalModify(new IUnitOfWork.Void<XtextResource>()
-        {
-            @Override
-            public void process(XtextResource resource) throws Exception
-            {
-                clearInternalState(resource);
-                resource.getResourceSet().getResources().clear();
-            }
-        });
-    }
-
-    private static void clearInternalState(XtextResource resource)
-        throws Exception
-    {
-        // Ensure that the resource's derived state (if any) is discarded 
-        // and that clear doesn't make derived state to be installed
-        Field isUpdating = XtextResource.class.getDeclaredField("isUpdating"); //$NON-NLS-1$
-        isUpdating.setAccessible(true);
-        Method clearInternalState =
-            XtextResource.class.getDeclaredMethod("clearInternalState"); //$NON-NLS-1$
-        clearInternalState.setAccessible(true);
-        try
-        {
-            isUpdating.set(resource, true);
-            clearInternalState.invoke(resource);
-        }
-        finally
-        {
-            isUpdating.set(resource, false);
-        }
     }
 
     /**
@@ -374,16 +294,18 @@ public class HandlyXtextDocument
          * to text positions in the given snapshot.
          * </p>
          * <p>
-         * An exception thrown by this method will be logged and suppressed.
+         * An exception thrown by this method will be logged (except for
+         * OperationCanceledException) and suppressed.
          * </p>
          *
-         * @param resource the reconciled resource - must not be <code>null</code>
-         * @param snapshot the reconciled snapshot - must not be <code>null</code>
+         * @param resource the reconciled resource (never <code>null</code>)
+         * @param snapshot the reconciled snapshot (never <code>null</code>)
          * @param forced whether reconciling was forced, i.e. the document 
          *  has not changed since it was reconciled the last time
+         * @param cancelIndicator a {@link CancelIndicator} (never <code>null</code>)
          */
         void reconciled(XtextResource resource, NonExpiringSnapshot snapshot,
-            boolean forced);
+            boolean forced, CancelIndicator cancelIndicator);
     }
 
     private class DocumentListener
@@ -449,15 +371,21 @@ public class HandlyXtextDocument
         implements IUnitOfWork<Boolean, XtextResource>
     {
         private final boolean force;
+        private final CancelIndicator cancelIndicator;
 
-        public T2MReconcilingUnitOfWork(boolean force)
+        public T2MReconcilingUnitOfWork(boolean force,
+            CancelIndicator cancelIndicator)
         {
             this.force = force;
+            this.cancelIndicator = cancelIndicator;
         }
 
         @Override
         public Boolean exec(XtextResource resource) throws Exception
         {
+            if (resource == null) // input not set or already disposed
+                return false;
+
             PendingChange change = getAndResetPendingChange();
             if (change == null)
             {
@@ -466,7 +394,7 @@ public class HandlyXtextDocument
                     NonExpiringSnapshot snapshot = reconciledSnapshot;
                     // no need to reparse -- just update internal state
                     resource.update(0, 0, ""); //$NON-NLS-1$
-                    reconciled(resource, snapshot, true);
+                    reconciled(resource, snapshot, true, cancelIndicator);
                 }
                 return false;
             }
@@ -500,7 +428,7 @@ public class HandlyXtextDocument
                         throw e2;
                     }
                 }
-                reconciled(resource, snapshot, false);
+                reconciled(resource, snapshot, false, cancelIndicator);
                 return true;
             }
         }
@@ -523,6 +451,9 @@ public class HandlyXtextDocument
         @Override
         public T exec(XtextResource resource) throws Exception
         {
+            if (resource == null) // input not set or already disposed
+                return work.exec(resource);
+
             hasTopLevelModification.set(true);
             try
             {
@@ -535,8 +466,7 @@ public class HandlyXtextDocument
                     // (otherwise, proxy resolution might throw exceptions 
                     // due to inconsistency between 'changed' model and 
                     // 'old' proxy URIs)
-                    EcoreUtil2.resolveLazyCrossReferences(resource,
-                        CancelIndicator.NullImpl);
+                    EcoreUtil2.resolveAll(resource, CancelIndicator.NullImpl);
 
                     composer2.beginRecording(resource);
                     result = work.exec(resource);
@@ -608,6 +538,34 @@ public class HandlyXtextDocument
             catch (Exception e)
             {
                 throw new WrappedException(e);
+            }
+        }
+    }
+
+    // Initially copied from XtextDocumentReconcileStrategy#postParse
+    private class PostReconcileProcessor
+        implements IReconcilingListener
+    {
+        @Override
+        public void reconciled(XtextResource resource,
+            NonExpiringSnapshot snapshot, boolean forced,
+            CancelIndicator cancelIndicator)
+        {
+            try
+            {
+                EcoreUtil2.resolveLazyCrossReferences(resource, cancelIndicator);
+                if (dirtyStateEditorSupport != null
+                    && !cancelIndicator.isCanceled())
+                {
+                    dirtyStateEditorSupport.announceDirtyState(resource);
+                }
+            }
+            catch (Throwable t)
+            {
+                resource.getCache().clear(resource);
+
+                if (!(t instanceof OperationCanceledError))
+                    Throwables.propagate(t);
             }
         }
     }

@@ -49,7 +49,9 @@ Setting up a developer workspace:
 ---------------------------------
 
 Handly currently uses `JavaSE-1.6` for compilation. Please add a matching JRE. 
-Perfect match (i.e. JDK 1.6) is recommended to avoid build warnings.
+Perfect match (i.e. JDK 1.6) is recommended to avoid build warnings. You will
+also need to add a `JavaSE-1.7` compatible JRE to be able to run predefined
+launch configurations for Handly tests and examples.
 
 Handly employs specific code formatting conventions. Please import and use 
 the formatter profile from `tools/formatter.xml`.
