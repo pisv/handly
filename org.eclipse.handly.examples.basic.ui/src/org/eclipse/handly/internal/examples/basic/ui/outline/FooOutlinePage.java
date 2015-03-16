@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014 1C LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,8 +23,8 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
-import org.eclipse.handly.model.IModule;
 import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -294,9 +294,10 @@ public final class FooOutlinePage
                 Object input = treeViewer.getInput();
                 if (!(input instanceof ISourceElement))
                     return Status.OK_STATUS;
-                IModule module = ((IModule)input).getModule();
+                ISourceFile sourceFile =
+                    ((ISourceElement)input).getSourceFile();
                 final ISourceElement element =
-                    SourceElementUtil.getSourceElement(module,
+                    SourceElementUtil.getSourceElement(sourceFile,
                         baseSelection.getOffset()); // reconciles the source file as a side effect
                 if (element == null)
                     return Status.OK_STATUS;
@@ -312,8 +313,8 @@ public final class FooOutlinePage
                         if (control == null
                             || control.isDisposed()
                             || !(input instanceof ISourceElement)
-                            || !element.getModule().equals(
-                                ((ISourceElement)input).getModule())
+                            || !element.getSourceFile().equals(
+                                ((ISourceElement)input).getSourceFile())
                             || !baseSelection.equals(selection)
                             || !baseSelection.equals(editor.getSelectionProvider().getSelection()))
                             return; // the world has changed -> no work needs to be done
