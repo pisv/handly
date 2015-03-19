@@ -89,7 +89,10 @@ public abstract class SourceElement
         int position, ISnapshot base) throws CoreException
     {
         ISourceElementInfo info = element.getSourceElementInfo();
-        if (base != null && !base.isEqualTo(info.getSnapshot()))
+        ISnapshot snapshot = info.getSnapshot();
+        if (snapshot == null)
+            return null; // the element has no associated source code
+        if (base != null && !base.isEqualTo(snapshot))
         {
             throw new StaleSnapshotException();
         }
@@ -100,7 +103,7 @@ public abstract class SourceElement
         for (int i = children.length - 1; i >= 0; i--)
         {
             ISourceElement found =
-                getElementAt(children[i], position, info.getSnapshot());
+                getElementAt(children[i], position, snapshot);
             if (found != null)
                 return found;
         }

@@ -14,9 +14,8 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * Holds cached structure and properties for a source element. If the element
- * has associated source code, those structure and properties correlate to
- * a specific snapshot of the source.
+ * Holds cached structure and properties for a source element. Those
+ * structure and properties correlate to a source snapshot.
  * 
  * @see ISourceElement
  * @noimplement This interface is not intended to be implemented by clients.
@@ -62,32 +61,20 @@ public interface ISourceElementInfo
     ISourceConstruct[] getChildren();
 
     /**
-     * Returns the cached text range of the source element. If the element
-     * has no associated source code, <code>null</code> is returned.
-     * <p>
-     * Note that the result correlates to a source {@link #getSnapshot()
-     * snapshot} (if there is one) and may be inconsistent with the current
-     * source contents.
-     * </p>
+     * Returns the text range of the element in the source {@link #getSnapshot()
+     * snapshot}, or <code>null</code> if none.
      *
-     * @return the cached text range of the source element,
-     *  or <code>null</code> if the element has no associated source code
+     * @return the text range associated with the element,
+     *  or <code>null</code> if none
      */
     TextRange getFullRange();
 
     /**
-     * Returns the cached text range of the source element's identifier.
-     * Can be used for highlighting the element in a text editor, etc.
-     * If the element does not have a name or has no associated source code,
-     * <code>null</code> is returned.
-     * <p>
-     * Note that the result correlates to a source {@link #getSnapshot()
-     * snapshot} (if there is one) and may be inconsistent with the current
-     * source contents.
-     * </p>
+     * Returns the text range of the element's identifier in the source
+     * {@link #getSnapshot() snapshot}, or <code>null</code> if none.
      *
-     * @return the cached text range of the source element's identifier,
-     *  or <code>null</code> if not available
+     * @return the text range associated with the element's identifier,
+     *  or <code>null</code> if none
      */
     TextRange getIdentifyingRange();
 }
