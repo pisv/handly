@@ -45,7 +45,7 @@ public class JavaModel
      */
     public JavaModel(IWorkspace workspace)
     {
-        super(null, "JavaModel"); //$NON-NLS-1$
+        super(null, null);
         if (workspace == null)
             throw new IllegalArgumentException();
         this.workspace = workspace;
@@ -169,5 +169,11 @@ public class JavaModel
     protected Body newBody()
     {
         return new JavaModelBody();
+    }
+
+    @Override
+    protected void toStringName(StringBuilder builder)
+    {
+        builder.append("Java Model"); //$NON-NLS-1$
     }
 }

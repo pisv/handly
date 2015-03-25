@@ -377,6 +377,14 @@ public abstract class SourceFile
         return false;
     }
 
+    @Override
+    protected void toStringName(StringBuilder builder)
+    {
+        if (isWorkingCopy())
+            builder.append("[Working copy] "); //$NON-NLS-1$
+        super.toStringName(builder);
+    }
+
     private static void setSnapshot(SourceElementBody body, ISnapshot snapshot,
         Map<IHandle, Body> newElements)
     {
