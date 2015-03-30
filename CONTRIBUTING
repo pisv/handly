@@ -35,7 +35,7 @@ Building locally:
 
 The build is based on Maven and Tycho and is easy to run on a local machine.
 
- 1. Make sure you have JDK 6 and Maven 3 installed. Both should be on the path.
+ 1. Make sure you have JDK 7 and Maven 3 installed. Both should be on the path.
  2. Clone the Handly Git repository and pick the desired branch.
  3. Open a shell to the Git workspace and execute
 
