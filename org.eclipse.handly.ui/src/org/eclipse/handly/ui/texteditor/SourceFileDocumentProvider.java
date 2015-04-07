@@ -19,6 +19,7 @@ import org.eclipse.handly.model.impl.IWorkingCopyReconciler;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
+import org.eclipse.handly.ui.IWorkingCopyManager;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -32,6 +33,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
  */
 public class SourceFileDocumentProvider
     extends TextFileDocumentProvider
+    implements IWorkingCopyManager
 {
     protected final IElementForEditorInputFactory inputElementFactory;
 
@@ -59,15 +61,10 @@ public class SourceFileDocumentProvider
         inputElementFactory = factory;
     }
 
-    /**
-     * Returns the working copy for the given element.
-     *
-     * @param element the element
-     * @return the working copy, or <code>null</code> if none
-     */
-    public ISourceFile getWorkingCopy(Object element)
+    @Override
+    public ISourceFile getWorkingCopy(IEditorInput input)
     {
-        FileInfo info = getFileInfo(element);
+        FileInfo info = getFileInfo(input);
         if (info instanceof WorkingCopyInfo)
         {
             return ((WorkingCopyInfo)info).workingCopy;
