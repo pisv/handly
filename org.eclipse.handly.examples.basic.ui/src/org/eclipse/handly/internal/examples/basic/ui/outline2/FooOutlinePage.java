@@ -43,7 +43,6 @@ public class FooOutlinePage
     @Inject
     private FooLabelProvider labelProvider;
 
-    @Inject
     @Override
     protected void addOutlineContributions()
     {

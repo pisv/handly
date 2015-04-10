@@ -195,7 +195,7 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="org.eclipse.handly.examples.basic.ui.FooExecutableExtensionFactory:org.eclipse.handly.xtext.ui.quickoutline.XtextOutlinePopupHandler"
+            class="org.eclipse.handly.examples.basic.ui.FooExecutableExtensionFactory:org.eclipse.handly.xtext.ui.quickoutline.HandlyXtextOutlinePopupHandler"
             commandId="org.eclipse.xtext.ui.editor.outline.QuickOutline">
             <activeWhen>
                 <reference

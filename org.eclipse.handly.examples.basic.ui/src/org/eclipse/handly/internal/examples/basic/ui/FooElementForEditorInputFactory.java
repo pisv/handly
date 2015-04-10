@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2015 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,25 +8,27 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.basic.ui.model;
+package org.eclipse.handly.internal.examples.basic.ui;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
-import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.ISourceFileFactory;
+import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.ui.IElementForEditorInputFactory;
+import org.eclipse.ui.IEditorInput;
 
 /**
- * Implementation of <code>ISourceFileFactory</code> that must be bound 
- * in the Xtext UI module for the language. It's a required component of 
- * Handly/Xtext integration.
- * </p>
+ * Implementation of {@link IElementForEditorInputFactory} to be bound
+ * in the Xtext UI module for the language.
  */
-public class FooFileFactory
-    implements ISourceFileFactory
+public class FooElementForEditorInputFactory
+    implements IElementForEditorInputFactory
 {
     @Override
-    public ISourceFile getSourceFile(IFile file)
+    public IHandle getElement(IEditorInput input)
     {
+        if (input == null)
+            return null;
+        IFile file = (IFile)input.getAdapter(IFile.class);
         return FooModelCore.create(file);
     }
 }

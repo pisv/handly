@@ -12,18 +12,42 @@ package org.eclipse.handly.ui.quickoutline;
 
 import org.eclipse.handly.internal.ui.SourceElementUtil;
 import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 
 /**
- * An abstract base class for an outline popup of <code>ISourceElement</code>s.
- * This class is intended to be used with a text-based host such as a text editor.
+ * A partial implementation of Handly-based outline popup. This class
+ * is intended to be used with a text-based host such as text editor.
  */
-public abstract class SourceElementOutlinePopup
+public abstract class HandlyOutlinePopup
     extends FilteringOutlinePopup
 {
+    private IElementForEditorInputFactory inputElementFactory;
+
+    /**
+     * By default, the input element for this outline is the element
+     * corresponding to the host input. It is computed using the given
+     * factory.
+     *
+     * @param factory {@link IElementForEditorInputFactory} (not <code>null</code>)
+     * @see #computeInput()
+     */
+    public void setInputElementFactory(IElementForEditorInputFactory factory)
+    {
+        if (factory == null)
+            throw new IllegalArgumentException();
+        inputElementFactory = factory;
+    }
+
+    @Override
+    protected Object computeInput()
+    {
+        return inputElementFactory.getElement(getHost().getEditorInput());
+    }
+
     @Override
     protected Object getCorrespondingElement(ISelection hostSelection)
     {

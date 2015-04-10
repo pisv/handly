@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,9 +20,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.xtext.ui.Activator;
+import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.ISourceFileFactory;
 import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.ui.texteditor.TextEditorBuffer;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.ITextSelection;
@@ -45,14 +48,16 @@ import com.google.inject.Inject;
  * Discards the working copy when the editor is being disposed. Also, 
  * sets the editor highlight range for the currently selected element.
  * <p>
- * Note that this implementation relies on a language-specific 
- * {@link ISourceFileFactory} being available through injection.
+ * Note that this class relies on a language-specific implementation of
+ * {@link IElementForEditorInputFactory} being available through injection.
  * </p>
  */
 public class HandlyXtextEditorCallback
     extends IXtextEditorCallback.NullImpl
 {
-    @Inject
+    @Inject(optional = true)
+    private IElementForEditorInputFactory inputElementFactory;
+    @Inject(optional = true)
     private ISourceFileFactory sourceFileFactory;
 
     private Map<XtextEditor, SourceFile> workingCopies =
@@ -61,6 +66,33 @@ public class HandlyXtextEditorCallback
         new HashMap<XtextEditor, ISelectionChangedListener>();
     private Map<XtextEditor, HighlightRangeJob> highlightRangeJobs =
         new HashMap<XtextEditor, HighlightRangeJob>();
+
+    @Inject
+    void init()
+    {
+        if (inputElementFactory == null)
+        {
+            if (sourceFileFactory == null)
+                throw new AssertionError(
+                    "No implementation for IElementForEditorInputFactory or ISourceFileFactory was bound"); //$NON-NLS-1$
+
+            inputElementFactory = new IElementForEditorInputFactory()
+            {
+                @Override
+                public IHandle getElement(IEditorInput input)
+                {
+                    if (input == null)
+                        return null;
+                    IFile file = (IFile)input.getAdapter(IFile.class);
+                    if (file == null)
+                        return null;
+                    ISourceFile sourceFile =
+                        sourceFileFactory.getSourceFile(file);
+                    return sourceFile;
+                }
+            };
+        }
+    }
 
     @Override
     public void afterCreatePartControl(XtextEditor editor)
@@ -107,18 +139,11 @@ public class HandlyXtextEditorCallback
 
     protected SourceFile getSourceFile(XtextEditor editor)
     {
-        IEditorInput editorInput = editor.getEditorInput();
-        if (editorInput == null)
+        IHandle inputElement =
+            inputElementFactory.getElement(editor.getEditorInput());
+        if (!(inputElement instanceof SourceFile))
             return null;
-        IFile file = (IFile)editorInput.getAdapter(IFile.class);
-        if (file == null)
-            return null;
-        return (SourceFile)getSourceFileFactory().getSourceFile(file);
-    }
-
-    protected ISourceFileFactory getSourceFileFactory()
-    {
-        return sourceFileFactory;
+        return (SourceFile)inputElement;
     }
 
     protected final SourceFile getWorkingCopy(XtextEditor editor)

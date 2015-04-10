@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,32 +10,24 @@
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.quickoutline;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.handly.model.ISourceFileFactory;
-import org.eclipse.handly.ui.quickoutline.SourceElementOutlinePopup;
+import org.eclipse.handly.ui.IElementForEditorInputFactory;
+import org.eclipse.handly.ui.quickoutline.HandlyOutlinePopup;
 
 import com.google.inject.Inject;
 
 /**
- * A partial implementation of <code>ISourceElement</code>-based outline popup
- * for Xtext editor.
+ * A partial implementation of Handly-based outline popup for Xtext editor.
  * <p>
  * Note that this class relies on a language-specific implementation of
- * <code>ISourceFileFactory</code> being available through injection.
+ * {@link IElementForEditorInputFactory} being available through injection.
  * </p>
  */
 public abstract class HandlyXtextOutlinePopup
-    extends SourceElementOutlinePopup
+    extends HandlyOutlinePopup
 {
     @Inject
-    private ISourceFileFactory sourceFileFactory;
-
-    @Override
-    protected Object computeInput()
+    public void setInputElementFactory(IElementForEditorInputFactory factory)
     {
-        IFile file = getHost().getFile();
-        if (file == null)
-            return null;
-        return sourceFileFactory.getSourceFile(file);
+        super.setInputElementFactory(factory);
     }
 }

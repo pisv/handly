@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.quickoutline;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.IEditorInput;
 
 /**
  * Represents the host of an outline popup.
@@ -39,10 +39,9 @@ public interface IOutlinePopupHost
     ISelectionProvider getSelectionProvider();
 
     /**
-     * Returns the file resource underlying this host,
-     * or <code>null</code> if none.
+     * Returns the input for this host, or <code>null</code> if none.
      *
-     * @return the underlying file or <code>null</code>
+     * @return the host input or <code>null</code>
      */
-    IFile getFile();
+    IEditorInput getEditorInput();
 }

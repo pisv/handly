@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.ui.preference.IBooleanPreference;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -29,10 +30,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
+import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 /**
  * An abstract base implementation of {@link ICommonOutlinePage}.
@@ -153,6 +158,8 @@ public abstract class CommonOutlinePage
         treeViewer.setInput(computeInput());
 
         editor.addPropertyListener(editorInputListener);
+
+        registerGlobalActions();
 
         initContributions();
     }
@@ -303,6 +310,35 @@ public abstract class CommonOutlinePage
     protected boolean isAutoExpandable(TreeItem item)
     {
         return item.getParentItem() == null;
+    }
+
+    /**
+     * Hook to register global action handlers.
+     * Subclasses may extend or override.
+     */
+    protected void registerGlobalActions()
+    {
+        IActionBars actionBars = getSite().getActionBars();
+        if (editor instanceof ITextEditor)
+        {
+            ITextEditor textEditor = (ITextEditor)editor;
+            actionBars.setGlobalActionHandler(ITextEditorActionConstants.UNDO,
+                textEditor.getAction(ITextEditorActionConstants.UNDO));
+            actionBars.setGlobalActionHandler(ITextEditorActionConstants.REDO,
+                textEditor.getAction(ITextEditorActionConstants.REDO));
+
+            IAction action =
+                textEditor.getAction(ITextEditorActionConstants.NEXT);
+            actionBars.setGlobalActionHandler(
+                ITextEditorActionDefinitionIds.GOTO_NEXT_ANNOTATION, action);
+            actionBars.setGlobalActionHandler(ITextEditorActionConstants.NEXT,
+                action);
+            action = textEditor.getAction(ITextEditorActionConstants.PREVIOUS);
+            actionBars.setGlobalActionHandler(
+                ITextEditorActionDefinitionIds.GOTO_PREVIOUS_ANNOTATION, action);
+            actionBars.setGlobalActionHandler(
+                ITextEditorActionConstants.PREVIOUS, action);
+        }
     }
 
     private void initContributions()

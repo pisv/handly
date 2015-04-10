@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,10 +11,10 @@
 package org.eclipse.handly.examples.basic.ui;
 
 import org.eclipse.handly.examples.basic.ui.internal.FooActivator;
-import org.eclipse.handly.internal.examples.basic.ui.model.FooFileFactory;
+import org.eclipse.handly.internal.examples.basic.ui.FooElementForEditorInputFactory;
 import org.eclipse.handly.internal.examples.basic.ui.outline2.FooOutlinePage;
 import org.eclipse.handly.internal.examples.basic.ui.outline2.FooOutlinePopup;
-import org.eclipse.handly.model.ISourceFileFactory;
+import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.ui.quickoutline.OutlinePopup;
 import org.eclipse.handly.xtext.ui.editor.HandlyDirtyStateEditorSupport;
 import org.eclipse.handly.xtext.ui.editor.HandlyXtextDocument;
@@ -42,6 +42,11 @@ public class FooUiModule
     public FooUiModule(AbstractUIPlugin plugin)
     {
         super(plugin);
+    }
+
+    public Class<? extends IElementForEditorInputFactory> bindIElementForEditorInputFactory()
+    {
+        return FooElementForEditorInputFactory.class;
     }
 
     @Override
@@ -78,10 +83,5 @@ public class FooUiModule
         binder.bind(IXtextEditorCallback.class).annotatedWith(
             Names.named(HandlyXtextEditorCallback.class.getName())).to(
             HandlyXtextEditorCallback.class);
-    }
-
-    public Class<? extends ISourceFileFactory> bindISourceFileFactory()
-    {
-        return FooFileFactory.class;
     }
 }

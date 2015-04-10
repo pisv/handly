@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.quickoutline;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorInput;
 
 /**
  * Adapter for making an editor a suitable host for an outline popup.
@@ -42,7 +40,7 @@ public class EditorOutlinePopupHost
      *
      * @return the underlying editor (never <code>null</code>)
      */
-    public final IEditorPart getEditor()
+    public IEditorPart getEditor()
     {
         return editor;
     }
@@ -60,13 +58,8 @@ public class EditorOutlinePopupHost
     }
 
     @Override
-    public IFile getFile()
+    public IEditorInput getEditorInput()
     {
-        IEditorInput editorInput = editor.getEditorInput();
-        if (editorInput instanceof IFileEditorInput)
-        {
-            return ((IFileEditorInput)editorInput).getFile();
-        }
-        return (IFile)editorInput.getAdapter(IFile.class);
+        return editor.getEditorInput();
     }
 }

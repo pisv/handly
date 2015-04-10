@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.texteditor;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.ISourceFileFactory;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyReconciler;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
+import org.eclipse.handly.ui.IElementForEditorInputFactory;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
@@ -35,30 +35,30 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 public class SourceFileDocumentProvider
     extends TextFileDocumentProvider
 {
-    protected final ISourceFileFactory sourceFileFactory;
+    protected final IElementForEditorInputFactory inputElementFactory;
 
     /**
      * Creates a new source file document provider with no parent.
      * 
-     * @param sourceFileFactory the source file factory
+     * @param factory {@link IElementForEditorInputFactory}
      */
-    public SourceFileDocumentProvider(ISourceFileFactory sourceFileFactory)
+    public SourceFileDocumentProvider(IElementForEditorInputFactory factory)
     {
-        this(sourceFileFactory, null);
+        this(factory, null);
     }
 
     /**
      * Creates a new source file document provider
      * which has the given parent provider.
      *
-     * @param sourceFileFactory the source file factory
+     * @param factory {@link IElementForEditorInputFactory}
      * @param parentProvider the parent document provider
      */
-    public SourceFileDocumentProvider(ISourceFileFactory sourceFileFactory,
+    public SourceFileDocumentProvider(IElementForEditorInputFactory factory,
         IDocumentProvider parentProvider)
     {
         super(parentProvider);
-        this.sourceFileFactory = sourceFileFactory;
+        inputElementFactory = factory;
     }
 
     /**
@@ -125,13 +125,13 @@ public class SourceFileDocumentProvider
      */
     protected SourceFile getSourceFile(Object element)
     {
-        if (!(element instanceof IAdaptable))
+        if (!(element instanceof IEditorInput))
             return null;
-        IAdaptable adaptable = (IAdaptable)element;
-        IFile file = (IFile)adaptable.getAdapter(IFile.class);
-        if (file == null)
+        IHandle inputElement =
+            inputElementFactory.getElement((IEditorInput)element);
+        if (!(inputElement instanceof SourceFile))
             return null;
-        return (SourceFile)sourceFileFactory.getSourceFile(file);
+        return (SourceFile)inputElement;
     }
 
     /**
