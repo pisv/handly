@@ -23,7 +23,6 @@ import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.ISourceFileFactory;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.ui.texteditor.TextEditorBuffer;
@@ -58,7 +57,8 @@ public class HandlyXtextEditorCallback
     @Inject(optional = true)
     private IElementForEditorInputFactory inputElementFactory;
     @Inject(optional = true)
-    private ISourceFileFactory sourceFileFactory;
+    @SuppressWarnings("deprecation")
+    private org.eclipse.handly.model.ISourceFileFactory sourceFileFactory;
 
     private Map<XtextEditor, SourceFile> workingCopies =
         new HashMap<XtextEditor, SourceFile>();
@@ -86,6 +86,7 @@ public class HandlyXtextEditorCallback
                     IFile file = (IFile)input.getAdapter(IFile.class);
                     if (file == null)
                         return null;
+                    @SuppressWarnings("deprecation")
                     ISourceFile sourceFile =
                         sourceFileFactory.getSourceFile(file);
                     return sourceFile;
