@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,17 +12,17 @@ package org.eclipse.handly.ui.outline;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.handly.model.IHandle;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * A basic class for problem marker listener contributions. This implementation 
- * refreshes the outline of an <code>ISourceElement</code> when problem markers 
- * attached to the underlying resource change. Subclasses may provide 
- * a more elaborate implementation.
+ * Refreshes the outline when problem markers attached to the underlying
+ * resource change.
  */
 public class ProblemMarkerListenerContribution
     extends ResourceChangeListenerContribution
@@ -46,11 +46,18 @@ public class ProblemMarkerListenerContribution
     @Override
     protected boolean affects(IResourceChangeEvent event, Object inputElement)
     {
-        if (!(inputElement instanceof ISourceElement))
+        IResource resource = null;
+        if (inputElement instanceof IHandle)
+            resource = ((IHandle)inputElement).getResource();
+        else if (inputElement instanceof IAdaptable)
+        {
+            IAdaptable adaptable = (IAdaptable)inputElement;
+            resource = (IResource)adaptable.getAdapter(IResource.class);
+        }
+        if (resource == null)
             return false;
         IResourceDelta delta =
-            event.getDelta().findMember(
-                ((ISourceElement)inputElement).getPath());
+            event.getDelta().findMember(resource.getFullPath());
         if (delta == null)
             return false;
         return hasProblemMarkerChanges(delta);
