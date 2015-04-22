@@ -20,8 +20,6 @@ import org.eclipse.handly.snapshot.NonExpiringSnapshot;
  * and is not intended to be used by general clients.
  * 
  * @see DelegatingWorkingCopyBuffer
- * @noimplement This interface is not intended to be implemented by clients.
- * @noextend This interface is not intended to be extended by clients.
  */
 public interface IWorkingCopyReconciler
 {

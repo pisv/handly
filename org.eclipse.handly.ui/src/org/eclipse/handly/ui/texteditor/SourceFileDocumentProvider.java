@@ -25,11 +25,9 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 
 /**
  * Extends {@link TextFileDocumentProvider} for integration with
- * Handly's working copy functionality.
+ * Handly working copy functionality.
  * <p>
- * Clients can directly instantiate and configure this class with
- * a suitable source file factory and parent document provider
- * or provide their own subclass.
+ * Clients can directly instantiate this class or provide their own subclass.
  * </p>
  */
 public class SourceFileDocumentProvider
@@ -94,7 +92,7 @@ public class SourceFileDocumentProvider
             return null;
         IWorkingCopyBuffer buffer =
             new DelegatingWorkingCopyBuffer(sourceFile.openBuffer(null),
-                createWorkingCopyReconciler(sourceFile));
+                createWorkingCopyReconciler(sourceFile, element));
         try
         {
             sourceFile.becomeWorkingCopy(buffer, null); // will addRef() the buffer
@@ -137,11 +135,13 @@ public class SourceFileDocumentProvider
     /**
      * Returns a new working copy reconciler for the given source file.
      *
-     * @param sourceFile the source file (never <code>null</code>)
+     * @param sourceFile the source file corresponding to the given element
+     *  (never <code>null</code>)
+     * @param element the element
      * @return the working copy reconciler (not <code>null</code>)
      */
     protected IWorkingCopyReconciler createWorkingCopyReconciler(
-        SourceFile sourceFile)
+        SourceFile sourceFile, Object element)
     {
         return new WorkingCopyReconciler(sourceFile);
     }
