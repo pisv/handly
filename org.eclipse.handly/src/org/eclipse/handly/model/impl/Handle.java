@@ -396,7 +396,7 @@ public abstract class Handle
      * if the body for the element is to be created by the openable parent.
      *
      * @return a new body for this element, or <code>null</code> if the body 
-     *  for the element is to be created by the openeable parent
+     *  for the element is to be created by the openable parent
      */
     protected Body newBody()
     {

@@ -43,11 +43,11 @@ public abstract class SourceElement
     }
 
     @Override
-    public final ISourceElement getElementAt(int position, ISnapshot base)
+    public ISourceElement getElementAt(int position, ISnapshot base)
     {
         try
         {
-            return getElementAt(this, position, base);
+            return doGetElementAt(position, base);
         }
         catch (CoreException e)
         {
@@ -66,47 +66,83 @@ public abstract class SourceElement
         return (ISourceElementInfo)getBody();
     }
 
-    /*
-     * Returns the smallest element within the given element that includes
+    /**
+     * Returns the smallest element within this element that includes
      * the given source position, or <code>null</code> if the given position
-     * is not within the source range of the given element. If no finer grained
-     * element is found at the position, the given element is returned.
+     * is not within the source range of this element. If no finer grained
+     * element is found at the position, this element itself is returned.
      *
-     * @param element a source element (not <code>null</code>)
      * @param position a source position (0-based)
      * @param base a snapshot on which the given position is based,
      *  or <code>null</code> if the snapshot is unknown or doesn't matter
-     * @return the innermost element within the given element enclosing
-     *  the given source position, or <code>null</code> if none (including
-     *  the given element)
-     * @throws CoreException if the given element does not exist or if an
+     * @return the innermost element enclosing the given source position,
+     *  or <code>null</code> if none (including this element itself)
+     * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      * @throws StaleSnapshotException if snapshot inconsistency is detected,
-     *  i.e. the given element's current structure and properties are based on
+     *  i.e. this element's current structure and properties are based on
      *  a different snapshot
      */
-    private static ISourceElement getElementAt(ISourceElement element,
-        int position, ISnapshot base) throws CoreException
+    public final ISourceElement doGetElementAt(int position, ISnapshot base)
+        throws CoreException
     {
-        ISourceElementInfo info = element.getSourceElementInfo();
+        ISourceElementInfo info = getSourceElementInfo();
+        if (!checkInRange(position, base, info))
+            return null;
+        return getElementAt(position, info);
+    }
+
+    /**
+     * Checks whether the given position is within the element's range
+     * in the source snapshot as recorded by the given element info.
+     *
+     * @param position a source position (0-based)
+     * @param base a snapshot on which the given position is based,
+     *  or <code>null</code> if the snapshot is unknown or doesn't matter
+     * @param info the source element info (never <code>null</code>)
+     * @return <code>true</code> if the given position is within the element's
+     *  source range; <code>false</code> otherwise
+     * @throws StaleSnapshotException if snapshot inconsistency is detected
+     */
+    protected static boolean checkInRange(int position, ISnapshot base,
+        ISourceElementInfo info)
+    {
         ISnapshot snapshot = info.getSnapshot();
         if (snapshot == null)
-            return null; // the element has no associated source code
+            return false; // the element has no associated source code
         if (base != null && !base.isEqualTo(snapshot))
         {
             throw new StaleSnapshotException();
         }
         TextRange textRange = info.getFullRange();
-        if (textRange == null || !textRange.covers(position))
-            return null; // not found
+        return textRange != null && textRange.covers(position);
+    }
+
+    /**
+     * Returns the element that is located at the given source position
+     * in this element. The position given is known to be within this element's
+     * source range already, and if no finer grained element is found at the
+     * position, this element is returned.
+     *
+     * @param position a source position (0-based)
+     * @param info the info object for this element (never <code>null</code>)
+     * @return the innermost element enclosing the given source position
+     *  (not <code>null</code>)
+     * @throws CoreException if an exception occurs while accessing
+     *  the element's corresponding resource
+     */
+    protected ISourceElement getElementAt(int position, ISourceElementInfo info)
+        throws CoreException
+    {
+        ISnapshot snapshot = info.getSnapshot();
         ISourceElement[] children = info.getChildren();
-        for (int i = children.length - 1; i >= 0; i--)
+        for (ISourceElement child : children)
         {
             ISourceElement found =
-                getElementAt(children[i], position, snapshot);
+                ((SourceElement)child).doGetElementAt(position, snapshot);
             if (found != null)
                 return found;
         }
-        return element;
+        return this;
     }
 }

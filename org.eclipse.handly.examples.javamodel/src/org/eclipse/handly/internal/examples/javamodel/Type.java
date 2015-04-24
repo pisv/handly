@@ -14,9 +14,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
+import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Handle;
+import org.eclipse.handly.model.impl.SourceElement;
 import org.eclipse.handly.model.impl.SourceElementBody;
+import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.jdt.core.Flags;
 
 /**
@@ -121,6 +125,55 @@ public class Type
     public boolean isMember()
     {
         return getDeclaringType() != null;
+    }
+
+    @Override
+    protected ISourceElement getElementAt(int position, ISourceElementInfo info)
+        throws CoreException
+    {
+        ISnapshot snapshot = info.getSnapshot();
+        ISourceElement[] children = info.getChildren();
+        for (int i = children.length - 1; i >= 0; i--)
+        {
+            ISourceElement child = children[i];
+            if (child instanceof IField)
+            {
+                ISourceElementInfo childInfo = child.getSourceElementInfo();
+                if (checkInRange(position, snapshot, childInfo))
+                {
+                    // check multi-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=465410)
+                    ISourceElement candidate = null;
+                    do
+                    {
+                        // check name range
+                        if (position <= childInfo.getIdentifyingRange().getEndOffset())
+                            candidate = child;
+                        else
+                            return candidate == null ? child : candidate;
+
+                        if (--i < 0)
+                            child = null;
+                        else
+                        {
+                            child = (SourceElement)children[i];
+                            childInfo = child.getSourceElementInfo();
+                        }
+                    }
+                    while (child != null
+                        && checkInRange(position, snapshot, childInfo));
+                    // position in field's type: use first field
+                    return candidate;
+                }
+            }
+            else
+            {
+                ISourceElement found =
+                    ((SourceElement)child).doGetElementAt(position, snapshot);
+                if (found != null)
+                    return found;
+            }
+        }
+        return this;
     }
 
     @Override

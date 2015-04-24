@@ -21,6 +21,7 @@ import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.jdt.core.Flags;
 
 /**
@@ -305,5 +306,22 @@ public class MemberTest
         IType typeZ = typeY.getType("Z");
         assertEquals(Flags.AccFinal, typeZ.getFlags());
         assertEquals(0, typeZ.getChildren().length);
+    }
+
+    public void test006() throws Exception
+    {
+        IType typeX = cu.getType("X");
+        IField fieldX = typeX.getField("x");
+        IField fieldY = typeX.getField("y");
+        ISourceElementInfo fieldXInfo = fieldX.getSourceElementInfo();
+        ISourceElementInfo fieldYInfo = fieldY.getSourceElementInfo();
+        assertNotNull(fieldXInfo.getFullRange());
+        assertEquals(fieldXInfo.getFullRange(), fieldYInfo.getFullRange()); // multi-declaration
+        assertEquals(fieldX, typeX.getElementAt(
+            fieldXInfo.getIdentifyingRange().getOffset(),
+            fieldXInfo.getSnapshot()));
+        assertEquals(fieldY, typeX.getElementAt(
+            fieldYInfo.getIdentifyingRange().getOffset(),
+            fieldYInfo.getSnapshot()));
     }
 }
