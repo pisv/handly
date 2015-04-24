@@ -21,6 +21,7 @@ import org.eclipse.handly.model.impl.Handle;
 import org.eclipse.handly.model.impl.SourceElement;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.util.TextRange;
 import org.eclipse.jdt.core.Flags;
 
 /**
@@ -146,7 +147,9 @@ public class Type
                     do
                     {
                         // check name range
-                        if (position <= childInfo.getIdentifyingRange().getEndOffset())
+                        TextRange nameRange = childInfo.getIdentifyingRange();
+                        if (nameRange != null
+                            && position <= nameRange.getEndOffset())
                             candidate = child;
                         else
                             return candidate == null ? child : candidate;

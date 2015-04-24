@@ -292,6 +292,9 @@ class CompilatonUnitStructureBuilder
 
     private static TextRange getTextRange(ASTNode node)
     {
-        return new TextRange(node.getStartPosition(), node.getLength());
+        int startPosition = node.getStartPosition();
+        if (startPosition == -1)
+            return null;
+        return new TextRange(startPosition, node.getLength());
     }
 }
