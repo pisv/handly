@@ -43,7 +43,7 @@ public abstract class SourceElement
     }
 
     @Override
-    public ISourceElement getElementAt(int position, ISnapshot base)
+    public final ISourceElement getElementAt(int position, ISnapshot base)
     {
         try
         {
@@ -83,7 +83,7 @@ public abstract class SourceElement
      *  i.e. this element's current structure and properties are based on
      *  a different snapshot
      */
-    public final ISourceElement doGetElementAt(int position, ISnapshot base)
+    public ISourceElement doGetElementAt(int position, ISnapshot base)
         throws CoreException
     {
         ISourceElementInfo info = getSourceElementInfo();
