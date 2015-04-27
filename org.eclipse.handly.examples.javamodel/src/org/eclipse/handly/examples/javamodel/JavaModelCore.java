@@ -111,6 +111,8 @@ public class JavaModelCore
      */
     public static IJavaElement create(IFile file)
     {
+        if (file == null)
+            return null;
         // In this example model, we consider only Java source files
         if ("java".equals(file.getFileExtension())) //$NON-NLS-1$
             return createCompilationUnitFrom(file);
