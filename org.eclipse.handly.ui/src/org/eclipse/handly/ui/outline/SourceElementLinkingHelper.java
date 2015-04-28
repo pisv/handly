@@ -15,7 +15,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.ui.SourceElementUtil;
+import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
 import org.eclipse.jface.text.ITextSelection;
@@ -34,6 +36,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class SourceElementLinkingHelper
     extends OutlineLinkingHelper
 {
+    protected final IElementForEditorInputFactory inputElementFactory;
     private LinkToOutlineJob linkToOutlineJob = new LinkToOutlineJob();
 
     /**
@@ -41,10 +44,13 @@ public class SourceElementLinkingHelper
      * that is based on <code>ISourceElement</code>.
      * 
      * @param outlinePage not <code>null</code>
+     * @param factory {@link IElementForEditorInputFactory}
      */
-    public SourceElementLinkingHelper(ICommonOutlinePage outlinePage)
+    public SourceElementLinkingHelper(ICommonOutlinePage outlinePage,
+        IElementForEditorInputFactory factory)
     {
         super(outlinePage);
+        inputElementFactory = factory;
     }
 
     @Override
@@ -77,10 +83,10 @@ public class SourceElementLinkingHelper
     /**
      * Tells to link the given outline selection to the given text editor.
      * <p>
-     * Default implementation selects and reveals the identifying range of 
-     * the selection's first element in the text editor. Does nothing 
-     * if the first element is not an {@link ISourceElement} or 
-     * if the identifying range is not set.
+     * Default implementation selects and reveals the identifying range of
+     * the selection's first element in the text editor. Does nothing
+     * if the first element is not an {@link ISourceElement} contained
+     * in the given editor or if the identifying range is not set.
      * </p>
      *
      * @param editor the text editor (never <code>null</code>)
@@ -93,8 +99,11 @@ public class SourceElementLinkingHelper
         Object element = selection.getFirstElement();
         if (!(element instanceof ISourceElement))
             return;
+        ISourceElement sourceElement = (ISourceElement)element;
+        if (!isInEditor(sourceElement, editor))
+            return;
         TextRange identifyingRange =
-            SourceElementUtil.getIdentifyingRange((ISourceElement)element);
+            SourceElementUtil.getIdentifyingRange(sourceElement);
         if (identifyingRange == null)
             return;
         editor.selectAndReveal(identifyingRange.getOffset(),
@@ -167,6 +176,31 @@ public class SourceElementLinkingHelper
             editor = (IEditorPart)page;
         }
         return editor;
+    }
+
+    /**
+     * Returns whether the given element is contained in the given editor.
+     * <p>
+     * Default implementation checks whether the element corresponding to
+     * the input for the given editor contains the given element.
+     * </p>
+     *
+     * @param element may be <code>null</code>
+     * @param editor not <code>null</code>
+     * @return <code>true</code> if the element is contained in the editor;
+     *  <code>false</code> otherwise
+     */
+    protected boolean isInEditor(IHandle element, IEditorPart editor)
+    {
+        IHandle inputElement =
+            inputElementFactory.getElement(editor.getEditorInput());
+        while (element != null)
+        {
+            if (element.equals(inputElement))
+                return true;
+            element = element.getParent();
+        }
+        return false;
     }
 
     private void cancelLinkToOutlineJob()

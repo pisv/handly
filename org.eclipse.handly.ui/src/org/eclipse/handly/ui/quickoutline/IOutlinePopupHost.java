@@ -39,9 +39,9 @@ public interface IOutlinePopupHost
     ISelectionProvider getSelectionProvider();
 
     /**
-     * Returns the input for this host, or <code>null</code> if none.
+     * Returns the editor input for this host, or <code>null</code> if none.
      *
-     * @return the host input or <code>null</code>
+     * @return the editor input or <code>null</code>
      */
     IEditorInput getEditorInput();
 }

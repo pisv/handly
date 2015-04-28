@@ -11,6 +11,7 @@
 package org.eclipse.handly.ui.quickoutline;
 
 import org.eclipse.handly.internal.ui.SourceElementUtil;
+import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.util.TextRange;
@@ -28,12 +29,10 @@ public abstract class HandlyOutlinePopup
     private IElementForEditorInputFactory inputElementFactory;
 
     /**
-     * By default, the input element for this outline is the element
-     * corresponding to the host input. It is computed using the given
-     * factory.
+     * Sets the input element factory.
      *
-     * @param factory {@link IElementForEditorInputFactory} (not <code>null</code>)
-     * @see #computeInput()
+     * @param factory the input element factory (not <code>null</code>)
+     * @see IElementForEditorInputFactory
      */
     public void setInputElementFactory(IElementForEditorInputFactory factory)
     {
@@ -45,7 +44,7 @@ public abstract class HandlyOutlinePopup
     @Override
     protected Object computeInput()
     {
-        return inputElementFactory.getElement(getHost().getEditorInput());
+        return getInputElementFactory().getElement(getHost().getEditorInput());
     }
 
     @Override
@@ -65,8 +64,11 @@ public abstract class HandlyOutlinePopup
     {
         if (!(outlineElement instanceof ISourceElement))
             return false;
+        ISourceElement sourceElement = (ISourceElement)outlineElement;
+        if (!isInHost(sourceElement))
+            return false;
         TextRange identifyingRange =
-            SourceElementUtil.getIdentifyingRange((ISourceElement)outlineElement);
+            SourceElementUtil.getIdentifyingRange(sourceElement);
         if (identifyingRange == null)
             return false;
         TextSelection textSelection =
@@ -74,5 +76,31 @@ public abstract class HandlyOutlinePopup
                 identifyingRange.getLength());
         getHost().getSelectionProvider().setSelection(textSelection);
         return true;
+    }
+
+    /**
+     * Returns whether the given element is contained in the host
+     * of this outline popup.
+     *
+     * @param element may be <code>null</code>
+     * @return <code>true</code> if the element is contained in the host;
+     *  <code>false</code> otherwise
+     */
+    protected boolean isInHost(IHandle element)
+    {
+        IHandle inputElement =
+            getInputElementFactory().getElement(getHost().getEditorInput());
+        while (element != null)
+        {
+            if (element.equals(inputElement))
+                return true;
+            element = element.getParent();
+        }
+        return false;
+    }
+
+    protected IElementForEditorInputFactory getInputElementFactory()
+    {
+        return inputElementFactory;
     }
 }

@@ -28,12 +28,10 @@ public abstract class HandlyOutlinePage
     private IElementForEditorInputFactory inputElementFactory;
 
     /**
-     * By default, the input element for this outline is the element
-     * corresponding to the editor input. It is computed using the given
-     * factory.
+     * Sets the input element factory.
      *
-     * @param factory {@link IElementForEditorInputFactory} (not <code>null</code>)
-     * @see #computeInput()
+     * @param factory the input element factory (not <code>null</code>)
+     * @see IElementForEditorInputFactory
      */
     public void setInputElementFactory(IElementForEditorInputFactory factory)
     {
@@ -52,7 +50,7 @@ public abstract class HandlyOutlinePage
     @Override
     protected Object computeInput()
     {
-        return inputElementFactory.getElement(getEditor().getEditorInput());
+        return getInputElementFactory().getElement(getEditor().getEditorInput());
     }
 
     /**
@@ -110,7 +108,8 @@ public abstract class HandlyOutlinePage
             @Override
             protected OpenAndLinkWithEditorHelper getLinkingHelper()
             {
-                return new SourceElementLinkingHelper(getOutlinePage());
+                return new SourceElementLinkingHelper(getOutlinePage(),
+                    getInputElementFactory());
             }
         });
     }
@@ -167,5 +166,10 @@ public abstract class HandlyOutlinePage
                 }
             }
         });
+    }
+
+    protected IElementForEditorInputFactory getInputElementFactory()
+    {
+        return inputElementFactory;
     }
 }
