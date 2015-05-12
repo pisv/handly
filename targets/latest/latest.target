@@ -10,14 +10,14 @@
        Vladimir Piskarev (1C) - initial API and implementation
 -->
 <?pde version="3.8"?>
-<target name="Latest Platform" sequenceNumber="0">
+<target name="Latest Platform">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.license.feature.group" version="0.0.0"/>
 <repository location="http://download.eclipse.org/cbi/updates/license"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/mars/201503271000"/>
+<repository location="http://download.eclipse.org/releases/mars/201505081000"/>
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.core.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="0.0.0"/>

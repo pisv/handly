@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
-import static junit.framework.Assert.*;
-
 import org.eclipse.handly.examples.javamodel.IJavaElementDelta;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
+
+import junit.framework.TestCase;
 
 class JavaModelListener
     implements IElementChangeListener
@@ -31,6 +31,6 @@ class JavaModelListener
     {
         String actual =
             (delta == null ? "<null>" : delta.toString().replace("\t", "    "));
-        assertEquals(expected, actual);
+        TestCase.assertEquals(expected, actual);
     }
 }
