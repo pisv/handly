@@ -15,7 +15,7 @@ import org.eclipse.handly.util.TextRange;
 
 /**
  * Holds cached structure and properties for a source element. Those
- * structure and properties correlate to a source snapshot.
+ * structure and properties correlate with a source snapshot.
  * 
  * @see ISourceElement
  * @noimplement This interface is not intended to be implemented by clients.
@@ -42,7 +42,9 @@ public interface ISourceElementInfo
      *
      * @param property a source element's property (not <code>null</code>)
      * @return the cached value of the given property, or <code>null</code>
-     *  if the property is not set
+     *  if the property is not set. Clients <b>must not</b> modify the returned
+     *  value even if mutation is technically possible (e.g. for a non-empty
+     *  array).
      */
     <T> T get(ISourceElement.Property<T> property);
 
@@ -56,7 +58,8 @@ public interface ISourceElementInfo
      * </p>
      *
      * @return the cached children of the source element
-     *  (never <code>null</code>)
+     *  (never <code>null</code>). Clients <b>must not</b> modify
+     *  the returned array.
      */
     ISourceConstruct[] getChildren();
 

@@ -42,15 +42,9 @@ public class SourceElementBody
     public ISourceConstruct[] getChildren()
     {
         IHandle[] children = super.getChildren();
-        int len = children.length;
-        ISourceConstruct[] result = new ISourceConstruct[len];
-        for (int i = 0; i < len; i++)
-        {
-            IHandle child = children[i];
-            if (!(child instanceof ISourceConstruct))
-                throw new AssertionError();
-            result[i] = (ISourceConstruct)child;
-        }
+        int length = children.length;
+        ISourceConstruct[] result = new ISourceConstruct[length];
+        System.arraycopy(children, 0, result, 0, length);
         return result;
     }
 
