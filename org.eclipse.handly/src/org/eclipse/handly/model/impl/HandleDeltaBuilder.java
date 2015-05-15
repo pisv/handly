@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -181,13 +181,10 @@ public class HandleDeltaBuilder
         oldBodies.put(element, body);
 
         IHandle[] children = body.getChildren();
-        if (children != null)
+        insertPositions(children, false);
+        for (IHandle child : children)
         {
-            insertPositions(children, false);
-            for (IHandle child : children)
-            {
-                recordBody(child, depth + 1);
-            }
+            recordBody(child, depth + 1);
         }
     }
 
@@ -210,13 +207,10 @@ public class HandleDeltaBuilder
         }
 
         IHandle[] children = body.getChildren();
-        if (children != null)
+        insertPositions(children, true);
+        for (IHandle child : children)
         {
-            insertPositions(children, true);
-            for (IHandle child : children)
-            {
-                recordNewPositions(child, depth + 1);
-            }
+            recordNewPositions(child, depth + 1);
         }
     }
 
@@ -278,13 +272,9 @@ public class HandleDeltaBuilder
 
             findContentChange(newBody, oldBody, newElement);
 
-            IHandle[] children = newBody.getChildren();
-            if (children != null)
+            for (IHandle child : newBody.getChildren())
             {
-                for (IHandle child : children)
-                {
-                    findAdditions(child, depth + 1);
-                }
+                findAdditions(child, depth + 1);
             }
         }
     }
@@ -327,13 +317,9 @@ public class HandleDeltaBuilder
             return;
         }
 
-        IHandle[] children = body.getChildren();
-        if (children != null)
+        for (IHandle child : body.getChildren())
         {
-            for (IHandle child : children)
-            {
-                findChangesInPositioning(child, depth + 1);
-            }
+            findChangesInPositioning(child, depth + 1);
         }
     }
 
@@ -348,10 +334,9 @@ public class HandleDeltaBuilder
         }
         else
         {
-            IHandleDelta[] children = delta.getAffectedChildren();
-            for (IHandleDelta child : children)
+            for (HandleDelta child : delta.affectedChildren)
             {
-                trimDelta((HandleDelta)child);
+                trimDelta(child);
             }
         }
     }

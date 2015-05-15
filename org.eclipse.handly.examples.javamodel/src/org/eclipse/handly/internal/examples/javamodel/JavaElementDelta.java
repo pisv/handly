@@ -13,7 +13,6 @@ package org.eclipse.handly.internal.examples.javamodel;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaElementDelta;
 import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
 import org.eclipse.handly.model.impl.HandleDelta;
 
 /**
@@ -43,25 +42,25 @@ public class JavaElementDelta
     }
 
     @Override
-    public IJavaElementDelta[] getAffectedChildren()
+    public JavaElementDelta[] getAffectedChildren()
     {
         return convert(super.getAffectedChildren());
     }
 
     @Override
-    public IJavaElementDelta[] getAddedChildren()
+    public JavaElementDelta[] getAddedChildren()
     {
         return convert(super.getAddedChildren());
     }
 
     @Override
-    public IJavaElementDelta[] getRemovedChildren()
+    public JavaElementDelta[] getRemovedChildren()
     {
         return convert(super.getRemovedChildren());
     }
 
     @Override
-    public IJavaElementDelta[] getChangedChildren()
+    public JavaElementDelta[] getChangedChildren()
     {
         return convert(super.getChangedChildren());
     }
@@ -88,7 +87,7 @@ public class JavaElementDelta
     protected boolean toDebugString(StringBuilder builder, int flags)
     {
         boolean prev = super.toDebugString(builder, flags);
-        if ((flags & IJavaElementDelta.F_CLASSPATH_CHANGED) != 0)
+        if ((flags & F_CLASSPATH_CHANGED) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
@@ -98,9 +97,9 @@ public class JavaElementDelta
         return prev;
     }
 
-    private static IJavaElementDelta[] convert(IHandleDelta[] array)
+    private static JavaElementDelta[] convert(HandleDelta[] array)
     {
-        IJavaElementDelta[] result = new IJavaElementDelta[array.length];
+        JavaElementDelta[] result = new JavaElementDelta[array.length];
         System.arraycopy(array, 0, result, 0, array.length);
         return result;
     }

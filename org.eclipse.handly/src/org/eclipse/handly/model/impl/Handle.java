@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC. 
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -269,7 +269,7 @@ public abstract class Handle
             builder.append(" [in "); //$NON-NLS-1$
             parent.toStringBody(0, builder, NO_BODY, false/*don't show resolved info*/);
             parent.toStringAncestors(builder);
-            builder.append("]"); //$NON-NLS-1$
+            builder.append(']');
         }
     }
 
@@ -293,11 +293,10 @@ public abstract class Handle
     {
         if (body == null)
             return;
-        IHandle[] children = body.getChildren();
-        for (int i = 0; i < children.length; i++)
+        for (IHandle child : body.getChildren())
         {
-            builder.append("\n"); //$NON-NLS-1$
-            ((Handle)children[i]).toString(tab + 1, builder);
+            builder.append('\n');
+            ((Handle)child).toString(tab + 1, builder);
         }
     }
 

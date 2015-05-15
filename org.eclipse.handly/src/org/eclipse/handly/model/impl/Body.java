@@ -21,7 +21,7 @@ import org.eclipse.handly.model.IHandle;
  */
 public class Body
 {
-    public static IHandle[] NO_CHILDREN = new IHandle[0];
+    public static final IHandle[] NO_CHILDREN = new IHandle[0];
 
     /*
      * Handles of immediate children of the element. 
@@ -36,6 +36,8 @@ public class Body
 
     public void setChildren(IHandle[] children)
     {
+        if (children == null)
+            throw new IllegalArgumentException();
         this.children = children;
     }
 

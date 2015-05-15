@@ -134,8 +134,7 @@ public class HandleManager
         Body body = cache.peek(handle);
         if (body != null)
         {
-            IHandle[] children = body.getChildren();
-            for (IHandle child : children)
+            for (IHandle child : body.getChildren())
             {
                 removeBodyAndChildren(child);
             }

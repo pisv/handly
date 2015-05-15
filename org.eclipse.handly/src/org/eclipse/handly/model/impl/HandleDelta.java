@@ -33,8 +33,8 @@ import org.eclipse.handly.model.ISourceFile;
 public class HandleDelta
     implements IHandleDelta
 {
-    protected static final IHandleDelta[] EMPTY_HANDLE_DELTAS =
-        new IHandleDelta[0];
+    protected static final HandleDelta[] EMPTY_HANDLE_DELTAS =
+        new HandleDelta[0];
     protected static final IMarkerDelta[] EMPTY_MARKER_DELTAS =
         new IMarkerDelta[0];
     protected static final IResourceDelta[] EMPTY_RESOURCE_DELTAS =
@@ -45,7 +45,7 @@ public class HandleDelta
     protected final IHandle element;
     protected IHandle movedFromElement;
     protected IHandle movedToElement;
-    protected IHandleDelta[] affectedChildren = EMPTY_HANDLE_DELTAS;
+    protected HandleDelta[] affectedChildren = EMPTY_HANDLE_DELTAS;
 
     /**
      * On-demand index into <code>affectedChildren</code>
@@ -90,25 +90,25 @@ public class HandleDelta
     }
 
     @Override
-    public IHandleDelta[] getAffectedChildren()
+    public HandleDelta[] getAffectedChildren()
     {
         return affectedChildren;
     }
 
     @Override
-    public IHandleDelta[] getAddedChildren()
+    public HandleDelta[] getAddedChildren()
     {
         return getChildrenOfType(ADDED);
     }
 
     @Override
-    public IHandleDelta[] getRemovedChildren()
+    public HandleDelta[] getRemovedChildren()
     {
         return getChildrenOfType(REMOVED);
     }
 
     @Override
-    public IHandleDelta[] getChangedChildren()
+    public HandleDelta[] getChangedChildren()
     {
         return getChildrenOfType(CHANGED);
     }
@@ -359,7 +359,7 @@ public class HandleDelta
         }
         else
         {
-            HandleDelta existingChild = (HandleDelta)affectedChildren[index];
+            HandleDelta existingChild = affectedChildren[index];
             switch (existingChild.getKind())
             {
             case ADDED:
@@ -393,10 +393,8 @@ public class HandleDelta
                     affectedChildren[index] = child;
                     return;
                 case CHANGED: // child was changed then changed -> it is changed
-                    IHandleDelta[] children = child.getAffectedChildren();
-                    for (int i = 0; i < children.length; i++)
+                    for (HandleDelta childsChild : child.affectedChildren)
                     {
-                        HandleDelta childsChild = (HandleDelta)children[i];
                         existingChild.addAffectedChild(childsChild);
                     }
 
@@ -579,25 +577,21 @@ public class HandleDelta
         }
         builder.append(((Handle)getElement()).toDebugString());
         toDebugString(builder);
-        IHandleDelta[] children = getAffectedChildren();
-        if (children != null)
+        for (HandleDelta child : affectedChildren)
         {
-            for (int i = 0; i < children.length; ++i)
-            {
-                builder.append("\n"); //$NON-NLS-1$
-                builder.append(((HandleDelta)children[i]).toDebugString(depth + 1));
-            }
+            builder.append('\n');
+            builder.append(child.toDebugString(depth + 1));
         }
         for (int i = 0; i < resourceDeltasCounter; i++)
         {
-            builder.append("\n");//$NON-NLS-1$
+            builder.append('\n');
             for (int j = 0; j < depth + 1; j++)
             {
                 builder.append('\t');
             }
             IResourceDelta resourceDelta = resourceDeltas[i];
             builder.append(resourceDelta.toString());
-            builder.append("["); //$NON-NLS-1$
+            builder.append('[');
             switch (resourceDelta.getKind())
             {
             case IResourceDelta.ADDED:
@@ -613,7 +607,7 @@ public class HandleDelta
                 builder.append('?');
                 break;
             }
-            builder.append("]"); //$NON-NLS-1$
+            builder.append(']');
         }
         return builder.toString();
     }
@@ -623,16 +617,16 @@ public class HandleDelta
      */
     protected void toDebugString(StringBuilder builder)
     {
-        builder.append("["); //$NON-NLS-1$
+        builder.append('[');
         switch (getKind())
         {
-        case IHandleDelta.ADDED:
+        case ADDED:
             builder.append('+');
             break;
-        case IHandleDelta.REMOVED:
+        case REMOVED:
             builder.append('-');
             break;
-        case IHandleDelta.CHANGED:
+        case CHANGED:
             builder.append('*');
             break;
         default:
@@ -641,7 +635,7 @@ public class HandleDelta
         }
         builder.append("]: {"); //$NON-NLS-1$
         toDebugString(builder, getFlags());
-        builder.append("}"); //$NON-NLS-1$
+        builder.append('}');
     }
 
     /**
@@ -650,84 +644,84 @@ public class HandleDelta
     protected boolean toDebugString(StringBuilder builder, int flags)
     {
         boolean prev = false;
-        if ((flags & IHandleDelta.F_CHILDREN) != 0)
+        if ((flags & F_CHILDREN) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("CHILDREN"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_CONTENT) != 0)
+        if ((flags & F_CONTENT) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("CONTENT"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_MOVED_FROM) != 0)
+        if ((flags & F_MOVED_FROM) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
-            builder.append("MOVED_FROM(" + ((Handle)getMovedFromElement()).toStringWithAncestors() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+            builder.append("MOVED_FROM(" + ((Handle)getMovedFromElement()).toStringWithAncestors() + ')'); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_MOVED_TO) != 0)
+        if ((flags & F_MOVED_TO) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
-            builder.append("MOVED_TO(" + ((Handle)getMovedToElement()).toStringWithAncestors() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+            builder.append("MOVED_TO(" + ((Handle)getMovedToElement()).toStringWithAncestors() + ')'); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_REORDER) != 0)
+        if ((flags & F_REORDER) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("REORDERED"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_FINE_GRAINED) != 0)
+        if ((flags & F_FINE_GRAINED) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("FINE GRAINED"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_OPEN) != 0)
+        if ((flags & F_OPEN) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("OPEN"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_DESCRIPTION) != 0)
+        if ((flags & F_DESCRIPTION) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("DESCRIPTION"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_WORKING_COPY) != 0)
+        if ((flags & F_WORKING_COPY) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("WORKING COPY"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_UNDERLYING_RESOURCE) != 0)
+        if ((flags & F_UNDERLYING_RESOURCE) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("UNDERLYING_RESOURCE"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_MARKERS) != 0)
+        if ((flags & F_MARKERS) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MARKERS"); //$NON-NLS-1$
             prev = true;
         }
-        if ((flags & IHandleDelta.F_SYNC) != 0)
+        if ((flags & F_SYNC) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
@@ -873,22 +867,20 @@ public class HandleDelta
      * @return deltas for the affected children of the given type
      *  (never <code>null</code>)
      */
-    protected final IHandleDelta[] getChildrenOfType(int type)
+    protected final HandleDelta[] getChildrenOfType(int type)
     {
         int length = affectedChildren.length;
         if (length == 0)
             return EMPTY_HANDLE_DELTAS;
 
-        ArrayList<IHandleDelta> children = new ArrayList<IHandleDelta>(length);
-        for (int i = 0; i < length; i++)
+        ArrayList<HandleDelta> children = new ArrayList<HandleDelta>(length);
+        for (HandleDelta child : affectedChildren)
         {
-            if (affectedChildren[i].getKind() == type)
-                children.add(affectedChildren[i]);
+            if (child.getKind() == type)
+                children.add(child);
         }
 
-        IHandleDelta[] childrenOfType = new IHandleDelta[children.size()];
-        children.toArray(childrenOfType);
-        return childrenOfType;
+        return children.toArray(EMPTY_HANDLE_DELTAS);
     }
 
     /**
@@ -904,10 +896,10 @@ public class HandleDelta
             return null;
         Integer index = indexOfChild(key);
         if (index != null)
-            return (HandleDelta)affectedChildren[index];
-        for (IHandleDelta child : affectedChildren)
+            return affectedChildren[index];
+        for (HandleDelta child : affectedChildren)
         {
-            HandleDelta delta = ((HandleDelta)child).findDescendant(key);
+            HandleDelta delta = child.findDescendant(key);
             if (delta != null)
                 return delta;
         }
@@ -1028,11 +1020,11 @@ public class HandleDelta
      * Adds the new element to a new array that contains all of the elements 
      * of the old array. Returns the new array.
      */
-    protected static IHandleDelta[] growAndAddToArray(IHandleDelta[] array,
-        IHandleDelta addition)
+    protected static HandleDelta[] growAndAddToArray(HandleDelta[] array,
+        HandleDelta addition)
     {
-        IHandleDelta[] old = array;
-        array = new IHandleDelta[old.length + 1];
+        HandleDelta[] old = array;
+        array = new HandleDelta[old.length + 1];
         System.arraycopy(old, 0, array, 0, old.length);
         array[old.length] = addition;
         return array;
@@ -1041,10 +1033,10 @@ public class HandleDelta
     /**
      * Removes the element from the array. Returns the new array which has shrunk.
      */
-    protected static IHandleDelta[] removeAndShrinkArray(IHandleDelta[] old,
+    protected static HandleDelta[] removeAndShrinkArray(HandleDelta[] old,
         int index)
     {
-        IHandleDelta[] array = new IHandleDelta[old.length - 1];
+        HandleDelta[] array = new HandleDelta[old.length - 1];
         if (index > 0)
             System.arraycopy(old, 0, array, 0, index);
         int rest = old.length - index - 1;
