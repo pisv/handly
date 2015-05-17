@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Copyright (c) 2014 1C LLC.
+   Copyright (c) 2014, 2015 1C-Soft LLC and others.
    All rights reserved. This program and the accompanying materials
    are made available under the terms of the Eclipse Public License v1.0
    which accompanies this distribution, and is available at
@@ -22,22 +22,46 @@
   <artifactId>repository</artifactId>
   <packaging>eclipse-repository</packaging>
   <properties>
-	  <handly.version>0.3.0.${buildQualifier}</handly.version>
-	  <ant-optional.version>1.5.3-1</ant-optional.version>
-	  <ant-xalan2.version>1.9.4</ant-xalan2.version>
+    <handly.version>0.3.0.${buildQualifier}</handly.version>
+    <ant-optional.version>1.5.3-1</ant-optional.version>
+    <ant-xalan2.version>1.9.4</ant-xalan2.version>
   </properties>
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-p2-index</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}</directory>
+                  <includes>
+                    <include>p2.index</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-p2-repository-plugin</artifactId>
         <executions>
           <execution>
+            <phase>package</phase>
             <goals>
               <goal>archive-repository</goal>
             </goals>
             <configuration>
-              <finalName>handly-repository-incubation-${handly.version}</finalName>  
+              <finalName>handly-repository-incubation-${handly.version}</finalName>
             </configuration>
           </execution>
         </executions>
@@ -46,7 +70,7 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-			<id>version</id>  
+            <id>version</id>
             <phase>package</phase>
             <goals>
               <goal>run</goal>
@@ -58,36 +82,36 @@
             </configuration>
           </execution>
           <execution>
-			<id>test-report</id>
+            <id>test-report</id>
             <phase>verify</phase>
             <goals>
               <goal>run</goal>
             </goals>
             <configuration>
               <target>
-				  <junitreport todir="${project.build.directory}">
-				    <fileset dir="${project.build.directory}/../../">
-				      <include name="**/target/surefire-reports/TEST-*.xml"/>
-				    </fileset>
-				    <report format="noframes" todir="${project.build.directory}"/>
-				  </junitreport>
+                <junitreport todir="${project.build.directory}">
+                  <fileset dir="${project.build.directory}/../../">
+                    <include name="**/target/surefire-reports/TEST-*.xml"/>
+                  </fileset>
+                  <report format="noframes" todir="${project.build.directory}"/>
+                </junitreport>
               </target>
             </configuration>
           </execution>
         </executions>
-		<dependencies>
-		  <dependency>
-		    <groupId>ant</groupId>
-		    <artifactId>ant-optional</artifactId>
-		    <version>${ant-optional.version}</version>
-		  </dependency>
-		  <dependency>
-		    <groupId>org.apache.ant</groupId>
-		    <artifactId>ant-apache-xalan2</artifactId>
-		    <version>${ant-xalan2.version}</version>
-		  </dependency>
-		</dependencies>						
+        <dependencies>
+          <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant-optional</artifactId>
+            <version>${ant-optional.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-apache-xalan2</artifactId>
+            <version>${ant-xalan2.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
-  </build>    
+  </build>
 </project>
