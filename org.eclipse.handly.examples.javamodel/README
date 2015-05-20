@@ -1,7 +1,43 @@
 Java Model Example
 ==================
 
-Please see the `README` file in the `org.eclipse.handly.examples` bundle 
+Please see the `README` file in the `org.eclipse.handly.examples` bundle
 for general information regarding Handly Examples.
 
-TBD
+The Java model example (`o.e.handly.examples.javamodel*`) demonstrates
+a Handly-based model for the Java language along the lines of the JDT's
+Java model.
+
+As one would expect from an example, the model is somewhat contrived.
+In particular:
+
+* Only classpath entries of kind CPE_SOURCE, with paths of length 1
+are considered (i.e. only source folders that are direct children
+of the project resource);
+
+* Inclusion/exclusion filters are ignored -- everything is included;
+
+* Only default output location is supported, with path of length 1;
+
+* Initializers and local/anonymous types are not represented in the model.
+
+Some of these constraints may be relaxed in the future (especially
+based on community feedback).
+
+There is no corresponding UI yet, only the core model and tests.
+The following UI parts are expected to appear in a subsequent release:
+
+* Example Java editor, with Handly-based reconciling and outline;
+
+* Example Java navigator view.
+
+It is hoped that this example is sufficiently real-world (despite
+the inevitable simplifications vs. the full-fledged JDT implementation),
+and will be useful to Handly adopters. Feedback is most welcome
+and can be directed to the project's forum:
+
+    http://eclipse.org/forums/eclipse.handly
+
+or right to the developer mailing list:
+
+    https://dev.eclipse.org/mailman/listinfo/handly-dev
