@@ -37,6 +37,8 @@ public abstract class SourceConstruct
     public SourceConstruct(Handle parent, String name)
     {
         super(parent, name);
+        if (parent == null)
+            throw new IllegalArgumentException();
     }
 
     /**

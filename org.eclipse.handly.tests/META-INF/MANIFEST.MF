@@ -6,4 +6,5 @@ Bundle-Name: Handly Tests (Incubation)
 Bundle-Vendor: Eclipse Handly
 Fragment-Host: org.eclipse.handly
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.handly.junit
 Import-Package: junit.framework

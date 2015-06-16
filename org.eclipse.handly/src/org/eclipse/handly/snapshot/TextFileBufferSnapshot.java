@@ -107,7 +107,7 @@ public final class TextFileBufferSnapshot
         TextFileSnapshot fileSnapshot =
             new TextFileSnapshot(
                 ResourcesPlugin.getWorkspace().getRoot().getFile(
-                    buffer.getLocation()));
+                    buffer.getLocation()), false);
         if (!buffer.isDirty() && buffer.isSynchronized())
         {
             // the snapshot can be 'transcended' as file snapshot (no need to expire)

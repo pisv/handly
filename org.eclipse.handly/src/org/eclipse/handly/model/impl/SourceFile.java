@@ -52,7 +52,8 @@ public abstract class SourceFile
      * Constructs a handle for a source file with the given parent element and 
      * the given underlying workspace file.
      * 
-     * @param parent the parent of the element (not <code>null</code>)
+     * @param parent the parent of the element,
+     *  or <code>null</code> if the element has no parent
      * @param file the workspace file underlying the element (not <code>null</code>)
      */
     public SourceFile(Handle parent, IFile file)
@@ -297,18 +298,36 @@ public abstract class SourceFile
 
         if (astHolder == null) // not a working copy
         {
-            // NOTE: AST is created from the underlying file contents, 
-            // not from the buffer contents, since source files that are not 
+            // NOTE: AST is created from the underlying file contents,
+            // not from the buffer contents, since source files that are not
             // working copies must reflect the structure of the underlying file
-            NonExpiringSnapshot snapshot =
-                new NonExpiringSnapshot(new ISnapshotProvider()
+            NonExpiringSnapshot snapshot;
+            try
+            {
+                snapshot = new NonExpiringSnapshot(new ISnapshotProvider()
                 {
                     @Override
                     public ISnapshot getSnapshot()
                     {
-                        return new TextFileSnapshot(getFile());
+                        TextFileSnapshot result =
+                            new TextFileSnapshot(getFile(), true);
+                        if (result.getContents() == null
+                            && !result.getStatus().isOK())
+                        {
+                            throw new IllegalStateException(
+                                new CoreException(result.getStatus()));
+                        }
+                        return result;
                     }
                 });
+            }
+            catch (IllegalStateException e)
+            {
+                Throwable cause = e.getCause();
+                if (cause instanceof CoreException)
+                    throw (CoreException)cause;
+                throw new AssertionError(e); // should never happen
+            }
             Object ast = createStructuralAst(snapshot.getContents());
             astHolder = new AstHolder(ast, snapshot);
         }

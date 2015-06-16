@@ -31,15 +31,14 @@ public abstract class SourceElement
      * Constructs a handle for a source element with the given parent element
      * and the given name.
      * 
-     * @param parent the parent of the element (not <code>null</code>)
+     * @param parent the parent of the element,
+     *  or <code>null</code> if the element has no parent
      * @param name the name of the element, or <code>null</code> 
      *  if the element has no name
      */
     public SourceElement(Handle parent, String name)
     {
         super(parent, name);
-        if (parent == null)
-            throw new IllegalArgumentException();
     }
 
     @Override
