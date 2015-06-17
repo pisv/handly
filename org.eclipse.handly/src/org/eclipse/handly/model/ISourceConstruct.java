@@ -11,7 +11,9 @@
 package org.eclipse.handly.model;
 
 /**
- * Represents a programming language's structural construct.
+ * Represents an element in a source file or, more generally,
+ * an element inside a "resource" that may have associated source
+ * (an example of such "resource" might be a class file in a jar).
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  */
