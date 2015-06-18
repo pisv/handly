@@ -29,7 +29,11 @@
 # * JAVA_HOME properly set
 # * ECLIPSE_HOME pointing to an Eclipse installation that contains
 #   org.eclipse.wtp.releng.tools.feature (the feature can be installed from
-#   http://download.eclipse.org/webtools/releng/repository/)
+#   http://download.eclipse.org/webtools/releng/repository/).
+#   If this variable is not set, and the working directory has a subdirectory
+#   named "eclipse", it will be assumed that this subdirectory contains
+#   the required Eclipse installation and ECLIPSE_HOME will be set
+#   to "./eclipse" by default
 # * pwd, curl and unzip utilities
 #
 # Optional:
