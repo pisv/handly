@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ import org.eclipse.handly.util.TextRange;
 /**
  * Holds cached structure and properties for a source element.
  * Can be subclassed for specific kinds of elements.
- * 
+ *
  * @see ISourceElementInfo
  */
 public class SourceElementBody
@@ -139,16 +139,15 @@ public class SourceElementBody
         Set<String> newPropertyNames = getPropertyNames();
         Set<String> oldPropertyNames =
             ((SourceElementBody)oldBody).getPropertyNames();
-        Set<String> combinedPropertyNames =
-            new HashSet<String>(newPropertyNames.size()
-                + oldPropertyNames.size());
+        Set<String> combinedPropertyNames = new HashSet<String>(
+            newPropertyNames.size() + oldPropertyNames.size());
         combinedPropertyNames.addAll(newPropertyNames);
         combinedPropertyNames.addAll(oldPropertyNames);
         for (String propertyName : combinedPropertyNames)
         {
             Object newValue = getPropertyValue(propertyName);
-            Object oldValue =
-                ((SourceElementBody)oldBody).getPropertyValue(propertyName);
+            Object oldValue = ((SourceElementBody)oldBody).getPropertyValue(
+                propertyName);
             if (isPropertyChanged(propertyName, newValue, oldValue))
             {
                 delta.insertChanged(element, HandleDelta.F_CONTENT);

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -22,15 +22,15 @@ import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
 
 /**
- * Builds a delta tree between the version of an element at the time the 
- * builder was created and the current version of the element. Performs 
- * this operation by locally caching the contents of the element when the 
- * builder is created. When the method <code>buildDeltas()</code> is called, 
+ * Builds a delta tree between the version of an element at the time the
+ * builder was created and the current version of the element. Performs
+ * this operation by locally caching the contents of the element when the
+ * builder is created. When the method <code>buildDeltas()</code> is called,
  * it creates a delta over the cached contents and the new contents.
  * <p>
  * Adapted from <code>org.eclipse.jdt.internal.core.JavaElementDeltaBuilder</code>.
  * </p>
- * 
+ *
  * @see HandleDelta
  */
 public class HandleDeltaBuilder
@@ -55,9 +55,9 @@ public class HandleDeltaBuilder
     private HandleDelta delta;
 
     /**
-     * Constructs a delta builder on the given element 
+     * Constructs a delta builder on the given element
      * looking as deep as necessary.
-     * 
+     *
      * @param element the tracked element (not <code>null</code>)
      */
     public HandleDeltaBuilder(IHandle element)
@@ -66,9 +66,9 @@ public class HandleDeltaBuilder
     }
 
     /**
-     * Constructs a delta builder on the given element 
+     * Constructs a delta builder on the given element
      * looking only <code>maxDepth</code> levels deep.
-     * 
+     *
      * @param element the tracked element (not <code>null</code>)
      * @param maxDepth the maximum depth in the element children we should look into
      */
@@ -84,7 +84,7 @@ public class HandleDeltaBuilder
     }
 
     /**
-     * Builds the delta tree between the old content of the element and its 
+     * Builds the delta tree between the old content of the element and its
      * new content. This method may only be called once on a given builder.
      */
     public void buildDelta()
@@ -98,9 +98,9 @@ public class HandleDeltaBuilder
     }
 
     /**
-     * Returns the built delta, or <code>null</code> if the delta has not been built. 
+     * Returns the built delta, or <code>null</code> if the delta has not been built.
      * Returns an empty delta if the element has not changed.
-     * 
+     *
      * @return the built delta, or <code>null</code> if the delta has not been built
      */
     public HandleDelta getDelta()
@@ -133,18 +133,19 @@ public class HandleDeltaBuilder
     /**
      * Finds whether the given element has had a content change.
      * <p>
-     * Implementations can compare the given bodies (excepting children) 
-     * and if there are differences, insert an appropriate change delta 
-     * (such as <code>F_CONTENT</code>) for the given element into the delta 
-     * tree being built. Implementations should not take the element's 
+     * Implementations can compare the given bodies (excepting children)
+     * and if there are differences, insert an appropriate change delta
+     * (such as <code>F_CONTENT</code>) for the given element into the delta
+     * tree being built. Implementations should not take the element's
      * children into account.
      * </p>
-     * 
+     *
      * @param oldBody the old version of the element's body (never <code>null</code>)
      * @param newBody the new version of the element's body (never <code>null</code>)
      * @param element the element whose bodies are to be compared (never <code>null</code>)
      */
-    protected void findContentChange(Body newBody, Body oldBody, IHandle element)
+    protected void findContentChange(Body newBody, Body oldBody,
+        IHandle element)
     {
         newBody.findContentChange(oldBody, element, delta);
     }
@@ -215,14 +216,14 @@ public class HandleDeltaBuilder
     }
 
     /*
-     * Inserts position information for the elements 
+     * Inserts position information for the elements
      * into the new or old positions map.
      */
     private void insertPositions(IHandle[] elements, boolean isNew)
     {
         int length = elements.length;
-        IHandle previous = null, current = null, next =
-            (length > 0) ? elements[0] : null;
+        IHandle previous = null, current = null, next = (length > 0)
+            ? elements[0] : null;
         for (int i = 0; i < length; i++)
         {
             previous = current;
@@ -298,8 +299,8 @@ public class HandleDeltaBuilder
      */
     private void findChangesInPositioning(IHandle element, int depth)
     {
-        if (depth >= maxDepth || added.contains(element)
-            || removed.contains(element))
+        if (depth >= maxDepth || added.contains(element) || removed.contains(
+            element))
             return;
 
         if (!isPositionedCorrectly(element))

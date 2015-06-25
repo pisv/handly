@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -37,9 +37,8 @@ class AstUtil
         int i = 0;
         for (Name name : names)
         {
-            result[i++] =
-                Signature.createTypeSignature(name.getFullyQualifiedName(),
-                    false);
+            result[i++] = Signature.createTypeSignature(
+                name.getFullyQualifiedName(), false);
         }
         return result;
     }
@@ -102,7 +101,8 @@ class AstUtil
         }
         else if (type instanceof PrimitiveType)
         {
-            builder.append(((PrimitiveType)type).getPrimitiveTypeCode().toString());
+            builder.append(
+                ((PrimitiveType)type).getPrimitiveTypeCode().toString());
         }
         else if (type instanceof QualifiedType)
         {
@@ -113,7 +113,8 @@ class AstUtil
         }
         else if (type instanceof SimpleType)
         {
-            builder.append(((SimpleType)type).getName().getFullyQualifiedName());
+            builder.append(
+                ((SimpleType)type).getName().getFullyQualifiedName());
         }
         else if (type instanceof WildcardType)
         {

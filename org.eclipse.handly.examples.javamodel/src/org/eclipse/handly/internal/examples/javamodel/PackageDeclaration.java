@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -25,7 +25,7 @@ public class PackageDeclaration
     /**
      * Creates a handle for a package declaration with the given parent element
      * and the given name.
-     * 
+     *
      * @param parent the parent of the element (not <code>null</code>)
      * @param name the name of the element (not <code>null</code>)
      */

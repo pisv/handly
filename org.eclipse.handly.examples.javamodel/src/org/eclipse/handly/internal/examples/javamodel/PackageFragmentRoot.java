@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -174,17 +174,18 @@ public class PackageFragmentRoot
         if (members.length > 0)
         {
             JavaProject javaProject = getParent();
-            String sourceLevel =
-                javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
-            String complianceLevel =
-                javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+            String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE,
+                true);
+            String complianceLevel = javaProject.getOption(
+                JavaCore.COMPILER_COMPLIANCE, true);
             for (IResource member : members)
             {
                 if (member instanceof IFolder)
                 {
                     String memberName = member.getName();
                     if (JavaConventions.validateIdentifier(memberName,
-                        sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR)
+                        sourceLevel,
+                        complianceLevel).getSeverity() != IStatus.ERROR)
                     {
                         computeFolderChildren((IFolder)member,
                             packagePath.append(memberName), children);

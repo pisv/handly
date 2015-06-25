@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -28,7 +28,7 @@ public interface IPreferenceListener
      * Display#asyncExec(Runnable).
      * </p>
      *
-     * @param event describes which preference changed and how 
+     * @param event describes which preference changed and how
      *  (never <code>null</code>)
      */
     void preferenceChanged(PreferenceChangeEvent event);

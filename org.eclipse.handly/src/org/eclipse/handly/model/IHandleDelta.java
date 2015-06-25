@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -19,7 +19,7 @@ import org.eclipse.core.resources.IResourceDelta;
  * two discrete points in time. Given a delta, clients can access the element
  * that has changed, and any children that have changed.
  * <p>
- * Deltas have a different status depending on the kind of change they represent. 
+ * Deltas have a different status depending on the kind of change they represent.
  * The list below summarizes each status (as returned by {@link #getKind})
  * and its meaning (see individual constants for a more detailed description):
  * <ul>
@@ -48,7 +48,7 @@ import org.eclipse.core.resources.IResourceDelta;
  * <p>
  * Adapted from <code>org.eclipse.jdt.core.IJavaElementDelta</code>.
  * </p>
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IHandleDelta
@@ -146,7 +146,7 @@ public interface IHandleDelta
      * Change flag indicating that markers on the element's corresponding
      * resource have changed. This flag is only valid if the element has
      * a corresponding resource.
-     * 
+     *
      * @see #getMarkerDeltas()
      */
     int F_MARKERS = 0x000400;
@@ -221,7 +221,7 @@ public interface IHandleDelta
 
     /**
      * @return an element describing this element before it was moved
-     * to its current location, or <code>null</code> if the {@link #F_MOVED_FROM} 
+     * to its current location, or <code>null</code> if the {@link #F_MOVED_FROM}
      * change flag is not set
      */
     IHandle getMovedFromElement();
@@ -255,7 +255,7 @@ public interface IHandleDelta
      * for the dynamic scope of a notification. Clients <b>must not</b>
      * hang on to these objects.
      * </p>
-     * 
+     *
      * @return the resource deltas (never <code>null</code>).
      *  Clients <b>must not</b> modify the returned array.
      */

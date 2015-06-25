@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -28,7 +28,7 @@ import org.eclipse.handly.model.impl.Handle;
 import org.eclipse.handly.model.impl.HandleManager;
 
 /**
- * Represents the root Foo element corresponding to the workspace. 
+ * Represents the root Foo element corresponding to the workspace.
  */
 public class FooModel
     extends Handle
@@ -37,10 +37,10 @@ public class FooModel
     private final IWorkspace workspace;
 
     /**
-     * Constructs a handle for the root Foo element corresponding to 
+     * Constructs a handle for the root Foo element corresponding to
      * the given workspace.
-     * 
-     * @param workspace the workspace underlying the Foo Model 
+     *
+     * @param workspace the workspace underlying the Foo Model
      *  (not <code>null</code>)
      */
     public FooModel(IWorkspace workspace)
@@ -153,8 +153,8 @@ public class FooModel
         throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
-        List<IFooProject> fooProjects =
-            new ArrayList<IFooProject>(projects.length);
+        List<IFooProject> fooProjects = new ArrayList<IFooProject>(
+            projects.length);
         for (IProject project : projects)
         {
             if (project.isOpen() && project.hasNature(IFooProject.NATURE_ID))

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -27,11 +27,11 @@ public abstract class SourceConstruct
     private int occurrenceCount = 1;
 
     /**
-     * Creates a handle for a source construct with the given parent element 
+     * Creates a handle for a source construct with the given parent element
      * and the given name.
-     * 
+     *
      * @param parent the parent of the element (not <code>null</code>)
-     * @param name the name of the element, or <code>null</code> 
+     * @param name the name of the element, or <code>null</code>
      *  if the element has no name
      */
     public SourceConstruct(Handle parent, String name)
@@ -42,11 +42,11 @@ public abstract class SourceConstruct
     }
 
     /**
-     * Returns the count used to uniquely identify this element in the case 
-     * that a duplicate named element exists. The occurrence count starts at 1 
+     * Returns the count used to uniquely identify this element in the case
+     * that a duplicate named element exists. The occurrence count starts at 1
      * (thus the first occurrence is occurrence 1, not occurrence 0).
-     * 
-     * @return the occurrence count for this element 
+     *
+     * @return the occurrence count for this element
      */
     public final int getOccurenceCount()
     {
@@ -55,11 +55,11 @@ public abstract class SourceConstruct
 
     /**
      * Increments the occurrence count of this element.
-     * <p> 
-     * This method is intended to be used only when building structure of 
+     * <p>
+     * This method is intended to be used only when building structure of
      * a source file to distinguish source constructs with duplicate names.
      * </p>
-     * 
+     *
      * @see #getOccurenceCount()
      * @see StructureHelper
      */

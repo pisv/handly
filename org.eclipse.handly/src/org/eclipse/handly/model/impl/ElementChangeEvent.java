@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ public class ElementChangeEvent
 
     /**
      * Constructs a change event with the given type and the given delta.
-     * 
+     *
      * @param type the type of event being reported (model-specific)
      * @param delta the delta describing the change (not <code>null</code>)
      */

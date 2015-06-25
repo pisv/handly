@@ -4,16 +4,16 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.handly.snapshot;
 
 /**
- * Abstract superclass of snapshots. 
+ * Abstract superclass of snapshots.
  * Implements an equivalence relation on snapshots.
- * 
+ *
  * @noextend This class is not intended to be extended by clients
  */
 public abstract class Snapshot
@@ -34,12 +34,12 @@ public abstract class Snapshot
     }
 
     /**
-     * Predicts whether the two snapshots are {@link #isEqualTo(ISnapshot) equal} 
-     * without actually obtaining their {@link #getContents() contents}. 
-     * Must return <code>null</code> if cannot tell for sure. Any non-null 
+     * Predicts whether the two snapshots are {@link #isEqualTo(ISnapshot) equal}
+     * without actually obtaining their {@link #getContents() contents}.
+     * Must return <code>null</code> if cannot tell for sure. Any non-null
      * result must meet the contract of {@link ISnapshot#isEqualTo(ISnapshot)}.
      *
-     * @param other the other snapshot (not <code>null</code> 
+     * @param other the other snapshot (not <code>null</code>
      *  and not identical to the receiver)
      * @return whether the two snapshots are predicted to be equal
      */

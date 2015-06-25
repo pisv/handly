@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -94,8 +94,8 @@ public class PackageFragment
     {
         if (name == null)
             throw new IllegalArgumentException();
-        return new CompilationUnit(this,
-            ((IContainer)getResource()).getFile(new Path(name)));
+        return new CompilationUnit(this, ((IContainer)getResource()).getFile(
+            new Path(name)));
     }
 
     @Override
@@ -149,10 +149,10 @@ public class PackageFragment
     boolean isValidPackageName()
     {
         JavaProject javaProject = getParent().getParent();
-        String sourceLevel =
-            javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
-        String complianceLevel =
-            javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+        String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE,
+            true);
+        String complianceLevel = javaProject.getOption(
+            JavaCore.COMPILER_COMPLIANCE, true);
         for (String simpleName : simpleNames)
         {
             if (JavaConventions.validateIdentifier(simpleName, sourceLevel,
@@ -179,16 +179,17 @@ public class PackageFragment
         if (members.length > 0)
         {
             JavaProject javaProject = getAncestor(JavaProject.class);
-            String sourceLevel =
-                javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
-            String complianceLevel =
-                javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+            String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE,
+                true);
+            String complianceLevel = javaProject.getOption(
+                JavaCore.COMPILER_COMPLIANCE, true);
             for (IResource member : members)
             {
                 if (member instanceof IFile)
                 {
                     if (JavaConventions.validateCompilationUnitName(
-                        member.getName(), sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR)
+                        member.getName(), sourceLevel,
+                        complianceLevel).getSeverity() != IStatus.ERROR)
                     {
                         children.add(new CompilationUnit(this, (IFile)member));
                     }

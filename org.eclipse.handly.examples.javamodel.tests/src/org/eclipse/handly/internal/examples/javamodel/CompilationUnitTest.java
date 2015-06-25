@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -39,8 +39,8 @@ public class CompilationUnitTest
         super.setUp();
         IProject project = setUpProject("Test008");
         IJavaProject javaProject = JavaModelCore.create(project);
-        IPackageFragmentRoot srcRoot =
-            javaProject.getPackageFragmentRoot(project.getFolder("src"));
+        IPackageFragmentRoot srcRoot = javaProject.getPackageFragmentRoot(
+            project.getFolder("src"));
         pkg = srcRoot.getPackageFragment("");
     }
 

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -56,8 +56,8 @@ public class ProblemMarkerListenerContribution
         }
         if (resource == null)
             return false;
-        IResourceDelta delta =
-            event.getDelta().findMember(resource.getFullPath());
+        IResourceDelta delta = event.getDelta().findMember(
+            resource.getFullPath());
         if (delta == null)
             return false;
         return hasProblemMarkerChanges(delta);
@@ -83,11 +83,10 @@ public class ProblemMarkerListenerContribution
                     if (kind == IResourceDelta.ADDED
                         || kind == IResourceDelta.REMOVED)
                         return true;
-                    int severity =
-                        markerDelta.getAttribute(IMarker.SEVERITY, -1);
-                    int newSeverity =
-                        markerDelta.getMarker().getAttribute(IMarker.SEVERITY,
-                            -1);
+                    int severity = markerDelta.getAttribute(IMarker.SEVERITY,
+                        -1);
+                    int newSeverity = markerDelta.getMarker().getAttribute(
+                        IMarker.SEVERITY, -1);
                     if (newSeverity != severity)
                         return true;
                 }

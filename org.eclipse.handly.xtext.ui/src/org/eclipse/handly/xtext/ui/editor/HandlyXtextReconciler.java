@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - adaptation of XtextReconciler code
  *******************************************************************************/
@@ -37,10 +37,10 @@ import org.eclipse.xtext.ui.editor.reconciler.XtextReconciler;
 import org.eclipse.xtext.util.CancelIndicator;
 
 /**
- * Adapted from <code>org.eclipse.xtext.ui.editor.reconciler.XtextReconciler</code>. 
- * Customized for Handly reconciling story. Should be used together with 
+ * Adapted from <code>org.eclipse.xtext.ui.editor.reconciler.XtextReconciler</code>.
+ * Customized for Handly reconciling story. Should be used together with
  * {@link HandlyXtextDocument}.
- * 
+ *
  * @noextend This class is not intended to be extended by clients.
  */
 // NOTE: This class extends XtextReconciler to retain assignment compatibility.
@@ -152,7 +152,8 @@ public class HandlyXtextReconciler
                 if (document instanceof HandlyXtextDocument
                     && document == document0) // a bit of paranoia: document != document0 means the document has changed under us and the text input listener has already handled it
                 {
-                    ((HandlyXtextDocument)document).addXtextDocumentContentObserver(documentListener);
+                    ((HandlyXtextDocument)document).addXtextDocumentContentObserver(
+                        documentListener);
                 }
                 if (viewer instanceof ISourceViewerExtension4)
                 {
@@ -176,7 +177,8 @@ public class HandlyXtextReconciler
                 IDocument document = viewer.getDocument();
                 if (document instanceof HandlyXtextDocument)
                 {
-                    ((HandlyXtextDocument)document).removeXtextDocumentContentObserver(documentListener);
+                    ((HandlyXtextDocument)document).removeXtextDocumentContentObserver(
+                        documentListener);
                 }
                 if (viewer instanceof ISourceViewerExtension4)
                 {
@@ -314,7 +316,8 @@ public class HandlyXtextReconciler
                 document.removePositionUpdater(templatePositionUpdater);
                 try
                 {
-                    document.removePositionCategory(XTEXT_TEMPLATE_POS_CATEGORY);
+                    document.removePositionCategory(
+                        XTEXT_TEMPLATE_POS_CATEGORY);
                 }
                 catch (BadPositionCategoryException e)
                 {
@@ -337,7 +340,8 @@ public class HandlyXtextReconciler
             {
                 if (oldInput instanceof HandlyXtextDocument)
                 {
-                    ((HandlyXtextDocument)oldInput).removeXtextDocumentContentObserver(documentListener);
+                    ((HandlyXtextDocument)oldInput).removeXtextDocumentContentObserver(
+                        documentListener);
                     cancel();
                 }
             }
@@ -348,7 +352,8 @@ public class HandlyXtextReconciler
             {
                 if (newInput instanceof HandlyXtextDocument)
                 {
-                    ((HandlyXtextDocument)newInput).addXtextDocumentContentObserver(documentListener);
+                    ((HandlyXtextDocument)newInput).addXtextDocumentContentObserver(
+                        documentListener);
                     schedule(delay);
                 }
 

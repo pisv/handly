@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -15,7 +15,7 @@ import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.util.OverflowingLruCache;
 
 /**
- * An overflowing LRU cache of handle/body relationships that is intended 
+ * An overflowing LRU cache of handle/body relationships that is intended
  * to be used in advanced implementations of {@link IBodyCache}.
  * <p>
  * Adapted from <code>org.eclipse.jdt.internal.core.ElementCache</code>.
@@ -47,15 +47,15 @@ public class ElementCache
 
     /**
      * Ensures that there is enough room for adding the children of the given body.
-     * If the space limit must be increased, record the parent that needed 
+     * If the space limit must be increased, record the parent that needed
      * this space limit.
      */
     public void ensureSpaceLimit(Body body, IHandle parent)
     {
         // ensure the children can be put without closing other elements
         int childrenSize = body.getChildren().length;
-        int spaceNeeded =
-            1 + (int)((1 + loadFactor) * (childrenSize + overflow));
+        int spaceNeeded = 1 + (int)((1 + loadFactor) * (childrenSize
+            + overflow));
         if (spaceLimit < spaceNeeded)
         {
             // parent is being opened with more children than the space limit

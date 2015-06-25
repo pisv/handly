@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -22,7 +22,7 @@ public interface IOutlineInputChangeListener
      *
      * @param outlinePage never <code>null</code>
      * @param input the new input element, or <code>null</code> if none
-     * @param oldInput the old input element, or <code>null</code> 
+     * @param oldInput the old input element, or <code>null</code>
      *  if there was previously no input
      */
     void inputChanged(ICommonOutlinePage outlinePage, Object input,

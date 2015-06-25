@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -19,11 +19,11 @@ public class OutlineContribution
     implements IOutlineContribution
 {
     private ICommonOutlinePage outlinePage;
-    
+
     /**
      * Returns this contribution's outline page.
      *
-     * @return the outline page of this contribution, 
+     * @return the outline page of this contribution,
      *  or <code>null</code> if this contribution has not been
      *  {@link #init(ICommonOutlinePage) initialized}
      */
@@ -31,7 +31,7 @@ public class OutlineContribution
     {
         return outlinePage;
     }
-    
+
     /**
      * {@inheritDoc}
      * <p>

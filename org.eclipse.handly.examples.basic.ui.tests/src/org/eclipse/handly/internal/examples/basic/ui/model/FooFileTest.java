@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -49,13 +49,13 @@ public class FooFileTest
         assertEquals(fooFile.getDef("f", 0), defs[0]);
         assertEquals(fooFile.getDef("f", 1), defs[1]);
         assertEquals(fooFile.getDef("f", 2), defs[2]);
-        
+
         assertEquals(0, defs[0].getParameterNames().length);
-        
+
         String[] parameterNames = defs[1].getParameterNames();
         assertEquals(1, parameterNames.length);
         assertEquals("x", parameterNames[0]);
-        
+
         parameterNames = defs[2].getParameterNames();
         assertEquals(2, parameterNames.length);
         assertEquals("x", parameterNames[0]);

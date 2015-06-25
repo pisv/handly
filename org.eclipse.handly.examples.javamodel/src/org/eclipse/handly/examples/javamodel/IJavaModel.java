@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -17,19 +17,19 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.handly.model.IElementChangeListener;
 
 /**
- * Represents the root Java element corresponding to the workspace. 
- * Since there is only one such root element, it is commonly referred to 
+ * Represents the root Java element corresponding to the workspace.
+ * Since there is only one such root element, it is commonly referred to
  * as <em>the</em> Java model element.
  */
 public interface IJavaModel
     extends IJavaElement
 {
     /**
-     * Adds the given listener for changes to elements in the Java model. 
-     * Has no effect if an identical listener is already registered. 
+     * Adds the given listener for changes to elements in the Java model.
+     * Has no effect if an identical listener is already registered.
      * <p>
      * Once registered, a listener starts receiving notification of changes to
-     * elements in the Java model. The listener continues to receive notifications 
+     * elements in the Java model. The listener continues to receive notifications
      * until it is removed.
      * </p>
      *
@@ -47,8 +47,8 @@ public interface IJavaModel
     void removeElementChangeListener(IElementChangeListener listener);
 
     /**
-     * Returns the Java project with the given name. The given name must be 
-     * a valid path segment as defined by {@link IPath#isValidSegment(String)}. 
+     * Returns the Java project with the given name. The given name must be
+     * a valid path segment as defined by {@link IPath#isValidSegment(String)}.
      * This is a handle-only method. The project may or may not exist.
      *
      * @param name the name of the Java project (not <code>null</code>)
@@ -70,7 +70,7 @@ public interface IJavaModel
      *
      * @return the non-Java projects contained in the workspace
      *  (never <code>null</code>)
-     * @throws CoreException if this element does not exist or if an exception 
+     * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */
     IProject[] getNonJavaProjects() throws CoreException;

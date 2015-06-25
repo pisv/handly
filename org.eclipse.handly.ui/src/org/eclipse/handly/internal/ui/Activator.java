@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -86,10 +86,10 @@ public class Activator
     @Override
     protected void initializeImageRegistry(ImageRegistry reg)
     {
-        reg.put(IMG_ELCL_EXPANDALL,
-            imageDescriptorFromSymbolicName(IMG_ELCL_EXPANDALL));
-        reg.put(IMG_ELCL_LEXICAL_SORT,
-            imageDescriptorFromSymbolicName(IMG_ELCL_LEXICAL_SORT));
+        reg.put(IMG_ELCL_EXPANDALL, imageDescriptorFromSymbolicName(
+            IMG_ELCL_EXPANDALL));
+        reg.put(IMG_ELCL_LEXICAL_SORT, imageDescriptorFromSymbolicName(
+            IMG_ELCL_LEXICAL_SORT));
     }
 
     private static ImageDescriptor imageDescriptorFromSymbolicName(

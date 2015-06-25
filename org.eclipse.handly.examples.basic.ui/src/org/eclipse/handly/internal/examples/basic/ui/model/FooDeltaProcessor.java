@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -35,8 +35,8 @@ import org.eclipse.handly.model.impl.Handle;
 import org.eclipse.handly.model.impl.HandleDelta;
 
 /**
- * This class is used by the <code>FooModelManager</code> to convert 
- * resource deltas into Foo element deltas. It also does some processing 
+ * This class is used by the <code>FooModelManager</code> to convert
+ * resource deltas into Foo element deltas. It also does some processing
  * on the Foo elements involved (e.g. closing them).
  */
 class FooDeltaProcessor
@@ -47,10 +47,10 @@ class FooDeltaProcessor
     private Set<String> oldFooProjectNames = new HashSet<String>();
 
     /**
-     * Returns the Foo element delta built from the resource delta. 
-     * Returns an empty delta if no Foo elements were affected 
+     * Returns the Foo element delta built from the resource delta.
+     * Returns an empty delta if no Foo elements were affected
      * by the resource change.
-     * 
+     *
      * @return Foo element delta (never <code>null</code>)
      */
     public HandleDelta getDelta()
@@ -289,7 +289,8 @@ class FooDeltaProcessor
         IFooFile fooFile = FooModelCore.create(file);
         if (fooFile != null)
         {
-            if ((delta.getFlags() & ~(IResourceDelta.MARKERS | IResourceDelta.SYNC)) != 0)
+            if ((delta.getFlags() & ~(IResourceDelta.MARKERS
+                | IResourceDelta.SYNC)) != 0)
                 contentChanged(fooFile);
 
             if ((delta.getFlags() & IResourceDelta.MARKERS) != 0)
@@ -343,9 +344,8 @@ class FooDeltaProcessor
         }
         else
         {
-            IFooElement movedFromElement =
-                FooModelCore.create(getResource(delta.getMovedFromPath(),
-                    delta.getResource().getType()));
+            IFooElement movedFromElement = FooModelCore.create(getResource(
+                delta.getMovedFromPath(), delta.getResource().getType()));
             if (movedFromElement == null)
                 currentDelta.insertAdded(element);
             else
@@ -353,7 +353,8 @@ class FooDeltaProcessor
         }
     }
 
-    private void translateRemovedDelta(IResourceDelta delta, IFooElement element)
+    private void translateRemovedDelta(IResourceDelta delta,
+        IFooElement element)
     {
         if ((delta.getFlags() & IResourceDelta.MOVED_TO) == 0) // regular removal
         {
@@ -361,9 +362,8 @@ class FooDeltaProcessor
         }
         else
         {
-            IFooElement movedToElement =
-                FooModelCore.create(getResource(delta.getMovedToPath(),
-                    delta.getResource().getType()));
+            IFooElement movedToElement = FooModelCore.create(getResource(
+                delta.getMovedToPath(), delta.getResource().getType()));
             if (movedToElement == null)
                 currentDelta.insertRemoved(element);
             else
@@ -411,7 +411,8 @@ class FooDeltaProcessor
                 handleDelta = new HandleDelta(fooProject);
                 currentDelta.insert(handleDelta);
             }
-            if ((delta.getKind() & (IResourceDelta.ADDED | IResourceDelta.REMOVED)) != 0)
+            if ((delta.getKind() & (IResourceDelta.ADDED
+                | IResourceDelta.REMOVED)) != 0)
             {
                 // reset non-Foo resources
                 FooProjectBody body = (FooProjectBody)findBody(fooProject);

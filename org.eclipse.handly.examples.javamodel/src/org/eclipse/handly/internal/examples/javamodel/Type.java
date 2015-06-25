@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -34,7 +34,7 @@ public class Type
     /**
      * Creates a handle for a type with the given parent element
      * and the given name.
-     * 
+     *
      * @param parent the parent of the element (not <code>null</code>)
      * @param name the name of the element (not <code>null</code>)
      */
@@ -100,7 +100,8 @@ public class Type
     public boolean isClass() throws CoreException
     {
         int flags = getFlags();
-        return !(Flags.isEnum(flags) || Flags.isInterface(flags) || Flags.isAnnotation(flags));
+        return !(Flags.isEnum(flags) || Flags.isInterface(flags)
+            || Flags.isAnnotation(flags));
     }
 
     @Override
@@ -158,20 +159,20 @@ public class Type
                             child = null;
                         else
                         {
-                            child = (SourceElement)children[i];
+                            child = children[i];
                             childInfo = child.getSourceElementInfo();
                         }
                     }
-                    while (child != null
-                        && checkInRange(position, snapshot, childInfo));
+                    while (child != null && checkInRange(position, snapshot,
+                        childInfo));
                     // position in field's type: use first field
                     return candidate;
                 }
             }
             else
             {
-                ISourceElement found =
-                    ((SourceElement)child).doGetElementAt(position, snapshot);
+                ISourceElement found = ((SourceElement)child).doGetElementAt(
+                    position, snapshot);
                 if (found != null)
                     return found;
             }

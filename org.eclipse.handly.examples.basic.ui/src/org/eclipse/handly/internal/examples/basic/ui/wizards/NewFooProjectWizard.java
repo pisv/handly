@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -27,7 +27,7 @@ import org.eclipse.xtext.ui.wizard.XtextNewProjectWizard;
 /**
  * Wizard that creates a new Foo project.
  * <p>
- * Note how the project is created by invoking the method 
+ * Note how the project is created by invoking the method
  * {@link IFooProject#create(URI, IProgressMonitor)}.
  * </p>
  */
@@ -50,7 +50,8 @@ public final class NewFooProjectWizard
     {
         mainPage = new WizardNewProjectCreationPage("MainPage"); //$NON-NLS-1$
         mainPage.setTitle("Create a Foo Project");
-        mainPage.setDescription("Create a Foo project in the workspace or in an external location.");
+        mainPage.setDescription(
+            "Create a Foo project in the workspace or in an external location.");
         addPage(mainPage);
     }
 
@@ -95,9 +96,8 @@ public final class NewFooProjectWizard
         public void run(IProgressMonitor monitor)
             throws InvocationTargetException, InterruptedException
         {
-            IFooProject fooProject =
-                FooModelCore.getFooModel().getFooProject(
-                    projectInfo.getProjectName());
+            IFooProject fooProject = FooModelCore.getFooModel().getFooProject(
+                projectInfo.getProjectName());
             try
             {
                 fooProject.create(projectInfo.getLocation(), monitor);

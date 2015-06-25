@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -15,8 +15,8 @@ import org.eclipse.handly.ui.viewer.LabelComparator;
 import org.eclipse.jface.viewers.ViewerComparator;
 
 /**
- * Contributes a lexical sorter, if the outline page supports lexical sorting. 
- * The activation of the sorter is governed by the corresponding {@link 
+ * Contributes a lexical sorter, if the outline page supports lexical sorting.
+ * The activation of the sorter is governed by the corresponding {@link
  * ICommonOutlinePage#getLexicalSortPreference() preference}.
  */
 public class LexicalSortContribution

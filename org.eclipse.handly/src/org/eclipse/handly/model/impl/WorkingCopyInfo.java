@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -19,9 +19,9 @@ class WorkingCopyInfo
     private int refCount;
 
     /**
-     * Constructs a new working copy info with its reference count set to 0 
-     * and with the given working copy buffer. 
-     * 
+     * Constructs a new working copy info with its reference count set to 0
+     * and with the given working copy buffer.
+     *
      * @param buffer the buffer of the working copy (not <code>null</code>)
      */
     public WorkingCopyInfo(IWorkingCopyBuffer buffer)
@@ -32,7 +32,7 @@ class WorkingCopyInfo
 
     /**
      * Returns the buffer of the working copy.
-     * 
+     *
      * @return the buffer of the working copy (never <code>null</code>)
      */
     public IWorkingCopyBuffer getBuffer()
@@ -41,7 +41,7 @@ class WorkingCopyInfo
     }
 
     /**
-     * Calls <code>addRef()</code> on the working copy buffer 
+     * Calls <code>addRef()</code> on the working copy buffer
      * and increments the reference count of the working copy info.
      */
     public void addRef()
@@ -51,9 +51,9 @@ class WorkingCopyInfo
     }
 
     /**
-     * Calls <code>release()</code> on the working copy buffer 
+     * Calls <code>release()</code> on the working copy buffer
      * and decrements the reference count of the working copy info.
-     * 
+     *
      * @return the updated count
      */
     public int release()

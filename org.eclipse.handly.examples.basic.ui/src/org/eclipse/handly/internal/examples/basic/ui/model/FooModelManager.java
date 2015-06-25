@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -33,7 +33,7 @@ import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.HandleManager;
 
 /**
- * The manager for the Foo Model. 
+ * The manager for the Foo Model.
  *
  * @threadsafe This class is intended to be thread-safe
  */
@@ -41,7 +41,7 @@ public class FooModelManager
     implements IResourceChangeListener
 {
     /**
-     * The sole instance of the manager. 
+     * The sole instance of the manager.
      */
     public static final FooModelManager INSTANCE = new FooModelManager();
 
@@ -173,7 +173,8 @@ public class FooModelManager
                 ResourcesPlugin.getWorkspace().addSaveParticipant(
                     Activator.PLUGIN_ID, new SaveParticipant());
             if (savedState != null)
-                savedState.processResourceChangeEvents(FooModelManager.INSTANCE);
+                savedState.processResourceChangeEvents(
+                    FooModelManager.INSTANCE);
             return Status.OK_STATUS;
         }
 
@@ -186,8 +187,7 @@ public class FooModelManager
             }
 
             @Override
-            public void prepareToSave(ISaveContext context)
-                throws CoreException
+            public void prepareToSave(ISaveContext context) throws CoreException
             {
             }
 

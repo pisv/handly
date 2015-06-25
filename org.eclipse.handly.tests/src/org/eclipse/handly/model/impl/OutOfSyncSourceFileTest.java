@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -42,14 +42,13 @@ public class OutOfSyncSourceFileTest
         super.setUp();
         preferences = InstanceScope.INSTANCE.getNode(
             ResourcesPlugin.PI_RESOURCES);
-        autoRefresh = preferences.getBoolean(
-            ResourcesPlugin.PREF_AUTO_REFRESH, false);
+        autoRefresh = preferences.getBoolean(ResourcesPlugin.PREF_AUTO_REFRESH,
+            false);
         lightweightAutoRefresh = preferences.getBoolean(
             ResourcesPlugin.PREF_LIGHTWEIGHT_AUTO_REFRESH, true);
-        preferences.putBoolean(
-            ResourcesPlugin.PREF_AUTO_REFRESH, false);
-        preferences.putBoolean(
-            ResourcesPlugin.PREF_LIGHTWEIGHT_AUTO_REFRESH, false);
+        preferences.putBoolean(ResourcesPlugin.PREF_AUTO_REFRESH, false);
+        preferences.putBoolean(ResourcesPlugin.PREF_LIGHTWEIGHT_AUTO_REFRESH,
+            false);
         file = setUpProject("Test001").getFile("file.txt");
         localFile = file.getLocation().toFile();
         sourceFile = new SimpleSourceFile(null, file);
@@ -60,8 +59,7 @@ public class OutOfSyncSourceFileTest
     {
         if (preferences != null)
         {
-            preferences.putBoolean(
-                ResourcesPlugin.PREF_AUTO_REFRESH,
+            preferences.putBoolean(ResourcesPlugin.PREF_AUTO_REFRESH,
                 autoRefresh);
             preferences.putBoolean(
                 ResourcesPlugin.PREF_LIGHTWEIGHT_AUTO_REFRESH,

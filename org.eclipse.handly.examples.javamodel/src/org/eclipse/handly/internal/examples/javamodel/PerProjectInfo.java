@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -27,7 +27,7 @@ public class PerProjectInfo
 
     /**
      * Creates a new per-project info for the given project.
-     * 
+     *
      * @param project not <code>null</code>
      */
     PerProjectInfo(IProject project)
@@ -39,7 +39,7 @@ public class PerProjectInfo
 
     /**
      * Returns the per-project info project.
-     * 
+     *
      * @return the per-project info project (never <code>null</code>)
      */
     public IProject getProject()

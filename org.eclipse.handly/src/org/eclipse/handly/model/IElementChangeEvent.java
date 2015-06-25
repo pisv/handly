@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -18,7 +18,7 @@ package org.eclipse.handly.model;
  * <p>
  * Adapted from <code>org.eclipse.jdt.core.ElementChangedEvent</code>.
  * </p>
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IElementChangeEvent

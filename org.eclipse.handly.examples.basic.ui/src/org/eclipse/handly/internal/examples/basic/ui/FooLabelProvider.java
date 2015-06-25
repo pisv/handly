@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -59,10 +59,8 @@ public class FooLabelProvider
                 return def.getName() + "()";
             try
             {
-                return def.getName()
-                    + '('
-                    + Strings.concat(", ",
-                        Arrays.asList(def.getParameterNames())) + ')';
+                return def.getName() + '(' + Strings.concat(", ", Arrays.asList(
+                    def.getParameterNames())) + ')';
             }
             catch (CoreException e)
             {
@@ -89,10 +87,11 @@ public class FooLabelProvider
             resource = (IResource)element;
         if (resource != null)
         {
-            IWorkbenchAdapter adapter =
-                (IWorkbenchAdapter)resource.getAdapter(IWorkbenchAdapter.class);
+            IWorkbenchAdapter adapter = (IWorkbenchAdapter)resource.getAdapter(
+                IWorkbenchAdapter.class);
             if (adapter != null)
-                return (Image)resourceManager.get(adapter.getImageDescriptor(resource));
+                return (Image)resourceManager.get(adapter.getImageDescriptor(
+                    resource));
         }
         return super.getImage(element);
     }

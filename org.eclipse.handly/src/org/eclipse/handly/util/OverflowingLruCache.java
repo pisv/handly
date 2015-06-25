@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -12,34 +12,34 @@
 package org.eclipse.handly.util;
 
 /**
- * An <code>LruCache</code> which attempts to maintain a size equal or less 
+ * An <code>LruCache</code> which attempts to maintain a size equal or less
  * than its space limit by removing the least recently used elements.
  * <p>
- * The cache will remove elements which successfully close and all elements 
+ * The cache will remove elements which successfully close and all elements
  * which are explicitly removed.
  * </p>
  * <p>
- * If the cache cannot remove enough old elements to add new elements, 
- * it will grow beyond space limit. Later, it will attempt to shink back 
+ * If the cache cannot remove enough old elements to add new elements,
+ * it will grow beyond space limit. Later, it will attempt to shink back
  * to the maximum space limit.
  * </p>
  * <p>
- * The method <code>close</code> should attempt to close the element. If the 
- * element is successfully closed it will return true and the element will be 
+ * The method <code>close</code> should attempt to close the element. If the
+ * element is successfully closed it will return true and the element will be
  * removed from the cache. Otherwise the element will remain in the cache.
  * </p>
  * <p>
- * The cache implicitly attempts shrinks on calls to <code>put</code> and 
- * <code>setSpaceLimit</code>. Explicitly calling the <code>shrink</code> method 
+ * The cache implicitly attempts shrinks on calls to <code>put</code> and
+ * <code>setSpaceLimit</code>. Explicitly calling the <code>shrink</code> method
  * will also cause the cache to attempt to shrink.
  * </p>
  * <p>
- * Use the <code>peek</code> and <code>disableTimestamps</code> methods 
- * to circumvent the timestamp feature of the cache. This feature is intended 
- * to be used only when the <code>close</code> method causes changes to the cache. 
- * For example, if a parent closes its children when <code>close</code> is called, 
- * it should be careful not to change the LRU linked list. It can be sure 
- * it is not causing problems by calling <code>peek</code> instead of 
+ * Use the <code>peek</code> and <code>disableTimestamps</code> methods
+ * to circumvent the timestamp feature of the cache. This feature is intended
+ * to be used only when the <code>close</code> method causes changes to the cache.
+ * For example, if a parent closes its children when <code>close</code> is called,
+ * it should be careful not to change the LRU linked list. It can be sure
+ * it is not causing problems by calling <code>peek</code> instead of
  * <code>get</code> method.
  * </p>
  * <p>
@@ -87,12 +87,12 @@ public abstract class OverflowingLruCache<K, V>
     @Override
     public Object clone()
     {
-        OverflowingLruCache<K, V> newCache =
-            newInstance(this.spaceLimit, this.overflow);
+        OverflowingLruCache<K, V> newCache = newInstance(spaceLimit,
+            overflow);
         LruCacheEntry<K, V> qEntry;
 
         /* Preserve order of entries by copying from oldest to newest */
-        qEntry = this.entryQueueTail;
+        qEntry = entryQueueTail;
         while (qEntry != null)
         {
             newCache.privateAdd(qEntry.key, qEntry.value, qEntry.space);
@@ -105,12 +105,12 @@ public abstract class OverflowingLruCache<K, V>
     public V put(K key, V value)
     {
         /* attempt to rid ourselves of the overflow, if there is any */
-        if (this.overflow > 0)
+        if (overflow > 0)
             shrink();
 
         /* Check whether there's an entry in the cache */
         int newSpace = spaceFor(value);
-        LruCacheEntry<K, V> entry = this.entryTable.get(key);
+        LruCacheEntry<K, V> entry = entryTable.get(key);
 
         if (entry != null)
         {
@@ -120,14 +120,14 @@ public abstract class OverflowingLruCache<K, V>
              * to keep cache within budget
              */
             int oldSpace = entry.space;
-            int newTotal = this.currentSpace - oldSpace + newSpace;
-            if (newTotal <= this.spaceLimit)
+            int newTotal = currentSpace - oldSpace + newSpace;
+            if (newTotal <= spaceLimit)
             {
                 updateTimestamp(entry);
                 entry.value = value;
                 entry.space = newSpace;
-                this.currentSpace = newTotal;
-                this.overflow = 0;
+                currentSpace = newTotal;
+                overflow = 0;
                 return value;
             }
             else
@@ -147,12 +147,12 @@ public abstract class OverflowingLruCache<K, V>
     }
 
     /**
-     * Attempts to shrink the cache if it has overflown. Returns <code>true</code> 
+     * Attempts to shrink the cache if it has overflown. Returns <code>true</code>
      * if the cache shrinks to less than or equal to its space limit.
      */
     public boolean shrink()
     {
-        if (this.overflow > 0)
+        if (overflow > 0)
             return makeSpace(0);
         return true;
     }
@@ -160,7 +160,7 @@ public abstract class OverflowingLruCache<K, V>
     @Override
     public double fillingRatio()
     {
-        return (this.currentSpace + this.overflow) * 100.0 / this.spaceLimit;
+        return (currentSpace + overflow) * 100.0 / spaceLimit;
     }
 
     /**
@@ -168,31 +168,31 @@ public abstract class OverflowingLruCache<K, V>
      */
     public int getOverflow()
     {
-        return this.overflow;
+        return overflow;
     }
 
     /**
-     * Returns the load factor for the cache.  The load factor determines 
+     * Returns the load factor for the cache.  The load factor determines
      * how much space is reclaimed when the cache exceeds its space limit.
      */
     public double getLoadFactor()
     {
-        return this.loadFactor;
+        return loadFactor;
     }
 
     /**
-     * Sets the load factor for the cache. The load factor determines 
+     * Sets the load factor for the cache. The load factor determines
      * how much space is reclaimed when the cache exceeds its space limit.
-     * 
+     *
      * @param newLoadFactor
-     * @throws IllegalArgumentException when the new load factor is not in 
+     * @throws IllegalArgumentException when the new load factor is not in
      *  (0.0, 1.0]
      */
     public void setLoadFactor(double newLoadFactor)
         throws IllegalArgumentException
     {
         if (newLoadFactor <= 1.0 && newLoadFactor > 0.0)
-            this.loadFactor = newLoadFactor;
+            loadFactor = newLoadFactor;
         else
             throw new IllegalArgumentException();
     }
@@ -200,11 +200,11 @@ public abstract class OverflowingLruCache<K, V>
     @Override
     public void setSpaceLimit(int limit)
     {
-        if (limit < this.spaceLimit)
+        if (limit < spaceLimit)
         {
-            makeSpace(this.spaceLimit - limit);
+            makeSpace(spaceLimit - limit);
         }
-        this.spaceLimit = limit;
+        spaceLimit = limit;
     }
 
     @Override
@@ -215,10 +215,10 @@ public abstract class OverflowingLruCache<K, V>
     }
 
     /**
-     * Returns <code>true</code> if the element is successfully closed and 
+     * Returns <code>true</code> if the element is successfully closed and
      * removed from the cache, otherwise <code>false</code>.
      * <p>
-     * NOTE: this triggers an external remove from the cache 
+     * NOTE: this triggers an external remove from the cache
      * by closing the object.
      * </p>
      */
@@ -233,49 +233,50 @@ public abstract class OverflowingLruCache<K, V>
     @Override
     protected boolean makeSpace(int space)
     {
-        int limit = this.spaceLimit;
-        if (this.overflow == 0 && this.currentSpace + space <= limit)
+        int limit = spaceLimit;
+        if (overflow == 0 && currentSpace + space <= limit)
         {
             /* if space is already available */
             return true;
         }
 
         /* Free up space by removing oldest entries */
-        int spaceNeeded = (int)((1 - this.loadFactor) * limit);
+        int spaceNeeded = (int)((1 - loadFactor) * limit);
         spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
-        LruCacheEntry<K, V> entry = this.entryQueueTail;
+        LruCacheEntry<K, V> entry = entryQueueTail;
 
         try
         {
             // disable timestamps update while making space so that the previous and next links are not changed
             // (by a call to get(Object) for example)
-            this.timestampsOn = false;
+            timestampsOn = false;
 
-            while (this.currentSpace + spaceNeeded > limit && entry != null)
+            while (currentSpace + spaceNeeded > limit && entry != null)
             {
-                this.privateRemoveEntry(entry, false, false);
+                privateRemoveEntry(entry, false, false);
                 entry = entry.previous;
             }
         }
         finally
         {
-            this.timestampsOn = true;
+            timestampsOn = true;
         }
 
         /* check again, since we may have aquired enough space */
-        if (this.currentSpace + space <= limit)
+        if (currentSpace + space <= limit)
         {
-            this.overflow = 0;
+            overflow = 0;
             return true;
         }
 
         /* update fOverflow */
-        this.overflow = this.currentSpace + space - limit;
+        overflow = currentSpace + space - limit;
         return false;
     }
 
     @Override
-    protected void privateRemoveEntry(LruCacheEntry<K, V> entry, boolean shuffle)
+    protected void privateRemoveEntry(LruCacheEntry<K, V> entry,
+        boolean shuffle)
     {
         privateRemoveEntry(entry, shuffle, true);
     }
@@ -283,12 +284,12 @@ public abstract class OverflowingLruCache<K, V>
     /**
      * Removes the entry from the entry queue.
      * <p>
-     * If <i>external</i> is <code>true</code>, the entry is removed without 
-     * checking if it can be removed. It is assumed that the client has already 
+     * If <i>external</i> is <code>true</code>, the entry is removed without
+     * checking if it can be removed. It is assumed that the client has already
      * closed the element it is trying to remove (or will close it promptly).
      * </p>
      * <p>
-     * If <i>external</i> is <code>false</code>, and the entry could not 
+     * If <i>external</i> is <code>false</code>, and the entry could not
      * be closed, it is not removed and the pointers are not changed.
      * </p>
      *
@@ -304,8 +305,8 @@ public abstract class OverflowingLruCache<K, V>
         {
             if (external)
             {
-                this.entryTable.remove(entry.key);
-                this.currentSpace -= entry.space;
+                entryTable.remove(entry.key);
+                currentSpace -= entry.space;
             }
             else
             {
@@ -313,15 +314,15 @@ public abstract class OverflowingLruCache<K, V>
                     return;
                 // buffer close will recursively call #privateRemoveEntry with external==true
                 // thus entry will already be removed if reaching this point.
-                if (this.entryTable.get(entry.key) == null)
+                if (entryTable.get(entry.key) == null)
                 {
                     return;
                 }
                 else
                 {
                     // basic removal
-                    this.entryTable.remove(entry.key);
-                    this.currentSpace -= entry.space;
+                    entryTable.remove(entry.key);
+                    currentSpace -= entry.space;
                 }
             }
         }
@@ -331,7 +332,7 @@ public abstract class OverflowingLruCache<K, V>
         /* if this was the first entry */
         if (previous == null)
         {
-            this.entryQueue = next;
+            entryQueue = next;
         }
         else
         {
@@ -340,7 +341,7 @@ public abstract class OverflowingLruCache<K, V>
         /* if this was the last entry */
         if (next == null)
         {
-            this.entryQueueTail = previous;
+            entryQueueTail = previous;
         }
         else
         {
@@ -351,12 +352,12 @@ public abstract class OverflowingLruCache<K, V>
     @Override
     protected void updateTimestamp(LruCacheEntry<K, V> entry)
     {
-        if (this.timestampsOn)
+        if (timestampsOn)
         {
-            entry.timestamp = this.timestampCounter++;
-            if (this.entryQueue != entry)
+            entry.timestamp = timestampCounter++;
+            if (entryQueue != entry)
             {
-                this.privateRemoveEntry(entry, true);
+                privateRemoveEntry(entry, true);
                 privateAddEntry(entry, true);
             }
         }

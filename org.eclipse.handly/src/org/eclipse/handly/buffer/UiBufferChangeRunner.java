@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -21,8 +21,8 @@ import org.eclipse.text.edits.MalformedTreeException;
 
 /**
  * Executes a buffer change in the UI thread.
- * This class is intended to be used in buffer implementations. 
- * General clients should use {@link IBuffer#applyChange(IBufferChange, 
+ * This class is intended to be used in buffer implementations.
+ * General clients should use {@link IBuffer#applyChange(IBufferChange,
  * IProgressMonitor)} instead.
  */
 public final class UiBufferChangeRunner
@@ -31,9 +31,9 @@ public final class UiBufferChangeRunner
     private final BufferChangeOperation operation;
 
     /**
-     * Creates a new runner capable of executing the given buffer change 
+     * Creates a new runner capable of executing the given buffer change
      * operation in the UI thread.
-     * 
+     *
      * @param synchronizer used to execute operation in the UI thread
      *  - must not be <code>null</code>
      * @param operation a buffer change operation
@@ -49,20 +49,20 @@ public final class UiBufferChangeRunner
     }
 
     /**
-     * Synchronously executes the change to the buffer in the UI thread. 
-     * Temporarily transfers the current thread's scheduling rule to the UI thread. 
-     * Note that an update conflict may occur if the buffer's contents have 
-     * changed since the inception of the snapshot on which the change is based. 
-     * In that case, a {@link StaleSnapshotException} is thrown. 
+     * Synchronously executes the change to the buffer in the UI thread.
+     * Temporarily transfers the current thread's scheduling rule to the UI thread.
+     * Note that an update conflict may occur if the buffer's contents have
+     * changed since the inception of the snapshot on which the change is based.
+     * In that case, a {@link StaleSnapshotException} is thrown.
      *
      * @param monitor a progress monitor (not <code>null</code>)
      * @return undo change, if requested. Otherwise, <code>null</code>
-     * @throws StaleSnapshotException if the buffer has changed 
+     * @throws StaleSnapshotException if the buffer has changed
      *  since the inception of the snapshot on which the change is based
      * @throws CoreException in case of underlying resource failure
-     * @throws MalformedTreeException if the change's edit tree isn't 
+     * @throws MalformedTreeException if the change's edit tree isn't
      *  in a valid state
-     * @throws BadLocationException if one of the edits in the tree 
+     * @throws BadLocationException if one of the edits in the tree
      *  can't be executed
      */
     public IBufferChange run(final IProgressMonitor monitor)

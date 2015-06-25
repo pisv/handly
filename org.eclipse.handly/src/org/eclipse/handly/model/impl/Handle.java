@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *     (inspired by Eclipse JDT work)
@@ -24,7 +24,7 @@ import org.eclipse.handly.model.IHandle;
 
 /**
  * The root of the handle class hierarchy.
- * 
+ *
  * @see IHandle
  */
 public abstract class Handle
@@ -43,12 +43,12 @@ public abstract class Handle
     protected final String name;
 
     /**
-     * Constructs a handle for an element with the given parent element 
+     * Constructs a handle for an element with the given parent element
      * and the given name.
-     * 
-     * @param parent the parent of the element, 
-     *  or <code>null</code> if the element has no parent 
-     * @param name the name of the element, 
+     *
+     * @param parent the parent of the element,
+     *  or <code>null</code> if the element has no parent
+     * @param name the name of the element,
      *  or <code>null</code> if the element has no name
      */
     public Handle(Handle parent, String name)
@@ -175,10 +175,10 @@ public abstract class Handle
     }
 
     /**
-     * Returns the cached body for this element, or <code>null</code> 
+     * Returns the cached body for this element, or <code>null</code>
      * if none.
      *
-     * @return the cached body for this element, or <code>null</code> 
+     * @return the cached body for this element, or <code>null</code>
      *  if none
      */
     public Body findBody()
@@ -187,10 +187,10 @@ public abstract class Handle
     }
 
     /**
-     * Returns the cached body for this element without disturbing 
+     * Returns the cached body for this element without disturbing
      * cache ordering, or <code>null</code> if none.
      *
-     * @return the cached body for this element, or <code>null</code> 
+     * @return the cached body for this element, or <code>null</code>
      *  if none
      */
     public Body peekAtBody()
@@ -199,12 +199,12 @@ public abstract class Handle
     }
 
     /**
-     * Closes this element, removing any previously registered handle/body 
+     * Closes this element, removing any previously registered handle/body
      * relationships for it and its existing descendants.
      *
-     * @return <code>true</code> if this element was successfully closed; 
-     *  <code>false</code> if the current state of this element does not 
-     *  permit closing (e.g., a working copy) 
+     * @return <code>true</code> if this element was successfully closed;
+     *  <code>false</code> if the current state of this element does not
+     *  permit closing (e.g., a working copy)
      */
     public boolean close()
     {
@@ -267,7 +267,8 @@ public abstract class Handle
         if (parent != null && parent.getParent() != null)
         {
             builder.append(" [in "); //$NON-NLS-1$
-            parent.toStringBody(0, builder, NO_BODY, false/*don't show resolved info*/);
+            parent.toStringBody(0, builder, NO_BODY,
+                false/*don't show resolved info*/);
             parent.toStringAncestors(builder);
             builder.append(']');
         }
@@ -331,7 +332,7 @@ public abstract class Handle
     }
 
     /**
-     * Returns an opaque object representing the <i>type</i> of this element. 
+     * Returns an opaque object representing the <i>type</i> of this element.
      * Equal elements must have equal types.
      *
      * @return the type of this element (never <code>null</code>)
@@ -342,8 +343,8 @@ public abstract class Handle
     }
 
     /**
-     * Returns the handle manager for this element. The manager must be shared 
-     * between all elements of a handle-based model. Typical implementations 
+     * Returns the handle manager for this element. The manager must be shared
+     * between all elements of a handle-based model. Typical implementations
      * would answer a model-specific singleton.
      *
      * @return the handle manager for this element (never <code>null</code>)
@@ -351,8 +352,8 @@ public abstract class Handle
     protected abstract HandleManager getHandleManager();
 
     /**
-     * Validates if the element represented by the handle may be "opened", 
-     * i.e. begin existence in the model. For example, a necessary condition 
+     * Validates if the element represented by the handle may be "opened",
+     * i.e. begin existence in the model. For example, a necessary condition
      * for element existence might be that the underlying resource exists.
      *
      * @throws CoreException if the element may not exist
@@ -360,22 +361,22 @@ public abstract class Handle
     protected abstract void validateExistence() throws CoreException;
 
     /**
-     * Initializes the given body based on the element's current contents. 
-     * Children are to be placed in the given <code>newElements</code> map 
+     * Initializes the given body based on the element's current contents.
+     * Children are to be placed in the given <code>newElements</code> map
      * (note that this element has already been placed in the map).
      *
-     * @param body a new, uninitialized body for this element 
+     * @param body a new, uninitialized body for this element
      *  (never <code>null</code>)
-     * @param newElements a map containing handle/body relationships 
+     * @param newElements a map containing handle/body relationships
      *  (never <code>null</code>)
-     * @throws CoreException if an exception occurs while accessing 
+     * @throws CoreException if an exception occurs while accessing
      *  the element's corresponding resource
      */
     protected abstract void buildStructure(Body body,
         Map<IHandle, Body> newElements) throws CoreException;
 
     /**
-     * Returns the cached body for this element. If this element is not already 
+     * Returns the cached body for this element. If this element is not already
      * "open" (i.e. present in the body cache), it and all its parents are opened.
      *
      * @return the cached body for this element (never <code>null</code>)
@@ -391,10 +392,10 @@ public abstract class Handle
     }
 
     /**
-     * Returns a new, uninitialized body for this element, or <code>null</code> 
+     * Returns a new, uninitialized body for this element, or <code>null</code>
      * if the body for the element is to be created by the openable parent.
      *
-     * @return a new body for this element, or <code>null</code> if the body 
+     * @return a new body for this element, or <code>null</code> if the body
      *  for the element is to be created by the openable parent
      */
     protected Body newBody()
@@ -403,15 +404,15 @@ public abstract class Handle
     }
 
     /**
-     * "Opens" this element that is known to be "closed" (absent in the body cache). 
-     * Automatically opens all openable parent elements that are not already open. 
+     * "Opens" this element that is known to be "closed" (absent in the body cache).
+     * Automatically opens all openable parent elements that are not already open.
      * Returns the fully initialized body for this element.
      * <p>
-     * Opening an element means creating and initializing its body and 
+     * Opening an element means creating and initializing its body and
      * putting the handle/body relationship into the body cache.
-     * </p> 
+     * </p>
      *
-     * @param body a new body to be initialized for this element, or 
+     * @param body a new body to be initialized for this element, or
      *  <code>null</code> if the body is to be created by the openable parent
      * @return the fully initialized body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
@@ -451,17 +452,17 @@ public abstract class Handle
     }
 
     /**
-     * Returns the first "openable" element in the parent hierarchy of 
+     * Returns the first "openable" element in the parent hierarchy of
      * this element, or <code>null</code> if this element has no parent.
-     * <p> 
-     * An openable element knows how to open itself on demand (i.e. build 
-     * its structure and properties and put it in the body cache). When opening 
-     * an element, all openable parent elements are automatically opened. 
-     * On the other hand, opening an element does not automatically open 
+     * <p>
+     * An openable element knows how to open itself on demand (i.e. build
+     * its structure and properties and put it in the body cache). When opening
+     * an element, all openable parent elements are automatically opened.
+     * On the other hand, opening an element does not automatically open
      * any descendents which are themselves openable.
      * </p>
-     * 
-     * @return the first "openable" element in the parent hierarchy of 
+     *
+     * @return the first "openable" element in the parent hierarchy of
      *  this element, or <code>null</code> if this element has no parent
      */
     protected Handle getOpenableParent()
@@ -475,14 +476,15 @@ public abstract class Handle
         Handle openableParent = getOpenableParent();
         if (openableParent != null && openableParent.findBody() == null)
         {
-            openableParent.generateBodies(openableParent.newBody(), newElements);
+            openableParent.generateBodies(openableParent.newBody(),
+                newElements);
         }
 
         if (body != null)
         {
             validateExistence();
 
-            // put the body before building the structure so that 
+            // put the body before building the structure so that
             // questions to the handle behave as if the element existed
             newElements.put(this, body);
 

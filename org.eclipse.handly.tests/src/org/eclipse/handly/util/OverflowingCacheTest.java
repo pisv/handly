@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -82,7 +82,8 @@ public class OverflowingCacheTest
         assertEquals("space limit incorrect", spaceLimit, actualSpaceLimit);
 
         actualCurrent = cache.getCurrentSpace();
-        assertEquals("current space incorrect", predictedCurrent, actualCurrent);
+        assertEquals("current space incorrect", predictedCurrent,
+            actualCurrent);
 
         actualOverflow = cache.getOverflow();
         assertEquals("overflow space incorrect", overflow, actualOverflow);

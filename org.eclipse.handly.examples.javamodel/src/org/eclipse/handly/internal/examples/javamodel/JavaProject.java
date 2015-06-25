@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -40,11 +40,11 @@ public class JavaProject
     private final IProject project;
 
     /**
-     * Constructs a handle for a Java project with the given parent element 
+     * Constructs a handle for a Java project with the given parent element
      * and the given underlying workspace project.
-     * 
+     *
      * @param parent the parent of the element (not <code>null</code>)
-     * @param project the workspace project underlying the element 
+     * @param project the workspace project underlying the element
      *  (not <code>null</code>)
      */
     public JavaProject(JavaModel parent, IProject project)
@@ -93,8 +93,7 @@ public class JavaProject
     }
 
     @Override
-    public IPackageFragmentRoot[] getPackageFragmentRoots()
-        throws CoreException
+    public IPackageFragmentRoot[] getPackageFragmentRoots() throws CoreException
     {
         IHandle[] children = getChildren();
         int length = children.length;
@@ -161,11 +160,11 @@ public class JavaProject
                 if (root == null)
                     return null;
 
-                IPath packagePath =
-                    resourcePath.removeFirstSegments(entryPath.segmentCount());
+                IPath packagePath = resourcePath.removeFirstSegments(
+                    entryPath.segmentCount());
 
-                PackageFragment packageFragment =
-                    root.getPackageFragment(packagePath.segments());
+                PackageFragment packageFragment = root.getPackageFragment(
+                    packagePath.segments());
                 if (!packageFragment.isValidPackageName())
                     return null;
 
@@ -187,13 +186,13 @@ public class JavaProject
         if (!project.exists())
             throw new CoreException(Activator.createErrorStatus(
                 MessageFormat.format(
-                    "Project ''{0}'' does not exist in workspace", name), null));
+                    "Project ''{0}'' does not exist in workspace", name),
+                null));
 
         if (!project.isOpen())
-            throw new CoreException(
-                Activator.createErrorStatus(
-                    MessageFormat.format("Project ''{0}'' is not open", name),
-                    null));
+            throw new CoreException(Activator.createErrorStatus(
+                MessageFormat.format("Project ''{0}'' is not open", name),
+                null));
 
         if (!project.hasNature(NATURE_ID))
             throw new CoreException(Activator.createErrorStatus(
@@ -223,8 +222,8 @@ public class JavaProject
                 if (projectPath.isPrefixOf(entryPath)
                     && entryPath.segmentCount() == 2)
                 {
-                    IResource resource =
-                        project.getParent().findMember(entryPath);
+                    IResource resource = project.getParent().findMember(
+                        entryPath);
                     if (resource != null
                         && resource.getType() == IResource.FOLDER)
                     {
@@ -246,12 +245,13 @@ public class JavaProject
 
     PerProjectInfo getPerProjectInfo() throws CoreException
     {
-        return JavaModelManager.INSTANCE.getPerProjectInfoCheckExistence(project);
+        return JavaModelManager.INSTANCE.getPerProjectInfoCheckExistence(
+            project);
     }
 
     /**
      * Returns the raw classpath for this project, as a list of classpath entries.
-     * 
+     *
      * @return the raw classpath for this project, as a list of classpath entries
      *  (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
@@ -283,8 +283,8 @@ public class JavaProject
 
     void resetRawClasspath()
     {
-        PerProjectInfo info =
-            JavaModelManager.INSTANCE.getPerProjectInfo(project, false);
+        PerProjectInfo info = JavaModelManager.INSTANCE.getPerProjectInfo(
+            project, false);
         if (info != null)
             info.setRawClasspath(null, null);
     }

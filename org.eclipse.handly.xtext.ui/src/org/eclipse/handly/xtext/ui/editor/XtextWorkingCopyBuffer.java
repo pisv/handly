@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.util.CancelIndicator;
 
 /**
- * Implements {@link IWorkingCopyBuffer} on top of a {@link HandlyXtextDocument}. 
+ * Implements {@link IWorkingCopyBuffer} on top of a {@link HandlyXtextDocument}.
  * Reconciles the working copy when the underlying document is reconciled.
  */
 public final class XtextWorkingCopyBuffer
@@ -35,14 +35,14 @@ public final class XtextWorkingCopyBuffer
     private int refCount = 1;
 
     /**
-     * Constructs a new working copy buffer that takes ownership of the given 
-     * delegate buffer. The delegate will be disposed by the created instance 
-     * and must not be disposed by the client who initially obtained the delegate, 
+     * Constructs a new working copy buffer that takes ownership of the given
+     * delegate buffer. The delegate will be disposed by the created instance
+     * and must not be disposed by the client who initially obtained the delegate,
      * even if the constructor throwed an exception.
-     * 
-     * @param workingCopy the working copy the buffer is for - 
+     *
+     * @param workingCopy the working copy the buffer is for -
      *  must not be <code>null</code>
-     * @param delegate the underlying document buffer - 
+     * @param delegate the underlying document buffer -
      *  must not be <code>null</code> and must provide a {@link HandlyXtextDocument}
      */
     public XtextWorkingCopyBuffer(final SourceFile workingCopy,
@@ -78,7 +78,8 @@ public final class XtextWorkingCopyBuffer
                         }
                     }
                 };
-            ((HandlyXtextDocument)document).addReconcilingListener(reconcilingListener);
+            ((HandlyXtextDocument)document).addReconcilingListener(
+                reconcilingListener);
             success = true;
         }
         finally
@@ -153,7 +154,8 @@ public final class XtextWorkingCopyBuffer
             try
             {
                 if (reconcilingListener != null)
-                    getDocument().removeReconcilingListener(reconcilingListener);
+                    getDocument().removeReconcilingListener(
+                        reconcilingListener);
             }
             finally
             {

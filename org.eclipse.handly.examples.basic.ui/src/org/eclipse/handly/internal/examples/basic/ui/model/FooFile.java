@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -48,12 +48,12 @@ public class FooFile
     implements IFooFile
 {
     /**
-     * Constructs a handle for a Foo file with the given parent element 
+     * Constructs a handle for a Foo file with the given parent element
      * and the given underlying workspace file.
-     * 
+     *
      * @param parent the parent of the element (not <code>null</code>)
      * @param file the workspace file underlying the element (not <code>null</code>)
-     * @throws IllegalArgumentException if the handle cannot be constructed 
+     * @throws IllegalArgumentException if the handle cannot be constructed
      *  on the given workspace file
      */
     public FooFile(FooProject parent, IFile file)
@@ -118,21 +118,20 @@ public class FooFile
             EObject root = parseResult.getRootASTElement();
             if (root instanceof Module)
             {
-                FooFileStructureBuilder builder =
-                    new FooFileStructureBuilder(newElements,
-                        resource.getResourceServiceProvider());
+                FooFileStructureBuilder builder = new FooFileStructureBuilder(
+                    newElements, resource.getResourceServiceProvider());
                 builder.buildStructure(this, body, (Module)root);
             }
         }
     }
 
     /**
-     * Returns a new <code>XtextResource</code> loaded from the given source 
-     * string. The resource is created in a new <code>ResourceSet</code> 
-     * obtained from the <code>IResourceSetProvider</code> corresponding to 
-     * this file. 
-     * 
-     * @return the new <code>XtextResource</code> loaded from the given source 
+     * Returns a new <code>XtextResource</code> loaded from the given source
+     * string. The resource is created in a new <code>ResourceSet</code>
+     * obtained from the <code>IResourceSetProvider</code> corresponding to
+     * this file.
+     *
+     * @return the new <code>XtextResource</code> loaded from the given source
      *  string (never <code>null</code>)
      * @throws CoreException if resource loading failed
      */
@@ -152,10 +151,10 @@ public class FooFile
     }
 
     /**
-     * Returns a new <code>XtextResource</code> loaded from the given contents. 
-     * The resource is created in a new <code>ResourceSet</code> obtained from 
-     * the <code>IResourceSetProvider</code> corresponding to this file. 
-     * The resource's encoding is set to the given value. 
+     * Returns a new <code>XtextResource</code> loaded from the given contents.
+     * The resource is created in a new <code>ResourceSet</code> obtained from
+     * the <code>IResourceSetProvider</code> corresponding to this file.
+     * The resource's encoding is set to the given value.
      * This is a handle-only method.
      *
      * @param contents the contents to parse (not <code>null</code>)
@@ -163,40 +162,41 @@ public class FooFile
      *  (not <code>null</code>)
      * @return the new <code>XtextResource</code> loaded from the given contents
      *  (never <code>null</code>)
-     * @throws IOException if resource loading failed 
+     * @throws IOException if resource loading failed
      */
     protected XtextResource parse(String contents, String encoding)
         throws IOException
     {
         IResourceSetProvider resourceSetProvider =
             getResourceServiceProvider().get(IResourceSetProvider.class);
-        ResourceSet resourceSet =
-            resourceSetProvider.get(getFile().getProject());
-        XtextResource resource =
-            (XtextResource)resourceSet.createResource(getResourceUri());
+        ResourceSet resourceSet = resourceSetProvider.get(
+            getFile().getProject());
+        XtextResource resource = (XtextResource)resourceSet.createResource(
+            getResourceUri());
         resource.load(new ByteArrayInputStream(contents.getBytes(encoding)),
             Collections.singletonMap(XtextResource.OPTION_ENCODING, encoding));
         return resource;
     }
 
     /**
-     * Returns the <code>IResourceSetProvider</code> corresponding to this file. 
+     * Returns the <code>IResourceSetProvider</code> corresponding to this file.
      * This is a handle-only method.
      *
-     * @return the <code>IResourceSetProvider</code> for this file 
+     * @return the <code>IResourceSetProvider</code> for this file
      *  (never <code>null</code>)
      */
     protected IResourceServiceProvider getResourceServiceProvider()
     {
         IResourceServiceProvider provider =
-            IResourceServiceProvider.Registry.INSTANCE.getResourceServiceProvider(getResourceUri());
+            IResourceServiceProvider.Registry.INSTANCE.getResourceServiceProvider(
+                getResourceUri());
         if (provider == null)
             throw new AssertionError();
         return provider;
     }
 
     /**
-     * Returns the EMF resource URI for this file. 
+     * Returns the EMF resource URI for this file.
      * This is a handle-only method.
      *
      * @return the resource URI for this file (never <code>null</code>)
@@ -233,16 +233,17 @@ public class FooFile
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
             boolean forced) throws CoreException
         {
-            HandleDeltaBuilder deltaBuilder =
-                new HandleDeltaBuilder(FooFile.this);
+            HandleDeltaBuilder deltaBuilder = new HandleDeltaBuilder(
+                FooFile.this);
 
             super.reconcile(ast, snapshot, forced);
 
             deltaBuilder.buildDelta();
             if (!deltaBuilder.getDelta().isEmpty())
             {
-                FooModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
-                    ElementChangeEvent.POST_RECONCILE, deltaBuilder.getDelta()));
+                FooModelManager.INSTANCE.fireElementChangeEvent(
+                    new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,
+                        deltaBuilder.getDelta()));
             }
         }
     }

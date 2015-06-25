@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -137,10 +137,10 @@ class DeltaProcessingState
             {
                 return true;
             }
-            ClasspathInfo classpathInfo =
-                new ClasspathInfo(classpath, outputLocation);
-            ClasspathInfo oldClasspathInfo =
-                classpaths.put(javaProject, classpathInfo);
+            ClasspathInfo classpathInfo = new ClasspathInfo(classpath,
+                outputLocation);
+            ClasspathInfo oldClasspathInfo = classpaths.put(javaProject,
+                classpathInfo);
             return !classpathInfo.isEqualTo(oldClasspathInfo);
         }
     }
@@ -184,8 +184,8 @@ class DeltaProcessingState
 
     IJavaElement createElement(IFolder folder, boolean oldState)
     {
-        JavaProject javaProject =
-            (JavaProject)createElement(folder.getProject(), oldState);
+        JavaProject javaProject = (JavaProject)createElement(
+            folder.getProject(), oldState);
         if (javaProject == null)
             return null;
         ClasspathInfo classpathInfo;
@@ -195,8 +195,8 @@ class DeltaProcessingState
             classpathInfo = classpaths.get(javaProject);
         if (classpathInfo == null)
             return null;
-        IPackageFragment pkg =
-            javaProject.findPackageFragment(folder, classpathInfo.classpath);
+        IPackageFragment pkg = javaProject.findPackageFragment(folder,
+            classpathInfo.classpath);
         if (pkg != null && pkg.isDefaultPackage())
             return pkg.getParent();
         return pkg;
@@ -218,11 +218,11 @@ class DeltaProcessingState
         IJavaElement element = createElement((IFolder)parent, oldState);
         if (element == null)
             return null;
-        IPackageFragment pkg =
-            element instanceof IPackageFragment ? (IPackageFragment)element
-                : ((IPackageFragmentRoot)element).getPackageFragment(""); //$NON-NLS-1$
-        CompilationUnit cu =
-            (CompilationUnit)pkg.getCompilationUnit(file.getName());
+        IPackageFragment pkg = element instanceof IPackageFragment
+            ? (IPackageFragment)element
+            : ((IPackageFragmentRoot)element).getPackageFragment(""); //$NON-NLS-1$
+        CompilationUnit cu = (CompilationUnit)pkg.getCompilationUnit(
+            file.getName());
         if (cu.validateCompilationUnitName().getSeverity() == IStatus.ERROR)
             return null;
         return cu;

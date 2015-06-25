@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -21,13 +21,13 @@ import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * Decorates an element's image with error and warning overlays that represent 
- * the severity of markers attached to the element's underlying resource. 
+ * Decorates an element's image with error and warning overlays that represent
+ * the severity of markers attached to the element's underlying resource.
  * To see a problem decoration for a marker, the marker needs to be a sub-type
  * of <code>IMarker.PROBLEM</code>.
  * <p>
- * Note that this decorator does not listen to problem marker changes. 
- * Hence, a viewer using this decorator requires a separate listener 
+ * Note that this decorator does not listen to problem marker changes.
+ * Hence, a viewer using this decorator requires a separate listener
  * for updating elements on problem changes.
  * </p>
  */
@@ -52,7 +52,7 @@ public class ProblemMarkerLabelDecorator
     }
 
     /**
-     * Computes problem severity for the given element from markers attached 
+     * Computes problem severity for the given element from markers attached
      * to the element's underlying resource.
      *
      * @param element never <code>null</code>
@@ -89,16 +89,16 @@ public class ProblemMarkerLabelDecorator
     }
 
     /**
-     * Returns the maximum severity across problem markers attached to 
-     * the given resource, and, optionally, to its descendants. If 
-     * <code>textRange</code> is not <code>null</code>, only markers 
-     * strictly covered by the given text range are considered. 
-     * Returns <code>null</code> if there are no matching markers.  
+     * Returns the maximum severity across problem markers attached to
+     * the given resource, and, optionally, to its descendants. If
+     * <code>textRange</code> is not <code>null</code>, only markers
+     * strictly covered by the given text range are considered.
+     * Returns <code>null</code> if there are no matching markers.
      *
      * @param resource not <code>null</code>
      * @param depth how far to recurse (see <code>IResource.DEPTH_* </code>)
-     * @param textRange the text range to further constrain the marker set, 
-     *  or <code>null</code>. Makes sense only if the given resource is 
+     * @param textRange the text range to further constrain the marker set,
+     *  or <code>null</code>. Makes sense only if the given resource is
      *  a text file
      * @return the maximum problem severity, or <code>null</code>
      * @throws CoreException
@@ -109,13 +109,13 @@ public class ProblemMarkerLabelDecorator
         int severity = 0;
         if (textRange == null)
         {
-            severity =
-                resource.findMaxProblemSeverity(IMarker.PROBLEM, true, depth);
+            severity = resource.findMaxProblemSeverity(IMarker.PROBLEM, true,
+                depth);
         }
         else
         {
-            IMarker[] markers =
-                resource.findMarkers(IMarker.PROBLEM, true, depth);
+            IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true,
+                depth);
             if (markers != null)
             {
                 for (int i = 0; i < markers.length

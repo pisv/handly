@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -12,31 +12,31 @@ package org.eclipse.handly.util;
 
 /**
  * Allows to execute runnables in the user-interface thread.
- * 
+ *
  * @noextend This class is not intended to be extended by clients.
  */
 public abstract class UiSynchronizer
 {
     /**
-     * The default instance of the synchronizer or  
+     * The default instance of the synchronizer or
      * <code>null</code> if in headless mode.
-     * 
+     *
      * @noassign This field is not intended to be assigned by clients.
      */
     public static UiSynchronizer DEFAULT;
 
-    /** 
-     * Returns the user-interface thread the synchronizer uses to execute 
+    /**
+     * Returns the user-interface thread the synchronizer uses to execute
      * runnables.
-     * 
+     *
      * @return the user-interface thread (not <code>null</code>)
      */
     public abstract Thread getThread();
 
     /**
      * Causes the <code>run()</code> method of the runnable to
-     * be invoked by the user-interface thread at the next 
-     * reasonable opportunity. The caller of this method continues 
+     * be invoked by the user-interface thread at the next
+     * reasonable opportunity. The caller of this method continues
      * to run in parallel, and is not notified when the
      * runnable has completed.
      *
@@ -47,7 +47,7 @@ public abstract class UiSynchronizer
 
     /**
      * Causes the <code>run()</code> method of the runnable to
-     * be invoked by the user-interface thread at the next 
+     * be invoked by the user-interface thread at the next
      * reasonable opportunity. The thread which calls this method
      * is suspended until the runnable completes.
      *

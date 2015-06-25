@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -29,15 +29,15 @@ public class FooModelCore
     {
         return FooModelManager.INSTANCE.getFooModel();
     }
-    
+
     /**
-     * Returns the Foo file corresponding to the given file, 
-     * or <code>null</code> if unable to associate the given file 
+     * Returns the Foo file corresponding to the given file,
+     * or <code>null</code> if unable to associate the given file
      * with a Foo file.
      *
      * @param file the given file (maybe <code>null</code>)
-     * @return the Foo file corresponding to the given file, 
-     *  or <code>null</code> if unable to associate the given file 
+     * @return the Foo file corresponding to the given file,
+     *  or <code>null</code> if unable to associate the given file
      *  with a Foo file
      */
     public static IFooFile create(IFile file)
@@ -49,16 +49,16 @@ public class FooModelCore
         IFooProject project = create(file.getProject());
         return project.getFooFile(file.getName());
     }
-    
+
     /**
      * Returns the Foo project corresponding to the given project.
      * <p>
-     * Note that no check is done at this time on the existence 
+     * Note that no check is done at this time on the existence
      * or the nature of this project.
      * </p>
      *
      * @param project the given project (maybe <code>null</code>)
-     * @return the Foo project corresponding to the given project, 
+     * @return the Foo project corresponding to the given project,
      *  or <code>null</code> if the given project is <code>null</code>
      */
     public static IFooProject create(IProject project)
@@ -67,15 +67,15 @@ public class FooModelCore
             return null;
         return getFooModel().getFooProject(project.getName());
     }
-    
+
     /**
-     * Returns the Foo element corresponding to the given resource, or 
-     * <code>null</code> if unable to associate the given resource 
+     * Returns the Foo element corresponding to the given resource, or
+     * <code>null</code> if unable to associate the given resource
      * with an element of the Foo Model.
      *
      * @param resource the given resource (maybe <code>null</code>)
-     * @return the Foo element corresponding to the given resource, or 
-     *  <code>null</code> if unable to associate the given resource 
+     * @return the Foo element corresponding to the given resource, or
+     *  <code>null</code> if unable to associate the given resource
      *  with an element of the Foo Model
      */
     public static IFooElement create(IResource resource)
@@ -95,7 +95,7 @@ public class FooModelCore
             return null;
         }
     }
-    
+
     private FooModelCore()
     {
     }

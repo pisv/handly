@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -45,9 +45,8 @@ public class FooWorkingCopyTest
         super.setUp();
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
-        buffer =
-            new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
-                new WorkingCopyReconciler(workingCopy));
+        buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
+            new WorkingCopyReconciler(workingCopy));
     }
 
     @Override
@@ -71,9 +70,8 @@ public class FooWorkingCopyTest
 
                 TextRange r =
                     defs[0].getSourceElementInfo().getIdentifyingRange();
-                BufferChange change =
-                    new BufferChange(new ReplaceEdit(r.getOffset(),
-                        r.getLength(), "g"));
+                BufferChange change = new BufferChange(new ReplaceEdit(
+                    r.getOffset(), r.getLength(), "g"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -108,13 +106,11 @@ public class FooWorkingCopyTest
 
                 ISourceElementInfo info = var2.getSourceElementInfo();
                 TextRange r = info.getFullRange();
-                String var2Text =
-                    info.getSnapshot().getContents().substring(r.getOffset(),
-                        r.getEndOffset());
+                String var2Text = info.getSnapshot().getContents().substring(
+                    r.getOffset(), r.getEndOffset());
 
-                BufferChange change =
-                    new BufferChange(new DeleteEdit(r.getOffset(),
-                        r.getLength()));
+                BufferChange change = new BufferChange(new DeleteEdit(
+                    r.getOffset(), r.getLength()));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -133,8 +129,8 @@ public class FooWorkingCopyTest
                 info = var1.getSourceElementInfo();
                 r = info.getFullRange();
 
-                change =
-                    new BufferChange(new InsertEdit(r.getOffset(), var2Text));
+                change = new BufferChange(new InsertEdit(r.getOffset(),
+                    var2Text));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 

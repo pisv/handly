@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 
 /**
  * An abstract base class for outline linking helpers.
- * 
+ *
  * @see LinkWithEditorContribution
  */
 public abstract class OutlineLinkingHelper
@@ -42,7 +42,7 @@ public abstract class OutlineLinkingHelper
 
     /**
      * Creates a new linking helper for the given outline page.
-     * 
+     *
      * @param outlinePage not <code>null</code>
      */
     public OutlineLinkingHelper(ICommonOutlinePage outlinePage)
@@ -52,7 +52,8 @@ public abstract class OutlineLinkingHelper
         ISelectionProvider selectionProvider =
             outlinePage.getEditor().getSite().getSelectionProvider();
         if (selectionProvider instanceof IPostSelectionProvider)
-            ((IPostSelectionProvider)selectionProvider).addPostSelectionChangedListener(editorListener);
+            ((IPostSelectionProvider)selectionProvider).addPostSelectionChangedListener(
+                editorListener);
         else
             selectionProvider.addSelectionChangedListener(editorListener);
     }
@@ -73,7 +74,8 @@ public abstract class OutlineLinkingHelper
         ISelectionProvider selectionProvider =
             outlinePage.getEditor().getSite().getSelectionProvider();
         if (selectionProvider instanceof IPostSelectionProvider)
-            ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(editorListener);
+            ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(
+                editorListener);
         else
             selectionProvider.removeSelectionChangedListener(editorListener);
         super.dispose();
@@ -85,7 +87,8 @@ public abstract class OutlineLinkingHelper
         super.setLinkWithEditor(enabled);
         isLinkingEnabled = enabled;
         if (enabled)
-            linkToOutline(outlinePage.getEditor().getSite().getSelectionProvider().getSelection());
+            linkToOutline(
+                outlinePage.getEditor().getSite().getSelectionProvider().getSelection());
     }
 
     @Override
@@ -101,9 +104,9 @@ public abstract class OutlineLinkingHelper
     }
 
     /**
-     * Tells to link the given editor selection to the outline. 
+     * Tells to link the given editor selection to the outline.
      *
-     * @param selection the editor selection 
+     * @param selection the editor selection
      *  (may be <code>null</code> or empty)
      */
     protected abstract void linkToOutline(ISelection selection);

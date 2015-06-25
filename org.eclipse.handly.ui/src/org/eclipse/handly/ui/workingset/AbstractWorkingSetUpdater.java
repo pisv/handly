@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -51,13 +51,13 @@ public abstract class AbstractWorkingSetUpdater
             IWorkingSet[] workingSetsCopy;
             synchronized (workingSets)
             {
-                workingSetsCopy =
-                    workingSets.toArray(new IWorkingSet[workingSets.size()]);
+                workingSetsCopy = workingSets.toArray(
+                    new IWorkingSet[workingSets.size()]);
             }
             for (IWorkingSet workingSet : workingSetsCopy)
             {
-                WorkingSetDelta workingSetDelta =
-                    new WorkingSetDelta(workingSet);
+                WorkingSetDelta workingSetDelta = new WorkingSetDelta(
+                    workingSet);
                 processHandleDelta(event.getDelta(), workingSetDelta);
                 IResourceDelta[] resourceDeltas =
                     event.getDelta().getResourceDeltas();
@@ -134,7 +134,8 @@ public abstract class AbstractWorkingSetUpdater
     protected abstract void removeElementChangeListener(
         IElementChangeListener listener);
 
-    protected void processHandleDelta(IHandleDelta delta, WorkingSetDelta result)
+    protected void processHandleDelta(IHandleDelta delta,
+        WorkingSetDelta result)
     {
         IHandle element = delta.getElement();
         int index = result.indexOf(element);
@@ -200,8 +201,7 @@ public abstract class AbstractWorkingSetUpdater
         {
             if ((flags & IResourceDelta.MOVED_TO) != 0)
             {
-                result.set(
-                    index,
+                result.set(index,
                     ResourcesPlugin.getWorkspace().getRoot().findMember(
                         delta.getMovedToPath()));
             }
@@ -229,8 +229,8 @@ public abstract class AbstractWorkingSetUpdater
     {
         // Remove elements that don't exist anymore,
         // but retain elements under closed projects.
-        List<IAdaptable> elements =
-            new ArrayList<IAdaptable>(Arrays.asList(workingSet.getElements()));
+        List<IAdaptable> elements = new ArrayList<IAdaptable>(Arrays.asList(
+            workingSet.getElements()));
         boolean changed = false;
         for (Iterator<IAdaptable> iter = elements.iterator(); iter.hasNext();)
         {
@@ -255,7 +255,8 @@ public abstract class AbstractWorkingSetUpdater
         }
         if (changed)
         {
-            workingSet.setElements(elements.toArray(new IAdaptable[elements.size()]));
+            workingSet.setElements(elements.toArray(
+                new IAdaptable[elements.size()]));
         }
     }
 
@@ -278,9 +279,8 @@ public abstract class AbstractWorkingSetUpdater
         public WorkingSetDelta(IWorkingSet workingSet)
         {
             this.workingSet = workingSet;
-            this.elements =
-                new ArrayList<IAdaptable>(
-                    Arrays.asList(workingSet.getElements()));
+            this.elements = new ArrayList<IAdaptable>(Arrays.asList(
+                workingSet.getElements()));
         }
 
         public int indexOf(Object element)
@@ -306,7 +306,8 @@ public abstract class AbstractWorkingSetUpdater
         {
             if (changed)
             {
-                workingSet.setElements(elements.toArray(new IAdaptable[elements.size()]));
+                workingSet.setElements(elements.toArray(
+                    new IAdaptable[elements.size()]));
             }
         }
     }

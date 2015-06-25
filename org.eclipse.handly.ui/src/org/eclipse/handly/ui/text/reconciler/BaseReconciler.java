@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -197,7 +197,7 @@ public abstract class BaseReconciler
      * Returns the mutex for the reconciler.
      * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=66176
      * for a description of the underlying problem.
-     * 
+     *
      * @return the mutex for the reconciler (never <code>null</code>)
      */
     protected Object getReconcilerLock()
@@ -250,8 +250,8 @@ public abstract class BaseReconciler
             || flags == IHandleDelta.F_WORKING_COPY)
             return false;
         IHandle element = delta.getElement();
-        if (flags == IHandleDelta.F_UNDERLYING_RESOURCE
-            && element.equals(workingCopy))
+        if (flags == IHandleDelta.F_UNDERLYING_RESOURCE && element.equals(
+            workingCopy))
             return false; // saving this reconciler's working copy
         if (flags == IHandleDelta.F_MARKERS)
         {
@@ -302,7 +302,7 @@ public abstract class BaseReconciler
 
     /**
      * Returns whether this reconciler is currently active.
-     * 
+     *
      * @return <code>true</code> if this reconciler is currently active,
      *  <code>false</code> otherwise
      */
@@ -314,7 +314,7 @@ public abstract class BaseReconciler
     /**
      * Indicates a change in the active state of this reconciler.
      * This method can only be executed by the UI thread.
-     * 
+     *
      * @param active the boolean value to set for the reconciler active state
      */
     protected void setActive(boolean active)

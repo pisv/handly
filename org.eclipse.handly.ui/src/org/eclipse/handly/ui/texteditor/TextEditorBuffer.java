@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -41,10 +41,10 @@ public class TextEditorBuffer
     protected final IDocument document;
 
     /**
-     * Creates a new buffer instance and connects it to the given text editor. 
-     * It is the client responsibility to {@link #dispose() close} the buffer 
+     * Creates a new buffer instance and connects it to the given text editor.
+     * It is the client responsibility to {@link #dispose() close} the buffer
      * after it is no longer needed.
-     * 
+     *
      * @param editor the text editor (not <code>null</code>)
      * @throws CoreException if the buffer could not be connected
      */
@@ -83,9 +83,8 @@ public class TextEditorBuffer
             pm = new NullProgressMonitor();
         try
         {
-            UiBufferChangeRunner runner =
-                new UiBufferChangeRunner(UiSynchronizer.DEFAULT,
-                    createChangeOperation(change));
+            UiBufferChangeRunner runner = new UiBufferChangeRunner(
+                UiSynchronizer.DEFAULT, createChangeOperation(change));
             return runner.run(pm);
         }
         catch (MalformedTreeException e)

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -46,7 +46,7 @@ public class CompilationUnit
     /**
      * Constructs a handle for a Java compilation unit with the given
      * parent element and the given underlying workspace file.
-     * 
+     *
      * @param parent the parent of the element (not <code>null</code>)
      * @param file the workspace file underlying the element (not <code>null</code>)
      */
@@ -141,10 +141,10 @@ public class CompilationUnit
     IStatus validateCompilationUnitName()
     {
         JavaProject javaProject = getAncestor(JavaProject.class);
-        String sourceLevel =
-            javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
-        String complianceLevel =
-            javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+        String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE,
+            true);
+        String complianceLevel = javaProject.getOption(
+            JavaCore.COMPILER_COMPLIANCE, true);
         return JavaConventions.validateCompilationUnitName(name, sourceLevel,
             complianceLevel);
     }
@@ -192,8 +192,8 @@ public class CompilationUnit
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
             boolean forced) throws CoreException
         {
-            JavaElementDeltaBuilder deltaBuilder =
-                new JavaElementDeltaBuilder(CompilationUnit.this);
+            JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(
+                CompilationUnit.this);
 
             super.reconcile(ast, snapshot, forced);
 
@@ -202,8 +202,9 @@ public class CompilationUnit
             JavaElementDelta delta = deltaBuilder.getDelta();
             if (!delta.isEmpty())
             {
-                JavaModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
-                    ElementChangeEvent.POST_RECONCILE, delta));
+                JavaModelManager.INSTANCE.fireElementChangeEvent(
+                    new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,
+                        delta));
             }
         }
     }

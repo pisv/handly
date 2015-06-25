@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -38,8 +38,8 @@ public class MemberTest
         super.setUp();
         IProject project = setUpProject("Test009");
         IJavaProject javaProject = JavaModelCore.create(project);
-        IPackageFragmentRoot srcRoot =
-            javaProject.getPackageFragmentRoot(project.getFolder("src"));
+        IPackageFragmentRoot srcRoot = javaProject.getPackageFragmentRoot(
+            project.getFolder("src"));
         IPackageFragment pkg = srcRoot.getPackageFragment("");
         cu = pkg.getCompilationUnit("A.java");
     }
@@ -105,8 +105,8 @@ public class MemberTest
         assertEquals("I", methodF1.getReturnType());
         assertEquals(0, methodF1.getExceptionTypes().length);
 
-        IMethod methodF2 =
-            typeX.getMethod("f", new String[] { "[QY;", "[Qjava.lang.String;" });
+        IMethod methodF2 = typeX.getMethod("f", new String[] { "[QY;",
+            "[Qjava.lang.String;" });
         assertEquals(Flags.AccProtected, methodF2.getFlags());
         assertEquals("V", methodF2.getReturnType());
         parameterNames = methodF2.getParameterNames();

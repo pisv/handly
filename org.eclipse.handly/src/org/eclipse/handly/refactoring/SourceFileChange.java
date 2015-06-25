@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC. 
+ * Copyright (c) 2014 1C LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *     (inspired by Eclipse LTK work)
@@ -80,7 +80,7 @@ public class SourceFileChange
     }
 
     /**
-     * Creates a change with the given edit tree. The structure of the tree 
+     * Creates a change with the given edit tree. The structure of the tree
      * may be modified later.
      *
      * @param name the change's name, mainly used to render the change in the UI
@@ -129,8 +129,8 @@ public class SourceFileChange
     }
 
     /**
-     * Inserts the edits of the given group into the change's edit tree 
-     * and then {@link TextEditBasedChange#addChangeGroup(TextEditBasedChangeGroup) 
+     * Inserts the edits of the given group into the change's edit tree
+     * and then {@link TextEditBasedChange#addChangeGroup(TextEditBasedChangeGroup)
      * adds} the group itself to the change.
      *
      * @param group the group to add - must not be <code>null</code>
@@ -143,8 +143,8 @@ public class SourceFileChange
     }
 
     /**
-     * Inserts the edits of the given group into the change's edit tree 
-     * and then {@link TextEditBasedChange#addTextEditGroup(TextEditGroup) 
+     * Inserts the edits of the given group into the change's edit tree
+     * and then {@link TextEditBasedChange#addTextEditGroup(TextEditGroup)
      * adds} the group itself to the change.
      *
      * @param group the group to add - must not be <code>null</code>
@@ -158,7 +158,7 @@ public class SourceFileChange
     /**
      * Sets the snapshot on which the change is based.
      *
-     * @param base the snapshot on which the change is based, 
+     * @param base the snapshot on which the change is based,
      *  or <code>null</code> if unknown
      */
     public void setBase(ISnapshot base)
@@ -167,10 +167,10 @@ public class SourceFileChange
     }
 
     /**
-     * Returns the snapshot on which the change's edit tree is based, 
+     * Returns the snapshot on which the change's edit tree is based,
      * or <code>null</code> if the snapshot is unknown.
      *
-     * @return the snapshot on which the change is based, 
+     * @return the snapshot on which the change is based,
      *  or <code>null</code> if unknown
      */
     public ISnapshot getBase()
@@ -181,7 +181,7 @@ public class SourceFileChange
     /**
      * Sets the save mode of the change.
      *
-     * @param saveMode indicates whether the buffer is to be saved 
+     * @param saveMode indicates whether the buffer is to be saved
      *  after the change has been successfully applied
      */
     public void setSaveMode(SaveMode saveMode)
@@ -245,12 +245,12 @@ public class SourceFileChange
         pm.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            IBuffer buffer =
-                sourceFile.openBuffer(new SubProgressMonitor(pm, 1));
+            IBuffer buffer = sourceFile.openBuffer(new SubProgressMonitor(pm,
+                1));
             try
             {
-                BufferChangeWithExcludes change =
-                    new BufferChangeWithExcludes(edit);
+                BufferChangeWithExcludes change = new BufferChangeWithExcludes(
+                    edit);
                 change.setExcludes(getDisabledEdits());
                 change.setBase(base);
                 change.setStyle(IBufferChange.CREATE_UNDO
@@ -261,17 +261,15 @@ public class SourceFileChange
 
                 try
                 {
-                    undoChange =
-                        buffer.applyChange(change,
-                            new SubProgressMonitor(pm, 1));
+                    undoChange = buffer.applyChange(change,
+                        new SubProgressMonitor(pm, 1));
                 }
                 catch (StaleSnapshotException e)
                 {
-                    throw new CoreException(
-                        Activator.createErrorStatus(
-                            MessageFormat.format(
-                                Messages.SourceFileChange_Cannot_apply_stale_change__0,
-                                sourceFile.getPath().makeRelative()), e));
+                    throw new CoreException(Activator.createErrorStatus(
+                        MessageFormat.format(
+                            Messages.SourceFileChange_Cannot_apply_stale_change__0,
+                            sourceFile.getPath().makeRelative()), e));
                 }
 
                 return new UndoSourceFileChange(getName(), sourceFile,
@@ -352,8 +350,8 @@ public class SourceFileChange
         else
             delta = preview.changeRegion.getLength() - changeRegion.getLength();
 
-        return getDocumentContent(preview.document,
-            new Region(region.getOffset(), region.getLength() + delta),
+        return getDocumentContent(preview.document, new Region(
+            region.getOffset(), region.getLength() + delta),
             expandRegionToFullLine, surroundingLines);
     }
 
@@ -508,15 +506,14 @@ public class SourceFileChange
      */
     private String getDocumentContent(IDocument document, IRegion region,
         boolean expandRegionToFullLine, int surroundingLines)
-        throws CoreException
+            throws CoreException
     {
         try
         {
             if (expandRegionToFullLine)
             {
-                int startLine =
-                    Math.max(document.getLineOfOffset(region.getOffset())
-                        - surroundingLines, 0);
+                int startLine = Math.max(document.getLineOfOffset(
+                    region.getOffset()) - surroundingLines, 0);
                 int endLine;
                 if (region.getLength() == 0)
                 {
@@ -527,26 +524,21 @@ public class SourceFileChange
                         // empty: show nothing
                         return ""; //$NON-NLS-1$
                     }
-                    endLine =
-                        Math.min(document.getLineOfOffset(region.getOffset())
-                            + surroundingLines - 1,
-                            document.getNumberOfLines() - 1);
+                    endLine = Math.min(document.getLineOfOffset(
+                        region.getOffset()) + surroundingLines - 1,
+                        document.getNumberOfLines() - 1);
                 }
                 else
                 {
-                    endLine =
-                        Math.min(
-                            document.getLineOfOffset(region.getOffset()
-                                + region.getLength() - 1)
-                                + surroundingLines,
-                            document.getNumberOfLines() - 1);
+                    endLine = Math.min(document.getLineOfOffset(
+                        region.getOffset() + region.getLength() - 1)
+                        + surroundingLines, document.getNumberOfLines() - 1);
                 }
 
                 int offset = document.getLineInformation(startLine).getOffset();
                 IRegion endLineRegion = document.getLineInformation(endLine);
-                int length =
-                    endLineRegion.getOffset() + endLineRegion.getLength()
-                        - offset;
+                int length = endLineRegion.getOffset()
+                    + endLineRegion.getLength() - offset;
                 return document.get(offset, length);
             }
             else
@@ -593,9 +585,9 @@ public class SourceFileChange
     {
         TextEdit copiedEdit = copier.perform();
 
-        PreviewEditProcessor result =
-            new PreviewEditProcessor(document, copiedEdit,
-                getKeepPreviewEdits() ? TextEdit.UPDATE_REGIONS : TextEdit.NONE);
+        PreviewEditProcessor result = new PreviewEditProcessor(document,
+            copiedEdit, getKeepPreviewEdits() ? TextEdit.UPDATE_REGIONS
+                : TextEdit.NONE);
         if (groups == ALL_EDITS)
             result.setExcludes(mapEdits(getDisabledEdits()));
         else
@@ -614,7 +606,8 @@ public class SourceFileChange
             Collection<TextEdit> edits = Edits.ALL.of(groups);
             if (edits.isEmpty())
                 return null;
-            return TextEdit.getCoverage(edits.toArray(new TextEdit[edits.size()]));
+            return TextEdit.getCoverage(edits.toArray(
+                new TextEdit[edits.size()]));
         }
     }
 
@@ -629,7 +622,8 @@ public class SourceFileChange
             Collection<TextEdit> previewEdits = mapEdits(Edits.ALL.of(groups));
             if (previewEdits.isEmpty())
                 return null;
-            return TextEdit.getCoverage(previewEdits.toArray(new TextEdit[previewEdits.size()]));
+            return TextEdit.getCoverage(previewEdits.toArray(
+                new TextEdit[previewEdits.size()]));
         }
     }
 
@@ -697,7 +691,7 @@ public class SourceFileChange
     }
 
     /*
-     * Text edit processor which has the ability to selectively include or 
+     * Text edit processor which has the ability to selectively include or
      * exclude single text edits.
      */
     private static class PreviewEditProcessor
@@ -706,7 +700,8 @@ public class SourceFileChange
         private Set<TextEdit> excludes;
         private Set<TextEdit> includes;
 
-        public PreviewEditProcessor(IDocument document, TextEdit root, int flags)
+        public PreviewEditProcessor(IDocument document, TextEdit root,
+            int flags)
         {
             super(document, root, flags);
         }
@@ -763,8 +758,8 @@ public class SourceFileChange
             Set<TextEdit> result = new HashSet<TextEdit>();
             for (TextEditBasedChangeGroup group : groups)
             {
-                if (this == Edits.ALL
-                    || (this == Edits.DISABLED ^ group.isEnabled()))
+                if (this == Edits.ALL || (this == Edits.DISABLED
+                    ^ group.isEnabled()))
                 {
                     result.addAll(Arrays.asList(group.getTextEdits()));
                 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -43,9 +43,8 @@ class FooModelCache
         // set the size of the caches as a function of the maximum amount of memory available
         projectCache = new HashMap<IHandle, Body>(DEFAULT_PROJECT_SIZE);
         fileCache = new ElementCache((int)(DEFAULT_FILE_SIZE * memoryRatio));
-        childrenCache =
-            new HashMap<IHandle, Body>(
-                (int)(DEFAULT_CHILDREN_SIZE * memoryRatio));
+        childrenCache = new HashMap<IHandle, Body>((int)(DEFAULT_CHILDREN_SIZE
+            * memoryRatio));
     }
 
     @Override
@@ -113,10 +112,10 @@ class FooModelCache
     private double getMemoryRatio()
     {
         long maxMemory = Runtime.getRuntime().maxMemory();
-        // if max memory is infinite, set the ratio to 4d 
+        // if max memory is infinite, set the ratio to 4d
         // which corresponds to the 256MB that Eclipse defaults to
         // (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=111299)
-        return maxMemory == Long.MAX_VALUE ? 4d : ((double)maxMemory)
-            / (64 * 0x100000); // 64MB is the base memory for most JVM
+        return maxMemory == Long.MAX_VALUE ? 4d : ((double)maxMemory) / (64
+            * 0x100000); // 64MB is the base memory for most JVM
     }
 }

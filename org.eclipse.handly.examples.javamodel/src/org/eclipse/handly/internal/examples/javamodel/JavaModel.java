@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -39,7 +39,7 @@ public class JavaModel
 
     /**
      * Constructs a new Java model on the given workspace.
-     * 
+     *
      * @param workspace the workspace underlying the Java model
      *  (not <code>null</code>)
      */
@@ -153,8 +153,8 @@ public class JavaModel
         throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
-        List<IJavaProject> javaProjects =
-            new ArrayList<IJavaProject>(projects.length);
+        List<IJavaProject> javaProjects = new ArrayList<IJavaProject>(
+            projects.length);
         for (IProject project : projects)
         {
             if (project.isOpen() && project.hasNature(IJavaProject.NATURE_ID))
@@ -162,7 +162,8 @@ public class JavaModel
                 javaProjects.add(new JavaProject(this, project));
             }
         }
-        body.setChildren(javaProjects.toArray(new IHandle[javaProjects.size()]));
+        body.setChildren(javaProjects.toArray(
+            new IHandle[javaProjects.size()]));
     }
 
     @Override

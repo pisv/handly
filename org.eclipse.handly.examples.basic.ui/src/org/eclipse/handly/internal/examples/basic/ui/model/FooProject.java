@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -45,11 +45,11 @@ public class FooProject
     private final IProject project;
 
     /**
-     * Constructs a handle for a Foo project with the given parent element 
+     * Constructs a handle for a Foo project with the given parent element
      * and the given underlying workspace project.
-     * 
+     *
      * @param parent the parent of the element (not <code>null</code>)
-     * @param project the workspace project underlying the element 
+     * @param project the workspace project underlying the element
      *  (not <code>null</code>)
      */
     public FooProject(FooModel parent, IProject project)
@@ -170,18 +170,19 @@ public class FooProject
         if (!project.exists())
             throw new CoreException(Activator.createErrorStatus(
                 MessageFormat.format(
-                    "Project ''{0}'' does not exist in workspace", name), null));
+                    "Project ''{0}'' does not exist in workspace", name),
+                null));
 
         if (!project.isOpen())
-            throw new CoreException(
-                Activator.createErrorStatus(
-                    MessageFormat.format("Project ''{0}'' is not open", name),
-                    null));
+            throw new CoreException(Activator.createErrorStatus(
+                MessageFormat.format("Project ''{0}'' is not open", name),
+                null));
 
         if (!project.hasNature(NATURE_ID))
-            throw new CoreException(
-                Activator.createErrorStatus(MessageFormat.format(
-                    "Project ''{0}'' does not have the Foo nature", name), null));
+            throw new CoreException(Activator.createErrorStatus(
+                MessageFormat.format(
+                    "Project ''{0}'' does not have the Foo nature", name),
+                null));
     }
 
     @Override

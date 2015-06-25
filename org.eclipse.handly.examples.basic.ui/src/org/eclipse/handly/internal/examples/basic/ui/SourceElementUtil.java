@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -69,7 +69,7 @@ public class SourceElementUtil
     /**
      * Selects and reveals the identifying range of the given source element
      * in the given text editor. Returns <code>false</code> if the identifying
-     * range is not set or cannot be obtained (e.g., the element does not exist). 
+     * range is not set or cannot be obtained (e.g., the element does not exist).
      *
      * @param textEditor not <code>null</code>
      * @param element not <code>null</code>

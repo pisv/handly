@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -176,9 +176,8 @@ public abstract class OutlinePopup
     {
         Control control = host.getControl();
         Point size = control.getSize();
-        Point location =
-            new Point((size.x / 2) - (initialSize.x / 2), (size.y / 2)
-                - (initialSize.y / 2));
+        Point location = new Point((size.x / 2) - (initialSize.x / 2), (size.y
+            / 2) - (initialSize.y / 2));
         return control.toDisplay(location);
     }
 
@@ -189,9 +188,8 @@ public abstract class OutlinePopup
         IDialogSettings settings =
             Activator.getDefault().getDialogSettings().getSection(sectionName);
         if (settings == null)
-            settings =
-                Activator.getDefault().getDialogSettings().addNewSection(
-                    sectionName);
+            settings = Activator.getDefault().getDialogSettings().addNewSection(
+                sectionName);
         return settings;
     }
 
@@ -489,9 +487,9 @@ public abstract class OutlinePopup
         extends TreeViewer
     {
         /**
-         * Creates a new tree viewer on the given tree control. 
+         * Creates a new tree viewer on the given tree control.
          * Sets auto-expand level to <code>ALL_LEVELS</code>.
-         * 
+         *
          * @param tree the tree control (not <code>null</code>)
          */
         public OutlineTreeViewer(Tree tree)

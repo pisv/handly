@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -17,8 +17,8 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import com.google.inject.Inject;
 
 /**
- * Contributes a filter which hides outline elements that should not be shown 
- * in a compact view. The activation of the filter is governed by the 
+ * Contributes a filter which hides outline elements that should not be shown
+ * in a compact view. The activation of the filter is governed by the
  * corresponding {@link CompactViewPreference preference}.
  */
 public class CompactViewFilterContribution

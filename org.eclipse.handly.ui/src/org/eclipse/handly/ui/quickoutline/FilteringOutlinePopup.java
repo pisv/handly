@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -273,8 +273,8 @@ public abstract class FilteringOutlinePopup
         for (int i = 0; i < items.length; i++)
         {
             final TreeItem item = items[i];
-            TreeItem foundItem =
-                findItem(selectItems(item.getItems(), toBeSkipped), null, false);
+            TreeItem foundItem = findItem(selectItems(item.getItems(),
+                toBeSkipped), null, false);
             if (foundItem != null)
                 return foundItem;
         }
@@ -372,7 +372,7 @@ public abstract class FilteringOutlinePopup
 
         /**
          * Creates a new element matcher based on the given string matcher.
-         * 
+         *
          * @param stringMatcher not <code>null</code>
          */
         public ElementMatcher(IMatcher<String> stringMatcher)
@@ -429,7 +429,7 @@ public abstract class FilteringOutlinePopup
 
         /**
          * Creates a new string matcher based on the given pattern.
-         * 
+         *
          * @param pattern the pattern string (not <code>null</code>)
          * @param ignoreCase whether case-insensitive matching is enabled
          */
@@ -474,9 +474,8 @@ public abstract class FilteringOutlinePopup
             if (pattern == null)
             {
                 if (ignoreCase)
-                    pattern =
-                        Pattern.compile(expression, Pattern.CASE_INSENSITIVE
-                            | Pattern.UNICODE_CASE);
+                    pattern = Pattern.compile(expression,
+                        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
                 else
                     pattern = Pattern.compile(expression);
             }
@@ -500,7 +499,8 @@ public abstract class FilteringOutlinePopup
             return hasUnfilteredChild((TreeViewer)viewer, element);
         }
 
-        private boolean hasUnfilteredChild(TreeViewer treeViewer, Object element)
+        private boolean hasUnfilteredChild(TreeViewer treeViewer,
+            Object element)
         {
             // This works only because 'expandPreCheckFilters' was set to true
             return treeViewer.isExpandable(element);

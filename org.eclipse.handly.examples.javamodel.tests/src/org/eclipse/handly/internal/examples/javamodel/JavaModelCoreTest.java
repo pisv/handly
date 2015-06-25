@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -48,8 +48,8 @@ public class JavaModelCoreTest
 
     public void test001()
     {
-        assertEquals(javaModel,
-            JavaModelCore.create(javaModel.getWorkspace().getRoot()));
+        assertEquals(javaModel, JavaModelCore.create(
+            javaModel.getWorkspace().getRoot()));
     }
 
     public void test002() throws Exception
@@ -83,8 +83,8 @@ public class JavaModelCoreTest
     public void test004() throws Exception
     {
         IFolder fooFolder = srcFolder.getFolder("foo");
-        assertEquals(srcRoot.getPackageFragment("foo"),
-            JavaModelCore.create(fooFolder));
+        assertEquals(srcRoot.getPackageFragment("foo"), JavaModelCore.create(
+            fooFolder));
         assertEquals(srcRoot.getPackageFragment("foo.bar"),
             JavaModelCore.create(fooFolder.getFolder("bar")));
 
@@ -97,14 +97,12 @@ public class JavaModelCoreTest
     public void test005() throws Exception
     {
         IFile aFile = srcFolder.getFile("A.java");
-        assertEquals(
-            srcRoot.getPackageFragment("").getCompilationUnit(aFile.getName()),
-            JavaModelCore.create(aFile));
+        assertEquals(srcRoot.getPackageFragment("").getCompilationUnit(
+            aFile.getName()), JavaModelCore.create(aFile));
 
         aFile = srcFolder.getFolder("foo").getFile("A.java");
-        assertEquals(
-            srcRoot.getPackageFragment("foo").getCompilationUnit(
-                aFile.getName()), JavaModelCore.create(aFile));
+        assertEquals(srcRoot.getPackageFragment("foo").getCompilationUnit(
+            aFile.getName()), JavaModelCore.create(aFile));
 
         assertNull(JavaModelCore.create(srcFolder.getFile("A")));
 

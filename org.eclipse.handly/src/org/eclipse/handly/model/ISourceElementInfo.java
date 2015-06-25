@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -16,7 +16,7 @@ import org.eclipse.handly.util.TextRange;
 /**
  * Holds cached structure and properties for a source element. Those
  * structure and properties correlate with a source snapshot.
- * 
+ *
  * @see ISourceElement
  * @noimplement This interface is not intended to be implemented by clients.
  */

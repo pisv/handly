@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -18,7 +18,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
 /**
- * An abstract base implementation of a preference. 
+ * An abstract base implementation of a preference.
  * The preference is stored in {@link IPreferenceStore}.
  */
 public abstract class AbstractPreference
@@ -76,7 +76,7 @@ public abstract class AbstractPreference
     {
         return store;
     }
-    
+
     /**
      * Sets the current value of this preference back to its default value.
      * <p>
@@ -90,7 +90,7 @@ public abstract class AbstractPreference
     {
         store.setToDefault(name);
     }
-    
+
     /**
      * Returns whether the current value of this preference
      * has the default value.

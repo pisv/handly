@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -36,7 +36,8 @@ public abstract class OutlineDragAndDropContribution
                     public void run()
                     {
                         if (lexicalSortPreference != null)
-                            dropSupport.setFeedbackEnabled(!lexicalSortPreference.getValue());
+                            dropSupport.setFeedbackEnabled(
+                                !lexicalSortPreference.getValue());
                     }
                 });
             }
@@ -73,7 +74,7 @@ public abstract class OutlineDragAndDropContribution
     }
 
     /**
-     * Returns a ready to start instance of {@link ViewerDragSupport} 
+     * Returns a ready to start instance of {@link ViewerDragSupport}
      * for the outline page.
      *
      * @return a ready to start instance of {@link ViewerDragSupport}
@@ -82,7 +83,7 @@ public abstract class OutlineDragAndDropContribution
     protected abstract ViewerDragSupport createDragSupport();
 
     /**
-     * Returns a ready to start instance of {@link ViewerDropSupport} 
+     * Returns a ready to start instance of {@link ViewerDropSupport}
      * for the outline page.
      *
      * @return a ready to start instance of {@link ViewerDropSupport}

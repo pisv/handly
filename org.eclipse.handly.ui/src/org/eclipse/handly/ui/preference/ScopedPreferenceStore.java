@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Yves YANG <yves.yang@soyatec.com> - 
+ *     Yves YANG <yves.yang@soyatec.com> -
  *          Initial Fix for Bug 138078 [Preferences] Preferences Store for i18n support
  *     itemis AG - fix for bug 239033 [Preferences] ScopedPreferenceStore causes memory leak
  *******************************************************************************/
@@ -34,7 +34,7 @@ import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * Mainly copied from {@link org.eclipse.ui.preferences.ScopedPreferenceStore}.
- * It fixes the memory leak described in 
+ * It fixes the memory leak described in
  * <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=239033">Bug 239033</a>.
  * <p>
  * The ScopedPreferenceStore is an IPreferenceStore that uses the scopes
@@ -108,7 +108,7 @@ public class ScopedPreferenceStore
     /**
      * Creates a new scoped preference store that will store values in the node
      * looked up in the given context by the given qualifier.
-     * 
+     *
      * @param context the scope to store to
      * @param qualifier the qualifier used to look up the preference node
      * @param defaultQualifierPath the qualifier used when looking up the defaults
@@ -124,7 +124,7 @@ public class ScopedPreferenceStore
     /**
      * Creates a new scoped preference store that will store values in the node
      * looked up in the given context by the given qualifier.
-     * 
+     *
      * @param context the scope to store to
      * @param qualifier the qualifier used to look up the preference node
      */
@@ -146,7 +146,7 @@ public class ScopedPreferenceStore
      * The defaultContext will be added to the end of this list automatically
      * and <em>MUST NOT</em> be included by the user.
      * </p>
-     * 
+     *
      * @param scopes a list of scope contexts to use when searching,
      *  or <code>null</code>
      */
@@ -178,7 +178,7 @@ public class ScopedPreferenceStore
      * Whether or not the default context should be included in the resulting
      * list is specified by the <code>includeDefault</code> parameter.
      * </p>
-     * 
+     *
      * @param includeDefault <code>true</code> if the default context should be
      *  included and <code>false</code> otherwise
      * @return IEclipsePreferences[]
@@ -246,14 +246,15 @@ public class ScopedPreferenceStore
         {
             return;
         }
-        final PropertyChangeEvent event =
-            new PropertyChangeEvent(this, name, oldValue, newValue);
+        final PropertyChangeEvent event = new PropertyChangeEvent(this, name,
+            oldValue, newValue);
         for (int i = 0; i < list.length; i++)
         {
             final IPropertyChangeListener listener =
                 (IPropertyChangeListener)list[i];
-            SafeRunner.run(new SafeRunnable(
-                JFaceResources.getString("PreferenceStore.changeError")) { //$NON-NLS-1$
+            SafeRunner.run(new SafeRunnable(JFaceResources.getString(
+                "PreferenceStore.changeError")) //$NON-NLS-1$
+            {
                 public void run()
                 {
                     listener.propertyChange(event);
@@ -266,14 +267,15 @@ public class ScopedPreferenceStore
     public boolean getBoolean(String name)
     {
         String value = internalGet(name);
-        return value == null ? BOOLEAN_DEFAULT_DEFAULT
-            : Boolean.valueOf(value).booleanValue();
+        return value == null ? BOOLEAN_DEFAULT_DEFAULT : Boolean.valueOf(
+            value).booleanValue();
     }
 
     @Override
     public boolean getDefaultBoolean(String name)
     {
-        return getDefaultPreferences().getBoolean(name, BOOLEAN_DEFAULT_DEFAULT);
+        return getDefaultPreferences().getBoolean(name,
+            BOOLEAN_DEFAULT_DEFAULT);
     }
 
     @Override
@@ -598,8 +600,8 @@ public class ScopedPreferenceStore
                 getStorePreferences().putLong(name, value);
             }
             dirty = true;
-            firePropertyChangeEvent(name, Long.valueOf(oldValue),
-                Long.valueOf(value));
+            firePropertyChangeEvent(name, Long.valueOf(oldValue), Long.valueOf(
+                value));
         }
         finally
         {
@@ -691,7 +693,8 @@ public class ScopedPreferenceStore
                     // Do nothing as there are no events from removed node
                 }
             };
-            ((IEclipsePreferences)getStorePreferences().parent()).addNodeChangeListener(nodeChangeListener);
+            ((IEclipsePreferences)getStorePreferences().parent()).addNodeChangeListener(
+                nodeChangeListener);
         }
     }
 
@@ -789,7 +792,7 @@ public class ScopedPreferenceStore
 
     /*
      * Return the IEclipsePreferences node associated with this store.
-     * 
+     *
      * @return the preference node for this store
      */
     private IEclipsePreferences getStorePreferences()
@@ -799,7 +802,7 @@ public class ScopedPreferenceStore
 
     /*
      * Return the default IEclipsePreferences for this store.
-     * 
+     *
      * @return this store's default preference node
      */
     private IEclipsePreferences getDefaultPreferences()
@@ -812,7 +815,7 @@ public class ScopedPreferenceStore
      * the given object's type and then looks in the list of defaults to see if
      * a value exists. If not or if there is a problem converting the value, the
      * default default value for that type is returned.
-     * 
+     *
      * @param key the key to search
      * @param obj the object who default we are looking for
      * @return Object or <code>null</code>
@@ -856,7 +859,7 @@ public class ScopedPreferenceStore
      * Return the string value for the specified key. Look in the nodes which
      * are specified by this object's list of search scopes. If the value does
      * not exist then return <code>null</code>.
-     * 
+     *
      * @param key the key to search with
      * @return String or <code>null</code> if the value does not exist.
      */

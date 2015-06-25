@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -43,7 +43,7 @@ class CompilatonUnitStructureBuilder
 {
     /**
      * Constructs a new compilation unit structure builder.
-     * 
+     *
      * @param newElements the map to populate with structure elements
      *  (not <code>null</code>)
      */
@@ -82,9 +82,8 @@ class CompilatonUnitStructureBuilder
     private void buildStructure(CompilationUnit parent, Body parentBody,
         org.eclipse.jdt.core.dom.PackageDeclaration pkg)
     {
-        PackageDeclaration handle =
-            new PackageDeclaration(parent,
-                pkg.getName().getFullyQualifiedName());
+        PackageDeclaration handle = new PackageDeclaration(parent,
+            pkg.getName().getFullyQualifiedName());
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(pkg));
         body.setIdentifyingRange(getTextRange(pkg.getName()));
@@ -98,8 +97,8 @@ class CompilatonUnitStructureBuilder
         ImportContainer handle = new ImportContainer(parent);
         SourceElementBody body = new SourceElementBody();
         org.eclipse.jdt.core.dom.ImportDeclaration firstImport = imports.get(0);
-        org.eclipse.jdt.core.dom.ImportDeclaration lastImport =
-            imports.get(imports.size() - 1);
+        org.eclipse.jdt.core.dom.ImportDeclaration lastImport = imports.get(
+            imports.size() - 1);
         body.setFullRange(new TextRange(firstImport.getStartPosition(),
             lastImport.getStartPosition() + lastImport.getLength()
                 - firstImport.getStartPosition()));
@@ -141,13 +140,13 @@ class CompilatonUnitStructureBuilder
             org.eclipse.jdt.core.dom.Type superclassType =
                 typeDeclaration.getSuperclassType();
             if (superclassType != null)
-                body.set(Type.SUPERCLASS_TYPE,
-                    AstUtil.getSignature(superclassType));
+                body.set(Type.SUPERCLASS_TYPE, AstUtil.getSignature(
+                    superclassType));
             @SuppressWarnings("unchecked")
             List<? extends org.eclipse.jdt.core.dom.Type> superInterfaceTypes =
                 typeDeclaration.superInterfaceTypes();
-            body.set(Type.SUPER_INTERFACE_TYPES,
-                AstUtil.getSignatures(superInterfaceTypes));
+            body.set(Type.SUPER_INTERFACE_TYPES, AstUtil.getSignatures(
+                superInterfaceTypes));
         }
         else if (type instanceof EnumDeclaration)
         {
@@ -158,8 +157,8 @@ class CompilatonUnitStructureBuilder
             @SuppressWarnings("unchecked")
             List<? extends org.eclipse.jdt.core.dom.Type> superInterfaceTypes =
                 enumDeclaration.superInterfaceTypes();
-            body.set(Type.SUPER_INTERFACE_TYPES,
-                AstUtil.getSignatures(superInterfaceTypes));
+            body.set(Type.SUPER_INTERFACE_TYPES, AstUtil.getSignatures(
+                superInterfaceTypes));
 
             @SuppressWarnings("unchecked")
             List<EnumConstantDeclaration> enumConstants =
@@ -208,11 +207,9 @@ class CompilatonUnitStructureBuilder
         body.setFullRange(getTextRange(field));
         body.setIdentifyingRange(getTextRange(fragment.getName()));
         body.set(Field.FLAGS, field.getModifiers());
-        body.set(
-            Field.TYPE,
-            Signature.createArraySignature(
-                AstUtil.getSignature(field.getType()),
-                fragment.getExtraDimensions()));
+        body.set(Field.TYPE, Signature.createArraySignature(
+            AstUtil.getSignature(field.getType()),
+            fragment.getExtraDimensions()));
         addChild(parentBody, handle, body);
         complete(body);
     }
@@ -220,8 +217,8 @@ class CompilatonUnitStructureBuilder
     private void buildStructure(Type parent, Body parentBody,
         EnumDeclaration enumDeclaration, EnumConstantDeclaration enumConstant)
     {
-        Field handle =
-            new Field(parent, enumConstant.getName().getIdentifier());
+        Field handle = new Field(parent,
+            enumConstant.getName().getIdentifier());
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(enumConstant));
         body.setIdentifyingRange(getTextRange(enumConstant.getName()));
@@ -243,16 +240,15 @@ class CompilatonUnitStructureBuilder
         int i = 0;
         for (SingleVariableDeclaration parameter : parameters)
         {
-            parameterTypes[i] =
-                Signature.createArraySignature(
-                    AstUtil.getSignature(parameter.getType()),
-                    parameter.getExtraDimensions());
+            parameterTypes[i] = Signature.createArraySignature(
+                AstUtil.getSignature(parameter.getType()),
+                parameter.getExtraDimensions());
             parameterNames[i] = parameter.getName().getIdentifier();
             i++;
         }
 
-        Method handle =
-            new Method(parent, method.getName().getIdentifier(), parameterTypes);
+        Method handle = new Method(parent, method.getName().getIdentifier(),
+            parameterTypes);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(method));
         body.setIdentifyingRange(getTextRange(method.getName()));
@@ -266,8 +262,8 @@ class CompilatonUnitStructureBuilder
         }
         @SuppressWarnings("unchecked")
         List<? extends Name> thrownExceptions = method.thrownExceptions();
-        body.set(Method.EXCEPTION_TYPES,
-            AstUtil.toTypeSignatures(thrownExceptions));
+        body.set(Method.EXCEPTION_TYPES, AstUtil.toTypeSignatures(
+            thrownExceptions));
         if (method.isConstructor())
             body.set(Method.IS_CONSTRUCTOR, Boolean.TRUE);
         addChild(parentBody, handle, body);
@@ -277,15 +273,14 @@ class CompilatonUnitStructureBuilder
     private void buildStructure(Type parent, Body parentBody,
         AnnotationTypeMemberDeclaration annotationTypeMember)
     {
-        Method handle =
-            new Method(parent, annotationTypeMember.getName().getIdentifier(),
-                Method.NO_STRINGS);
+        Method handle = new Method(parent,
+            annotationTypeMember.getName().getIdentifier(), Method.NO_STRINGS);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(annotationTypeMember));
         body.setIdentifyingRange(getTextRange(annotationTypeMember.getName()));
         body.set(Method.FLAGS, annotationTypeMember.getModifiers());
-        body.set(Method.RETURN_TYPE,
-            AstUtil.getSignature(annotationTypeMember.getType()));
+        body.set(Method.RETURN_TYPE, AstUtil.getSignature(
+            annotationTypeMember.getType()));
         addChild(parentBody, handle, body);
         complete(body);
     }

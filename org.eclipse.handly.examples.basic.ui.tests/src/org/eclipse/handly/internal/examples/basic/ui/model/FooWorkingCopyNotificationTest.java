@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -53,9 +53,8 @@ public class FooWorkingCopyNotificationTest
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
         fooModel.addElementChangeListener(listener);
-        buffer =
-            new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
-                new WorkingCopyReconciler(workingCopy));
+        buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
+            new WorkingCopyReconciler(workingCopy));
     }
 
     @Override
@@ -73,14 +72,14 @@ public class FooWorkingCopyNotificationTest
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                assertDelta(new HandleDelta(fooModel).insertChanged(
-                    workingCopy, HandleDelta.F_WORKING_COPY), listener.delta);
+                assertDelta(new HandleDelta(fooModel).insertChanged(workingCopy,
+                    HandleDelta.F_WORKING_COPY), listener.delta);
 
                 workingCopy.getFile().touch(null);
 
-                assertDelta(new HandleDelta(fooModel).insertChanged(
-                    workingCopy, HandleDelta.F_CONTENT
-                        | HandleDelta.F_UNDERLYING_RESOURCE), listener.delta);
+                assertDelta(new HandleDelta(fooModel).insertChanged(workingCopy,
+                    HandleDelta.F_CONTENT | HandleDelta.F_UNDERLYING_RESOURCE),
+                    listener.delta);
 
                 listener.delta = null;
             }
@@ -105,9 +104,8 @@ public class FooWorkingCopyNotificationTest
 
                 TextRange r =
                     defs[0].getSourceElementInfo().getIdentifyingRange();
-                BufferChange change =
-                    new BufferChange(new ReplaceEdit(r.getOffset(),
-                        r.getLength(), "g")); // rename f() to g()
+                BufferChange change = new BufferChange(new ReplaceEdit(
+                    r.getOffset(), r.getLength(), "g")); // rename f() to g()
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -117,10 +115,10 @@ public class FooWorkingCopyNotificationTest
 
                 assertFalse(def.exists());
 
-                assertDelta(
-                    new HandleDelta(workingCopy).insertChanged(workingCopy,
-                        HandleDelta.F_CHILDREN | HandleDelta.F_FINE_GRAINED).insertAdded(
-                        workingCopy.getDef("g", 0)).insertRemoved(def),
+                assertDelta(new HandleDelta(workingCopy).insertChanged(
+                    workingCopy, HandleDelta.F_CHILDREN
+                        | HandleDelta.F_FINE_GRAINED).insertAdded(
+                            workingCopy.getDef("g", 0)).insertRemoved(def),
                     listener.delta);
             }
         });
@@ -144,13 +142,11 @@ public class FooWorkingCopyNotificationTest
 
                 ISourceElementInfo info = varY.getSourceElementInfo();
                 TextRange r = info.getFullRange();
-                String varYText =
-                    info.getSnapshot().getContents().substring(r.getOffset(),
-                        r.getEndOffset());
+                String varYText = info.getSnapshot().getContents().substring(
+                    r.getOffset(), r.getEndOffset());
 
-                BufferChange change =
-                    new BufferChange(new DeleteEdit(r.getOffset(),
-                        r.getLength())); // delete 'var y;'
+                BufferChange change = new BufferChange(new DeleteEdit(
+                    r.getOffset(), r.getLength())); // delete 'var y;'
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -158,10 +154,10 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(
-                    new HandleDelta(workingCopy).insertChanged(workingCopy,
-                        HandleDelta.F_CHILDREN | HandleDelta.F_FINE_GRAINED).insertRemoved(
-                        varY), listener.delta);
+                assertDelta(new HandleDelta(workingCopy).insertChanged(
+                    workingCopy, HandleDelta.F_CHILDREN
+                        | HandleDelta.F_FINE_GRAINED).insertRemoved(varY),
+                    listener.delta);
 
                 listener.delta = null;
 
@@ -177,10 +173,10 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(
-                    new HandleDelta(workingCopy).insertChanged(workingCopy,
-                        HandleDelta.F_CHILDREN | HandleDelta.F_FINE_GRAINED).insertAdded(
-                        varY), listener.delta);
+                assertDelta(new HandleDelta(workingCopy).insertChanged(
+                    workingCopy, HandleDelta.F_CHILDREN
+                        | HandleDelta.F_FINE_GRAINED).insertAdded(varY),
+                    listener.delta);
             }
         });
     }
@@ -202,9 +198,8 @@ public class FooWorkingCopyNotificationTest
                 ISourceElementInfo info = def.getSourceElementInfo();
                 TextRange r = info.getFullRange();
 
-                BufferChange change =
-                    new BufferChange(new ReplaceEdit(r.getOffset(),
-                        r.getLength(), "def f(y) {}")); // instead of 'def f(x) {}'
+                BufferChange change = new BufferChange(new ReplaceEdit(
+                    r.getOffset(), r.getLength(), "def f(y) {}")); // instead of 'def f(x) {}'
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -212,10 +207,10 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(
-                    new HandleDelta(workingCopy).insertChanged(workingCopy,
-                        HandleDelta.F_CHILDREN | HandleDelta.F_FINE_GRAINED).insertChanged(
-                        def, HandleDelta.F_CONTENT), listener.delta); // 'parameterNames' property changed
+                assertDelta(new HandleDelta(workingCopy).insertChanged(
+                    workingCopy, HandleDelta.F_CHILDREN
+                        | HandleDelta.F_FINE_GRAINED).insertChanged(def,
+                            HandleDelta.F_CONTENT), listener.delta); // 'parameterNames' property changed
             }
         });
     }

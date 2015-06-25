@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -37,9 +37,9 @@ public final class TextFileBufferSnapshot
 
     /**
      * Takes a snapshot of the given text file buffer.
-     * 
-     * @param buffer a buffer connected through the given buffer manager - 
-     *  must not be <code>null</code> and must be connected at least 
+     *
+     * @param buffer a buffer connected through the given buffer manager -
+     *  must not be <code>null</code> and must be connected at least
      *  for the duration of the constructor call
      * @param bufferManager must not be <code>null</code>
      */
@@ -61,8 +61,8 @@ public final class TextFileBufferSnapshot
         String result = (contents != null) ? contents.get() : null;
         if (result == null && buffer != null)
         {
-            contents =
-                new WeakReference<String>(result = buffer.getDocument().get());
+            contents = new WeakReference<String>(result =
+                buffer.getDocument().get());
         }
         return result;
     }
@@ -104,10 +104,9 @@ public final class TextFileBufferSnapshot
 
         removeListeners();
         bufferManager = null;
-        TextFileSnapshot fileSnapshot =
-            new TextFileSnapshot(
-                ResourcesPlugin.getWorkspace().getRoot().getFile(
-                    buffer.getLocation()), false);
+        TextFileSnapshot fileSnapshot = new TextFileSnapshot(
+            ResourcesPlugin.getWorkspace().getRoot().getFile(
+                buffer.getLocation()), false);
         if (!buffer.isDirty() && buffer.isSynchronized())
         {
             // the snapshot can be 'transcended' as file snapshot (no need to expire)

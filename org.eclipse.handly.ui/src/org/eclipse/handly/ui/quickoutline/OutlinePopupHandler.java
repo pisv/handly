@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -80,9 +80,8 @@ public abstract class OutlinePopupHandler
         IBindingService bindingService =
             (IBindingService)PlatformUI.getWorkbench().getService(
                 IBindingService.class);
-        TriggerSequence[] bindings =
-            bindingService.getActiveBindingsFor(new ParameterizedCommand(
-                event.getCommand(), null));
+        TriggerSequence[] bindings = bindingService.getActiveBindingsFor(
+            new ParameterizedCommand(event.getCommand(), null));
         for (TriggerSequence binding : bindings)
         {
             if (binding instanceof KeySequence)

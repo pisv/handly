@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -29,9 +29,9 @@ public class CompositeLabelDecorator
     private ILabelDecorator[] decorators;
 
     /**
-     * Creates a composition of the given label decorators. 
+     * Creates a composition of the given label decorators.
      * The decorators will be applied in the given order.
-     * 
+     *
      * @param decorators the label decorators to compose
      */
     public CompositeLabelDecorator(ILabelDecorator... decorators)
@@ -128,8 +128,8 @@ public class CompositeLabelDecorator
         {
             if (decorator instanceof IColorDecorator)
             {
-                Color color =
-                    ((IColorDecorator)decorator).decorateForeground(element);
+                Color color = ((IColorDecorator)decorator).decorateForeground(
+                    element);
                 if (color != null)
                     return color;
             }
@@ -144,8 +144,8 @@ public class CompositeLabelDecorator
         {
             if (decorator instanceof IColorDecorator)
             {
-                Color color =
-                    ((IColorDecorator)decorator).decorateBackground(element);
+                Color color = ((IColorDecorator)decorator).decorateBackground(
+                    element);
                 if (color != null)
                     return color;
             }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -121,10 +121,8 @@ public abstract class AbstractWorkingSetPage
 
         Label label = new Label(composite, SWT.WRAP);
         label.setText(Messages.AbstractWorkingSetPage_workingSet_name);
-        GridData gd =
-            new GridData(GridData.GRAB_HORIZONTAL
-                | GridData.HORIZONTAL_ALIGN_FILL
-                | GridData.VERTICAL_ALIGN_CENTER);
+        GridData gd = new GridData(GridData.GRAB_HORIZONTAL
+            | GridData.HORIZONTAL_ALIGN_FILL | GridData.VERTICAL_ALIGN_CENTER);
         label.setLayoutData(gd);
 
         workingSetName = new Text(composite, SWT.SINGLE | SWT.BORDER);
@@ -147,8 +145,8 @@ public abstract class AbstractWorkingSetPage
         gridLayout.marginWidth = 0;
         leftCenterRightComposite.setLayout(gridLayout);
 
-        Composite leftComposite =
-            new Composite(leftCenterRightComposite, SWT.NONE);
+        Composite leftComposite = new Composite(leftCenterRightComposite,
+            SWT.NONE);
         gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
         gridData.widthHint = convertWidthInCharsToPixels(40);
         leftComposite.setLayoutData(gridData);
@@ -157,8 +155,8 @@ public abstract class AbstractWorkingSetPage
         gridLayout.marginWidth = 0;
         leftComposite.setLayout(gridLayout);
 
-        Composite centerComposite =
-            new Composite(leftCenterRightComposite, SWT.NONE);
+        Composite centerComposite = new Composite(leftCenterRightComposite,
+            SWT.NONE);
         gridLayout = new GridLayout(1, false);
         gridLayout.marginHeight = 0;
         gridLayout.marginWidth = 0;
@@ -166,8 +164,8 @@ public abstract class AbstractWorkingSetPage
         centerComposite.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false,
             false));
 
-        Composite rightComposite =
-            new Composite(leftCenterRightComposite, SWT.NONE);
+        Composite rightComposite = new Composite(leftCenterRightComposite,
+            SWT.NONE);
         gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
         gridData.widthHint = convertWidthInCharsToPixels(40);
         rightComposite.setLayoutData(gridData);
@@ -201,10 +199,8 @@ public abstract class AbstractWorkingSetPage
     public void finish()
     {
         String name = workingSetName.getText();
-        IAdaptable[] elements =
-            getFinalWorkingSetElements(
-                workingSet,
-                selectedElements.toArray(new IAdaptable[selectedElements.size()]));
+        IAdaptable[] elements = getFinalWorkingSetElements(workingSet,
+            selectedElements.toArray(new IAdaptable[selectedElements.size()]));
 
         if (workingSet == null)
         {
@@ -246,7 +242,7 @@ public abstract class AbstractWorkingSetPage
     /**
      * Returns the page id as specified in the extension point
      * <code>org.eclipse.ui.workingSets</code>.
-     * 
+     *
      * @return the page id
      */
     protected abstract String getPageId();
@@ -265,7 +261,7 @@ public abstract class AbstractWorkingSetPage
      *   <li>The viewer comparator</li>
      *   <li>Any viewer filter</li>
      * </ul>
-     * 
+     *
      * @param tree the tree viewer to configure
      * @see #initializeTreeSelection(TreeViewer)
      */
@@ -311,8 +307,8 @@ public abstract class AbstractWorkingSetPage
         IStructuredSelection selection = getInitialSelection();
         if (selection != null && !selection.isEmpty())
         {
-            IAdaptable[] elements =
-                adaptElements(getAdaptables(selection.toArray()));
+            IAdaptable[] elements = adaptElements(getAdaptables(
+                selection.toArray()));
             if (elements.length > 0)
             {
                 tree.setSelection(new StructuredSelection(elements));
@@ -323,7 +319,7 @@ public abstract class AbstractWorkingSetPage
     /**
      * Transforms the supplied elements into elements that are suitable for
      * containment in the working set.
-     * 
+     *
      * @param objects the objects to transform
      * @return an array of transformed elements that may be empty if no elements
      *  from the original array are suitable
@@ -333,10 +329,11 @@ public abstract class AbstractWorkingSetPage
     {
         IWorkingSetManager workingSetManager =
             PlatformUI.getWorkbench().getWorkingSetManager();
-        IWorkingSet workingSet =
-            workingSetManager.createWorkingSet("", NO_ELEMENTS); //$NON-NLS-1$
+        IWorkingSet workingSet = workingSetManager.createWorkingSet("", //$NON-NLS-1$
+            NO_ELEMENTS);
         workingSet.setId(getPageId());
-        ((org.eclipse.ui.internal.AbstractWorkingSet)workingSet).connect(workingSetManager);
+        ((org.eclipse.ui.internal.AbstractWorkingSet)workingSet).connect(
+            workingSetManager);
         try
         {
             return workingSet.adaptElements(objects);
@@ -368,8 +365,8 @@ public abstract class AbstractWorkingSetPage
 
     protected static IAdaptable[] getAdaptables(Object[] elements)
     {
-        ArrayList<IAdaptable> result =
-            new ArrayList<IAdaptable>(elements.length);
+        ArrayList<IAdaptable> result = new ArrayList<IAdaptable>(
+            elements.length);
         for (Object element : elements)
         {
             if (element instanceof IAdaptable)
@@ -408,7 +405,7 @@ public abstract class AbstractWorkingSetPage
      * @param workingSet the working set to configure,
      *  or <code>null</code> if it does not yet exist
      * @param elements the elements explicitly selected by the user
-     *  (never <code>null</code>) 
+     *  (never <code>null</code>)
      * @return the elements to ultimately set into the working set
      *  (not <code>null</code>)
      */
@@ -424,11 +421,10 @@ public abstract class AbstractWorkingSetPage
         label.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, false));
         label.setText(Messages.AbstractWorkingSetPage_workspace_content);
 
-        tree =
-            new TreeViewer(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
-                | SWT.MULTI);
-        tree.getControl().setLayoutData(
-            new GridData(SWT.FILL, SWT.FILL, true, true));
+        tree = new TreeViewer(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
+            | SWT.MULTI);
+        tree.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+            true));
 
         tree.setComparator(new LabelComparator());
         tree.addFilter(new AddedElementsFilter());
@@ -451,19 +447,22 @@ public abstract class AbstractWorkingSetPage
         addButton.setEnabled(!tree.getSelection().isEmpty());
 
         final Button addAllButton = new Button(parent, SWT.PUSH);
-        addAllButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+        addAllButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true,
+            false));
         addAllButton.setText(Messages.AbstractWorkingSetPage_addAll_button);
         addAllButton.setEnabled(tree.getTree().getItems().length > 0);
 
         final Button removeButton = new Button(parent, SWT.PUSH);
-        removeButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+        removeButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true,
+            false));
         removeButton.setText(Messages.AbstractWorkingSetPage_remove_button);
         removeButton.setEnabled(!table.getSelection().isEmpty());
 
         final Button removeAllButton = new Button(parent, SWT.PUSH);
         removeAllButton.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false,
             false));
-        removeAllButton.setText(Messages.AbstractWorkingSetPage_removeAll_button);
+        removeAllButton.setText(
+            Messages.AbstractWorkingSetPage_removeAll_button);
         removeAllButton.setEnabled(!selectedElements.isEmpty());
 
         tree.addSelectionChangedListener(new ISelectionChangedListener()
@@ -614,9 +613,8 @@ public abstract class AbstractWorkingSetPage
         label.setText(Messages.AbstractWorkingSetPage_workingSet_content);
         label.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
-        table =
-            new TableViewer(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
-                | SWT.MULTI);
+        table = new TableViewer(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
+            | SWT.MULTI);
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         table.getControl().setLayoutData(gd);
@@ -673,8 +671,8 @@ public abstract class AbstractWorkingSetPage
 
         firstCheck = false;
 
-        if (errorMessage == null && workingSet != null
-            && !newText.equals(workingSet.getName()))
+        if (errorMessage == null && workingSet != null && !newText.equals(
+            workingSet.getName()))
         {
             IWorkingSet[] workingSets =
                 PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets();
@@ -707,7 +705,8 @@ public abstract class AbstractWorkingSetPage
     private void initializeSelectedElements()
     {
         selectedElements.clear();
-        selectedElements.addAll(Arrays.asList(getInitialWorkingSetElements(workingSet)));
+        selectedElements.addAll(Arrays.asList(getInitialWorkingSetElements(
+            workingSet)));
     }
 
     private class AddedElementsFilter

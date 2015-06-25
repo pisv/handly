@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -36,7 +36,7 @@ import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.HandleManager;
 
 /**
- * The manager for the Java model. 
+ * The manager for the Java model.
  *
  * @threadsafe This class is intended to be thread-safe
  */
@@ -44,7 +44,7 @@ public class JavaModelManager
     implements IResourceChangeListener
 {
     /**
-     * The sole instance of the manager. 
+     * The sole instance of the manager.
      */
     public static final JavaModelManager INSTANCE = new JavaModelManager();
 
@@ -171,7 +171,7 @@ public class JavaModelManager
      * Note that no check is done at this time on the existence
      * or the nature of this project.
      * </p>
-     * 
+     *
      * @param project the given project
      * @param create indicates whether to create the info if it doesn't exist
      * @return the per-project info for the given project, or <code>null</code>
@@ -242,7 +242,8 @@ public class JavaModelManager
                 ResourcesPlugin.getWorkspace().addSaveParticipant(
                     Activator.PLUGIN_ID, new SaveParticipant());
             if (savedState != null)
-                savedState.processResourceChangeEvents(JavaModelManager.INSTANCE);
+                savedState.processResourceChangeEvents(
+                    JavaModelManager.INSTANCE);
             return Status.OK_STATUS;
         }
 
@@ -255,8 +256,7 @@ public class JavaModelManager
             }
 
             @Override
-            public void prepareToSave(ISaveContext context)
-                throws CoreException
+            public void prepareToSave(ISaveContext context) throws CoreException
             {
             }
 

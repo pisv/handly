@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -16,7 +16,7 @@ import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
 
 /**
- * An abstract base class for outline contributions listening to 
+ * An abstract base class for outline contributions listening to
  * {@link IElementChangeEvent}s.
  */
 public abstract class ElementChangeListenerContribution
@@ -69,7 +69,7 @@ public abstract class ElementChangeListenerContribution
      *
      * @param delta never <code>null</code>
      * @param element never <code>null</code>
-     * @return <code>true</code> if the given delta affects the given element, 
+     * @return <code>true</code> if the given delta affects the given element,
      *  <code>false</code> otherwise
      */
     protected boolean affects(IHandleDelta delta, IHandle element)
@@ -102,11 +102,11 @@ public abstract class ElementChangeListenerContribution
         IElementChangeListener listener);
 
     /**
-     * Notifies that the outline page is affected in some way 
-     * by the given element change event. 
+     * Notifies that the outline page is affected in some way
+     * by the given element change event.
      * <p>
-     * <b>Note</b> This method may be called in any thread. 
-     * The event object (and the delta within it) is valid only 
+     * <b>Note</b> This method may be called in any thread.
+     * The event object (and the delta within it) is valid only
      * for the duration of the invocation of this method.
      * </p>
      *

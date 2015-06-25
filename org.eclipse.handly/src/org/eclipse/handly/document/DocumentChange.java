@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -25,7 +25,7 @@ public class DocumentChange
 
     /**
      * Creates a new document change with <code>CREATE_UNDO|UPDATE_REGIONS</code> style.
-     * 
+     *
      * @param edit a text edit - must not be <code>null</code>
      */
     public DocumentChange(TextEdit edit)
@@ -37,7 +37,7 @@ public class DocumentChange
     /**
      * Sets the snapshot on which the change is based.
      *
-     * @param base the snapshot on which the change is based, 
+     * @param base the snapshot on which the change is based,
      *  or <code>null</code> if unknown
      */
     public void setBase(ISnapshot base)

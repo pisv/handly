@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -55,10 +55,10 @@ public class JavaProjectTest
 
         IResource[] nonJavaResources = javaProject.getNonJavaResources();
         assertEquals(2, nonJavaResources.length);
-        assertTrue(Arrays.asList(nonJavaResources).contains(
-            project.getFile(".project")));
-        assertTrue(Arrays.asList(nonJavaResources).contains(
-            project.getFile(".classpath")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
+            ".project")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
+            ".classpath")));
     }
 
     public void test003() throws Exception
@@ -68,21 +68,21 @@ public class JavaProjectTest
 
         IPackageFragmentRoot[] roots = javaProject.getPackageFragmentRoots();
         assertEquals(1, roots.length);
-        IPackageFragmentRoot srcRoot =
-            javaProject.getPackageFragmentRoot(project.getFolder("src"));
+        IPackageFragmentRoot srcRoot = javaProject.getPackageFragmentRoot(
+            project.getFolder("src"));
         assertEquals(srcRoot, roots[0]);
         assertTrue(srcRoot.exists());
 
         IResource[] nonJavaResources = javaProject.getNonJavaResources();
         assertEquals(4, nonJavaResources.length);
-        assertTrue(Arrays.asList(nonJavaResources).contains(
-            project.getFile(".project")));
-        assertTrue(Arrays.asList(nonJavaResources).contains(
-            project.getFile(".classpath")));
-        assertTrue(Arrays.asList(nonJavaResources).contains(
-            project.getFolder("abc")));
-        assertTrue(Arrays.asList(nonJavaResources).contains(
-            project.getFolder("bin")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
+            ".project")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
+            ".classpath")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFolder(
+            "abc")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFolder(
+            "bin")));
     }
 
     public void test004() throws Exception
@@ -92,12 +92,12 @@ public class JavaProjectTest
 
         IPackageFragmentRoot[] roots = javaProject.getPackageFragmentRoots();
         assertEquals(2, roots.length);
-        IPackageFragmentRoot srcRoot =
-            javaProject.getPackageFragmentRoot(project.getFolder("src"));
+        IPackageFragmentRoot srcRoot = javaProject.getPackageFragmentRoot(
+            project.getFolder("src"));
         assertEquals(srcRoot, roots[0]);
         assertTrue(srcRoot.exists());
-        IPackageFragmentRoot srcGenRoot =
-            javaProject.getPackageFragmentRoot(project.getFolder("src-gen"));
+        IPackageFragmentRoot srcGenRoot = javaProject.getPackageFragmentRoot(
+            project.getFolder("src-gen"));
         assertEquals(srcGenRoot, roots[1]);
         assertTrue(srcGenRoot.exists());
 
@@ -142,8 +142,8 @@ public class JavaProjectTest
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
 
         // remove src-gen from classpath
-        classpathFile.setContents(
-            binFolder.getFile("classpath01").getContents(), true, false, null);
+        classpathFile.setContents(binFolder.getFile(
+            "classpath01").getContents(), true, false, null);
 
         roots = javaProject.getPackageFragmentRoots();
         assertEquals(1, roots.length);
@@ -160,8 +160,8 @@ public class JavaProjectTest
             srcGenRoot.getResource()));
 
         // put src-gen back to classpath, this time as the first entry
-        classpathFile.setContents(
-            binFolder.getFile("classpath02").getContents(), true, false, null);
+        classpathFile.setContents(binFolder.getFile(
+            "classpath02").getContents(), true, false, null);
 
         roots = javaProject.getPackageFragmentRoots();
         assertEquals(2, roots.length);

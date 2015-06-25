@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ package org.eclipse.handly.ui.preference;
  * the typed API (e.g. via IBooleanPreference) the values in
  * the PreferenceChangeEvent will be of that type. If they are
  * set using a non typed API (e.g. using the OSGi Preferences)
- * the values will be unconverted Strings.   
+ * the values will be unconverted Strings.
  * </p>
  */
 public final class PreferenceChangeEvent
@@ -38,7 +38,7 @@ public final class PreferenceChangeEvent
 
     /**
      * Returns the changed preference.
-     * 
+     *
      * @return the changed preference (never <code>null</code>)
      */
     public IPreference getPreference()

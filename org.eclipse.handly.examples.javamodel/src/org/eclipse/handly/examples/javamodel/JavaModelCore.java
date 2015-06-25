@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -139,9 +139,9 @@ public class JavaModelCore
         IJavaElement element = create((IFolder)parent);
         if (element == null)
             return null;
-        IPackageFragment pkg =
-            element instanceof IPackageFragment ? (IPackageFragment)element
-                : ((IPackageFragmentRoot)element).getPackageFragment(""); //$NON-NLS-1$
+        IPackageFragment pkg = element instanceof IPackageFragment
+            ? (IPackageFragment)element
+            : ((IPackageFragmentRoot)element).getPackageFragment(""); //$NON-NLS-1$
         return pkg.getCompilationUnit(file.getName());
     }
 

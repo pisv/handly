@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -26,7 +26,7 @@ class SimpleSourceFile
     /**
      * Constructs a handle for a source file with the given parent element and
      * the given underlying workspace file.
-     * 
+     *
      * @param parent the parent of the element,
      *  or <code>null</code> if the element has no parent
      * @param file the workspace file underlying the element (not <code>null</code>)
@@ -37,8 +37,7 @@ class SimpleSourceFile
     }
 
     @Override
-    protected Object createStructuralAst(String source)
-        throws CoreException
+    protected Object createStructuralAst(String source) throws CoreException
     {
         return null;
     }

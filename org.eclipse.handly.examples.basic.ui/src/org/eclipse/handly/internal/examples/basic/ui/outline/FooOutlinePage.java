@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -52,14 +52,14 @@ import com.google.inject.Inject;
 /**
  * Foo Outline page.
  * <p>
- * Note that much of the code is free from specifics of the Foo Model, 
+ * Note that much of the code is free from specifics of the Foo Model,
  * thanks to the uniform API provided by Handly.
  * </p>
- * 
+ *
  * @deprecated This class implements a basic Foo Outline page from scratch.
  *  Since 0.3, you can use Handly outline framework to easily build
  *  outline pages of rich functionality. {@link FooOutlinePage2}
- *  provides an example. 
+ *  provides an example.
  */
 public final class FooOutlinePage
     extends ContentOutlinePage
@@ -194,7 +194,8 @@ public final class FooOutlinePage
             ISelectionProvider selectionProvider =
                 editor.getSite().getSelectionProvider();
             if (selectionProvider instanceof IPostSelectionProvider)
-                ((IPostSelectionProvider)selectionProvider).addPostSelectionChangedListener(editorListener);
+                ((IPostSelectionProvider)selectionProvider).addPostSelectionChangedListener(
+                    editorListener);
             else
                 selectionProvider.addSelectionChangedListener(editorListener);
         }
@@ -205,9 +206,11 @@ public final class FooOutlinePage
             ISelectionProvider selectionProvider =
                 editor.getSite().getSelectionProvider();
             if (selectionProvider instanceof IPostSelectionProvider)
-                ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(editorListener);
+                ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(
+                    editorListener);
             else
-                selectionProvider.removeSelectionChangedListener(editorListener);
+                selectionProvider.removeSelectionChangedListener(
+                    editorListener);
             cancelLinkToOutlineJob();
             super.dispose();
         }
@@ -217,7 +220,8 @@ public final class FooOutlinePage
         {
             super.setLinkWithEditor(enabled);
             if (enabled)
-                linkToOutline(editor.getSite().getSelectionProvider().getSelection());
+                linkToOutline(
+                    editor.getSite().getSelectionProvider().getSelection());
         }
 
         @Override
@@ -293,9 +297,8 @@ public final class FooOutlinePage
                 Object input = treeViewer.getInput();
                 if (!(input instanceof ISourceElement))
                     return Status.OK_STATUS;
-                final ISourceElement element =
-                    SourceElementUtil.getElementAt((ISourceElement)input,
-                        baseSelection.getOffset()); // reconciles the source file as a side effect
+                final ISourceElement element = SourceElementUtil.getElementAt(
+                    (ISourceElement)input, baseSelection.getOffset()); // reconciles the source file as a side effect
                 if (element == null)
                     return Status.OK_STATUS;
                 if (monitor.isCanceled())
@@ -306,10 +309,10 @@ public final class FooOutlinePage
                     public void run()
                     {
                         Control control = treeViewer.getControl();
-                        if (control == null
-                            || control.isDisposed()
+                        if (control == null || control.isDisposed()
                             || !baseSelection.equals(selection)
-                            || !baseSelection.equals(editor.getSelectionProvider().getSelection()))
+                            || !baseSelection.equals(
+                                editor.getSelectionProvider().getSelection()))
                             return; // the world has changed -> no work needs to be done
                         final IStructuredSelection currentSelection =
                             (IStructuredSelection)treeViewer.getSelection();

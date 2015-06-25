@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -30,9 +30,9 @@ class OpenAction
     private IWorkbenchPage page;
 
     /**
-     * Constructs an open action for the given workbench page. 
-     * 
-     * @param page the workbench page to open the editor in 
+     * Constructs an open action for the given workbench page.
+     *
+     * @param page the workbench page to open the editor in
      *  (not <code>null</code>)
      */
     public OpenAction(IWorkbenchPage page)
@@ -59,9 +59,8 @@ class OpenAction
                 IEditorPart editor = null;
                 try
                 {
-                    editor =
-                        IDE.openEditor(page, file,
-                            OpenStrategy.activateOnOpen());
+                    editor = IDE.openEditor(page, file,
+                        OpenStrategy.activateOnOpen());
                 }
                 catch (PartInitException e)
                 {

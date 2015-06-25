@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -18,7 +18,7 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 
 /**
- * Implementation of {@link IWorkingCopyBuffer} delegating to the given 
+ * Implementation of {@link IWorkingCopyBuffer} delegating to the given
  * {@link IBuffer} and the given {@link IWorkingCopyReconciler}.
  */
 public final class DelegatingWorkingCopyBuffer
@@ -31,11 +31,11 @@ public final class DelegatingWorkingCopyBuffer
     private int refCount = 1;
 
     /**
-     * Constructs a new working copy buffer that takes ownership of the given 
-     * delegate buffer. The delegate will be disposed by the created instance 
-     * and must not be disposed by the client who initially obtained the delegate, 
+     * Constructs a new working copy buffer that takes ownership of the given
+     * delegate buffer. The delegate will be disposed by the created instance
+     * and must not be disposed by the client who initially obtained the delegate,
      * even if the constructor throwed an exception.
-     * 
+     *
      * @param delegate the delegate buffer (not <code>null</code>)
      * @param reconciler the working copy reconciler (not <code>null</code>)
      */
@@ -111,8 +111,8 @@ public final class DelegatingWorkingCopyBuffer
             boolean needsReconciling = needsReconciling();
             if (needsReconciling || force)
             {
-                NonExpiringSnapshot snapshot =
-                    new NonExpiringSnapshot(delegate);
+                NonExpiringSnapshot snapshot = new NonExpiringSnapshot(
+                    delegate);
                 reconciler.reconcile(snapshot, !needsReconciling, monitor);
                 reconciledSnapshot = snapshot.getWrappedSnapshot();
             }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ public class ImportContainer
 {
     /**
      * Creates a handle for an import container  with the given parent element.
-     * 
+     *
      * @param parent the parent of the element (not <code>null</code>)
      */
     public ImportContainer(CompilationUnit parent)

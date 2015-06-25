@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -39,7 +39,7 @@ import org.eclipse.core.runtime.jobs.Job;
  * <p>
  * Provides a number of useful methods, such as {@link #setUpProject(String)}.
  * </p><p>
- * Also, in its {@link #setUp()} and {@link #tearDown()} methods, 
+ * Also, in its {@link #setUp()} and {@link #tearDown()} methods,
  * this class enforces some common rules for workspace tests:
  * <ul>
  * <li>each test starts running in a clean workspace with auto-build turned off;</li>
@@ -114,7 +114,7 @@ public abstract class WorkspaceTestCase
 
     /**
      * Shortcut to <code>getWorkspaceRoot().getProject(name)</code>
-     * 
+     *
      * @param name the name of the project
      * @return the project (never <code>null</code>)
      */
@@ -124,10 +124,10 @@ public abstract class WorkspaceTestCase
     }
 
     /**
-     * Creates a new project in the workspace by copying its content from 
-     * the OSGi-bundle of this test case. The content must reside in the folder 
+     * Creates a new project in the workspace by copying its content from
+     * the OSGi-bundle of this test case. The content must reside in the folder
      * <code>/workspace/</code>&lt;project-name&gt; inside the bundle.
-     * 
+     *
      * @param name the name of the project
      * @return the created and opened project (never <code>null</code>)
      * @throws CoreException
@@ -172,7 +172,7 @@ public abstract class WorkspaceTestCase
 
     /**
      * Sets the property "Build Automatically" for the workspace.
-     * 
+     *
      * @param value boolean
      * @throws CoreException
      */
@@ -228,7 +228,8 @@ public abstract class WorkspaceTestCase
      */
     protected final void cleanUpWorkspace() throws CoreException
     {
-        getWorkspaceRoot().delete(IResource.ALWAYS_DELETE_PROJECT_CONTENT, null);
+        getWorkspaceRoot().delete(IResource.ALWAYS_DELETE_PROJECT_CONTENT,
+            null);
     }
 
     /*

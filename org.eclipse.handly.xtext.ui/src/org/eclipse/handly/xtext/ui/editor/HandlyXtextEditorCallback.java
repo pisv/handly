@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -41,10 +41,10 @@ import org.eclipse.xtext.ui.editor.XtextEditor;
 import com.google.inject.Inject;
 
 /**
- * Integrates Xtext editor with Handly working copy management facility. 
+ * Integrates Xtext editor with Handly working copy management facility.
  * Should be used together with {@link HandlyXtextDocument}.
- * Creates a working copy when a source file is opened in Xtext editor. 
- * Discards the working copy when the editor is being disposed. Also, 
+ * Creates a working copy when a source file is opened in Xtext editor.
+ * Discards the working copy when the editor is being disposed. Also,
  * sets the editor highlight range for the currently selected element.
  * <p>
  * Note that this class relies on a language-specific implementation of
@@ -87,8 +87,8 @@ public class HandlyXtextEditorCallback
                     if (file == null)
                         return null;
                     @SuppressWarnings("deprecation")
-                    ISourceFile sourceFile =
-                        sourceFileFactory.getSourceFile(file);
+                    ISourceFile sourceFile = sourceFileFactory.getSourceFile(
+                        file);
                     return sourceFile;
                 }
             };
@@ -123,7 +123,8 @@ public class HandlyXtextEditorCallback
         setHighlightRange(editor, editor.getSelectionProvider().getSelection());
     }
 
-    protected void afterSelectionChange(XtextEditor editor, ISelection selection)
+    protected void afterSelectionChange(XtextEditor editor,
+        ISelection selection)
     {
         setHighlightRange(editor, selection);
     }
@@ -140,8 +141,8 @@ public class HandlyXtextEditorCallback
 
     protected SourceFile getSourceFile(XtextEditor editor)
     {
-        IHandle inputElement =
-            inputElementFactory.getElement(editor.getEditorInput());
+        IHandle inputElement = inputElementFactory.getElement(
+            editor.getEditorInput());
         if (!(inputElement instanceof SourceFile))
             return null;
         return (SourceFile)inputElement;
@@ -164,7 +165,8 @@ public class HandlyXtextEditorCallback
         };
         ISelectionProvider selectionProvider = editor.getSelectionProvider();
         if (selectionProvider instanceof IPostSelectionProvider)
-            ((IPostSelectionProvider)selectionProvider).addPostSelectionChangedListener(listener);
+            ((IPostSelectionProvider)selectionProvider).addPostSelectionChangedListener(
+                listener);
         else
             selectionProvider.addSelectionChangedListener(listener);
         selectionListeners.put(editor, listener);
@@ -178,7 +180,8 @@ public class HandlyXtextEditorCallback
             ISelectionProvider selectionProvider =
                 editor.getSelectionProvider();
             if (selectionProvider instanceof IPostSelectionProvider)
-                ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(listener);
+                ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(
+                    listener);
             else
                 selectionProvider.removeSelectionChangedListener(listener);
         }
@@ -192,9 +195,8 @@ public class HandlyXtextEditorCallback
         {
             try
             {
-                XtextWorkingCopyBuffer buffer =
-                    new XtextWorkingCopyBuffer(sourceFile,
-                        new TextEditorBuffer(editor));
+                XtextWorkingCopyBuffer buffer = new XtextWorkingCopyBuffer(
+                    sourceFile, new TextEditorBuffer(editor));
                 try
                 {
                     sourceFile.becomeWorkingCopy(buffer, null); // will addRef() the buffer
@@ -346,9 +348,9 @@ public class HandlyXtextEditorCallback
 
         private boolean hasWorldChanged(HighlightArgs baseArgs)
         {
-            return baseArgs != args
-                || !baseArgs.sourceFile.equals(getWorkingCopy(editor))
-                || !baseArgs.selection.equals(editor.getSelectionProvider().getSelection());
+            return baseArgs != args || !baseArgs.sourceFile.equals(
+                getWorkingCopy(editor)) || !baseArgs.selection.equals(
+                    editor.getSelectionProvider().getSelection());
         }
     }
 

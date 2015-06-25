@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -25,9 +25,9 @@ public class BufferChange
     private SaveMode saveMode = SaveMode.KEEP_SAVED_STATE;
 
     /**
-     * Creates a new buffer change with <code>CREATE_UNDO|UPDATE_REGIONS</code> 
+     * Creates a new buffer change with <code>CREATE_UNDO|UPDATE_REGIONS</code>
      * style and <code>KEEP_SAVED_STATE</code> save mode.
-     * 
+     *
      * @param edit a text edit (not <code>null</code>)
      */
     public BufferChange(TextEdit edit)
@@ -39,7 +39,7 @@ public class BufferChange
     /**
      * Sets the snapshot on which the change is based.
      *
-     * @param base the snapshot on which the change is based, 
+     * @param base the snapshot on which the change is based,
      *  or <code>null</code> if unknown
      */
     public void setBase(ISnapshot base)
@@ -61,7 +61,7 @@ public class BufferChange
     /**
      * Sets the save mode of the change.
      *
-     * @param saveMode indicates whether the buffer is to be saved 
+     * @param saveMode indicates whether the buffer is to be saved
      *  after the change has been successfully applied
      */
     public void setSaveMode(SaveMode saveMode)

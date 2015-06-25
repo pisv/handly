@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -65,7 +65,7 @@ public class LabelComparator
      *
      * @param viewer
      * @param element
-     * @return the label string for the given viewer element, 
+     * @return the label string for the given viewer element,
      *  or <code>null</code> if no label can be obtained
      */
     protected String getLabel(Viewer viewer, Object element)
@@ -77,7 +77,8 @@ public class LabelComparator
         if (labelProvider instanceof ILabelProvider)
             return ((ILabelProvider)labelProvider).getText(element);
         if (labelProvider instanceof IStyledLabelProvider)
-            return ((IStyledLabelProvider)labelProvider).getStyledText(element).toString();
+            return ((IStyledLabelProvider)labelProvider).getStyledText(
+                element).toString();
         if (labelProvider instanceof DelegatingStyledCellLabelProvider)
             return ((DelegatingStyledCellLabelProvider)labelProvider).getStyledStringProvider().getStyledText(
                 element).toString();

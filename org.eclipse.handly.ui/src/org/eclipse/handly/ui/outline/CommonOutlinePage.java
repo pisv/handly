@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -208,8 +208,8 @@ public abstract class CommonOutlinePage
     }
 
     /**
-     * Completely refreshes this outline page's tree viewer, 
-     * preserving expanded tree paths where possible. 
+     * Completely refreshes this outline page's tree viewer,
+     * preserving expanded tree paths where possible.
      */
     public void refresh()
     {
@@ -294,12 +294,12 @@ public abstract class CommonOutlinePage
     }
 
     /**
-     * Returns whether the given tree item is auto-expandable. This method 
-     * should be consulted by the tree viewer's <code>expandXXX</code> methods. 
-     * If it returns <code>false</code>, the item is to be collapsed, 
+     * Returns whether the given tree item is auto-expandable. This method
+     * should be consulted by the tree viewer's <code>expandXXX</code> methods.
+     * If it returns <code>false</code>, the item is to be collapsed,
      * rather than expanded.
      * <p>
-     * Default implementation returns <code>true</code> for the root item 
+     * Default implementation returns <code>true</code> for the root item
      * and <code>false</code> for all other items. Subclasses may override.
      * </p>
      *
@@ -327,15 +327,16 @@ public abstract class CommonOutlinePage
             actionBars.setGlobalActionHandler(ITextEditorActionConstants.REDO,
                 textEditor.getAction(ITextEditorActionConstants.REDO));
 
-            IAction action =
-                textEditor.getAction(ITextEditorActionConstants.NEXT);
+            IAction action = textEditor.getAction(
+                ITextEditorActionConstants.NEXT);
             actionBars.setGlobalActionHandler(
                 ITextEditorActionDefinitionIds.GOTO_NEXT_ANNOTATION, action);
             actionBars.setGlobalActionHandler(ITextEditorActionConstants.NEXT,
                 action);
             action = textEditor.getAction(ITextEditorActionConstants.PREVIOUS);
             actionBars.setGlobalActionHandler(
-                ITextEditorActionDefinitionIds.GOTO_PREVIOUS_ANNOTATION, action);
+                ITextEditorActionDefinitionIds.GOTO_PREVIOUS_ANNOTATION,
+                action);
             actionBars.setGlobalActionHandler(
                 ITextEditorActionConstants.PREVIOUS, action);
         }
@@ -350,7 +351,8 @@ public abstract class CommonOutlinePage
             {
                 public void run() throws Exception
                 {
-                    ((IOutlineContribution)contribution).init(CommonOutlinePage.this);
+                    ((IOutlineContribution)contribution).init(
+                        CommonOutlinePage.this);
                 }
 
                 public void handleException(Throwable exception)
@@ -404,8 +406,8 @@ public abstract class CommonOutlinePage
 
     private void fireSelectionChanged(ISelection selection)
     {
-        final SelectionChangedEvent event =
-            new SelectionChangedEvent(this, selection);
+        final SelectionChangedEvent event = new SelectionChangedEvent(this,
+            selection);
 
         Object[] listeners = selectionChangedListeners.getListeners();
         for (final Object listener : listeners)
@@ -414,7 +416,8 @@ public abstract class CommonOutlinePage
             {
                 public void run()
                 {
-                    ((ISelectionChangedListener)listener).selectionChanged(event);
+                    ((ISelectionChangedListener)listener).selectionChanged(
+                        event);
                 }
 
                 public void handleException(Throwable exception)
@@ -432,9 +435,9 @@ public abstract class CommonOutlinePage
         extends TreeViewer
     {
         /**
-         * Creates a new tree viewer on the given tree control. 
+         * Creates a new tree viewer on the given tree control.
          * Sets auto-expand level to <code>ALL_LEVELS</code>.
-         * 
+         *
          * @param tree the tree control (not <code>null</code>)
          */
         public OutlineTreeViewer(Tree tree)
@@ -466,7 +469,7 @@ public abstract class CommonOutlinePage
         }
 
         /**
-         * Returns whether the given tree item can be expanded from 
+         * Returns whether the given tree item can be expanded from
          * <code>expandXXX</code> methods.
          * <p>
          * Default implementation simply delegates to {@link CommonOutlinePage#

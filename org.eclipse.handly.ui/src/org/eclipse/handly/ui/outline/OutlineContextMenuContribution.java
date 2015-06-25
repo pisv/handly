@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IWorkbenchActionConstants;
 
 /**
- * A base class for outline context menu contributions. 
+ * A base class for outline context menu contributions.
  * <p>
  * Contributes an empty menu which has no id and is not eligible for extension.
  * Subclasses may override corresponding methods to configure the menu
@@ -37,8 +37,8 @@ public class OutlineContextMenuContribution
     {
         super.init(outlinePage);
 
-        MenuManager manager =
-            new MenuManager(getContextMenuId(), getContextMenuId());
+        MenuManager manager = new MenuManager(getContextMenuId(),
+            getContextMenuId());
         manager.setRemoveAllWhenShown(true);
         manager.addMenuListener(new IMenuListener()
         {
@@ -82,8 +82,8 @@ public class OutlineContextMenuContribution
     }
 
     /**
-     * Returns the unique id to use for registration the context menu with 
-     * the workbench, or <code>null</code> if the menu is not eligible 
+     * Returns the unique id to use for registration the context menu with
+     * the workbench, or <code>null</code> if the menu is not eligible
      * for extension.
      */
     protected String getContextMenuExtensionId()
@@ -92,11 +92,11 @@ public class OutlineContextMenuContribution
     }
 
     /**
-     * Notifies that the context menu of the outline page is about to be 
+     * Notifies that the context menu of the outline page is about to be
      * shown by the given menu manager.
      * <p>
-     * Default implementation contributes <code>IWorkbenchActionConstants.MB_ADDITIONS</code> 
-     * group if the context menu was registered with the workbench for extension. 
+     * Default implementation contributes <code>IWorkbenchActionConstants.MB_ADDITIONS</code>
+     * group if the context menu was registered with the workbench for extension.
      * Subclasses may extend this method and contribute other items.
      * </p>
      *

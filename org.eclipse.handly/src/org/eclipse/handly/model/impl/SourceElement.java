@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ import org.eclipse.handly.util.TextRange;
 
 /**
  * Common superclass of {@link ISourceElement} implementations.
- * 
+ *
  * @see SourceFile
  * @see SourceConstruct
  */
@@ -30,10 +30,10 @@ public abstract class SourceElement
     /**
      * Constructs a handle for a source element with the given parent element
      * and the given name.
-     * 
+     *
      * @param parent the parent of the element,
      *  or <code>null</code> if the element has no parent
-     * @param name the name of the element, or <code>null</code> 
+     * @param name the name of the element, or <code>null</code>
      *  if the element has no name
      */
     public SourceElement(Handle parent, String name)
@@ -137,8 +137,8 @@ public abstract class SourceElement
         ISourceElement[] children = info.getChildren();
         for (ISourceElement child : children)
         {
-            ISourceElement found =
-                ((SourceElement)child).doGetElementAt(position, snapshot);
+            ISourceElement found = ((SourceElement)child).doGetElementAt(
+                position, snapshot);
             if (found != null)
                 return found;
         }

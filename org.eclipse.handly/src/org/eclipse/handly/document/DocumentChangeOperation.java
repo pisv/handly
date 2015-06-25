@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -33,9 +33,9 @@ public class DocumentChangeOperation
     protected final IDocumentChange change;
 
     /**
-     * Creates a new operation that can apply the given change 
+     * Creates a new operation that can apply the given change
      * to the given document.
-     * 
+     *
      * @param document must not be <code>null</code>
      * @param change must not be <code>null</code>
      */
@@ -51,18 +51,18 @@ public class DocumentChangeOperation
     }
 
     /**
-     * Applies the change to the document. Note that an update conflict may occur 
-     * if the document's contents have changed since the inception of the snapshot 
-     * on which the change is based. In that case, a {@link StaleSnapshotException} 
-     * is thrown. 
+     * Applies the change to the document. Note that an update conflict may occur
+     * if the document's contents have changed since the inception of the snapshot
+     * on which the change is based. In that case, a {@link StaleSnapshotException}
+     * is thrown.
      *
      * @return undo change, if requested. Otherwise, <code>null</code>
-     * @throws StaleSnapshotException if the document has changed 
+     * @throws StaleSnapshotException if the document has changed
      *  since the inception of the snapshot on which the change is based
-     * @throws MalformedTreeException if the change's edit tree isn't 
+     * @throws MalformedTreeException if the change's edit tree isn't
      *  in a valid state
-     * @throws BadLocationException if one of the edits in the tree 
-     *  can't be executed 
+     * @throws BadLocationException if one of the edits in the tree
+     *  can't be executed
      */
     public IDocumentChange execute() throws BadLocationException
     {
@@ -70,11 +70,11 @@ public class DocumentChangeOperation
             return applyChange();
 
         IDocumentExtension4 extension = (IDocumentExtension4)document;
-        boolean isLargeEdit =
-            RewriteSessionEditProcessor.isLargeEdit(change.getEdit());
-        DocumentRewriteSessionType type =
-            isLargeEdit ? DocumentRewriteSessionType.UNRESTRICTED
-                : DocumentRewriteSessionType.UNRESTRICTED_SMALL;
+        boolean isLargeEdit = RewriteSessionEditProcessor.isLargeEdit(
+            change.getEdit());
+        DocumentRewriteSessionType type = isLargeEdit
+            ? DocumentRewriteSessionType.UNRESTRICTED
+            : DocumentRewriteSessionType.UNRESTRICTED_SMALL;
         DocumentRewriteSession session = extension.startRewriteSession(type);
         try
         {
@@ -113,8 +113,8 @@ public class DocumentChangeOperation
     protected void checkChange()
     {
         ISnapshot baseSnapshot = change.getBase();
-        if (baseSnapshot != null
-            && !baseSnapshot.isEqualTo(getCurrentSnapshot()))
+        if (baseSnapshot != null && !baseSnapshot.isEqualTo(
+            getCurrentSnapshot()))
         {
             throw new StaleSnapshotException();
         }

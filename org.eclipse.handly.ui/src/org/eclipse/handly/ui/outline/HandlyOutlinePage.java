@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -50,7 +50,8 @@ public abstract class HandlyOutlinePage
     @Override
     protected Object computeInput()
     {
-        return getInputElementFactory().getElement(getEditor().getEditorInput());
+        return getInputElementFactory().getElement(
+            getEditor().getEditorInput());
     }
 
     /**

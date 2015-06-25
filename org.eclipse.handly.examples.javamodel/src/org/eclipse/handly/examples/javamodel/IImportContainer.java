@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -42,7 +42,7 @@ public interface IImportContainer
      *
      * @return the import declarations in this import container
      *  (never <code>null</code>)
-     * @throws CoreException if this element does not exist or if an exception 
+     * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */
     IImportDeclaration[] getImports() throws CoreException;

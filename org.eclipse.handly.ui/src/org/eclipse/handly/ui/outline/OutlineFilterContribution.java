@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -44,20 +44,19 @@ public abstract class OutlineFilterContribution
                         getOutlinePage().getTreeViewer();
                     Control control = treeViewer.getControl();
                     control.setRedraw(false);
-                    BusyIndicator.showWhile(control.getDisplay(),
-                        new Runnable()
+                    BusyIndicator.showWhile(control.getDisplay(), new Runnable()
+                    {
+                        public void run()
                         {
-                            public void run()
-                            {
-                                TreePath[] treePaths =
-                                    treeViewer.getExpandedTreePaths();
-                                if (preference.getValue())
-                                    treeViewer.addFilter(filter);
-                                else
-                                    treeViewer.removeFilter(filter);
-                                treeViewer.setExpandedTreePaths(treePaths);
-                            }
-                        });
+                            TreePath[] treePaths =
+                                treeViewer.getExpandedTreePaths();
+                            if (preference.getValue())
+                                treeViewer.addFilter(filter);
+                            else
+                                treeViewer.removeFilter(filter);
+                            treeViewer.setExpandedTreePaths(treePaths);
+                        }
+                    });
                     control.setRedraw(true);
                 }
             });

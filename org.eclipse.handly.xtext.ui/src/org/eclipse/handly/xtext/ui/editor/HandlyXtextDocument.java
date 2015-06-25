@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -44,9 +44,9 @@ import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 
 /**
- * Extends {@link XtextDocument} for Handly reconciling story. 
+ * Extends {@link XtextDocument} for Handly reconciling story.
  * Implements {@link IHandlyXtextDocument}.
- * 
+ *
  * @noextend This class is not intended to be extended by clients.
  */
 public class HandlyXtextDocument
@@ -169,10 +169,10 @@ public class HandlyXtextDocument
     }
 
     /**
-     * Re-parses the resource so it becomes reconciled with the document contents. 
+     * Re-parses the resource so it becomes reconciled with the document contents.
      * Does nothing if already reconciled. <b>For internal use only.</b>
      *
-     * @param processor the processor to execute the reconciling unit of work 
+     * @param processor the processor to execute the reconciling unit of work
      *  (not <code>null</code>)
      * @return <code>true</code> if the document had any changes to be reconciled,
      *   <code>false</code> otherwise
@@ -196,10 +196,10 @@ public class HandlyXtextDocument
     public IDocumentChange applyChange(IDocumentChange change)
         throws BadLocationException
     {
-        DocumentChangeOperation operation =
-            new DocumentChangeOperation(this, change);
-        UiDocumentChangeRunner runner =
-            new UiDocumentChangeRunner(UiSynchronizer.DEFAULT, operation);
+        DocumentChangeOperation operation = new DocumentChangeOperation(this,
+            change);
+        UiDocumentChangeRunner runner = new UiDocumentChangeRunner(
+            UiSynchronizer.DEFAULT, operation);
         return runner.run();
     }
 
@@ -238,14 +238,14 @@ public class HandlyXtextDocument
     }
 
     /*
-     * Called just after a reconciling operation has been performed. Informs 
-     * that the document's XtextResource contents is based on the given snapshot. 
-     * Notifies reconciling listeners (if any). Should only be called 
-     * in the dynamic context of {@link XtextDocument#internalModify}. 
+     * Called just after a reconciling operation has been performed. Informs
+     * that the document's XtextResource contents is based on the given snapshot.
+     * Notifies reconciling listeners (if any). Should only be called
+     * in the dynamic context of {@link XtextDocument#internalModify}.
      *
      * @param resource the reconciled resource (never <code>null</code>)
      * @param snapshot the reconciled snapshot (never <code>null</code>)
-     * @param forced whether reconciling was forced, i.e. the document has not 
+     * @param forced whether reconciling was forced, i.e. the document has not
      *  changed since it was reconciled the last time
      * @param cancelIndicator a {@link CancelIndicator} (never <code>null</code>)
      */
@@ -285,12 +285,12 @@ public class HandlyXtextDocument
     public interface IReconcilingListener
     {
         /**
-         * Called just after a reconciling operation has been performed. Informs 
+         * Called just after a reconciling operation has been performed. Informs
          * that the given resource contents is based on the given snapshot.
          * <p>
-         * Implementations of this method must not modify the resource and 
-         * must not keep any references to it. The resource is safe to read 
-         * in the dynamic context of the method call. The resource has bindings 
+         * Implementations of this method must not modify the resource and
+         * must not keep any references to it. The resource is safe to read
+         * in the dynamic context of the method call. The resource has bindings
          * to text positions in the given snapshot.
          * </p>
          * <p>
@@ -300,7 +300,7 @@ public class HandlyXtextDocument
          *
          * @param resource the reconciled resource (never <code>null</code>)
          * @param snapshot the reconciled snapshot (never <code>null</code>)
-         * @param forced whether reconciling was forced, i.e. the document 
+         * @param forced whether reconciling was forced, i.e. the document
          *  has not changed since it was reconciled the last time
          * @param cancelIndicator a {@link CancelIndicator} (never <code>null</code>)
          */
@@ -352,9 +352,8 @@ public class HandlyXtextDocument
         public void add(DocumentEvent event)
         {
             snapshotToReconcile = getNonExpiringSnapshot();
-            ReplaceRegion replaceRegion =
-                new ReplaceRegion(event.getOffset(), event.getLength(),
-                    event.getText());
+            ReplaceRegion replaceRegion = new ReplaceRegion(event.getOffset(),
+                event.getLength(), event.getText());
             if (replaceRegionToReconcile == null)
                 replaceRegionToReconcile = replaceRegion;
             else
@@ -413,7 +412,8 @@ public class HandlyXtextDocument
                 catch (Exception e)
                 {
                     // partial parsing failed - performing full reparse
-                    Activator.log(Activator.createErrorStatus(e.getMessage(), e));
+                    Activator.log(Activator.createErrorStatus(e.getMessage(),
+                        e));
                     try
                     {
                         resource.reparse(snapshot.getContents());
@@ -463,8 +463,8 @@ public class HandlyXtextDocument
                 try
                 {
                     // resolve all proxies before model modification
-                    // (otherwise, proxy resolution might throw exceptions 
-                    // due to inconsistency between 'changed' model and 
+                    // (otherwise, proxy resolution might throw exceptions
+                    // due to inconsistency between 'changed' model and
                     // 'old' proxy URIs)
                     EcoreUtil2.resolveAll(resource, CancelIndicator.NullImpl);
 
@@ -483,13 +483,15 @@ public class HandlyXtextDocument
                         IDocumentChange undoChange = applyChange(change);
 
                         if (work instanceof IUndoableUnitOfWork)
-                            ((IUndoableUnitOfWork<T, XtextResource>)work).acceptUndoChange(undoChange);
+                            ((IUndoableUnitOfWork<T, XtextResource>)work).acceptUndoChange(
+                                undoChange);
                     }
                 }
                 catch (Exception e)
                 {
                     // modification failed - restore state
-                    Activator.log(Activator.createErrorStatus(e.getMessage(), e));
+                    Activator.log(Activator.createErrorStatus(e.getMessage(),
+                        e));
                     resource.reparse(reconciledSnapshot.getContents());
                     throw e;
                 }
@@ -553,7 +555,8 @@ public class HandlyXtextDocument
         {
             try
             {
-                EcoreUtil2.resolveLazyCrossReferences(resource, cancelIndicator);
+                EcoreUtil2.resolveLazyCrossReferences(resource,
+                    cancelIndicator);
                 if (dirtyStateEditorSupport != null
                     && !cancelIndicator.isCanceled())
                 {

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Vladimir Piskarev (1C) - adaptation
@@ -16,11 +16,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- * A hashtable that stores a finite number of elements. When an attempt is made 
- * to add values to a full cache, the least recently used values in the cache 
+ * A hashtable that stores a finite number of elements. When an attempt is made
+ * to add values to a full cache, the least recently used values in the cache
  * are discarded to make room for the new values as necessary.
  * <p>
- * This implementation is NOT thread-safe. Synchronization wrappers would 
+ * This implementation is NOT thread-safe. Synchronization wrappers would
  * have to be added to ensure atomic insertions and deletions from the cache.
  * </p>
  * <p>
@@ -94,11 +94,11 @@ public class LruCache<K, V>
     @Override
     public Object clone()
     {
-        LruCache<K, V> newCache = newInstance(this.spaceLimit);
+        LruCache<K, V> newCache = newInstance(spaceLimit);
         LruCacheEntry<K, V> qEntry;
 
         /* Preserve order of entries by copying from oldest to newest */
-        qEntry = this.entryQueueTail;
+        qEntry = entryQueueTail;
         while (qEntry != null)
         {
             newCache.privateAdd(qEntry.key, qEntry.value, qEntry.space);
@@ -116,7 +116,7 @@ public class LruCache<K, V>
      */
     public V get(Object key)
     {
-        LruCacheEntry<K, V> entry = this.entryTable.get(key);
+        LruCacheEntry<K, V> entry = entryTable.get(key);
         if (entry == null)
         {
             return null;
@@ -133,7 +133,7 @@ public class LruCache<K, V>
      */
     public V peek(Object key)
     {
-        LruCacheEntry<K, V> entry = this.entryTable.get(key);
+        LruCacheEntry<K, V> entry = entryTable.get(key);
         if (entry == null)
         {
             return null;
@@ -147,7 +147,7 @@ public class LruCache<K, V>
      */
     public K getKey(K key)
     {
-        LruCacheEntry<K, V> entry = this.entryTable.get(key);
+        LruCacheEntry<K, V> entry = entryTable.get(key);
         if (entry == null)
         {
             return key;
@@ -160,7 +160,7 @@ public class LruCache<K, V>
      */
     public Enumeration<K> keys()
     {
-        return this.entryTable.keys();
+        return entryTable.keys();
     }
 
     /**
@@ -178,24 +178,24 @@ public class LruCache<K, V>
             @Override
             public boolean hasMoreElements()
             {
-                return this.values.hasMoreElements();
+                return values.hasMoreElements();
             }
 
             @Override
             public K nextElement()
             {
-                this.entry = this.values.nextElement();
-                return this.entry.key;
+                entry = values.nextElement();
+                return entry.key;
             }
 
             @Override
             public V getValue()
             {
-                if (this.entry == null)
+                if (entry == null)
                 {
                     throw new java.util.NoSuchElementException();
                 }
-                return this.entry.value;
+                return entry.value;
             }
         };
     }
@@ -214,7 +214,7 @@ public class LruCache<K, V>
 
         /* Check whether there's an entry in the cache */
         newSpace = spaceFor(value);
-        entry = this.entryTable.get(key);
+        entry = entryTable.get(key);
 
         if (entry != null)
         {
@@ -231,7 +231,7 @@ public class LruCache<K, V>
                 updateTimestamp(entry);
                 entry.value = value;
                 entry.space = newSpace;
-                this.currentSpace = newTotal;
+                currentSpace = newTotal;
                 return value;
             }
             else
@@ -255,7 +255,7 @@ public class LruCache<K, V>
      */
     public V remove(Object key)
     {
-        LruCacheEntry<K, V> entry = this.entryTable.get(key);
+        LruCacheEntry<K, V> entry = entryTable.get(key);
         if (entry == null)
         {
             return null;
@@ -270,10 +270,10 @@ public class LruCache<K, V>
      */
     public void flush()
     {
-        this.currentSpace = 0;
-        LruCacheEntry<K, V> entry = this.entryQueueTail; // Remember last entry
-        this.entryTable = new Hashtable<K, LruCacheEntry<K, V>>(); // Clear it out
-        this.entryQueue = this.entryQueueTail = null;
+        currentSpace = 0;
+        LruCacheEntry<K, V> entry = entryQueueTail; // Remember last entry
+        entryTable = new Hashtable<K, LruCacheEntry<K, V>>(); // Clear it out
+        entryQueue = entryQueueTail = null;
         while (entry != null) // send deletion notifications in LRU order
         {
             entry = entry.previous;
@@ -282,7 +282,7 @@ public class LruCache<K, V>
 
     public double fillingRatio()
     {
-        return this.currentSpace * 100.0 / this.spaceLimit;
+        return currentSpace * 100.0 / spaceLimit;
     }
 
     /**
@@ -290,7 +290,7 @@ public class LruCache<K, V>
      */
     public int getCurrentSpace()
     {
-        return this.currentSpace;
+        return currentSpace;
     }
 
     /**
@@ -298,7 +298,7 @@ public class LruCache<K, V>
      */
     public int getNewestTimestampCounter()
     {
-        return this.entryQueue == null ? 0 : this.entryQueue.timestamp;
+        return entryQueue == null ? 0 : entryQueue.timestamp;
     }
 
     /**
@@ -306,7 +306,7 @@ public class LruCache<K, V>
      */
     public int getOldestTimestampCounter()
     {
-        return this.entryQueueTail == null ? 0 : this.entryQueueTail.timestamp;
+        return entryQueueTail == null ? 0 : entryQueueTail.timestamp;
     }
 
     /**
@@ -314,7 +314,7 @@ public class LruCache<K, V>
      */
     public K getOldestElement()
     {
-        return this.entryQueueTail == null ? null : this.entryQueueTail.key;
+        return entryQueueTail == null ? null : entryQueueTail.key;
     }
 
     /**
@@ -322,7 +322,7 @@ public class LruCache<K, V>
      */
     public int getSpaceLimit()
     {
-        return this.spaceLimit;
+        return spaceLimit;
     }
 
     /**
@@ -332,11 +332,11 @@ public class LruCache<K, V>
      */
     public void setSpaceLimit(int limit)
     {
-        if (limit < this.spaceLimit)
+        if (limit < spaceLimit)
         {
-            makeSpace(this.spaceLimit - limit);
+            makeSpace(spaceLimit - limit);
         }
-        this.spaceLimit = limit;
+        spaceLimit = limit;
     }
 
     /**
@@ -381,7 +381,7 @@ public class LruCache<K, V>
         int limit = getSpaceLimit();
 
         /* if space is already available */
-        if (this.currentSpace + space <= limit)
+        if (currentSpace + space <= limit)
         {
             return true;
         }
@@ -393,9 +393,9 @@ public class LruCache<K, V>
         }
 
         /* Free up space by removing oldest entries */
-        while (this.currentSpace + space > limit && this.entryQueueTail != null)
+        while (currentSpace + space > limit && entryQueueTail != null)
         {
-            privateRemoveEntry(this.entryQueueTail, false);
+            privateRemoveEntry(entryQueueTail, false);
         }
         return true;
     }
@@ -418,25 +418,25 @@ public class LruCache<K, V>
     {
         if (!shuffle)
         {
-            this.entryTable.put(entry.key, entry);
-            this.currentSpace += entry.space;
+            entryTable.put(entry.key, entry);
+            currentSpace += entry.space;
         }
 
-        entry.timestamp = this.timestampCounter++;
-        entry.next = this.entryQueue;
+        entry.timestamp = timestampCounter++;
+        entry.next = entryQueue;
         entry.previous = null;
 
-        if (this.entryQueue == null)
+        if (entryQueue == null)
         {
             /* this is the first and last entry */
-            this.entryQueueTail = entry;
+            entryQueueTail = entry;
         }
         else
         {
-            this.entryQueue.previous = entry;
+            entryQueue.previous = entry;
         }
 
-        this.entryQueue = entry;
+        entryQueue = entry;
     }
 
     /**
@@ -444,7 +444,8 @@ public class LruCache<K, V>
      * @param shuffle indicates whether we are just shuffling the queue
      * (in which case, the entry table is not modified).
      */
-    protected void privateRemoveEntry(LruCacheEntry<K, V> entry, boolean shuffle)
+    protected void privateRemoveEntry(LruCacheEntry<K, V> entry,
+        boolean shuffle)
     {
         LruCacheEntry<K, V> previous, next;
 
@@ -453,14 +454,14 @@ public class LruCache<K, V>
 
         if (!shuffle)
         {
-            this.entryTable.remove(entry.key);
-            this.currentSpace -= entry.space;
+            entryTable.remove(entry.key);
+            currentSpace -= entry.space;
         }
 
         /* if this was the first entry */
         if (previous == null)
         {
-            this.entryQueue = next;
+            entryQueue = next;
         }
         else
         {
@@ -470,7 +471,7 @@ public class LruCache<K, V>
         /* if this was the last entry */
         if (next == null)
         {
-            this.entryQueueTail = previous;
+            entryQueueTail = previous;
         }
         else
         {
@@ -484,8 +485,8 @@ public class LruCache<K, V>
      */
     protected void updateTimestamp(LruCacheEntry<K, V> entry)
     {
-        entry.timestamp = this.timestampCounter++;
-        if (this.entryQueue != entry)
+        entry.timestamp = timestampCounter++;
+        if (entryQueue != entry)
         {
             privateRemoveEntry(entry, true);
             privateAddEntry(entry, true);
@@ -508,7 +509,7 @@ public class LruCache<K, V>
     protected String toStringContents()
     {
         StringBuilder result = new StringBuilder();
-        int length = this.entryTable.size();
+        int length = entryTable.size();
         Object[] unsortedKeys = new Object[length];
         String[] unsortedToStrings = new String[length];
         Enumeration<K> e = keys();
@@ -647,22 +648,22 @@ public class LruCache<K, V>
 
         private void add(int counter)
         {
-            for (int i = 0; i <= this.counterIndex; i++)
+            for (int i = 0; i <= counterIndex; i++)
             {
-                if (this.counters[i] == counter)
+                if (counters[i] == counter)
                     return;
             }
-            int length = this.counters.length;
-            if (++this.counterIndex == length)
+            int length = counters.length;
+            if (++counterIndex == length)
             {
-                int newLength = this.counters.length * 2;
-                System.arraycopy(this.counters, 0, this.counters =
+                int newLength = counters.length * 2;
+                System.arraycopy(counters, 0, counters =
                     new int[newLength], 0, length);
-                System.arraycopy(this.timestamps, 0, this.timestamps =
+                System.arraycopy(timestamps, 0, timestamps =
                     new long[newLength], 0, length);
             }
-            this.counters[this.counterIndex] = counter;
-            this.timestamps[this.counterIndex] = System.currentTimeMillis();
+            counters[counterIndex] = counter;
+            timestamps[counterIndex] = System.currentTimeMillis();
         }
 
         private String getAverageAge(long totalTime, int numberOfElements,
@@ -728,28 +729,28 @@ public class LruCache<K, V>
 
         private long getTimestamps(int counter)
         {
-            for (int i = 0; i <= this.counterIndex; i++)
+            for (int i = 0; i <= counterIndex; i++)
             {
-                if (this.counters[i] >= counter)
-                    return this.timestamps[i];
+                if (counters[i] >= counter)
+                    return timestamps[i];
             }
             return -1;
         }
 
         private void removeCountersOlderThan(int counter)
         {
-            for (int i = 0; i <= this.counterIndex; i++)
+            for (int i = 0; i <= counterIndex; i++)
             {
-                if (this.counters[i] >= counter)
+                if (counters[i] >= counter)
                 {
                     if (i > 0)
                     {
-                        int length = this.counterIndex - i + 1;
-                        System.arraycopy(this.counters, i, this.counters, 0,
+                        int length = counterIndex - i + 1;
+                        System.arraycopy(counters, i, counters, 0,
                             length);
-                        System.arraycopy(this.timestamps, i, this.timestamps,
-                            0, length);
-                        this.counterIndex = length;
+                        System.arraycopy(timestamps, i, timestamps, 0,
+                            length);
+                        counterIndex = length;
                     }
                     return;
                 }
@@ -812,7 +813,7 @@ public class LruCache<K, V>
         @Override
         public String toString()
         {
-            return "LRUCacheEntry [" + this.key + "-->" + this.value + "]"; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
+            return "LRUCacheEntry [" + key + "-->" + value + "]"; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
@@ -834,12 +835,12 @@ public class LruCache<K, V>
         public void sort(Object[] unSortedObjects, String[] unsortedStrings)
         {
             int size = unSortedObjects.length;
-            this.sortedObjects = new Object[size];
-            this.sortedStrings = new String[size];
+            sortedObjects = new Object[size];
+            sortedStrings = new String[size];
 
             //copy the array so can return a new sorted collection
-            System.arraycopy(unSortedObjects, 0, this.sortedObjects, 0, size);
-            System.arraycopy(unsortedStrings, 0, this.sortedStrings, 0, size);
+            System.arraycopy(unSortedObjects, 0, sortedObjects, 0, size);
+            System.arraycopy(unsortedStrings, 0, sortedStrings, 0, size);
             if (size > 1)
                 quickSort(0, size - 1);
         }
@@ -861,22 +862,22 @@ public class LruCache<K, V>
             int originalLeft = left;
             int originalRight = right;
             int midIndex = left + (right - left) / 2;
-            String midToString = this.sortedStrings[midIndex];
+            String midToString = sortedStrings[midIndex];
 
             do
             {
-                while (compare(this.sortedStrings[left], midToString))
+                while (compare(sortedStrings[left], midToString))
                     left++;
-                while (compare(midToString, this.sortedStrings[right]))
+                while (compare(midToString, sortedStrings[right]))
                     right--;
                 if (left <= right)
                 {
-                    Object tmp = this.sortedObjects[left];
-                    this.sortedObjects[left] = this.sortedObjects[right];
-                    this.sortedObjects[right] = tmp;
-                    String tmpToString = this.sortedStrings[left];
-                    this.sortedStrings[left] = this.sortedStrings[right];
-                    this.sortedStrings[right] = tmpToString;
+                    Object tmp = sortedObjects[left];
+                    sortedObjects[left] = sortedObjects[right];
+                    sortedObjects[right] = tmp;
+                    String tmpToString = sortedStrings[left];
+                    sortedStrings[left] = sortedStrings[right];
+                    sortedStrings[right] = tmpToString;
                     left++;
                     right--;
                 }

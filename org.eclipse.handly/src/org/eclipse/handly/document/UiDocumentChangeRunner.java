@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -24,9 +24,9 @@ public final class UiDocumentChangeRunner
     private final DocumentChangeOperation operation;
 
     /**
-     * Creates a new runner capable of executing the given document change 
+     * Creates a new runner capable of executing the given document change
      * operation in the UI thread.
-     * 
+     *
      * @param synchronizer used to execute operation in the UI thread
      *  - must not be <code>null</code>
      * @param operation a document change operation
@@ -42,17 +42,17 @@ public final class UiDocumentChangeRunner
     }
 
     /**
-     * Synchronously executes the change to the document in the UI thread. 
-     * Note that an update conflict may occur if the document's contents have 
-     * changed since the inception of the snapshot on which the change is based. 
-     * In that case, a {@link StaleSnapshotException} is thrown. 
+     * Synchronously executes the change to the document in the UI thread.
+     * Note that an update conflict may occur if the document's contents have
+     * changed since the inception of the snapshot on which the change is based.
+     * In that case, a {@link StaleSnapshotException} is thrown.
      *
      * @return undo change, if requested. Otherwise, <code>null</code>
-     * @throws StaleSnapshotException if the document has changed 
+     * @throws StaleSnapshotException if the document has changed
      *  since the inception of the snapshot on which the change is based
-     * @throws MalformedTreeException if the change's edit tree isn't 
+     * @throws MalformedTreeException if the change's edit tree isn't
      *  in a valid state
-     * @throws BadLocationException if one of the edits in the tree 
+     * @throws BadLocationException if one of the edits in the tree
      *  can't be executed
      */
     public IDocumentChange run() throws BadLocationException

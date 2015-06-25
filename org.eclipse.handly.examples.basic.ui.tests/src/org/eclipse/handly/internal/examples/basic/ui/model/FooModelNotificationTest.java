@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -64,8 +64,7 @@ public class FooModelNotificationTest
             listener.delta);
 
         fooFile1.getFile().copy(new Path("/Test002/test1.foo"), true, null);
-        assertDelta(
-            newDelta().insertAdded(fooProject2.getFooFile("test1.foo")),
+        assertDelta(newDelta().insertAdded(fooProject2.getFooFile("test1.foo")),
             listener.delta);
 
         fooFile1.getFile().delete(true, null);
@@ -74,15 +73,13 @@ public class FooModelNotificationTest
         IFooFile fooFile2 = fooProject2.getFooFile("test.foo");
         IFooFile movedFooFile2 = fooProject1.getFooFile("test1.foo");
         fooFile2.getFile().move(new Path("/Test001/test1.foo"), true, null);
-        assertDelta(
-            newDelta().insertMovedTo(movedFooFile2, fooFile2).insertMovedFrom(
-                fooFile2, movedFooFile2), listener.delta);
+        assertDelta(newDelta().insertMovedTo(movedFooFile2,
+            fooFile2).insertMovedFrom(fooFile2, movedFooFile2), listener.delta);
 
         IFolder aFolder = fooProject1.getProject().getFolder("a");
         aFolder.delete(true, null);
-        assertDelta(
-            newDelta().insertChanged(fooProject1, HandleDelta.F_CONTENT),
-            listener.delta);
+        assertDelta(newDelta().insertChanged(fooProject1,
+            HandleDelta.F_CONTENT), listener.delta);
         assertEquals(0, listener.delta.getResourceDeltas().length);
         HandleDelta projectDelta = listener.delta.getDeltaFor(fooProject1);
         assertEquals(1, projectDelta.getResourceDeltas().length);
@@ -92,9 +89,8 @@ public class FooModelNotificationTest
 
         IFile bFile = fooProject1.getProject().getFile("b");
         bFile.touch(null);
-        assertDelta(
-            newDelta().insertChanged(fooProject1, HandleDelta.F_CONTENT),
-            listener.delta);
+        assertDelta(newDelta().insertChanged(fooProject1,
+            HandleDelta.F_CONTENT), listener.delta);
         assertEquals(0, listener.delta.getResourceDeltas().length);
         projectDelta = listener.delta.getDeltaFor(fooProject1);
         assertEquals(1, projectDelta.getResourceDeltas().length);
@@ -126,21 +122,19 @@ public class FooModelNotificationTest
         String[] oldNatures = description.getNatureIds();
         description.setNatureIds(new String[0]);
         fooProject1.getProject().setDescription(description, null);
-        assertDelta(
-            newDelta().insertRemoved(fooProject1, HandleDelta.F_DESCRIPTION),
-            listener.delta);
+        assertDelta(newDelta().insertRemoved(fooProject1,
+            HandleDelta.F_DESCRIPTION), listener.delta);
 
         description.setNatureIds(oldNatures);
         fooProject1.getProject().setDescription(description, null);
-        assertDelta(
-            newDelta().insertAdded(fooProject1, HandleDelta.F_DESCRIPTION),
-            listener.delta);
+        assertDelta(newDelta().insertAdded(fooProject1,
+            HandleDelta.F_DESCRIPTION), listener.delta);
 
         IFooProject movedFooProject1 = fooModel.getFooProject("Test");
         fooProject1.getProject().move(new Path("Test"), true, null);
-        assertDelta(
-            newDelta().insertMovedTo(movedFooProject1, fooProject1).insertMovedFrom(
-                fooProject1, movedFooProject1), listener.delta);
+        assertDelta(newDelta().insertMovedTo(movedFooProject1,
+            fooProject1).insertMovedFrom(fooProject1, movedFooProject1),
+            listener.delta);
     }
 
     private HandleDelta newDelta()

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ import org.eclipse.ui.IContainmentAdapter;
  * to test if a given resource is part of a working set for the model.
  * For instance, it will be used by <code>ResourceWorkingSetFilter</code>.
  * </p>
- * 
+ *
  * @see #getElementFor(IResource)
  */
 public abstract class AbstractContainmentAdapter
@@ -81,8 +81,8 @@ public abstract class AbstractContainmentAdapter
         {
             return true;
         }
-        if (checkIfChild(flags)
-            && workingSetElement.equals(element.getParent()))
+        if (checkIfChild(flags) && workingSetElement.equals(
+            element.getParent()))
         {
             return true;
         }
@@ -119,8 +119,8 @@ public abstract class AbstractContainmentAdapter
         {
             return true;
         }
-        if (checkIfChild(flags)
-            && workingSetResource.equals(resource.getParent()))
+        if (checkIfChild(flags) && workingSetResource.equals(
+            resource.getParent()))
         {
             return true;
         }

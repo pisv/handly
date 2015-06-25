@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -17,7 +17,7 @@ import org.eclipse.handly.snapshot.ISnapshot;
  * Common protocol for elements that may have associated source code.
  * The children are of type {@link ISourceConstruct} and appear
  * in declaration order.
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ISourceElement
@@ -42,7 +42,7 @@ public interface ISourceElement
     /**
      * Returns an object holding cached structure and properties for this element.
      *
-     * @return an object holding cached structure and properties for this element 
+     * @return an object holding cached structure and properties for this element
      *  (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
@@ -51,8 +51,8 @@ public interface ISourceElement
     ISourceElementInfo getSourceElementInfo() throws CoreException;
 
     /**
-     * Represents a named property of the source element. 
-     * 
+     * Represents a named property of the source element.
+     *
      * @param <T> the type of property values
      * @see ISourceElementInfo#get(Property)
      */
@@ -62,7 +62,7 @@ public interface ISourceElement
 
         /**
          * Constructs a new property with the given name.
-         * 
+         *
          * @param name the name of the property (not <code>null</code>)
          */
         public Property(String name)
@@ -74,7 +74,7 @@ public interface ISourceElement
 
         /**
          * Returns the name of the property.
-         * 
+         *
          * @return the property name (never <code>null</code>)
          */
         public String getName()

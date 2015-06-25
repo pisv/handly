@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -29,8 +29,8 @@ class ClasspathUtil
         if (resource.getType() == IResource.FOLDER
             || resource.getType() == IResource.PROJECT)
         {
-            IClasspathEntry entry =
-                findClasspathEntry(classpath, resource.getFullPath());
+            IClasspathEntry entry = findClasspathEntry(classpath,
+                resource.getFullPath());
             if (entry != null
                 && entry.getEntryKind() == IClasspathEntry.CPE_SOURCE)
             {

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -37,14 +37,14 @@ public class TextFileBuffer
     protected final ITextFileBuffer buffer;
 
     /**
-     * Creates a new buffer instance and connects it to the underlying {@link 
-     * ITextFileBuffer} for the given file. It is the client responsibility 
+     * Creates a new buffer instance and connects it to the underlying {@link
+     * ITextFileBuffer} for the given file. It is the client responsibility
      * to {@link #dispose() close} the buffer after it is no longer needed.
-     * 
+     *
      * @param file the text file (not <code>null</code>)
      * @param bufferManager the manager of the underlying file buffer
      *  (not <code>null</code>)
-     * @param monitor a progress monitor to report progress, 
+     * @param monitor a progress monitor to report progress,
      *  or <code>null</code> if no progress reporting is desired
      * @throws CoreException if the buffer could not be connected
      */
@@ -56,9 +56,8 @@ public class TextFileBuffer
         if ((this.bufferManager = bufferManager) == null)
             throw new IllegalArgumentException();
         bufferManager.connect(file.getFullPath(), LocationKind.IFILE, monitor);
-        buffer =
-            bufferManager.getTextFileBuffer(file.getFullPath(),
-                LocationKind.IFILE);
+        buffer = bufferManager.getTextFileBuffer(file.getFullPath(),
+            LocationKind.IFILE);
     }
 
     @Override
@@ -88,8 +87,8 @@ public class TextFileBuffer
             if (!buffer.isSynchronizationContextRequested())
                 return operation.execute(monitor);
 
-            UiBufferChangeRunner runner =
-                new UiBufferChangeRunner(UiSynchronizer.DEFAULT, operation);
+            UiBufferChangeRunner runner = new UiBufferChangeRunner(
+                UiSynchronizer.DEFAULT, operation);
             return runner.run(monitor);
         }
         catch (MalformedTreeException e)

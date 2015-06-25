@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -42,7 +42,7 @@ public class SourceElementLinkingHelper
     /**
      * Creates a new linking helper for the given outline page
      * that is based on <code>ISourceElement</code>.
-     * 
+     *
      * @param outlinePage not <code>null</code>
      * @param factory {@link IElementForEditorInputFactory}
      */
@@ -102,8 +102,8 @@ public class SourceElementLinkingHelper
         ISourceElement sourceElement = (ISourceElement)element;
         if (!isInEditor(sourceElement, editor))
             return;
-        TextRange identifyingRange =
-            SourceElementUtil.getIdentifyingRange(sourceElement);
+        TextRange identifyingRange = SourceElementUtil.getIdentifyingRange(
+            sourceElement);
         if (identifyingRange == null)
             return;
         editor.selectAndReveal(identifyingRange.getOffset(),
@@ -116,7 +116,7 @@ public class SourceElementLinkingHelper
      *
      * @param selection the selection in the editor
      *  (never <code>null</code>, never empty)
-     * @return the outline selection corresponding to the given selection 
+     * @return the outline selection corresponding to the given selection
      *  in the editor, or <code>null</code>
      */
     protected IStructuredSelection getLinkedSelection(ISelection selection)
@@ -129,17 +129,17 @@ public class SourceElementLinkingHelper
     }
 
     /**
-     * Returns the outline selection corresponding to the given text selection 
+     * Returns the outline selection corresponding to the given text selection
      * in the editor.
      * <p>
-     * Default implementation returns the selection consisting of the smallest 
-     * {@link ISourceElement} that includes the offset of the given selection, 
+     * Default implementation returns the selection consisting of the smallest
+     * {@link ISourceElement} that includes the offset of the given selection,
      * or <code>null</code> if none.
      * </p>
      *
      * @param selection the text selection in the editor
      *  (never <code>null</code>, never empty)
-     * @return the outline selection corresponding to the given selection 
+     * @return the outline selection corresponding to the given selection
      *  in the editor, or <code>null</code>
      */
     protected IStructuredSelection getLinkedSelection(ITextSelection selection)
@@ -147,9 +147,8 @@ public class SourceElementLinkingHelper
         Object input = getOutlinePage().getTreeViewer().getInput();
         if (!(input instanceof ISourceElement))
             return null;
-        ISourceElement element =
-            SourceElementUtil.getElementAt((ISourceElement)input,
-                selection.getOffset());
+        ISourceElement element = SourceElementUtil.getElementAt(
+            (ISourceElement)input, selection.getOffset());
         if (element == null)
             return null;
         return new StructuredSelection(element);
@@ -158,8 +157,8 @@ public class SourceElementLinkingHelper
     /**
      * Returns the editor the outline should be linked to.
      * <p>
-     * Default implementation returns the editor that created the outline page 
-     * or, if that editor is a multi-page editor, the currently selected 
+     * Default implementation returns the editor that created the outline page
+     * or, if that editor is a multi-page editor, the currently selected
      * editor page.
      * </p>
      *
@@ -192,8 +191,8 @@ public class SourceElementLinkingHelper
      */
     protected boolean isInEditor(IHandle element, IEditorPart editor)
     {
-        IHandle inputElement =
-            inputElementFactory.getElement(editor.getEditorInput());
+        IHandle inputElement = inputElementFactory.getElement(
+            editor.getEditorInput());
         while (element != null)
         {
             if (element.equals(inputElement))
@@ -243,8 +242,8 @@ public class SourceElementLinkingHelper
             if (!(baseInput instanceof ISourceElement))
                 return Status.OK_STATUS;
 
-            final IStructuredSelection linkedSelection =
-                getLinkedSelection(baseSelection);
+            final IStructuredSelection linkedSelection = getLinkedSelection(
+                baseSelection);
 
             if (linkedSelection == null)
                 return Status.OK_STATUS;
@@ -258,10 +257,10 @@ public class SourceElementLinkingHelper
                     Control control = getOutlinePage().getControl();
                     TreeViewer treeViewer = getOutlinePage().getTreeViewer();
                     IEditorPart editor = getOutlinePage().getEditor();
-                    if (control == null
-                        || control.isDisposed()
+                    if (control == null || control.isDisposed()
                         || !baseSelection.equals(selection)
-                        || !baseSelection.equals(editor.getSite().getSelectionProvider().getSelection()))
+                        || !baseSelection.equals(
+                            editor.getSite().getSelectionProvider().getSelection()))
                         return; // the world has changed -> no work needs to be done
                     final IStructuredSelection currentSelection =
                         (IStructuredSelection)treeViewer.getSelection();

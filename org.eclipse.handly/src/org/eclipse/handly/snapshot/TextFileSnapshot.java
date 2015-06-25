@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -42,7 +42,7 @@ public final class TextFileSnapshot
      * Takes a snapshot of the given text file in the workspace,
      * using workspace contents (as opposed to the contents of
      * the local file system).
-     * 
+     *
      * @param file must not be <code>null</code>
      * @deprecated Please use {@link #TextFileSnapshot(IFile, boolean)} instead.
      */
@@ -85,7 +85,8 @@ public final class TextFileSnapshot
             {
                 String currentContents = readContents();
                 if (isSynchronized()) // still current
-                    contents = new SoftReference<String>(result = currentContents);
+                    contents = new SoftReference<String>(result =
+                        currentContents);
             }
             catch (CoreException e)
             {
@@ -157,9 +158,9 @@ public final class TextFileSnapshot
             InputStream stream = file.getContents(local);
             try
             {
-                InputStreamReader reader =
-                    (encoding == null ? new InputStreamReader(stream)
-                        : new InputStreamReader(stream, encoding));
+                InputStreamReader reader = (encoding == null
+                    ? new InputStreamReader(stream) : new InputStreamReader(
+                        stream, encoding));
                 try
                 {
                     return String.valueOf(getInputStreamAsCharArray(stream,
@@ -190,15 +191,14 @@ public final class TextFileSnapshot
         int amountRead = -1;
         do
         {
-            int amountRequested =
-                Math.max(stream.available(), DEFAULT_READING_SIZE); // read at least 8K
+            int amountRequested = Math.max(stream.available(),
+                DEFAULT_READING_SIZE); // read at least 8K
 
             // resize contents if needed
             if (contentsLength + amountRequested > contents.length)
             {
-                System.arraycopy(contents, 0, contents =
-                    new char[contentsLength + amountRequested], 0,
-                    contentsLength);
+                System.arraycopy(contents, 0, contents = new char[contentsLength
+                    + amountRequested], 0, contentsLength);
             }
 
             // read as many chars as possible
@@ -214,7 +214,8 @@ public final class TextFileSnapshot
 
         // Do not keep first character for UTF-8 BOM encoding
         int start = 0;
-        if (contentsLength > 0 && "UTF-8".equals(reader.getEncoding())) { //$NON-NLS-1$
+        if (contentsLength > 0 && "UTF-8".equals(reader.getEncoding())) //$NON-NLS-1$
+        {
             if (contents[0] == 0xFEFF)
             { // if BOM char then skip
                 contentsLength--;

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -39,7 +39,7 @@ public class SourceFileDocumentProvider
 
     /**
      * Creates a new source file document provider with no parent.
-     * 
+     *
      * @param factory {@link IElementForEditorInputFactory}
      */
     public SourceFileDocumentProvider(IElementForEditorInputFactory factory)
@@ -87,9 +87,9 @@ public class SourceFileDocumentProvider
         SourceFile sourceFile = getSourceFile(element);
         if (sourceFile == null)
             return null;
-        IWorkingCopyBuffer buffer =
-            new DelegatingWorkingCopyBuffer(sourceFile.openBuffer(null),
-                createWorkingCopyReconciler(sourceFile, element));
+        IWorkingCopyBuffer buffer = new DelegatingWorkingCopyBuffer(
+            sourceFile.openBuffer(null), createWorkingCopyReconciler(sourceFile,
+                element));
         try
         {
             sourceFile.becomeWorkingCopy(buffer, null); // will addRef() the buffer
@@ -122,8 +122,8 @@ public class SourceFileDocumentProvider
     {
         if (!(element instanceof IEditorInput))
             return null;
-        IHandle inputElement =
-            inputElementFactory.getElement((IEditorInput)element);
+        IHandle inputElement = inputElementFactory.getElement(
+            (IEditorInput)element);
         if (!(inputElement instanceof SourceFile))
             return null;
         return (SourceFile)inputElement;

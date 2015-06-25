@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -45,12 +45,10 @@ public class WorkingCopyNotificationTest
     {
         super.setUp();
         IProject project = setUpProject("Test010");
-        workingCopy =
-            (CompilationUnit)JavaModelCore.createCompilationUnitFrom(project.getFile(new Path(
-                "src/X.java")));
-        buffer =
-            new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
-                new WorkingCopyReconciler(workingCopy));
+        workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
+            project.getFile(new Path("src/X.java")));
+        buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
+            new WorkingCopyReconciler(workingCopy));
         workingCopy.getRoot().addElementChangeListener(listener);
     }
 
@@ -113,9 +111,8 @@ public class WorkingCopyNotificationTest
                 IType typeX = workingCopy.getType("X");
                 TextRange r =
                     typeX.getSourceElementInfo().getIdentifyingRange();
-                BufferChange change =
-                    new BufferChange(new ReplaceEdit(r.getOffset(),
-                        r.getLength(), "Y"));
+                BufferChange change = new BufferChange(new ReplaceEdit(
+                    r.getOffset(), r.getLength(), "Y"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -144,9 +141,8 @@ public class WorkingCopyNotificationTest
 
                 IField fieldX = workingCopy.getType("X").getField("x");
                 TextRange r = fieldX.getSourceElementInfo().getFullRange();
-                BufferChange change =
-                    new BufferChange(new DeleteEdit(r.getOffset(),
-                        r.getLength()));
+                BufferChange change = new BufferChange(new DeleteEdit(
+                    r.getOffset(), r.getLength()));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -164,8 +160,8 @@ public class WorkingCopyNotificationTest
 
                 listener.delta = null;
 
-                change =
-                    new BufferChange(new InsertEdit(r.getOffset(), "int y;"));
+                change = new BufferChange(new InsertEdit(r.getOffset(),
+                    "int y;"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -192,13 +188,11 @@ public class WorkingCopyNotificationTest
             {
                 listener.delta = null;
 
-                IMethod methodFI =
-                    workingCopy.getType("X").getMethod("f",
-                        new String[] { "I" });
+                IMethod methodFI = workingCopy.getType("X").getMethod("f",
+                    new String[] { "I" });
                 TextRange r = methodFI.getSourceElementInfo().getFullRange();
-                BufferChange change =
-                    new BufferChange(new ReplaceEdit(r.getOffset(),
-                        r.getLength(), "void f() {}"));
+                BufferChange change = new BufferChange(new ReplaceEdit(
+                    r.getOffset(), r.getLength(), "void f() {}"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 
@@ -226,13 +220,11 @@ public class WorkingCopyNotificationTest
             {
                 listener.delta = null;
 
-                IMethod methodFI =
-                    workingCopy.getType("X").getMethod("f",
-                        new String[] { "I" });
+                IMethod methodFI = workingCopy.getType("X").getMethod("f",
+                    new String[] { "I" });
                 TextRange r = methodFI.getSourceElementInfo().getFullRange();
-                BufferChange change =
-                    new BufferChange(new ReplaceEdit(r.getOffset(),
-                        r.getLength(), "void f(int y) {}")); // renamed arg
+                BufferChange change = new BufferChange(new ReplaceEdit(
+                    r.getOffset(), r.getLength(), "void f(int y) {}")); // renamed arg
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                 buffer.applyChange(change, null);
 

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -41,9 +41,8 @@ public abstract class ProblemLabelDecorator
         if (severity == null)
             return null;
 
-        return (Image)getResourceManager().get(
-            new DecorationOverlayIcon(image, getOverlayImage(severity),
-                IDecoration.BOTTOM_LEFT));
+        return (Image)getResourceManager().get(new DecorationOverlayIcon(image,
+            getOverlayImage(severity), IDecoration.BOTTOM_LEFT));
     }
 
     @Override
@@ -104,8 +103,8 @@ public abstract class ProblemLabelDecorator
     private ResourceManager getResourceManager()
     {
         if (resourceManager == null)
-            resourceManager =
-                new LocalResourceManager(JFaceResources.getResources());
+            resourceManager = new LocalResourceManager(
+                JFaceResources.getResources());
         return resourceManager;
     }
 
@@ -122,7 +121,7 @@ public abstract class ProblemLabelDecorator
          *
          * @param a may be <code>null</code>
          * @param b may be <code>null</code>
-         * @return the more severe of <code>a</code> and <code>b</code>. 
+         * @return the more severe of <code>a</code> and <code>b</code>.
          *  Returns <code>null</code> iff both values are <code>null</code>
          */
         public static Severity max(Severity a, Severity b)

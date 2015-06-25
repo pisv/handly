@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -16,7 +16,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * Contributes link-with-editor action, if the outline page supports 
+ * Contributes link-with-editor action, if the outline page supports
  * linking with editor.
  */
 public class LinkWithEditorActionContribution
@@ -38,7 +38,8 @@ public class LinkWithEditorActionContribution
     {
         action.setId(ID);
         action.setText(Messages.LinkWithEditorActionContribution_text);
-        action.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
-            ISharedImages.IMG_ELCL_SYNCED));
+        action.setImageDescriptor(
+            PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(
+                ISharedImages.IMG_ELCL_SYNCED));
     }
 }

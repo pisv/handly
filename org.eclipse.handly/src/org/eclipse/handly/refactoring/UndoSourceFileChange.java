@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -105,25 +105,23 @@ class UndoSourceFileChange
         pm.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            IBuffer buffer =
-                sourceFile.openBuffer(new SubProgressMonitor(pm, 1));
+            IBuffer buffer = sourceFile.openBuffer(new SubProgressMonitor(pm,
+                1));
             try
             {
                 IBufferChange redoChange;
 
                 try
                 {
-                    redoChange =
-                        buffer.applyChange(undoChange, new SubProgressMonitor(
-                            pm, 1));
+                    redoChange = buffer.applyChange(undoChange,
+                        new SubProgressMonitor(pm, 1));
                 }
                 catch (StaleSnapshotException e)
                 {
-                    throw new CoreException(
-                        Activator.createErrorStatus(
-                            MessageFormat.format(
-                                Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
-                                sourceFile.getPath().makeRelative()), e));
+                    throw new CoreException(Activator.createErrorStatus(
+                        MessageFormat.format(
+                            Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
+                            sourceFile.getPath().makeRelative()), e));
                 }
 
                 return new UndoSourceFileChange(getName(), sourceFile,

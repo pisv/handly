@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ import org.eclipse.ui.IWorkingSetElementAdapter;
  * That adapter will then be used by the workbench to help manage addition
  * of elements to working sets for the model.
  * </p>
- * 
+ *
  * @see #isModelElement(IAdaptable)
  * @see #adaptFromResource(IResource)
  */
@@ -75,7 +75,7 @@ public abstract class AbstractWorkingSetElementAdapter
      *
      * @param element (never <code>null</code>)
      * @return <code>true</code> if the given element is native to the model;
-     *  <code>false</code> otherwise 
+     *  <code>false</code> otherwise
      */
     protected abstract boolean isModelElement(IAdaptable element);
 

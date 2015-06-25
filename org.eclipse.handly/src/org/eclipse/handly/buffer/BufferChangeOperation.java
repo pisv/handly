@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -27,9 +27,9 @@ import org.eclipse.text.edits.TextEditProcessor;
 import org.eclipse.text.edits.UndoEdit;
 
 /**
- * Applies the given change to the given document buffer. 
- * This class is intended to be used in buffer implementations. 
- * General clients should use {@link IBuffer#applyChange(IBufferChange, 
+ * Applies the given change to the given document buffer.
+ * This class is intended to be used in buffer implementations.
+ * General clients should use {@link IBuffer#applyChange(IBufferChange,
  * IProgressMonitor)} instead.
  */
 public class BufferChangeOperation
@@ -38,9 +38,9 @@ public class BufferChangeOperation
     protected final IBufferChange change;
 
     /**
-     * Creates a new operation that can apply the given change 
+     * Creates a new operation that can apply the given change
      * to the given buffer.
-     * 
+     *
      * @param buffer must not be <code>null</code>
      * @param change must not be <code>null</code>
      */
@@ -56,34 +56,34 @@ public class BufferChangeOperation
     }
 
     /**
-     * Applies the change to the buffer. Note that an update conflict may occur 
-     * if the buffer's contents have changed since the inception of the snapshot 
-     * on which the change is based. In that case, a {@link StaleSnapshotException} 
-     * is thrown. 
+     * Applies the change to the buffer. Note that an update conflict may occur
+     * if the buffer's contents have changed since the inception of the snapshot
+     * on which the change is based. In that case, a {@link StaleSnapshotException}
+     * is thrown.
      *
      * @param monitor a progress monitor (not <code>null</code>)
      * @return undo change, if requested. Otherwise, <code>null</code>
-     * @throws StaleSnapshotException if the buffer has changed 
+     * @throws StaleSnapshotException if the buffer has changed
      *  since the inception of the snapshot on which the change is based
      * @throws CoreException in case of underlying resource failure
-     * @throws MalformedTreeException if the change's edit tree isn't 
+     * @throws MalformedTreeException if the change's edit tree isn't
      *  in a valid state
-     * @throws BadLocationException if one of the edits in the tree 
-     *  can't be executed 
+     * @throws BadLocationException if one of the edits in the tree
+     *  can't be executed
      */
-    public IBufferChange execute(IProgressMonitor monitor)
-        throws CoreException, BadLocationException
+    public IBufferChange execute(IProgressMonitor monitor) throws CoreException,
+        BadLocationException
     {
         if (!(buffer.getDocument() instanceof IDocumentExtension4))
             return applyChange(monitor);
 
         IDocumentExtension4 extension =
             (IDocumentExtension4)buffer.getDocument();
-        boolean isLargeEdit =
-            RewriteSessionEditProcessor.isLargeEdit(change.getEdit());
-        DocumentRewriteSessionType type =
-            isLargeEdit ? DocumentRewriteSessionType.UNRESTRICTED
-                : DocumentRewriteSessionType.UNRESTRICTED_SMALL;
+        boolean isLargeEdit = RewriteSessionEditProcessor.isLargeEdit(
+            change.getEdit());
+        DocumentRewriteSessionType type = isLargeEdit
+            ? DocumentRewriteSessionType.UNRESTRICTED
+            : DocumentRewriteSessionType.UNRESTRICTED_SMALL;
         DocumentRewriteSession session = extension.startRewriteSession(type);
         try
         {
@@ -113,8 +113,8 @@ public class BufferChangeOperation
                 ((UndoChange)change).stampToRestore);
         }
 
-        if (change.getSaveMode() == SaveMode.FORCE_SAVE
-            || (saved && change.getSaveMode() == SaveMode.KEEP_SAVED_STATE))
+        if (change.getSaveMode() == SaveMode.FORCE_SAVE || (saved
+            && change.getSaveMode() == SaveMode.KEEP_SAVED_STATE))
         {
             buffer.save(false, pm);
         }

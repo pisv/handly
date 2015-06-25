@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -17,8 +17,8 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 /**
- * Represents a common outline page. 
- * 
+ * Represents a common outline page.
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
@@ -28,15 +28,15 @@ public interface ICommonOutlinePage
     /**
      * Returns the tree viewer of this outline page.
      *
-     * @return the tree viewer of this outline page, 
+     * @return the tree viewer of this outline page,
      *  or <code>null</code> if it has not been created yet
      */
     TreeViewer getTreeViewer();
 
     /**
-     * Initializes this outline page with its corresponding editor. 
-     * This method should be called by the editor shortly after 
-     * page construction. Specifically, it must be called before 
+     * Initializes this outline page with its corresponding editor.
+     * This method should be called by the editor shortly after
+     * page construction. Specifically, it must be called before
      * the page's control is created.
      *
      * @param editor the editor which created this outline page
@@ -47,13 +47,13 @@ public interface ICommonOutlinePage
     /**
      * Returns the editor which created this outline page.
      *
-     * @return the editor which created this outline page, 
+     * @return the editor which created this outline page,
      *  or <code>null</code> if it has not been set yet
      */
     IEditorPart getEditor();
 
     /**
-     * Adds the given outline contribution. This method has no effect 
+     * Adds the given outline contribution. This method has no effect
      * if the contribution is already registered.
      *
      * @param contribution not <code>null</code>
@@ -61,7 +61,7 @@ public interface ICommonOutlinePage
     void addOutlineContribution(IOutlineContribution contribution);
 
     /**
-     * Removes the given outline contribution. This method has no effect 
+     * Removes the given outline contribution. This method has no effect
      * if the contribution was not already registered.
      *
      * @param contribution not <code>null</code>
@@ -85,20 +85,20 @@ public interface ICommonOutlinePage
     void removeInputChangeListener(IOutlineInputChangeListener listener);
 
     /**
-     * Returns link-with-editor preference for this outline page. 
+     * Returns link-with-editor preference for this outline page.
      *
-     * @return link-with-editor preference for this outline page, 
-     *  or <code>null</code> if the outline page does not support 
+     * @return link-with-editor preference for this outline page,
+     *  or <code>null</code> if the outline page does not support
      *  linking with editor
      */
     IBooleanPreference getLinkWithEditorPreference();
 
     /**
-     * Returns lexical sort preference for this outline page. 
+     * Returns lexical sort preference for this outline page.
      *
-     * @return lexical sort preference for this outline page, 
-     *  or <code>null</code> if the outline page does not support 
-     *  lexical sorting 
+     * @return lexical sort preference for this outline page,
+     *  or <code>null</code> if the outline page does not support
+     *  lexical sorting
      */
     IBooleanPreference getLexicalSortPreference();
 }

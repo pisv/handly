@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -41,7 +41,7 @@ public interface IFooDef
      * Returns the names of parameters in this function.
      * Returns an empty array if this function has no parameters.
      *
-     * @return the names of parameters in this function; an empty array 
+     * @return the names of parameters in this function; an empty array
      *  if this function has no parameters (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -55,18 +55,19 @@ public class PackageFragmentBody
         if (members.length == 0)
             return NO_NON_JAVA_RESOURCES;
         ArrayList<Object> result = new ArrayList<Object>();
-        JavaProject javaProject =
-            packageFragment.getAncestor(JavaProject.class);
-        String sourceLevel =
-            javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
-        String complianceLevel =
-            javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+        JavaProject javaProject = packageFragment.getAncestor(
+            JavaProject.class);
+        String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE,
+            true);
+        String complianceLevel = javaProject.getOption(
+            JavaCore.COMPILER_COMPLIANCE, true);
         for (IResource member : members)
         {
             if (member.getType() == IResource.FILE)
             {
                 if (JavaConventions.validateCompilationUnitName(
-                    member.getName(), sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR)
+                    member.getName(), sourceLevel,
+                    complianceLevel).getSeverity() != IStatus.ERROR)
                 {
                     continue; // ignore .java files
                 }
@@ -74,7 +75,8 @@ public class PackageFragmentBody
             else if (member.getType() == IResource.FOLDER)
             {
                 if (JavaConventions.validateIdentifier(member.getName(),
-                    sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR)
+                    sourceLevel,
+                    complianceLevel).getSeverity() != IStatus.ERROR)
                 {
                     continue; // ignore valid packages
                 }

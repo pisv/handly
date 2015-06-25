@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ import org.eclipse.ui.navigator.CommonNavigator;
 /**
  * Foo Navigator view.
  * <p>
- * Note that elements inside a Foo file are automagically reconciled 
+ * Note that elements inside a Foo file are automagically reconciled
  * with the Foo editor's contents, thanks to Handly/Xtext integration.
  * </p>
  */
@@ -56,7 +56,7 @@ public class FooNavigator
     {
         // NOTE: don't hold on the event or its delta.
         // The delta is only valid during the dynamic scope of the notification.
-        // In particular, don't pass it to another thread (e.g. via asyncExec). 
+        // In particular, don't pass it to another thread (e.g. via asyncExec).
         final Control control = getCommonViewer().getControl();
         control.getDisplay().asyncExec(new Runnable()
         {
@@ -85,7 +85,7 @@ public class FooNavigator
             public void run()
             {
                 TreePath[] treePaths = getCommonViewer().getExpandedTreePaths();
-                getCommonViewer().refresh(); 
+                getCommonViewer().refresh();
                 getCommonViewer().setExpandedTreePaths(treePaths);
             }
         });

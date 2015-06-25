@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
@@ -35,10 +35,10 @@ class FooFileStructureBuilder
 
     /**
      * Constructs a new Foo file structure builder.
-     * 
-     * @param newElements the map to populate with stucture elements 
+     *
+     * @param newElements the map to populate with stucture elements
      *  (not <code>null</code>)
-     * @param resourceServiceProvider Xtext's {@link IResourceServiceProvider} 
+     * @param resourceServiceProvider Xtext's {@link IResourceServiceProvider}
      *  for the language (not <code>null</code>)
      */
     FooFileStructureBuilder(Map<IHandle, Body> newElements,
@@ -47,12 +47,12 @@ class FooFileStructureBuilder
         super(newElements);
         if (resourceServiceProvider == null)
             throw new IllegalArgumentException();
-        this.locationProvider =
-            resourceServiceProvider.get(ILocationInFileProvider.class);
+        this.locationProvider = resourceServiceProvider.get(
+            ILocationInFileProvider.class);
     }
 
     /**
-     * Builds the structure for the given {@link FooFile} based on 
+     * Builds the structure for the given {@link FooFile} based on
      * its {@link Module AST}.
      *
      * @param handle the handle to a Foo file (not <code>null</code>)
@@ -91,8 +91,8 @@ class FooFileStructureBuilder
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getFullRange(def));
         body.setIdentifyingRange(getIdentifyingRange(def));
-        body.set(FooDef.PARAMETER_NAMES,
-            def.getParams().toArray(new String[arity]));
+        body.set(FooDef.PARAMETER_NAMES, def.getParams().toArray(
+            new String[arity]));
         addChild(parentBody, handle, body);
         complete(body);
     }
