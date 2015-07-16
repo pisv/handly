@@ -13,6 +13,9 @@ package org.eclipse.handly.ui.quickoutline;
 import org.eclipse.handly.internal.ui.SourceElementUtil;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.model.adapter.ContentAdapterUtil;
+import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.ITextSelection;
@@ -25,6 +28,7 @@ import org.eclipse.jface.viewers.ISelection;
  */
 public abstract class HandlyOutlinePopup
     extends FilteringOutlinePopup
+    implements IContentAdapterProvider
 {
     private IElementForEditorInputFactory inputElementFactory;
 
@@ -41,10 +45,29 @@ public abstract class HandlyOutlinePopup
         inputElementFactory = factory;
     }
 
+    /**
+     * Returns the optional content adapter that defines the mapping between
+     * elements of the underlying Handly based model and the outline's content.
+     * <p>
+     * Default implementation always returns <code>null</code>. Subclasses may
+     * override.
+     * </p>
+     *
+     * @return {@link IContentAdapter}, or <code>null</code> if none
+     */
+    @Override
+    public IContentAdapter getContentAdapter()
+    {
+        return null;
+    }
+
     @Override
     protected Object computeInput()
     {
-        return getInputElementFactory().getElement(getHost().getEditorInput());
+        IHandle inputElement = getInputElementFactory().getElement(
+            getHost().getEditorInput());
+        return ContentAdapterUtil.adaptIfNecessary(inputElement,
+            getContentAdapter());
     }
 
     @Override
@@ -52,19 +75,24 @@ public abstract class HandlyOutlinePopup
     {
         if (!(hostSelection instanceof ITextSelection))
             return null;
-        Object input = getTreeViewer().getInput();
+        IHandle input = ContentAdapterUtil.asHandle(getTreeViewer().getInput(),
+            getContentAdapter());
         if (!(input instanceof ISourceElement))
             return null;
-        return SourceElementUtil.getElementAt((ISourceElement)input,
-            ((ITextSelection)hostSelection).getOffset());
+        return ContentAdapterUtil.adaptIfNecessary(
+            SourceElementUtil.getElementAt((ISourceElement)input,
+                ((ITextSelection)hostSelection).getOffset()),
+            getContentAdapter());
     }
 
     @Override
     protected boolean revealInHost(Object outlineElement)
     {
-        if (!(outlineElement instanceof ISourceElement))
+        IHandle element = ContentAdapterUtil.asHandle(outlineElement,
+            getContentAdapter());
+        if (!(element instanceof ISourceElement))
             return false;
-        ISourceElement sourceElement = (ISourceElement)outlineElement;
+        ISourceElement sourceElement = (ISourceElement)element;
         if (!isInHost(sourceElement))
             return false;
         TextRange identifyingRange = SourceElementUtil.getIdentifyingRange(

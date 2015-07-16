@@ -25,6 +25,8 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.adapter.ContentAdapterUtil;
+import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetUpdater;
 
@@ -134,11 +136,29 @@ public abstract class AbstractWorkingSetUpdater
     protected abstract void removeElementChangeListener(
         IElementChangeListener listener);
 
+    /**
+     * Returns the optional content adapter that defines the mapping between
+     * elements of the underlying Handly based model and the working set's
+     * content.
+     * <p>
+     * Default implementation always returns <code>null</code>. Subclasses may
+     * override.
+     * </p>
+     *
+     * @return {@link IContentAdapter}, or <code>null</code> if none
+     */
+    protected IContentAdapter getContentAdapter()
+    {
+        return null;
+    }
+
     protected void processHandleDelta(IHandleDelta delta,
         WorkingSetDelta result)
     {
         IHandle element = delta.getElement();
-        int index = result.indexOf(element);
+        IAdaptable wsElement = (IAdaptable)ContentAdapterUtil.adaptIfNecessary(
+            element, getContentAdapter());
+        int index = result.indexOf(wsElement);
         int kind = delta.getKind();
         int flags = delta.getFlags();
         if (kind == IHandleDelta.CHANGED && (flags & IHandleDelta.F_OPEN) != 0)
@@ -152,7 +172,7 @@ public abstract class AbstractWorkingSetUpdater
             {
                 index = result.indexOf(project);
                 if (index != -1)
-                    result.set(index, element);
+                    result.set(index, wsElement);
             }
         }
         if (index != -1)
@@ -161,7 +181,10 @@ public abstract class AbstractWorkingSetUpdater
             {
                 if ((flags & IHandleDelta.F_MOVED_TO) != 0)
                 {
-                    result.set(index, delta.getMovedToElement());
+                    IAdaptable wsMovedToElement =
+                        (IAdaptable)ContentAdapterUtil.adaptIfNecessary(
+                            delta.getMovedToElement(), getContentAdapter());
+                    result.set(index, wsMovedToElement);
                 }
                 else
                 {
@@ -236,16 +259,20 @@ public abstract class AbstractWorkingSetUpdater
         {
             IAdaptable element = iter.next();
             boolean remove = false;
-            if (element instanceof IHandle)
-            {
-                IHandle handle = (IHandle)element;
-                IResource resource = handle.getResource();
-                remove = !isInClosedProject(resource) && !handle.exists();
-            }
-            else if (element instanceof IResource)
+            if (element instanceof IResource)
             {
                 IResource resource = (IResource)element;
                 remove = !isInClosedProject(resource) && !resource.exists();
+            }
+            else
+            {
+                IHandle handle = ContentAdapterUtil.asHandle(element,
+                    getContentAdapter());
+                if (handle != null)
+                {
+                    IResource resource = handle.getResource();
+                    remove = !isInClosedProject(resource) && !handle.exists();
+                }
             }
             if (remove)
             {
@@ -290,6 +317,8 @@ public abstract class AbstractWorkingSetUpdater
 
         public void set(int index, IAdaptable element)
         {
+            if (element == null)
+                throw new IllegalArgumentException();
             elements.set(index, element);
             changed = true;
         }

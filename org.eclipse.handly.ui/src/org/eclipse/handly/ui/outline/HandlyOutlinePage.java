@@ -12,6 +12,10 @@ package org.eclipse.handly.ui.outline;
 
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
+import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.adapter.ContentAdapterUtil;
+import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.OpenAndLinkWithEditorHelper;
@@ -24,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
  */
 public abstract class HandlyOutlinePage
     extends CommonOutlinePage
+    implements IContentAdapterProvider
 {
     private IElementForEditorInputFactory inputElementFactory;
 
@@ -47,11 +52,29 @@ public abstract class HandlyOutlinePage
         addOutlineContributions();
     }
 
+    /**
+     * Returns the optional content adapter that defines the mapping between
+     * elements of the underlying Handly based model and the outline's content.
+     * <p>
+     * Default implementation always returns <code>null</code>. Subclasses may
+     * override.
+     * </p>
+     *
+     * @return {@link IContentAdapter}, or <code>null</code> if none
+     */
+    @Override
+    public IContentAdapter getContentAdapter()
+    {
+        return null;
+    }
+
     @Override
     protected Object computeInput()
     {
-        return getInputElementFactory().getElement(
+        IHandle inputElement = getInputElementFactory().getElement(
             getEditor().getEditorInput());
+        return ContentAdapterUtil.adaptIfNecessary(inputElement,
+            getContentAdapter());
     }
 
     /**

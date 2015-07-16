@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C LLC.
+ * Copyright (c) 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.handly.ui.workingset;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.adapter.ContentAdapterUtil;
+import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.ui.IContainmentAdapter;
 
 /**
@@ -33,17 +35,15 @@ public abstract class AbstractContainmentAdapter
     @Override
     public boolean contains(Object workingSetElement, Object element, int flags)
     {
-        if (!(workingSetElement instanceof IHandle) || element == null)
+        IHandle castedWorkingSetElement = ContentAdapterUtil.asHandle(
+            workingSetElement, getContentAdapter());
+        if (castedWorkingSetElement == null || element == null)
             return false;
 
-        IHandle castedWorkingSetElement = (IHandle)workingSetElement;
-        IHandle castedElement = null;
         IResource resource = null;
-        if (element instanceof IHandle)
-        {
-            castedElement = (IHandle)element;
-        }
-        else
+        IHandle castedElement = ContentAdapterUtil.asHandle(element,
+            getContentAdapter());
+        if (castedElement == null)
         {
             if (element instanceof IResource)
                 resource = (IResource)element;
@@ -73,6 +73,22 @@ public abstract class AbstractContainmentAdapter
      *  or <code>null</code> if no such element can be found
      */
     protected abstract IHandle getElementFor(IResource resource);
+
+    /**
+     * Returns the optional content adapter that defines the mapping between
+     * elements of the underlying Handly based model and the working set's
+     * content.
+     * <p>
+     * Default implementation always returns <code>null</code>. Subclasses may
+     * override.
+     * </p>
+     *
+     * @return {@link IContentAdapter}, or <code>null</code> if none
+     */
+    protected IContentAdapter getContentAdapter()
+    {
+        return null;
+    }
 
     protected boolean contains(IHandle workingSetElement, IHandle element,
         int flags)

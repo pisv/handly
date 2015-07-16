@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,9 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.adapter.ContentAdapterUtil;
+import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 
 /**
  * An abstract base class for outline contributions listening to
@@ -59,8 +62,10 @@ public abstract class ElementChangeListenerContribution
      */
     protected boolean affects(IElementChangeEvent event, Object inputElement)
     {
-        if (inputElement instanceof IHandle)
-            return affects(event.getDelta(), (IHandle)inputElement);
+        IHandle element = ContentAdapterUtil.asHandle(inputElement,
+            getContentAdapter());
+        if (element != null)
+            return affects(event.getDelta(), element);
         return false;
     }
 
@@ -113,4 +118,17 @@ public abstract class ElementChangeListenerContribution
      * @param event never <code>null</code>
      */
     protected abstract void elementChanged(IElementChangeEvent event);
+
+    /**
+     * Returns the installed content adapter, if any.
+     *
+     * @return {@link IContentAdapter}, or <code>null</code> if none
+     */
+    protected IContentAdapter getContentAdapter()
+    {
+        ICommonOutlinePage outlinePage = getOutlinePage();
+        if (outlinePage instanceof IContentAdapterProvider)
+            return ((IContentAdapterProvider)outlinePage).getContentAdapter();
+        return null;
+    }
 }

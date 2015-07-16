@@ -17,6 +17,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.ui.SourceElementUtil;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.model.adapter.ContentAdapterUtil;
+import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
@@ -87,6 +90,8 @@ public class SourceElementLinkingHelper
      * the selection's first element in the text editor. Does nothing
      * if the first element is not an {@link ISourceElement} contained
      * in the given editor or if the identifying range is not set.
+     * If the {@link #getContentAdapter() content adapter} is installed,
+     * the element is first adapted to {@link IHandle}.
      * </p>
      *
      * @param editor the text editor (never <code>null</code>)
@@ -96,7 +101,8 @@ public class SourceElementLinkingHelper
     protected void linkToEditor(ITextEditor editor,
         IStructuredSelection selection)
     {
-        Object element = selection.getFirstElement();
+        IHandle element = ContentAdapterUtil.asHandle(
+            selection.getFirstElement(), getContentAdapter());
         if (!(element instanceof ISourceElement))
             return;
         ISourceElement sourceElement = (ISourceElement)element;
@@ -134,7 +140,9 @@ public class SourceElementLinkingHelper
      * <p>
      * Default implementation returns the selection consisting of the smallest
      * {@link ISourceElement} that includes the offset of the given selection,
-     * or <code>null</code> if none.
+     * or <code>null</code> if none. If the {@link #getContentAdapter()
+     * content adapter} is installed, it will be used to adapt the element
+     * before it is returned in the selection.
      * </p>
      *
      * @param selection the text selection in the editor
@@ -144,11 +152,13 @@ public class SourceElementLinkingHelper
      */
     protected IStructuredSelection getLinkedSelection(ITextSelection selection)
     {
-        Object input = getOutlinePage().getTreeViewer().getInput();
+        IHandle input = ContentAdapterUtil.asHandle(
+            getOutlinePage().getTreeViewer().getInput(), getContentAdapter());
         if (!(input instanceof ISourceElement))
             return null;
-        ISourceElement element = SourceElementUtil.getElementAt(
-            (ISourceElement)input, selection.getOffset());
+        Object element = ContentAdapterUtil.adaptIfNecessary(
+            SourceElementUtil.getElementAt((ISourceElement)input,
+                selection.getOffset()), getContentAdapter());
         if (element == null)
             return null;
         return new StructuredSelection(element);
@@ -202,6 +212,19 @@ public class SourceElementLinkingHelper
         return false;
     }
 
+    /**
+     * Returns the installed content adapter, if any.
+     *
+     * @return {@link IContentAdapter}, or <code>null</code> if none
+     */
+    protected IContentAdapter getContentAdapter()
+    {
+        ICommonOutlinePage outlinePage = getOutlinePage();
+        if (outlinePage instanceof IContentAdapterProvider)
+            return ((IContentAdapterProvider)outlinePage).getContentAdapter();
+        return null;
+    }
+
     private void cancelLinkToOutlineJob()
     {
         linkToOutlineJob.cancel();
@@ -237,9 +260,10 @@ public class SourceElementLinkingHelper
             final ISelection baseSelection = selection;
             if (baseSelection == null || baseSelection.isEmpty())
                 return Status.OK_STATUS;
-            final Object baseInput =
-                getOutlinePage().getTreeViewer().getInput();
-            if (!(baseInput instanceof ISourceElement))
+            IHandle input = ContentAdapterUtil.asHandle(
+                getOutlinePage().getTreeViewer().getInput(),
+                getContentAdapter());
+            if (!(input instanceof ISourceElement))
                 return Status.OK_STATUS;
 
             final IStructuredSelection linkedSelection = getLinkedSelection(

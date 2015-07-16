@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,11 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceConstruct;
+import org.eclipse.handly.model.adapter.ContentAdapterUtil;
+import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.util.TextRange;
+import org.eclipse.jface.viewers.IDecorationContext;
 
 /**
  * Decorates an element's image with error and warning overlays that represent
@@ -35,11 +39,12 @@ public class ProblemMarkerLabelDecorator
     extends ProblemLabelDecorator
 {
     @Override
-    protected Severity computeProblemSeverity(Object element)
+    protected Severity computeProblemSeverity(Object element,
+        IDecorationContext context)
     {
         try
         {
-            return computeProblemSeverityFromMarkers(element);
+            return computeProblemSeverityFromMarkers(element, context);
         }
         catch (CoreException e)
         {
@@ -53,20 +58,24 @@ public class ProblemMarkerLabelDecorator
 
     /**
      * Computes problem severity for the given element from markers attached
-     * to the element's underlying resource.
+     * to the element's underlying resource. Takes into account the provided
+     * context.
      *
      * @param element never <code>null</code>
+     * @param context never <code>null</code>
      * @return problem severity, or <code>null</code> if there is no problem
      * @throws CoreException
      */
-    protected Severity computeProblemSeverityFromMarkers(Object element)
-        throws CoreException
+    protected Severity computeProblemSeverityFromMarkers(Object element,
+        IDecorationContext context) throws CoreException
     {
         IResource resource = null;
+        IHandle handle = ContentAdapterUtil.asHandle(element, getContentAdapter(
+            context));
         if (element instanceof IResource)
             resource = (IResource)element;
-        else if (element instanceof IHandle)
-            resource = ((IHandle)element).getResource();
+        else if (handle != null)
+            resource = handle.getResource();
         else if (element instanceof IAdaptable)
         {
             IAdaptable adaptable = (IAdaptable)element;
@@ -75,9 +84,9 @@ public class ProblemMarkerLabelDecorator
         if (resource == null || !resource.isAccessible())
             return null;
         TextRange textRange = null;
-        if (element instanceof ISourceConstruct)
+        if (handle instanceof ISourceConstruct)
         {
-            ISourceConstruct sourceConstruct = (ISourceConstruct)element;
+            ISourceConstruct sourceConstruct = (ISourceConstruct)handle;
             if (!sourceConstruct.exists())
                 return null;
             textRange = sourceConstruct.getSourceElementInfo().getFullRange();
@@ -86,6 +95,28 @@ public class ProblemMarkerLabelDecorator
         }
         return findMaxProblemSeverity(resource, IResource.DEPTH_INFINITE,
             textRange);
+    }
+
+    /**
+     * Returns the optional content adapter that defines the mapping between
+     * elements of the underlying Handly based model and the viewer's content.
+     * <p>
+     * Default implementation requests the content adapter from the
+     * {@link IContentAdapterProvider} registered in the decoration context
+     * under the name <code>IContentAdapterProvider.class.getName()</code>.
+     * </p>
+     *
+     * @param context never <code>null</code>
+     * @return {@link IContentAdapter}, or <code>null</code> if none
+     */
+    protected IContentAdapter getContentAdapter(IDecorationContext context)
+    {
+        IContentAdapterProvider provider =
+            (IContentAdapterProvider)context.getProperty(
+                IContentAdapterProvider.class.getName());
+        if (provider != null)
+            return provider.getContentAdapter();
+        return null;
     }
 
     /**

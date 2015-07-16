@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,11 +11,16 @@
 package org.eclipse.handly.ui.quickoutline;
 
 import org.eclipse.handly.internal.ui.Activator;
+import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.bindings.keys.SWTKeySupport;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
+import org.eclipse.jface.viewers.DecoratingLabelProvider;
+import org.eclipse.jface.viewers.DecoratingStyledCellLabelProvider;
+import org.eclipse.jface.viewers.DecorationContext;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
+import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -88,7 +93,9 @@ public abstract class OutlinePopup
 
         treeViewer.setUseHashlookup(shouldUseHashlookup());
         treeViewer.setContentProvider(getContentProvider());
-        treeViewer.setLabelProvider(getLabelProvider());
+        IBaseLabelProvider labelProvider = getLabelProvider();
+        setUpDecorationContextFor(labelProvider);
+        treeViewer.setLabelProvider(labelProvider);
         treeViewer.setInput(computeInput());
 
         initialSelection = computeInitialSelection();
@@ -352,6 +359,18 @@ public abstract class OutlinePopup
     }
 
     /**
+     * Hook to initialize decoration context.
+     * Subclasses may extend.
+     *
+     * @param context the decoration context (never <code>null</code>)
+     */
+    protected void initDecorationContext(DecorationContext context)
+    {
+        if (this instanceof IContentAdapterProvider)
+            context.putProperty(IContentAdapterProvider.class.getName(), this);
+    }
+
+    /**
      * Returns the invoking key listener. When the invoking key is pressed,
      * this listener changes the mode of the outline popup and updates the
      * text in the popup's info area.
@@ -478,6 +497,40 @@ public abstract class OutlinePopup
                 }
             }
         });
+    }
+
+    private void setUpDecorationContextFor(IBaseLabelProvider labelProvider)
+    {
+        if (labelProvider instanceof DecoratingLabelProvider)
+        {
+            DecoratingLabelProvider dlp =
+                (DecoratingLabelProvider)labelProvider;
+            dlp.setDecorationContext(createDecorationContext(
+                dlp.getDecorationContext()));
+        }
+        else if (labelProvider instanceof DecoratingStyledCellLabelProvider)
+        {
+            DecoratingStyledCellLabelProvider dsclp =
+                (DecoratingStyledCellLabelProvider)labelProvider;
+            dsclp.setDecorationContext(createDecorationContext(
+                dsclp.getDecorationContext()));
+        }
+    }
+
+    private IDecorationContext createDecorationContext(
+        IDecorationContext existingContext)
+    {
+        DecorationContext newContext = new DecorationContext();
+        initDecorationContext(newContext);
+        if (existingContext != null)
+        {
+            for (String property : existingContext.getProperties())
+            {
+                newContext.putProperty(property, existingContext.getProperty(
+                    property));
+            }
+        }
+        return newContext;
     }
 
     /**

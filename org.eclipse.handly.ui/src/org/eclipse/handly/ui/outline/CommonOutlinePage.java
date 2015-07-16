@@ -13,9 +13,14 @@ package org.eclipse.handly.ui.outline;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.ui.preference.IBooleanPreference;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.viewers.DecoratingLabelProvider;
+import org.eclipse.jface.viewers.DecoratingStyledCellLabelProvider;
+import org.eclipse.jface.viewers.DecorationContext;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
+import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -154,7 +159,9 @@ public abstract class CommonOutlinePage
         });
         treeViewer.setUseHashlookup(shouldUseHashlookup());
         treeViewer.setContentProvider(getContentProvider());
-        treeViewer.setLabelProvider(getLabelProvider());
+        IBaseLabelProvider labelProvider = getLabelProvider();
+        setUpDecorationContextFor(labelProvider);
+        treeViewer.setLabelProvider(labelProvider);
         treeViewer.setInput(computeInput());
 
         editor.addPropertyListener(editorInputListener);
@@ -342,6 +349,18 @@ public abstract class CommonOutlinePage
         }
     }
 
+    /**
+     * Hook to initialize decoration context.
+     * Subclasses may extend.
+     *
+     * @param context the decoration context (never <code>null</code>)
+     */
+    protected void initDecorationContext(DecorationContext context)
+    {
+        if (this instanceof IContentAdapterProvider)
+            context.putProperty(IContentAdapterProvider.class.getName(), this);
+    }
+
     private void initContributions()
     {
         Object[] contributions = contributionList.getListeners();
@@ -426,6 +445,40 @@ public abstract class CommonOutlinePage
                 }
             });
         }
+    }
+
+    private void setUpDecorationContextFor(IBaseLabelProvider labelProvider)
+    {
+        if (labelProvider instanceof DecoratingLabelProvider)
+        {
+            DecoratingLabelProvider dlp =
+                (DecoratingLabelProvider)labelProvider;
+            dlp.setDecorationContext(createDecorationContext(
+                dlp.getDecorationContext()));
+        }
+        else if (labelProvider instanceof DecoratingStyledCellLabelProvider)
+        {
+            DecoratingStyledCellLabelProvider dsclp =
+                (DecoratingStyledCellLabelProvider)labelProvider;
+            dsclp.setDecorationContext(createDecorationContext(
+                dsclp.getDecorationContext()));
+        }
+    }
+
+    private IDecorationContext createDecorationContext(
+        IDecorationContext existingContext)
+    {
+        DecorationContext newContext = new DecorationContext();
+        initDecorationContext(newContext);
+        if (existingContext != null)
+        {
+            for (String property : existingContext.getProperties())
+            {
+                newContext.putProperty(property, existingContext.getProperty(
+                    property));
+            }
+        }
+        return newContext;
     }
 
     /**

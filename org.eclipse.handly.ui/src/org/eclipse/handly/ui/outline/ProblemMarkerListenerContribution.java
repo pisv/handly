@@ -17,6 +17,9 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.adapter.ContentAdapterUtil;
+import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PlatformUI;
 
@@ -47,8 +50,10 @@ public class ProblemMarkerListenerContribution
     protected boolean affects(IResourceChangeEvent event, Object inputElement)
     {
         IResource resource = null;
-        if (inputElement instanceof IHandle)
-            resource = ((IHandle)inputElement).getResource();
+        IHandle handle = ContentAdapterUtil.asHandle(inputElement,
+            getContentAdapter());
+        if (handle != null)
+            resource = handle.getResource();
         else if (inputElement instanceof IAdaptable)
         {
             IAdaptable adaptable = (IAdaptable)inputElement;
@@ -93,5 +98,18 @@ public class ProblemMarkerListenerContribution
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the installed content adapter, if any.
+     *
+     * @return {@link IContentAdapter}, or <code>null</code> if none
+     */
+    protected IContentAdapter getContentAdapter()
+    {
+        ICommonOutlinePage outlinePage = getOutlinePage();
+        if (outlinePage instanceof IContentAdapterProvider)
+            return ((IContentAdapterProvider)outlinePage).getContentAdapter();
+        return null;
     }
 }

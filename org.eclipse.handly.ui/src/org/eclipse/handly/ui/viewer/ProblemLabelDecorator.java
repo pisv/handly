@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,10 +14,13 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.viewers.DecorationContext;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
 import org.eclipse.jface.viewers.IDecoration;
+import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.LabelDecorator;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -27,17 +30,19 @@ import org.eclipse.ui.PlatformUI;
  * Subclasses must implement {@link #computeProblemSeverity} method.
  */
 public abstract class ProblemLabelDecorator
+    extends LabelDecorator
     implements ILabelDecorator
 {
     private ResourceManager resourceManager;
 
     @Override
-    public Image decorateImage(Image image, Object element)
+    public Image decorateImage(Image image, Object element,
+        IDecorationContext context)
     {
         if (image == null)
             return null;
 
-        Severity severity = computeProblemSeverity(element);
+        Severity severity = computeProblemSeverity(element, context);
         if (severity == null)
             return null;
 
@@ -46,9 +51,29 @@ public abstract class ProblemLabelDecorator
     }
 
     @Override
-    public String decorateText(String text, Object element)
+    public Image decorateImage(Image image, Object element)
+    {
+        return decorateImage(image, element, DecorationContext.DEFAULT_CONTEXT);
+    }
+
+    @Override
+    public String decorateText(String text, Object element,
+        IDecorationContext context)
     {
         return null;
+    }
+
+    @Override
+    public String decorateText(String text, Object element)
+    {
+        return decorateText(text, element, DecorationContext.DEFAULT_CONTEXT);
+    }
+
+    @Override
+    public boolean prepareDecoration(Object element, String originalText,
+        IDecorationContext context)
+    {
+        return true;
     }
 
     @Override
@@ -78,12 +103,15 @@ public abstract class ProblemLabelDecorator
     }
 
     /**
-     * Computes problem severity for the given element.
+     * Computes problem severity for the given element taking into account
+     * the provided context.
      *
      * @param element never <code>null</code>
+     * @param context never <code>null</code>
      * @return problem severity, or <code>null</code> if there is no problem
      */
-    protected abstract Severity computeProblemSeverity(Object element);
+    protected abstract Severity computeProblemSeverity(Object element,
+        IDecorationContext context);
 
     private ImageDescriptor getOverlayImage(Severity severity)
     {
