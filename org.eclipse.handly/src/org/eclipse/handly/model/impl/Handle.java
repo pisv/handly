@@ -16,8 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IHandle;
@@ -94,7 +96,10 @@ public abstract class Handle
     @Override
     public IPath getPath()
     {
-        return (getResource() == null ? null : getResource().getFullPath());
+        IResource resource = getResource();
+        if (resource != null)
+            return resource.getFullPath();
+        return Path.EMPTY;
     }
 
     @Override
