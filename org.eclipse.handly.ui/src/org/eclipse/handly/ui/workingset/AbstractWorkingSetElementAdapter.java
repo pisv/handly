@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetElementAdapter;
+import org.eclipse.ui.ide.ResourceUtil;
 
 /**
  * A partial implementation of {@link IWorkingSetElementAdapter}.
@@ -48,11 +49,7 @@ public abstract class AbstractWorkingSetElementAdapter
             }
             else
             {
-                IResource resource;
-                if (element instanceof IResource)
-                    resource = (IResource)element;
-                else
-                    resource = (IResource)element.getAdapter(IResource.class);
+                IResource resource = ResourceUtil.getResource(element);
                 if (resource != null)
                 {
                     element = adaptFromResource(resource);

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.model.adapter;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.util.AdapterUtil;
 
 /**
  * Implements {@link IContentAdapter} on top of a one-to-one mapping
@@ -31,11 +31,8 @@ public class DefaultContentAdapter
     @Override
     public Object adapt(IHandle element)
     {
-        if (element == null)
-            return null;
-        IAdapterElementProvider provider =
-            (IAdapterElementProvider)element.getAdapter(
-                IAdapterElementProvider.class);
+        IAdapterElementProvider provider = AdapterUtil.getAdapter(element,
+            IAdapterElementProvider.class, true);
         if (provider == null)
             return null;
         return provider.getAdapterElement(element);
@@ -44,10 +41,7 @@ public class DefaultContentAdapter
     @Override
     public IHandle getAdaptedElement(Object adapter)
     {
-        if (!(adapter instanceof IAdaptable))
-            return null;
-        IAdaptable adaptable = (IAdaptable)adapter;
-        IHandle element = (IHandle)adaptable.getAdapter(IHandle.class);
+        IHandle element = AdapterUtil.getAdapter(adapter, IHandle.class, true);
         if (element == null)
             return null;
         if (!adapter.equals(adapt(element)))

@@ -23,7 +23,8 @@ import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 public class FooElementAdapterFactory
     implements IAdapterFactory
 {
-    private static Class<?>[] ADAPTER_LIST = new Class<?>[] { IResource.class };
+    private static final Class<?>[] ADAPTER_LIST = new Class<?>[] {
+        IResource.class };
 
     @Override
     public Object getAdapter(Object adaptableObject,

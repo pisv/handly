@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceConstruct;
@@ -23,6 +22,7 @@ import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.viewers.IDecorationContext;
+import org.eclipse.ui.ide.ResourceUtil;
 
 /**
  * Decorates an element's image with error and warning overlays that represent
@@ -76,11 +76,8 @@ public class ProblemMarkerLabelDecorator
             resource = (IResource)element;
         else if (handle != null)
             resource = handle.getResource();
-        else if (element instanceof IAdaptable)
-        {
-            IAdaptable adaptable = (IAdaptable)element;
-            resource = (IResource)adaptable.getAdapter(IResource.class);
-        }
+        else
+            resource = ResourceUtil.getResource(element);
         if (resource == null || !resource.isAccessible())
             return null;
         TextRange textRange = null;

@@ -11,11 +11,11 @@
 package org.eclipse.handly.ui.workingset;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.adapter.ContentAdapterUtil;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.ui.IContainmentAdapter;
+import org.eclipse.ui.ide.ResourceUtil;
 
 /**
  * A partial implementation of {@link IContainmentAdapter}
@@ -45,13 +45,7 @@ public abstract class AbstractContainmentAdapter
             getContentAdapter());
         if (castedElement == null)
         {
-            if (element instanceof IResource)
-                resource = (IResource)element;
-            else if (element instanceof IAdaptable)
-            {
-                IAdaptable adaptable = (IAdaptable)element;
-                resource = (IResource)adaptable.getAdapter(IResource.class);
-            }
+            resource = ResourceUtil.getResource(element);
             if (resource != null)
                 castedElement = getElementFor(resource);
         }

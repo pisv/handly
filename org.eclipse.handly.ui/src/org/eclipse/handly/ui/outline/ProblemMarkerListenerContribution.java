@@ -15,13 +15,13 @@ import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.adapter.ContentAdapterUtil;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.ResourceUtil;
 
 /**
  * Refreshes the outline when problem markers attached to the underlying
@@ -54,11 +54,8 @@ public class ProblemMarkerListenerContribution
             getContentAdapter());
         if (handle != null)
             resource = handle.getResource();
-        else if (inputElement instanceof IAdaptable)
-        {
-            IAdaptable adaptable = (IAdaptable)inputElement;
-            resource = (IResource)adaptable.getAdapter(IResource.class);
-        }
+        else
+            resource = ResourceUtil.getResource(inputElement);
         if (resource == null)
             return false;
         IResourceDelta delta = event.getDelta().findMember(
