@@ -20,39 +20,37 @@ import org.eclipse.handly.model.IHandle;
 public class ContentAdapterUtil
 {
     /**
-     * Returns the adapter object associated with the given element using
-     * the provided content adapter. If no content adapter is provided,
-     * returns the element itself.
+     * Returns the element associated with the given handle using
+     * the provided content adapter. Returns the handle itself
+     * if no content adapter is provided.
      *
-     * @param element may be <code>null</code>
+     * @param handle may be <code>null</code>
      * @param contentAdapter may be <code>null</code>
-     * @return an adapter object or the element itself,
-     *  possibly <code>null</code>
+     * @return the corresponding element, or <code>null</code> if none
      */
-    public static Object adaptIfNecessary(IHandle element,
+    public static Object getCorrespondingElement(IHandle handle,
         IContentAdapter contentAdapter)
     {
         if (contentAdapter != null)
-            return contentAdapter.adapt(element);
-        return element;
+            return contentAdapter.getCorrespondingElement(handle);
+        return handle;
     }
 
     /**
-     * Returns the <code>IHandle</code> associated with the given element using
+     * Returns <code>IHandle</code> associated with the given element using
      * the provided content adapter. If no content adapter is provided, returns
      * the element itself if it is assignable to <code>IHandle</code>. Returns
      * <code>null</code> if all else fails.
      *
      * @param element may be <code>null</code>
      * @param contentAdapter may be <code>null</code>
-     * @return the element casted into {@link IHandle} as described above,
-     *  or <code>null</code> if no such cast is possible
+     * @return the corresponding handle, or <code>null</code> if none
      */
-    public static IHandle asHandle(Object element,
+    public static IHandle getHandle(Object element,
         IContentAdapter contentAdapter)
     {
         if (contentAdapter != null)
-            return contentAdapter.getAdaptedElement(element);
+            return contentAdapter.getHandle(element);
         if (element instanceof IHandle)
             return (IHandle)element;
         return null;

@@ -15,24 +15,23 @@ import org.eclipse.handly.model.IHandle;
 
 /**
  * Defines a one-to-one mapping (mathematically speaking, injection)
- * of elements from a Handly based model to elements in an adapter model.
+ * of elements from a Handly based model to elements in some other model.
  * <p>
- * For every <code>e</code> such that <code>getAdapterElement(e) != null</code>
- * the following invariant must hold:
- * <pre>e.equals(getAdapterElement(e).getAdapter(IHandle.class))</pre>
+ * For every <code>handle</code> such that <code>getCorrespondingElement(handle)
+ * != null</code>, the following invariant must hold:
+ * <pre>handle.equals(getCorrespondingElement(handle).getAdapter(IHandle.class))</pre>
  * </p>
  * <p>
  * This interface may be implemented by clients.
  * </p>
  */
-public interface IAdapterElementProvider
+public interface ICorrespondingElementProvider
 {
     /**
-     * Returns the element in an adapter model associated with the given
-     * element from a Handly based model.
+     * Returns the element associated with the given handle.
      *
-     * @param adaptee {@link IHandle} (may be <code>null</code>)
-     * @return the adapter element, or <code>null</code> if none
+     * @param handle {@link IHandle} (may be <code>null</code>)
+     * @return the corresponding element, or <code>null</code> if none
      */
-    IAdaptable getAdapterElement(IHandle adaptee);
+    IAdaptable getCorrespondingElement(IHandle handle);
 }

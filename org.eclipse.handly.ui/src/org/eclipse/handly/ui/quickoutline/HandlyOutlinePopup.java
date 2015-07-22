@@ -66,7 +66,7 @@ public abstract class HandlyOutlinePopup
     {
         IHandle inputElement = getInputElementFactory().getElement(
             getHost().getEditorInput());
-        return ContentAdapterUtil.adaptIfNecessary(inputElement,
+        return ContentAdapterUtil.getCorrespondingElement(inputElement,
             getContentAdapter());
     }
 
@@ -75,11 +75,11 @@ public abstract class HandlyOutlinePopup
     {
         if (!(hostSelection instanceof ITextSelection))
             return null;
-        IHandle input = ContentAdapterUtil.asHandle(getTreeViewer().getInput(),
+        IHandle input = ContentAdapterUtil.getHandle(getTreeViewer().getInput(),
             getContentAdapter());
         if (!(input instanceof ISourceElement))
             return null;
-        return ContentAdapterUtil.adaptIfNecessary(
+        return ContentAdapterUtil.getCorrespondingElement(
             SourceElementUtil.getElementAt((ISourceElement)input,
                 ((ITextSelection)hostSelection).getOffset()),
             getContentAdapter());
@@ -88,7 +88,7 @@ public abstract class HandlyOutlinePopup
     @Override
     protected boolean revealInHost(Object outlineElement)
     {
-        IHandle element = ContentAdapterUtil.asHandle(outlineElement,
+        IHandle element = ContentAdapterUtil.getHandle(outlineElement,
             getContentAdapter());
         if (!(element instanceof ISourceElement))
             return false;

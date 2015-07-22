@@ -35,25 +35,25 @@ public abstract class AbstractContainmentAdapter
     @Override
     public boolean contains(Object workingSetElement, Object element, int flags)
     {
-        IHandle castedWorkingSetElement = ContentAdapterUtil.asHandle(
+        IHandle workingSetElementHandle = ContentAdapterUtil.getHandle(
             workingSetElement, getContentAdapter());
-        if (castedWorkingSetElement == null || element == null)
+        if (workingSetElementHandle == null || element == null)
             return false;
 
         IResource resource = null;
-        IHandle castedElement = ContentAdapterUtil.asHandle(element,
+        IHandle elementHandle = ContentAdapterUtil.getHandle(element,
             getContentAdapter());
-        if (castedElement == null)
+        if (elementHandle == null)
         {
             resource = ResourceUtil.getResource(element);
             if (resource != null)
-                castedElement = getElementFor(resource);
+                elementHandle = getElementFor(resource);
         }
 
-        if (castedElement != null)
-            return contains(castedWorkingSetElement, castedElement, flags);
+        if (elementHandle != null)
+            return contains(workingSetElementHandle, elementHandle, flags);
         else if (resource != null)
-            return contains(castedWorkingSetElement, resource, flags);
+            return contains(workingSetElementHandle, resource, flags);
         else
             return false;
     }

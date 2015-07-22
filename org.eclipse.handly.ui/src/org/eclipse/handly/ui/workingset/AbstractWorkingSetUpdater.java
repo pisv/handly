@@ -156,8 +156,9 @@ public abstract class AbstractWorkingSetUpdater
         WorkingSetDelta result)
     {
         IHandle element = delta.getElement();
-        IAdaptable wsElement = (IAdaptable)ContentAdapterUtil.adaptIfNecessary(
-            element, getContentAdapter());
+        IAdaptable wsElement =
+            (IAdaptable)ContentAdapterUtil.getCorrespondingElement(element,
+                getContentAdapter());
         int index = result.indexOf(wsElement);
         int kind = delta.getKind();
         int flags = delta.getFlags();
@@ -182,7 +183,7 @@ public abstract class AbstractWorkingSetUpdater
                 if ((flags & IHandleDelta.F_MOVED_TO) != 0)
                 {
                     IAdaptable wsMovedToElement =
-                        (IAdaptable)ContentAdapterUtil.adaptIfNecessary(
+                        (IAdaptable)ContentAdapterUtil.getCorrespondingElement(
                             delta.getMovedToElement(), getContentAdapter());
                     result.set(index, wsMovedToElement);
                 }
@@ -266,7 +267,7 @@ public abstract class AbstractWorkingSetUpdater
             }
             else
             {
-                IHandle handle = ContentAdapterUtil.asHandle(element,
+                IHandle handle = ContentAdapterUtil.getHandle(element,
                     getContentAdapter());
                 if (handle != null)
                 {

@@ -15,10 +15,10 @@ import org.eclipse.handly.util.AdapterUtil;
 
 /**
  * Implements {@link IContentAdapter} on top of a one-to-one mapping
- * of elements from a Handly based model to elements in an adapter model.
+ * of elements from a Handly based model to elements in some other model.
  * The mapping is defined via the <code>IAdaptable</code> mechanism. Namely,
- * for a given {@link IHandle} the corresponding adapter element is obtained
- * from the {@link IAdapterElementProvider} the handle adapts to.
+ * for a given {@link IHandle} the corresponding element is obtained from
+ * the {@link ICorrespondingElementProvider} the handle adapts to.
  */
 public class DefaultContentAdapter
     implements IContentAdapter
@@ -29,24 +29,24 @@ public class DefaultContentAdapter
     public static final IContentAdapter INSTANCE = new DefaultContentAdapter();
 
     @Override
-    public Object adapt(IHandle element)
+    public Object getCorrespondingElement(IHandle handle)
     {
-        IAdapterElementProvider provider = AdapterUtil.getAdapter(element,
-            IAdapterElementProvider.class, true);
+        ICorrespondingElementProvider provider = AdapterUtil.getAdapter(handle,
+            ICorrespondingElementProvider.class, true);
         if (provider == null)
             return null;
-        return provider.getAdapterElement(element);
+        return provider.getCorrespondingElement(handle);
     }
 
     @Override
-    public IHandle getAdaptedElement(Object adapter)
+    public IHandle getHandle(Object element)
     {
-        IHandle element = AdapterUtil.getAdapter(adapter, IHandle.class, true);
-        if (element == null)
+        IHandle handle = AdapterUtil.getAdapter(element, IHandle.class, true);
+        if (handle == null)
             return null;
-        if (!adapter.equals(adapt(element)))
+        if (!element.equals(getCorrespondingElement(handle)))
             return null;
-        return element;
+        return handle;
     }
 
     private DefaultContentAdapter()

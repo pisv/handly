@@ -73,7 +73,7 @@ public abstract class HandlyOutlinePage
     {
         IHandle inputElement = getInputElementFactory().getElement(
             getEditor().getEditorInput());
-        return ContentAdapterUtil.adaptIfNecessary(inputElement,
+        return ContentAdapterUtil.getCorrespondingElement(inputElement,
             getContentAdapter());
     }
 

@@ -14,14 +14,14 @@ import org.eclipse.handly.model.IHandle;
 
 /**
  * Defines a one-to-one correspondence (bijection) between
- * elements of a Handly based model and elements of an adapter model.
+ * elements of a Handly based model and elements of some other model.
  * <p>
- * For every <code>e</code> such that <code>adapt(e) != null</code>,
- * the following invariant must hold:
- * <pre>e.equals(getAdaptedElement(adapt(e))</pre>
- * Likewise, for every <code>a</code> such that <code>getAdaptedObject(a) !=
- * null</code>, the following invariant must hold:
- * <pre>a.equals(adapt(getAdaptedElement(a))</pre>
+ * For every <code>handle</code> such that <code>getCorrespondingElement(handle)
+ * != null</code>, the following invariant must hold:
+ * <pre>handle.equals(getHandle(getCorrespondingElement(handle))</pre>
+ * Likewise, for every <code>element</code> such that <code>getHandle(element)
+ * != null</code>, the following invariant must hold:
+ * <pre>element.equals(getCorrespondingElement(getHandle(element))</pre>
  * </p>
  * <p>
  * This interface may be implemented by clients.
@@ -30,18 +30,18 @@ import org.eclipse.handly.model.IHandle;
 public interface IContentAdapter
 {
     /**
-     * Returns the adapter object for the given element.
+     * Returns the element associated with the given handle.
      *
-     * @param element {@link IHandle} (may be <code>null</code>)
-     * @return the adapter object, or <code>null</code> if none
+     * @param handle {@link IHandle} (may be <code>null</code>)
+     * @return the corresponding element, or <code>null</code> if none
      */
-    Object adapt(IHandle element);
+    Object getCorrespondingElement(IHandle handle);
 
     /**
-     * Returns the {@link IHandle} that the given adapter object adapts.
+     * Returns {@link IHandle} associated with the given element.
      *
-     * @param adapter an adapter object (may be <code>null</code>)
-     * @return the adapted element, or <code>null</code> if none
+     * @param element may be <code>null</code>
+     * @return the corresponding handle, or <code>null</code> if none
      */
-    IHandle getAdaptedElement(Object adapter);
+    IHandle getHandle(Object element);
 }

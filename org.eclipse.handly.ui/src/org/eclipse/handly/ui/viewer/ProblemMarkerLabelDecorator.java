@@ -70,8 +70,8 @@ public class ProblemMarkerLabelDecorator
         IDecorationContext context) throws CoreException
     {
         IResource resource = null;
-        IHandle handle = ContentAdapterUtil.asHandle(element, getContentAdapter(
-            context));
+        IHandle handle = ContentAdapterUtil.getHandle(element,
+            getContentAdapter(context));
         if (element instanceof IResource)
             resource = (IResource)element;
         else if (handle != null)

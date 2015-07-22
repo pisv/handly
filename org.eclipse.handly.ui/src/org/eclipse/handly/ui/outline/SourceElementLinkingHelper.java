@@ -101,7 +101,7 @@ public class SourceElementLinkingHelper
     protected void linkToEditor(ITextEditor editor,
         IStructuredSelection selection)
     {
-        IHandle element = ContentAdapterUtil.asHandle(
+        IHandle element = ContentAdapterUtil.getHandle(
             selection.getFirstElement(), getContentAdapter());
         if (!(element instanceof ISourceElement))
             return;
@@ -152,11 +152,11 @@ public class SourceElementLinkingHelper
      */
     protected IStructuredSelection getLinkedSelection(ITextSelection selection)
     {
-        IHandle input = ContentAdapterUtil.asHandle(
+        IHandle input = ContentAdapterUtil.getHandle(
             getOutlinePage().getTreeViewer().getInput(), getContentAdapter());
         if (!(input instanceof ISourceElement))
             return null;
-        Object element = ContentAdapterUtil.adaptIfNecessary(
+        Object element = ContentAdapterUtil.getCorrespondingElement(
             SourceElementUtil.getElementAt((ISourceElement)input,
                 selection.getOffset()), getContentAdapter());
         if (element == null)
@@ -260,7 +260,7 @@ public class SourceElementLinkingHelper
             final ISelection baseSelection = selection;
             if (baseSelection == null || baseSelection.isEmpty())
                 return Status.OK_STATUS;
-            IHandle input = ContentAdapterUtil.asHandle(
+            IHandle input = ContentAdapterUtil.getHandle(
                 getOutlinePage().getTreeViewer().getInput(),
                 getContentAdapter());
             if (!(input instanceof ISourceElement))

@@ -62,7 +62,7 @@ public abstract class ElementChangeListenerContribution
      */
     protected boolean affects(IElementChangeEvent event, Object inputElement)
     {
-        IHandle element = ContentAdapterUtil.asHandle(inputElement,
+        IHandle element = ContentAdapterUtil.getHandle(inputElement,
             getContentAdapter());
         if (element != null)
             return affects(event.getDelta(), element);

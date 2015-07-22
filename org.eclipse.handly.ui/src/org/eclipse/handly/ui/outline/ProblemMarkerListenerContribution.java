@@ -50,7 +50,7 @@ public class ProblemMarkerListenerContribution
     protected boolean affects(IResourceChangeEvent event, Object inputElement)
     {
         IResource resource = null;
-        IHandle handle = ContentAdapterUtil.asHandle(inputElement,
+        IHandle handle = ContentAdapterUtil.getHandle(inputElement,
             getContentAdapter());
         if (handle != null)
             resource = handle.getResource();
