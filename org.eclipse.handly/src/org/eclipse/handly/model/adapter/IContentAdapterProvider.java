@@ -23,8 +23,7 @@ public interface IContentAdapterProvider
      * The result may or may not be the same each time this method is called
      * on the provider.
      *
-     * @return the provided {@link IContentAdapter}, or <code>null</code>
-     *  if no content adapter can be provided
+     * @return the provided {@link IContentAdapter} (never <code>null</code>)
      */
     IContentAdapter getContentAdapter();
 }

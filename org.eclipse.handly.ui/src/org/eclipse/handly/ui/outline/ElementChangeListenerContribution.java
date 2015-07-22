@@ -14,9 +14,9 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
-import org.eclipse.handly.model.adapter.ContentAdapterUtil;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
+import org.eclipse.handly.model.adapter.NullContentAdapter;
 
 /**
  * An abstract base class for outline contributions listening to
@@ -62,8 +62,7 @@ public abstract class ElementChangeListenerContribution
      */
     protected boolean affects(IElementChangeEvent event, Object inputElement)
     {
-        IHandle element = ContentAdapterUtil.getHandle(inputElement,
-            getContentAdapter());
+        IHandle element = getContentAdapter().getHandle(inputElement);
         if (element != null)
             return affects(event.getDelta(), element);
         return false;
@@ -120,15 +119,16 @@ public abstract class ElementChangeListenerContribution
     protected abstract void elementChanged(IElementChangeEvent event);
 
     /**
-     * Returns the installed content adapter, if any.
+     * Returns the installed content adapter, or a {@link NullContentAdapter}
+     * if none.
      *
-     * @return {@link IContentAdapter}, or <code>null</code> if none
+     * @return {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {
         ICommonOutlinePage outlinePage = getOutlinePage();
         if (outlinePage instanceof IContentAdapterProvider)
             return ((IContentAdapterProvider)outlinePage).getContentAdapter();
-        return null;
+        return NullContentAdapter.INSTANCE;
     }
 }

@@ -24,7 +24,7 @@ public class DefaultContentAdapter
     implements IContentAdapter
 {
     /**
-     * The sole instance of the content adapter.
+     * The sole instance of the default content adapter.
      */
     public static final IContentAdapter INSTANCE = new DefaultContentAdapter();
 

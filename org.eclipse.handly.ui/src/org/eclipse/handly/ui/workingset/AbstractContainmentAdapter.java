@@ -12,8 +12,8 @@ package org.eclipse.handly.ui.workingset;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.adapter.ContentAdapterUtil;
 import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.model.adapter.NullContentAdapter;
 import org.eclipse.ui.IContainmentAdapter;
 import org.eclipse.ui.ide.ResourceUtil;
 
@@ -35,14 +35,13 @@ public abstract class AbstractContainmentAdapter
     @Override
     public boolean contains(Object workingSetElement, Object element, int flags)
     {
-        IHandle workingSetElementHandle = ContentAdapterUtil.getHandle(
-            workingSetElement, getContentAdapter());
+        IHandle workingSetElementHandle = getContentAdapter().getHandle(
+            workingSetElement);
         if (workingSetElementHandle == null || element == null)
             return false;
 
         IResource resource = null;
-        IHandle elementHandle = ContentAdapterUtil.getHandle(element,
-            getContentAdapter());
+        IHandle elementHandle = getContentAdapter().getHandle(element);
         if (elementHandle == null)
         {
             resource = ResourceUtil.getResource(element);
@@ -69,19 +68,18 @@ public abstract class AbstractContainmentAdapter
     protected abstract IHandle getElementFor(IResource resource);
 
     /**
-     * Returns the optional content adapter that defines the mapping between
-     * elements of the underlying Handly based model and the working set's
-     * content.
+     * Returns the content adapter that defines a mapping between elements
+     * of a Handly based model and the working set's content.
      * <p>
-     * Default implementation always returns <code>null</code>. Subclasses may
-     * override.
+     * Default implementation returns a {@link NullContentAdapter}.
+     * Subclasses may override.
      * </p>
      *
-     * @return {@link IContentAdapter}, or <code>null</code> if none
+     * @return {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {
-        return null;
+        return NullContentAdapter.INSTANCE;
     }
 
     protected boolean contains(IHandle workingSetElement, IHandle element,

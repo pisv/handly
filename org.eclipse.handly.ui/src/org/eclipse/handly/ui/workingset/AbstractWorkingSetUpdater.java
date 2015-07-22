@@ -25,8 +25,8 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
-import org.eclipse.handly.model.adapter.ContentAdapterUtil;
 import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.model.adapter.NullContentAdapter;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetUpdater;
 
@@ -137,19 +137,18 @@ public abstract class AbstractWorkingSetUpdater
         IElementChangeListener listener);
 
     /**
-     * Returns the optional content adapter that defines the mapping between
-     * elements of the underlying Handly based model and the working set's
-     * content.
+     * Returns the content adapter that defines a mapping between elements
+     * of a Handly based model and the working set's content.
      * <p>
-     * Default implementation always returns <code>null</code>. Subclasses may
-     * override.
+     * Default implementation returns a {@link NullContentAdapter}.
+     * Subclasses may override.
      * </p>
      *
-     * @return {@link IContentAdapter}, or <code>null</code> if none
+     * @return {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {
-        return null;
+        return NullContentAdapter.INSTANCE;
     }
 
     protected void processHandleDelta(IHandleDelta delta,
@@ -157,8 +156,7 @@ public abstract class AbstractWorkingSetUpdater
     {
         IHandle element = delta.getElement();
         IAdaptable wsElement =
-            (IAdaptable)ContentAdapterUtil.getCorrespondingElement(element,
-                getContentAdapter());
+            (IAdaptable)getContentAdapter().getCorrespondingElement(element);
         int index = result.indexOf(wsElement);
         int kind = delta.getKind();
         int flags = delta.getFlags();
@@ -183,8 +181,8 @@ public abstract class AbstractWorkingSetUpdater
                 if ((flags & IHandleDelta.F_MOVED_TO) != 0)
                 {
                     IAdaptable wsMovedToElement =
-                        (IAdaptable)ContentAdapterUtil.getCorrespondingElement(
-                            delta.getMovedToElement(), getContentAdapter());
+                        (IAdaptable)getContentAdapter().getCorrespondingElement(
+                            delta.getMovedToElement());
                     result.set(index, wsMovedToElement);
                 }
                 else
@@ -267,8 +265,7 @@ public abstract class AbstractWorkingSetUpdater
             }
             else
             {
-                IHandle handle = ContentAdapterUtil.getHandle(element,
-                    getContentAdapter());
+                IHandle handle = getContentAdapter().getHandle(element);
                 if (handle != null)
                 {
                     IResource resource = handle.getResource();

@@ -16,9 +16,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.adapter.ContentAdapterUtil;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
+import org.eclipse.handly.model.adapter.NullContentAdapter;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.ResourceUtil;
@@ -50,8 +50,7 @@ public class ProblemMarkerListenerContribution
     protected boolean affects(IResourceChangeEvent event, Object inputElement)
     {
         IResource resource = null;
-        IHandle handle = ContentAdapterUtil.getHandle(inputElement,
-            getContentAdapter());
+        IHandle handle = getContentAdapter().getHandle(inputElement);
         if (handle != null)
             resource = handle.getResource();
         else
@@ -98,15 +97,16 @@ public class ProblemMarkerListenerContribution
     }
 
     /**
-     * Returns the installed content adapter, if any.
+     * Returns the installed content adapter, or a {@link NullContentAdapter}
+     * if none.
      *
-     * @return {@link IContentAdapter}, or <code>null</code> if none
+     * @return {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {
         ICommonOutlinePage outlinePage = getOutlinePage();
         if (outlinePage instanceof IContentAdapterProvider)
             return ((IContentAdapterProvider)outlinePage).getContentAdapter();
-        return null;
+        return NullContentAdapter.INSTANCE;
     }
 }

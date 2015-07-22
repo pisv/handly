@@ -17,9 +17,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceConstruct;
-import org.eclipse.handly.model.adapter.ContentAdapterUtil;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
+import org.eclipse.handly.model.adapter.NullContentAdapter;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.ui.ide.ResourceUtil;
@@ -70,8 +70,7 @@ public class ProblemMarkerLabelDecorator
         IDecorationContext context) throws CoreException
     {
         IResource resource = null;
-        IHandle handle = ContentAdapterUtil.getHandle(element,
-            getContentAdapter(context));
+        IHandle handle = getContentAdapter(context).getHandle(element);
         if (element instanceof IResource)
             resource = (IResource)element;
         else if (handle != null)
@@ -95,16 +94,17 @@ public class ProblemMarkerLabelDecorator
     }
 
     /**
-     * Returns the optional content adapter that defines the mapping between
-     * elements of the underlying Handly based model and the viewer's content.
+     * Returns the content adapter that defines a mapping between elements
+     * of a Handly based model and the viewer's content.
      * <p>
      * Default implementation requests the content adapter from the
      * {@link IContentAdapterProvider} registered in the decoration context
      * under the name <code>IContentAdapterProvider.class.getName()</code>.
+     * If no provider is available, a {@link NullContentAdapter} is returned.
      * </p>
      *
      * @param context never <code>null</code>
-     * @return {@link IContentAdapter}, or <code>null</code> if none
+     * @return {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter(IDecorationContext context)
     {
@@ -113,7 +113,7 @@ public class ProblemMarkerLabelDecorator
                 IContentAdapterProvider.class.getName());
         if (provider != null)
             return provider.getContentAdapter();
-        return null;
+        return NullContentAdapter.INSTANCE;
     }
 
     /**

@@ -17,9 +17,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.ui.SourceElementUtil;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
-import org.eclipse.handly.model.adapter.ContentAdapterUtil;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
+import org.eclipse.handly.model.adapter.NullContentAdapter;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
@@ -101,8 +101,8 @@ public class SourceElementLinkingHelper
     protected void linkToEditor(ITextEditor editor,
         IStructuredSelection selection)
     {
-        IHandle element = ContentAdapterUtil.getHandle(
-            selection.getFirstElement(), getContentAdapter());
+        IHandle element = getContentAdapter().getHandle(
+            selection.getFirstElement());
         if (!(element instanceof ISourceElement))
             return;
         ISourceElement sourceElement = (ISourceElement)element;
@@ -152,13 +152,13 @@ public class SourceElementLinkingHelper
      */
     protected IStructuredSelection getLinkedSelection(ITextSelection selection)
     {
-        IHandle input = ContentAdapterUtil.getHandle(
-            getOutlinePage().getTreeViewer().getInput(), getContentAdapter());
+        IHandle input = getContentAdapter().getHandle(
+            getOutlinePage().getTreeViewer().getInput());
         if (!(input instanceof ISourceElement))
             return null;
-        Object element = ContentAdapterUtil.getCorrespondingElement(
+        Object element = getContentAdapter().getCorrespondingElement(
             SourceElementUtil.getElementAt((ISourceElement)input,
-                selection.getOffset()), getContentAdapter());
+                selection.getOffset()));
         if (element == null)
             return null;
         return new StructuredSelection(element);
@@ -213,16 +213,17 @@ public class SourceElementLinkingHelper
     }
 
     /**
-     * Returns the installed content adapter, if any.
+     * Returns the installed content adapter, or a {@link NullContentAdapter}
+     * if none.
      *
-     * @return {@link IContentAdapter}, or <code>null</code> if none
+     * @return {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {
         ICommonOutlinePage outlinePage = getOutlinePage();
         if (outlinePage instanceof IContentAdapterProvider)
             return ((IContentAdapterProvider)outlinePage).getContentAdapter();
-        return null;
+        return NullContentAdapter.INSTANCE;
     }
 
     private void cancelLinkToOutlineJob()
@@ -260,9 +261,8 @@ public class SourceElementLinkingHelper
             final ISelection baseSelection = selection;
             if (baseSelection == null || baseSelection.isEmpty())
                 return Status.OK_STATUS;
-            IHandle input = ContentAdapterUtil.getHandle(
-                getOutlinePage().getTreeViewer().getInput(),
-                getContentAdapter());
+            IHandle input = getContentAdapter().getHandle(
+                getOutlinePage().getTreeViewer().getInput());
             if (!(input instanceof ISourceElement))
                 return Status.OK_STATUS;
 
