@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.outline;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
@@ -53,7 +56,8 @@ public abstract class CommonOutlinePage
 {
     private TreeViewer treeViewer;
     private IEditorPart editor;
-    private ListenerList contributionList = new ListenerList();
+    private List<IOutlineContribution> contributionList =
+        new ArrayList<IOutlineContribution>();
     private ListenerList inputChangeListeners = new ListenerList();
     private ListenerList selectionChangedListeners = new ListenerList();
     private IPropertyListener editorInputListener = new IPropertyListener()
@@ -90,17 +94,21 @@ public abstract class CommonOutlinePage
     @Override
     public void addOutlineContribution(IOutlineContribution contribution)
     {
-        contributionList.add(contribution);
-        if (getTreeViewer() != null)
-            contribution.init(this);
+        if (contributionList.add(contribution))
+        {
+            if (getTreeViewer() != null && !getControl().isDisposed())
+                contribution.init(this);
+        }
     }
 
     @Override
     public void removeOutlineContribution(IOutlineContribution contribution)
     {
-        contributionList.remove(contribution);
-        if (getTreeViewer() != null)
-            contribution.dispose();
+        if (contributionList.remove(contribution))
+        {
+            if (getTreeViewer() != null)
+                contribution.dispose();
+        }
     }
 
     @Override
@@ -363,15 +371,15 @@ public abstract class CommonOutlinePage
 
     private void initContributions()
     {
-        Object[] contributions = contributionList.getListeners();
-        for (final Object contribution : contributions)
+        List<IOutlineContribution> contributions =
+            new ArrayList<IOutlineContribution>(contributionList);
+        for (final IOutlineContribution contribution : contributions)
         {
             SafeRunner.run(new ISafeRunnable()
             {
                 public void run() throws Exception
                 {
-                    ((IOutlineContribution)contribution).init(
-                        CommonOutlinePage.this);
+                    contribution.init(CommonOutlinePage.this);
                 }
 
                 public void handleException(Throwable exception)
@@ -384,14 +392,15 @@ public abstract class CommonOutlinePage
 
     private void disposeContributions()
     {
-        Object[] contributions = contributionList.getListeners();
-        for (final Object contribution : contributions)
+        List<IOutlineContribution> contributions =
+            new ArrayList<IOutlineContribution>(contributionList);
+        for (final IOutlineContribution contribution : contributions)
         {
             SafeRunner.run(new ISafeRunnable()
             {
                 public void run() throws Exception
                 {
-                    ((IOutlineContribution)contribution).dispose();
+                    contribution.dispose();
                 }
 
                 public void handleException(Throwable exception)
