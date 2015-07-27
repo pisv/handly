@@ -114,4 +114,46 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>javadoc</id>
+      <properties>
+        <javadoc.title>Eclipse Handly ${handly.version} API (Incubation)</javadoc.title>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho.extras</groupId>
+            <artifactId>tycho-document-bundle-plugin</artifactId>
+            <version>${tycho.extras.version}</version>
+            <configuration>
+              <javadocOptions>
+                <encoding>UTF-8</encoding>
+                <ignoreError>false</ignoreError>
+                <includes>
+                  <include>org.eclipse.handly.*</include>
+                </includes>
+                <excludes>
+                  <exclude>org.eclipse.handly.internal.*</exclude>
+                </excludes>
+                <additionalArguments>
+                  <additionalArgument>-windowtitle "${javadoc.title}"</additionalArgument>
+                  <additionalArgument>-doctitle "${javadoc.title}"</additionalArgument>
+                </additionalArguments>
+              </javadocOptions>
+            </configuration>
+            <executions>
+              <execution>
+                <id>javadoc</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>javadoc</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
