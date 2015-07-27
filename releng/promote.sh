@@ -176,3 +176,22 @@ $ECLIPSE_HOME/$ECLIPSE_EXECUTABLE -application org.eclipse.wtp.releng.tools.addR
 if [[ "$?" != "0" ]]; then
     exit -1
 fi
+
+#
+# Downloading Handly Javadocs
+#
+
+echo "Downloading Handly Javadocs..."
+
+curl --insecure -s -S -O https://hudson.eclipse.org/handly/job/$JOB_NAME/$BUILD_ID/artifact/build/apidocs/*zip*/apidocs.zip
+if [[ "$?" != "0" ]]; then
+    exit -1
+fi
+
+echo "Unzipping Handly Javadocs..."
+
+unzip apidocs.zip -d $REPO_VERSION > /dev/null
+if [[ "$?" != "0" ]]; then
+    exit -1
+fi
+rm -f apidocs.zip
