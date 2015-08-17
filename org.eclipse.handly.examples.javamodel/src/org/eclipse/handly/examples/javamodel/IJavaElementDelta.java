@@ -27,7 +27,7 @@ public interface IJavaElementDelta
      * of a project has changed. This flag is only valid if the element is
      * an {@link IJavaProject}.
      */
-    int F_CLASSPATH_CHANGED = 0x10000; // lower end of model-specific range
+    long F_CLASSPATH_CHANGED = 1L << 32; // lower end of model-specific range
 
     @Override
     IJavaElement getElement();

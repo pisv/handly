@@ -41,7 +41,7 @@ public class HandleDelta
         new IResourceDelta[0];
 
     protected int kind;
-    protected int flags;
+    protected long flags;
     protected final IHandle element;
     protected IHandle movedFromElement;
     protected IHandle movedToElement;
@@ -84,7 +84,7 @@ public class HandleDelta
     }
 
     @Override
-    public final int getFlags()
+    public final long getFlags()
     {
         return flags;
     }
@@ -157,7 +157,7 @@ public class HandleDelta
     }
 
     /**
-     * Same as <code>{@link #insertAdded(IHandle, int) insertAdded}(element, 0)</code>
+     * Same as <code>{@link #insertAdded(IHandle, long) insertAdded}(element, 0)</code>
      *
      * @param element the added element (not <code>null</code>)
      * @return this delta object (never <code>null</code>)
@@ -176,14 +176,14 @@ public class HandleDelta
      * @param flags change flags
      * @return this delta object (never <code>null</code>)
      */
-    public HandleDelta insertAdded(IHandle element, int flags)
+    public HandleDelta insertAdded(IHandle element, long flags)
     {
         insert(newAdded(element, flags));
         return this;
     }
 
     /**
-     * Same as <code>{@link #insertRemoved(IHandle, int) insertRemoved}(element, 0)</code>
+     * Same as <code>{@link #insertRemoved(IHandle, long) insertRemoved}(element, 0)</code>
      *
      * @param element the removed element (not <code>null</code>)
      * @return this delta object (never <code>null</code>)
@@ -202,7 +202,7 @@ public class HandleDelta
      * @param flags change flags
      * @return this delta object (never <code>null</code>)
      */
-    public HandleDelta insertRemoved(IHandle element, int flags)
+    public HandleDelta insertRemoved(IHandle element, long flags)
     {
         HandleDelta delta = newDelta(element);
         delta.flags = flags;
@@ -226,7 +226,7 @@ public class HandleDelta
      * @param flags change flags
      * @return this delta object (never <code>null</code>)
      */
-    public HandleDelta insertChanged(IHandle element, int flags)
+    public HandleDelta insertChanged(IHandle element, long flags)
     {
         insert(newChanged(element, flags));
         return this;
@@ -440,7 +440,7 @@ public class HandleDelta
                 break;
             default:
                 // unknown -> existing child becomes the child with the existing child's flags
-                int flags = existingChild.getFlags();
+                long flags = existingChild.getFlags();
                 affectedChildren[index] = child;
                 child.flags |= flags;
             }
@@ -641,7 +641,7 @@ public class HandleDelta
     /**
      * Debugging purposes
      */
-    protected boolean toDebugString(StringBuilder builder, int flags)
+    protected boolean toDebugString(StringBuilder builder, long flags)
     {
         boolean prev = false;
         if ((flags & F_CHILDREN) != 0)
@@ -783,7 +783,7 @@ public class HandleDelta
      * @return a new <code>ADDED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    protected HandleDelta newAdded(IHandle element, int flags)
+    protected HandleDelta newAdded(IHandle element, long flags)
     {
         HandleDelta delta = newDelta(element);
         delta.kind = ADDED;
@@ -800,7 +800,7 @@ public class HandleDelta
      * @return a new <code>REMOVED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    protected HandleDelta newRemoved(IHandle element, int flags)
+    protected HandleDelta newRemoved(IHandle element, long flags)
     {
         HandleDelta delta = newDelta(element);
         delta.kind = REMOVED;
@@ -817,7 +817,7 @@ public class HandleDelta
      * @return a new <code>CHANGED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    protected HandleDelta newChanged(IHandle element, int flags)
+    protected HandleDelta newChanged(IHandle element, long flags)
     {
         HandleDelta delta = newDelta(element);
         delta.kind = CHANGED;

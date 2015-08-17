@@ -27,7 +27,7 @@ class JavaHandleDelta
 
     private final IJavaElementDelta delta;
     private final int kind;
-    private final int flags;
+    private final long flags;
 
     /**
      * Constructs a <code>JavaHandleDelta</code> for the given Java element delta.
@@ -56,7 +56,7 @@ class JavaHandleDelta
     }
 
     @Override
-    public int getFlags()
+    public long getFlags()
     {
         return flags;
     }
@@ -126,10 +126,10 @@ class JavaHandleDelta
         }
     }
 
-    private static int convertFlags(IJavaElementDelta delta)
+    private static long convertFlags(IJavaElementDelta delta)
     {
         int flags = delta.getFlags();
-        int result = 0;
+        long result = 0;
         if ((flags & IJavaElementDelta.F_CHILDREN) != 0)
             result |= F_CHILDREN;
         if ((flags & IJavaElementDelta.F_CONTENT) != 0)

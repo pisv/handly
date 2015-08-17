@@ -245,7 +245,7 @@ public abstract class BaseReconciler
      */
     protected boolean isAffectedBy(IHandleDelta delta, ISourceFile workingCopy)
     {
-        int flags = delta.getFlags();
+        long flags = delta.getFlags();
         if (flags == IHandleDelta.F_SYNC
             || flags == IHandleDelta.F_WORKING_COPY)
             return false;

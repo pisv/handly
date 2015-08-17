@@ -76,30 +76,30 @@ public interface IHandleDelta
      * Change flag indicating that the content of the element has changed.
      * This flag is only valid for elements which correspond to source elements.
      */
-    int F_CONTENT = 0x000001;
+    long F_CONTENT = 1L << 0;
 
     /**
      * Change flag indicating that there are changes to the children of the element.
      */
-    int F_CHILDREN = 0x000002;
+    long F_CHILDREN = 1L << 1;
 
     /**
      * Change flag indicating that the element was moved from another location.
      * The location of the old element can be retrieved using {@link #getMovedFromElement}.
      */
-    int F_MOVED_FROM = 0x000004;
+    long F_MOVED_FROM = 1L << 2;
 
     /**
      * Change flag indicating that the element was moved to another location.
      * The location of the new element can be retrieved using {@link #getMovedToElement}.
      */
-    int F_MOVED_TO = 0x000008;
+    long F_MOVED_TO = 1L << 3;
 
     /**
      * Change flag indicating that the element has changed position relatively
      * to its siblings.
      */
-    int F_REORDER = 0x000010;
+    long F_REORDER = 1L << 4;
 
     /**
      * Change flag indicating that this is a fine-grained delta, that is,
@@ -112,35 +112,35 @@ public interface IHandleDelta
      * were not considered ({@link #F_FINE_GRAINED} is not set).
      * </p>
      */
-    int F_FINE_GRAINED = 0x000020;
+    long F_FINE_GRAINED = 1L << 5;
 
     /**
      * Change flag indicating that the underlying <code>IProject</code>
      * has been opened or closed. This flag is only valid if the element
      * represents a project.
      */
-    int F_OPEN = 0x000040;
+    long F_OPEN = 1L << 6;
 
     /**
      * Change flag indicating that the underlying <code>IProject</code>'s
      * description has changed. This flag is only valid if the element
      * represents a project.
      */
-    int F_DESCRIPTION = 0x000080;
+    long F_DESCRIPTION = 1L << 7;
 
     /**
      * Change flag indicating that a source file has become a working copy,
      * or that a working copy has reverted to a source file. This flag is
      * only valid if the element represents a source file.
      */
-    int F_WORKING_COPY = 0x000100;
+    long F_WORKING_COPY = 1L << 8;
 
     /**
      * Change flag indicating that the underlying <code>IFile</code> of
      * a working copy has changed. This flag is only valid if the element
      * represents a source file.
      */
-    int F_UNDERLYING_RESOURCE = 0x000200;
+    long F_UNDERLYING_RESOURCE = 1L << 9;
 
     /**
      * Change flag indicating that markers on the element's corresponding
@@ -149,14 +149,14 @@ public interface IHandleDelta
      *
      * @see #getMarkerDeltas()
      */
-    int F_MARKERS = 0x000400;
+    long F_MARKERS = 1L << 10;
 
     /**
      * Change flag indicating that sync status of the element's corresponding
      * resource has changed. This flag is only valid if the element has
      * a corresponding resource.
      */
-    int F_SYNC = 0x000800;
+    long F_SYNC = 1L << 11;
 
     /**
      * @return the element that this delta describes a change to
@@ -184,12 +184,12 @@ public interface IHandleDelta
      * Some change flags are meaningful for most models and predefined
      * in this interface, while others are model-specific and defined by
      * the model implementor. The range for model-specific flags starts from
-     * <code>0x10000</code> and includes the upper 16 bits of <code>int</code>
-     * value. The lower 16 bits are reserved for predefined generic change flags.
+     * {@code 1L << 32} and includes the upper 32 bits of <code>long</code>
+     * value. The lower 32 bits are reserved for predefined generic change flags.
      * </p>
      * @return flags that describe how the element has changed
      */
-    int getFlags();
+    long getFlags();
 
     /**
      * @return deltas for the affected (added, removed, or changed) children

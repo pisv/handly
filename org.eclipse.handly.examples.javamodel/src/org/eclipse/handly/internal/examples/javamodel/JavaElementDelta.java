@@ -84,7 +84,7 @@ public class JavaElementDelta
     }
 
     @Override
-    protected boolean toDebugString(StringBuilder builder, int flags)
+    protected boolean toDebugString(StringBuilder builder, long flags)
     {
         boolean prev = super.toDebugString(builder, flags);
         if ((flags & F_CLASSPATH_CHANGED) != 0)

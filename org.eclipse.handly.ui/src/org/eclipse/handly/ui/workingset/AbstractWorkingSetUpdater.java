@@ -159,7 +159,7 @@ public abstract class AbstractWorkingSetUpdater
             (IAdaptable)getContentAdapter().getCorrespondingElement(element);
         int index = result.indexOf(wsElement);
         int kind = delta.getKind();
-        int flags = delta.getFlags();
+        long flags = delta.getFlags();
         if (kind == IHandleDelta.CHANGED && (flags & IHandleDelta.F_OPEN) != 0)
         {
             IResource project = element.getResource();
