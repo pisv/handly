@@ -740,7 +740,10 @@ public class HandleDelta
      */
     protected void toDebugString(IHandle element, StringBuilder builder)
     {
-        builder.append(element.getName());
+        if (element instanceof Handle)
+            builder.append(((Handle)element).toDebugString());
+        else
+            builder.append(element.getName());
     }
 
     /**
