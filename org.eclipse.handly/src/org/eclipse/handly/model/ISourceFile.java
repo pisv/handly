@@ -66,11 +66,21 @@ public interface ISourceFile
         throws CoreException;
 
     /**
-     * Returns the buffer opened for this source file. There may be at most one
-     * (in terms of <code>equals</code>) buffer opened for a given source file
-     * at a time. Thus, buffers may be shared by multiple clients. Note that
-     * the returned buffer may have unsaved changes if it has been modified
-     * by another client.
+     * Convenience method. Same as <code>getBuffer(true, monitor)</code>.
+     *
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the buffer opened for this source file (never <code>null</code>)
+     * @throws CoreException if this source file does not exist
+     *  or if its contents cannot be accessed
+     * @see #getBuffer(boolean, IProgressMonitor)
+     */
+    IBuffer openBuffer(IProgressMonitor monitor) throws CoreException;
+
+    /**
+     * Returns the buffer opened for this source file. Note that buffers may
+     * be shared by multiple clients, so the returned buffer may have unsaved
+     * changes if it has been modified by another client.
      * <p>
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for disposing it when finished. The buffer will be
@@ -93,18 +103,6 @@ public interface ISourceFile
      *  or if its contents cannot be accessed
      * @see IBuffer
      */
-    IBuffer openBuffer(boolean create, IProgressMonitor monitor)
+    IBuffer getBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException;
-
-    /**
-     * Convenience method. Same as <code>openBuffer(true, monitor)</code>.
-     *
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @return the buffer opened for this source file (never <code>null</code>)
-     * @throws CoreException if this source file does not exist
-     *  or if its contents cannot be accessed
-     * @see #openBuffer(boolean, IProgressMonitor)
-     */
-    IBuffer openBuffer(IProgressMonitor monitor) throws CoreException;
 }

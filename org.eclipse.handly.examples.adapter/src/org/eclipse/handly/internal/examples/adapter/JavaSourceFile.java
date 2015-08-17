@@ -88,11 +88,11 @@ class JavaSourceFile
     @Override
     public IBuffer openBuffer(IProgressMonitor monitor) throws CoreException
     {
-        return openBuffer(true, monitor);
+        return getBuffer(true, monitor);
     }
 
     @Override
-    public IBuffer openBuffer(boolean create, IProgressMonitor monitor)
+    public IBuffer getBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException
     {
         if (!create && ITextFileBufferManager.DEFAULT.getTextFileBuffer(

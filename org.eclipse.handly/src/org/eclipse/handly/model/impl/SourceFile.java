@@ -75,7 +75,14 @@ public abstract class SourceFile
     }
 
     @Override
-    public final IBuffer openBuffer(boolean create, IProgressMonitor monitor)
+    public final IBuffer openBuffer(IProgressMonitor monitor)
+        throws CoreException
+    {
+        return getBuffer(true, monitor);
+    }
+
+    @Override
+    public final IBuffer getBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException
     {
         WorkingCopyInfo info = getWorkingCopyInfo();
@@ -102,13 +109,6 @@ public abstract class SourceFile
                 discardWorkingCopyInfo();
             }
         }
-    }
-
-    @Override
-    public final IBuffer openBuffer(IProgressMonitor monitor)
-        throws CoreException
-    {
-        return openBuffer(true, monitor);
     }
 
     /**
