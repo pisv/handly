@@ -575,7 +575,7 @@ public class HandleDelta
         {
             builder.append('\t');
         }
-        builder.append(((Handle)getElement()).toDebugString());
+        toDebugString(element, builder);
         toDebugString(builder);
         for (HandleDelta child : affectedChildren)
         {
@@ -662,17 +662,18 @@ public class HandleDelta
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
-            builder.append("MOVED_FROM(" //$NON-NLS-1$
-                + ((Handle)getMovedFromElement()).toStringWithAncestors()
-                + ')');
+            builder.append("MOVED_FROM("); //$NON-NLS-1$
+            toStringWithAncestors(getMovedFromElement(), builder);
+            builder.append(')');
             prev = true;
         }
         if ((flags & F_MOVED_TO) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
-            builder.append("MOVED_TO(" //$NON-NLS-1$
-                + ((Handle)getMovedToElement()).toStringWithAncestors() + ')');
+            builder.append("MOVED_TO("); //$NON-NLS-1$
+            toStringWithAncestors(getMovedToElement(), builder);
+            builder.append(')');
             prev = true;
         }
         if ((flags & F_REORDER) != 0)
@@ -732,6 +733,29 @@ public class HandleDelta
             prev = true;
         }
         return prev;
+    }
+
+    /**
+     * Debugging purposes
+     */
+    protected void toDebugString(IHandle element, StringBuilder builder)
+    {
+        builder.append(element.getName());
+    }
+
+    /**
+     * Debugging purposes
+     */
+    protected void toStringWithAncestors(IHandle element, StringBuilder builder)
+    {
+        toDebugString(element, builder);
+        IHandle parent = element.getParent();
+        if (parent != null && parent.getParent() != null)
+        {
+            builder.append(" [in "); //$NON-NLS-1$
+            toStringWithAncestors(parent, builder);
+            builder.append(']');
+        }
     }
 
     /**
