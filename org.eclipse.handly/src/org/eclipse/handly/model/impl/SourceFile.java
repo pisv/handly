@@ -221,6 +221,25 @@ public abstract class SourceFile
     public final void reconcile(boolean force, IProgressMonitor monitor)
         throws CoreException
     {
+        reconcile(force, null, monitor);
+    }
+
+    /**
+     * This overload of the <code>reconcile</code> method takes an additional
+     * <code>Object</code> argument reserved for model-specific use.
+     *
+     * @param force indicates whether reconciling has to be performed
+     *  even if the working copy's contents have not changed since it was last
+     *  reconciled
+     * @param arg reserved for model-specific use (may be <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @throws CoreException if this working copy cannot be reconciled
+     * @see {@link #reconcile(boolean, IProgressMonitor)}
+     */
+    public final void reconcile(boolean force, Object arg,
+        IProgressMonitor monitor) throws CoreException
+    {
         WorkingCopyInfo info = getWorkingCopyInfo();
         if (info == null)
             return; // not a working copy
@@ -231,7 +250,7 @@ public abstract class SourceFile
                 if (monitor == null)
                     monitor = new NullProgressMonitor();
 
-                info.getBuffer().reconcile(force, monitor);
+                info.getBuffer().reconcile(force, arg, monitor);
             }
             finally
             {

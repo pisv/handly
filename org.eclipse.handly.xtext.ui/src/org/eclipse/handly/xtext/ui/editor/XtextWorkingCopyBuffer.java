@@ -134,7 +134,7 @@ public final class XtextWorkingCopyBuffer
     }
 
     @Override
-    public void reconcile(boolean force, IProgressMonitor pm)
+    public void reconcile(boolean force, Object arg, IProgressMonitor pm)
         throws CoreException
     {
         getDocument().reconcile(force);
