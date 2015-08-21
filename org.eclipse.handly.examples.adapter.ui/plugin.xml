@@ -15,7 +15,7 @@
          point="org.eclipse.ui.editors">
       <editor
             id="org.eclipse.handly.examples.adapter.ui.JavaEditor"
-            name="Example Java Editor (Handly Adapter Example)"
+            name="Java Editor (Handly Adapter Example)"
             extensions="java"
             default="false"
             class="org.eclipse.handly.internal.examples.adapter.ui.JavaEditor"

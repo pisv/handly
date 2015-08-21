@@ -13,8 +13,8 @@ supplied by JDT. This is made possible by the model adaptation facility
 (https://bugs.eclipse.org/472840).
 
 To try it out, launch runtime Eclipse (you can use the predefined launch
-configuration), open a Java compilation unit with the "Example Java Editor
-(Handly Adapter Example)", and play with the outline.
+configuration), open a Java compilation unit with the "Java Editor (Handly
+Adapter Example)", and play with the outline.
 
 Things to note:
 
