@@ -163,7 +163,7 @@ public interface IHandle
     final class ToStringStyle
     {
         private final TextIndent indent;
-        private final EnumSet<Option> options;
+        private final Set<Option> options;
 
         /**
          * Creates a new style with the given indent and options.
@@ -178,7 +178,7 @@ public interface IHandle
             if (options == null)
                 throw new IllegalArgumentException();
             this.indent = indent;
-            this.options = options;
+            this.options = Collections.unmodifiableSet(options);
         }
 
         /**
@@ -198,7 +198,7 @@ public interface IHandle
          */
         public Set<Option> getOptions()
         {
-            return Collections.unmodifiableSet(options);
+            return options;
         }
 
         /**
