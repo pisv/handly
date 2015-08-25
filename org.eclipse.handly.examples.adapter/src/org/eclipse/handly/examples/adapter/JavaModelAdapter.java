@@ -17,7 +17,7 @@ import org.eclipse.handly.model.IHandle;
 import org.eclipse.jdt.core.IJavaElement;
 
 /**
- * Facade to the adapter for the JDT Java model.
+ * Facade to the Handly adapter for the JDT Java model.
  */
 public class JavaModelAdapter
 {
