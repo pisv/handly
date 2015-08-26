@@ -17,6 +17,7 @@ import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyReconciler;
 import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.ui.IWorkingCopyManager;
@@ -92,7 +93,8 @@ public class SourceFileDocumentProvider
                 element));
         try
         {
-            sourceFile.becomeWorkingCopy(buffer, null); // will addRef() the buffer
+            sourceFile.becomeWorkingCopy(buffer, WorkingCopyInfoFactory.INSTANCE,
+                null); // will addRef() the buffer
         }
         finally
         {

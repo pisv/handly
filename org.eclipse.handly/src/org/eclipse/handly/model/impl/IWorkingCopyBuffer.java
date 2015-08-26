@@ -16,9 +16,6 @@ import org.eclipse.handly.buffer.IBuffer;
 
 /**
  * Represents a buffer that can be associated with a working copy.
- * This interface is part of the internal API for working copy management
- * and is not intended to be used by general clients. Implementations must be
- * thread-safe.
  *
  * @see IBuffer
  * @noimplement This interface is not intended to be implemented by clients.

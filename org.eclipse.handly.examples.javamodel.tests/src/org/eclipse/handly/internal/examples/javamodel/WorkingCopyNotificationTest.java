@@ -24,6 +24,7 @@ import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
+import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
@@ -245,7 +246,8 @@ public class WorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.becomeWorkingCopy(buffer, null);
+        workingCopy.becomeWorkingCopy(buffer, WorkingCopyInfoFactory.INSTANCE,
+            null);
         try
         {
             runnable.run(null);

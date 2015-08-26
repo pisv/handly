@@ -134,16 +134,22 @@ public abstract class SourceFile
      * @param buffer the working copy buffer to be associated with
      *  this source file (not <code>null</code>). The buffer will be
      *  <code>addRef</code>'ed if this method succeeds, and will NOT be
-     *  <code>addRef</code>'ed if this method fails with an exception
+     *  <code>addRef</code>'ed if this method throws an exception
+     * @param factory the factory of working copy info (not <code>null</code>).
+     *  The working copy info is used to associate such information as
+     *  the working copy buffer with the working copy. Clients can
+     *  use a {@link WorkingCopyInfoFactory#INSTANCE default} factory
+     *  or substitute a custom implementation of the factory
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if the working copy cannot be created
      * @see {@link #discardWorkingCopy()}
      */
     public final void becomeWorkingCopy(IWorkingCopyBuffer buffer,
-        IProgressMonitor monitor) throws CoreException
+        IWorkingCopyInfoFactory factory, IProgressMonitor monitor)
+            throws CoreException
     {
-        if (createWorkingCopyInfo(buffer))
+        if (createWorkingCopyInfo(buffer, factory))
         {
             boolean success = false;
             try
@@ -212,7 +218,7 @@ public abstract class SourceFile
             }
             finally
             {
-                discardWorkingCopy();
+                discardWorkingCopyInfo();
             }
         }
     }
@@ -269,7 +275,7 @@ public abstract class SourceFile
     }
 
     /**
-     * Internal API. This method should be used only from {@link IWorkingCopyBuffer}
+     * This method should only be used from {@link IWorkingCopyBuffer}
      * implementations. Other clients are not intended to invoke this method.
      * Subclasses may override.
      *
@@ -433,9 +439,10 @@ public abstract class SourceFile
         }
     }
 
-    private boolean createWorkingCopyInfo(IWorkingCopyBuffer buffer)
+    private boolean createWorkingCopyInfo(IWorkingCopyBuffer buffer,
+        IWorkingCopyInfoFactory factory)
     {
-        return getHandleManager().createWorkingCopyInfo(this, buffer);
+        return getHandleManager().createWorkingCopyInfo(this, buffer, factory);
     }
 
     private WorkingCopyInfo getWorkingCopyInfo()
@@ -443,7 +450,14 @@ public abstract class SourceFile
         return getHandleManager().getWorkingCopyInfo(this);
     }
 
-    private WorkingCopyInfo peekAtWorkingCopyInfo()
+    /**
+     * Returns the working copy info for this source file without
+     * incrementing the info's reference count.
+     *
+     * @return the working copy info for this source file,
+     *  or <code>null</code> if this source file has no working copy info
+     */
+    protected final WorkingCopyInfo peekAtWorkingCopyInfo()
     {
         return getHandleManager().peekAtWorkingCopyInfo(this);
     }
@@ -454,10 +468,14 @@ public abstract class SourceFile
     }
 
     /**
-     * Part of the internal API intended for use in {@link IWorkingCopyBuffer}
-     * implementations. May be subclassed to augment default behavior,
-     * e.g. to send out a delta notification indicating the nature of the
-     * change of the working copy since the last time it was reconciled.
+     * This class is intended to be used in {@link IWorkingCopyBuffer}
+     * implementations.
+     * <p>
+     * Clients can use this class as it stands, or extend it to augment
+     * the default behavior, e.g. to send out a delta notification indicating
+     * the nature of the change of the working copy since the last time
+     * it was reconciled.
+     * </p>
      */
     public class ReconcileOperation
     {

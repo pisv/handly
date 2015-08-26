@@ -24,6 +24,7 @@ import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.ui.IElementForEditorInputFactory;
 import org.eclipse.handly.ui.texteditor.TextEditorBuffer;
 import org.eclipse.handly.util.TextRange;
@@ -199,7 +200,8 @@ public class HandlyXtextEditorCallback
                     sourceFile, new TextEditorBuffer(editor));
                 try
                 {
-                    sourceFile.becomeWorkingCopy(buffer, null); // will addRef() the buffer
+                    sourceFile.becomeWorkingCopy(buffer,
+                        WorkingCopyInfoFactory.INSTANCE, null); // will addRef() the buffer
                     workingCopies.put(editor, sourceFile);
                 }
                 finally

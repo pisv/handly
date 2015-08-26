@@ -17,7 +17,8 @@ import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 /**
  * Default implementation of {@link IWorkingCopyReconciler}.
  * <p>
- * Clients may extend.
+ * Clients can use this class as it stands or subclass it
+ * as circumstances warrant.
  * </p>
  */
 public class WorkingCopyReconciler

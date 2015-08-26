@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,19 +12,26 @@ package org.eclipse.handly.model.impl;
 
 /**
  * Holds information related to a working copy.
+ * <p>
+ * Clients can use this class as it stands or subclass it
+ * as circumstances warrant.
+ * </p>
+ *
+ * @see IWorkingCopyInfoFactory
  */
-class WorkingCopyInfo
+public class WorkingCopyInfo
 {
     private final IWorkingCopyBuffer buffer;
     private int refCount;
 
     /**
-     * Constructs a new working copy info with its reference count set to 0
-     * and with the given working copy buffer.
+     * Constructs a new working copy info and associates it with the given
+     * buffer. The buffer is NOT <code>addRef</code>'ed, and the info's
+     * reference count is set to 0.
      *
      * @param buffer the buffer of the working copy (not <code>null</code>)
      */
-    public WorkingCopyInfo(IWorkingCopyBuffer buffer)
+    protected WorkingCopyInfo(IWorkingCopyBuffer buffer)
     {
         if ((this.buffer = buffer) == null)
             throw new IllegalArgumentException();
@@ -35,7 +42,7 @@ class WorkingCopyInfo
      *
      * @return the buffer of the working copy (never <code>null</code>)
      */
-    public IWorkingCopyBuffer getBuffer()
+    IWorkingCopyBuffer getBuffer()
     {
         return buffer;
     }
@@ -44,7 +51,7 @@ class WorkingCopyInfo
      * Calls <code>addRef()</code> on the working copy buffer
      * and increments the reference count of the working copy info.
      */
-    public void addRef()
+    void addRef()
     {
         buffer.addRef();
         ++refCount;
@@ -56,7 +63,7 @@ class WorkingCopyInfo
      *
      * @return the updated count
      */
-    public int release()
+    int release()
     {
         buffer.release();
         return --refCount;

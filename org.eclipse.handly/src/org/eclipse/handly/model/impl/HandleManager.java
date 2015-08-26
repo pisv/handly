@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -182,39 +182,43 @@ public class HandleManager
     }
 
     /**
-     * Creates the working copy info for the given source file,
-     * or increments the reference count of the existing info.
+     * Creates the working copy info for the given source file via the given
+     * factory, or increments the reference count of the existing info.
      * <p>
      * If there is no working copy info for the given source file,
-     * the working copy info is created with its reference count set to 1
-     * and with the given working copy buffer. If the working copy info for
+     * the given factory is used to create a working copy info and
+     * associate it with the given working copy buffer; the new info
+     * is then <code>addRef</code>'ed. If the working copy info for
      * the given source file already exists, but with a different buffer,
-     * an <code>IllegalStateException</code> is thrown. Otherwise,
-     * the reference count of the existing info is incremented.
+     * a runtime exception is thrown. Otherwise, the existing info is
+     * <code>addRef</code>'ed.
      * </p>
      *
      * @param handle the source file whose working copy info is to be created
      *  (not <code>null</code>)
      * @param buffer the working copy buffer to be associated with the created
      *  info (not <code>null</code>)
+     * @param factory the factory of working copy info (not <code>null</code>)
      * @return <code>true</code> if the working copy info was created;
      *  <code>false</code> if the working copy info already exists
      * @throws IllegalStateException if the working copy info already exists,
      *  but with a different buffer
      */
     synchronized boolean createWorkingCopyInfo(ISourceFile handle,
-        IWorkingCopyBuffer buffer)
+        IWorkingCopyBuffer buffer, IWorkingCopyInfoFactory factory)
     {
         if (handle == null)
             throw new IllegalArgumentException();
         if (buffer == null)
+            throw new IllegalArgumentException();
+        if (factory == null)
             throw new IllegalArgumentException();
 
         boolean created = false;
         WorkingCopyInfo info = workingCopyInfos.get(handle);
         if (info == null)
         {
-            info = new WorkingCopyInfo(buffer);
+            info = factory.createWorkingCopyInfo(buffer);
             workingCopyInfos.put(handle, info);
             created = true;
         }

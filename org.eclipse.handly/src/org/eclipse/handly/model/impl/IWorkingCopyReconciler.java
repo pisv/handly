@@ -16,8 +16,6 @@ import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 
 /**
  * Represents a reconciler that can be associated with a working copy.
- * This interface is part of the internal API for working copy management
- * and is not intended to be used by general clients.
  *
  * @see DelegatingWorkingCopyBuffer
  */
