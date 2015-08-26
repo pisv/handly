@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
@@ -117,6 +118,16 @@ public class CompilationUnit
     }
 
     @Override
+    public org.eclipse.jdt.core.dom.CompilationUnit reconcile(int astLevel,
+        int reconcileFlags, IProgressMonitor monitor) throws CoreException
+    {
+        boolean force = (reconcileFlags & FORCE_PROBLEM_DETECTION) != 0;
+        ReconcileInfo info = new ReconcileInfo(astLevel, reconcileFlags);
+        reconcile(force, info, monitor);
+        return info.getAst();
+    }
+
+    @Override
     public ReconcileOperation getReconcileOperation()
     {
         return new NotifyingReconcileOperation();
@@ -154,11 +165,27 @@ public class CompilationUnit
     {
         ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setSource(source.toCharArray());
+        parser.setUnitName(getPath().toString());
+        parser.setProject(JavaCore.create(getResource().getProject()));
         parser.setFocalPosition(0); // reduced AST
-        JavaProject javaProject = getAncestor(JavaProject.class);
-        Map<String, String> options = javaProject.getOptions(true);
-        parser.setCompilerOptions(options);
         return parser.createAST(null);
+    }
+
+    org.eclipse.jdt.core.dom.CompilationUnit createAst(String source,
+        int astLevel, boolean resolveBindings, boolean enableStatementsRecovery,
+        boolean enableBindingsRecovery, boolean ignoreMethodBodies,
+        IProgressMonitor monitor) throws CoreException
+    {
+        ASTParser parser = ASTParser.newParser(astLevel);
+        parser.setSource(source.toCharArray());
+        parser.setUnitName(getPath().toString());
+        parser.setProject(JavaCore.create(getResource().getProject()));
+        parser.setResolveBindings(resolveBindings);
+        parser.setStatementsRecovery(enableStatementsRecovery);
+        parser.setBindingsRecovery(enableBindingsRecovery);
+        parser.setIgnoreMethodBodies(ignoreMethodBodies);
+        return (org.eclipse.jdt.core.dom.CompilationUnit)parser.createAST(
+            monitor);
     }
 
     @Override

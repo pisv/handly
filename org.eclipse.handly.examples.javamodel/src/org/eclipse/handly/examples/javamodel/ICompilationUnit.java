@@ -11,7 +11,10 @@
 package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 /**
  * Represents an entire Java compilation unit (Java source file).
@@ -24,6 +27,40 @@ import org.eclipse.handly.model.ISourceFile;
 public interface ICompilationUnit
     extends IJavaElement, ISourceFile
 {
+    /**
+     * Constant indicating that a reconcile operation should not return an AST.
+     */
+    public static final int NO_AST =
+        org.eclipse.jdt.core.ICompilationUnit.NO_AST;
+
+    /**
+     * Constant indicating that a reconcile operation should recompute
+     * the problems even if the source hasn't changed.
+     */
+    public static final int FORCE_PROBLEM_DETECTION =
+        org.eclipse.jdt.core.ICompilationUnit.FORCE_PROBLEM_DETECTION;
+
+    /**
+     * Constant indicating that a reconcile operation should enable
+     * the statements recovery.
+     */
+    public static final int ENABLE_STATEMENTS_RECOVERY =
+        org.eclipse.jdt.core.ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+
+    /**
+     * Constant indicating that a reconcile operation should enable
+     * the bindings recovery.
+     */
+    public static final int ENABLE_BINDINGS_RECOVERY =
+        org.eclipse.jdt.core.ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+
+    /**
+     * Constant indicating that a reconcile operation could ignore
+     * to parse the method bodies.
+     */
+    public static final int IGNORE_METHOD_BODIES =
+        org.eclipse.jdt.core.ICompilationUnit.IGNORE_METHOD_BODIES;
+
     IPackageFragment getParent();
 
     /**
@@ -112,4 +149,29 @@ public interface ICompilationUnit
      *  occurs while accessing its corresponding resource
      */
     IType[] getTypes() throws CoreException;
+
+    /**
+     * Reconciles the contents of this working copy, sends out a delta
+     * notification indicating the nature of the change of the working copy
+     * since the last time it was reconciled, and returns a compilation unit AST
+     * if requested.
+     * <p>
+     * The reconcile flags are a bit-mask of constants {@link
+     * #FORCE_PROBLEM_DETECTION}, {@link #ENABLE_STATEMENTS_RECOVERY},
+     * {@link #ENABLE_BINDINGS_RECOVERY}, {@link #IGNORE_METHOD_BODIES}.
+     * Unspecified values are left for future use.
+     * </p>
+     *
+     * @param astLevel either {@link #NO_AST} if no AST is wanted, or the
+     *  {@link AST#newAST(int) AST API level} of the AST if one is wanted
+     * @param reconcileFlags the given reconcile flags
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the compilation unit AST or <code>null</code> if not requested,
+     *  or if the requested level of AST API is not supported,
+     *  or if the working copy was consistent
+     * @throws CoreException if the working copy cannot be reconciled
+     */
+    CompilationUnit reconcile(int astLevel, int reconcileFlags,
+        IProgressMonitor monitor) throws CoreException;
 }

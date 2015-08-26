@@ -24,7 +24,6 @@ import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
@@ -48,7 +47,7 @@ public class WorkingCopyNotificationTest
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
         buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
-            new WorkingCopyReconciler(workingCopy));
+            new JavaWorkingCopyReconciler(workingCopy));
         workingCopy.getRoot().addElementChangeListener(listener);
     }
 

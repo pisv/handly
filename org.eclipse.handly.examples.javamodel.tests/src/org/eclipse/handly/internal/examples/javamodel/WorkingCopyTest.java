@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
@@ -17,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.SaveMode;
+import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
@@ -24,8 +27,11 @@ import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.util.TextRange;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.ReplaceEdit;
@@ -36,6 +42,8 @@ import org.eclipse.text.edits.ReplaceEdit;
 public class WorkingCopyTest
     extends WorkspaceTestCase
 {
+    private static final int AST_LEVEL = AST.JLS4;
+
     private CompilationUnit workingCopy;
     private IWorkingCopyBuffer buffer;
 
@@ -47,7 +55,7 @@ public class WorkingCopyTest
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
         buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
-            new WorkingCopyReconciler(workingCopy));
+            new JavaWorkingCopyReconciler(workingCopy));
     }
 
     @Override
@@ -166,6 +174,108 @@ public class WorkingCopyTest
                 methods = typeX.getMethods();
                 assertEquals(1, methods.length);
                 assertEquals(typeX.getMethod("f", new String[0]), methods[0]);
+            }
+        });
+    }
+
+    public void test004() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                org.eclipse.jdt.core.dom.CompilationUnit cu =
+                    workingCopy.reconcile(AST_LEVEL, 0, monitor);
+                assertNull(cu);
+            }
+        });
+    }
+
+    public void test005() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                org.eclipse.jdt.core.dom.CompilationUnit cu =
+                    workingCopy.reconcile(AST_LEVEL,
+                        ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
+                assertNotNull(cu);
+            }
+        });
+    }
+
+    public void test006() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                org.eclipse.jdt.core.dom.CompilationUnit cu =
+                    workingCopy.reconcile(ICompilationUnit.NO_AST,
+                        ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
+                assertNull(cu);
+            }
+        });
+    }
+
+    public void test007() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                org.eclipse.jdt.core.dom.CompilationUnit cu =
+                    workingCopy.reconcile(AST_LEVEL,
+                        ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
+                assertNotNull(cu);
+                assertTrue(cu.getAST().hasResolvedBindings());
+                assertFalse(cu.getAST().hasStatementsRecovery());
+                assertFalse(cu.getAST().hasBindingsRecovery());
+                List<?> types = cu.types();
+                assertEquals(1, types.size());
+                TypeDeclaration typeX = (TypeDeclaration)types.get(0);
+                assertEquals("X", typeX.getName().getIdentifier());
+                List<?> bodyDeclarations = typeX.bodyDeclarations();
+                assertEquals(2, bodyDeclarations.size());
+                MethodDeclaration methodF =
+                    (MethodDeclaration)bodyDeclarations.get(1);
+                assertEquals("f", methodF.getName().getIdentifier());
+                Block body = methodF.getBody();
+                assertNotNull(body);
+                assertEquals(1, body.statements().size());
+            }
+        });
+    }
+
+    public void test008() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                org.eclipse.jdt.core.dom.CompilationUnit cu =
+                    workingCopy.reconcile(AST_LEVEL,
+                        ICompilationUnit.FORCE_PROBLEM_DETECTION
+                            | ICompilationUnit.ENABLE_STATEMENTS_RECOVERY
+                            | ICompilationUnit.ENABLE_BINDINGS_RECOVERY
+                            | ICompilationUnit.IGNORE_METHOD_BODIES, monitor);
+                assertNotNull(cu);
+                assertTrue(cu.getAST().hasResolvedBindings());
+                assertTrue(cu.getAST().hasStatementsRecovery());
+                assertTrue(cu.getAST().hasBindingsRecovery());
+                List<?> types = cu.types();
+                assertEquals(1, types.size());
+                TypeDeclaration typeX = (TypeDeclaration)types.get(0);
+                assertEquals("X", typeX.getName().getIdentifier());
+                List<?> bodyDeclarations = typeX.bodyDeclarations();
+                assertEquals(2, bodyDeclarations.size());
+                MethodDeclaration methodF =
+                    (MethodDeclaration)bodyDeclarations.get(1);
+                assertEquals("f", methodF.getName().getIdentifier());
+                Block body = methodF.getBody();
+                assertNotNull(body);
+                assertEquals(0, body.statements().size());
             }
         });
     }
