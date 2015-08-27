@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,6 +65,13 @@ public interface IBuffer
      * @param contents the new buffer contents (not <code>null</code>)
      */
     void setContents(String contents);
+
+    /**
+     * Returns the buffer contents.
+     *
+     * @return the buffer contents (never <code>null</code>)
+     */
+    String getContents();
 
     /**
      * Returns whether the buffer has been modified since the last time

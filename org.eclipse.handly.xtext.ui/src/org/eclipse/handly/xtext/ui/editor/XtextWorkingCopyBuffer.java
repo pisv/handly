@@ -109,6 +109,12 @@ public final class XtextWorkingCopyBuffer
     }
 
     @Override
+    public String getContents()
+    {
+        return delegate.getContents();
+    }
+
+    @Override
     public boolean hasUnsavedChanges()
     {
         return delegate.hasUnsavedChanges();
