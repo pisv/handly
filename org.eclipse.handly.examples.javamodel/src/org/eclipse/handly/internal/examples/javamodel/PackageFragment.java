@@ -96,7 +96,7 @@ public class PackageFragment
         if (name == null)
             throw new IllegalArgumentException();
         return new CompilationUnit(this, ((IContainer)getResource()).getFile(
-            new Path(name)));
+            new Path(name)), null);
     }
 
     @Override
@@ -192,7 +192,8 @@ public class PackageFragment
                         member.getName(), sourceLevel,
                         complianceLevel).getSeverity() != IStatus.ERROR)
                     {
-                        children.add(new CompilationUnit(this, (IFile)member));
+                        children.add(new CompilationUnit(this, (IFile)member,
+                            null));
                     }
                 }
             }

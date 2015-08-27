@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -18,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
+import org.eclipse.handly.buffer.PrivateBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IField;
@@ -27,8 +29,10 @@ import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.util.TextRange;
+import org.eclipse.jdt.core.IProblemRequestor;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -47,6 +51,8 @@ public class WorkingCopyTest
 
     private CompilationUnit workingCopy;
     private IWorkingCopyBuffer buffer;
+    private List<IProblem> problems;
+    private IProblemRequestor problemRequestor = new ProblemRequestor();
 
     @Override
     protected void setUp() throws Exception
@@ -57,6 +63,7 @@ public class WorkingCopyTest
             project.getFile(new Path("src/X.java")));
         buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
             new JavaWorkingCopyReconciler(workingCopy));
+        problems = new ArrayList<IProblem>();
     }
 
     @Override
@@ -281,11 +288,90 @@ public class WorkingCopyTest
         });
     }
 
+    public void test009() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                workingCopy.reconcile(ICompilationUnit.NO_AST,
+                    ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
+                assertEquals(1, problems.size());
+            }
+        });
+    }
+
+    public void test010() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                //@formatter:off
+                final CompilationUnit privateCopy = new CompilationUnit(
+                    workingCopy.getParent(), workingCopy.getFile(),
+                    new WorkingCopyOwner() {});
+                assertFalse(privateCopy.equals(workingCopy));
+                final IWorkingCopyBuffer privateBuffer =
+                    new DelegatingWorkingCopyBuffer(new PrivateBuffer(buffer),
+                        new JavaWorkingCopyReconciler(privateCopy));
+                try
+                {
+                    doWithWorkingCopy(privateCopy, privateBuffer, null, new IWorkspaceRunnable()
+                    {
+                        public void run(IProgressMonitor monitor) throws CoreException
+                        {
+                            //@formatter:on
+                            IType[] types = privateCopy.getTypes();
+                            assertEquals(1, types.length);
+                            IType typeX = privateCopy.getType("X");
+                            assertEquals(typeX, types[0]);
+
+                            TextRange r =
+                                typeX.getSourceElementInfo().getIdentifyingRange();
+                            BufferChange change = new BufferChange(
+                                new ReplaceEdit(r.getOffset(), r.getLength(),
+                                    "Y"));
+                            change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+                            privateBuffer.applyChange(change, null);
+
+                            privateCopy.reconcile(false, monitor);
+
+                            assertFalse(typeX.exists());
+
+                            types = privateCopy.getTypes();
+                            assertEquals(1, types.length);
+                            assertEquals(privateCopy.getType("Y"), types[0]);
+
+                            workingCopy.reconcile(false, monitor);
+
+                            types = workingCopy.getTypes();
+                            assertEquals(1, types.length);
+                            assertEquals(workingCopy.getType("X"), types[0]);
+                            assertFalse(typeX.equals(types[0]));
+                        }
+                    });
+                }
+                finally
+                {
+                    privateBuffer.dispose();
+                }
+            }
+        });
+    }
+
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.becomeWorkingCopy(buffer, WorkingCopyInfoFactory.INSTANCE,
-            null);
+        doWithWorkingCopy(workingCopy, buffer, problemRequestor, runnable);
+    }
+
+    private static void doWithWorkingCopy(CompilationUnit workingCopy,
+        IWorkingCopyBuffer buffer, IProblemRequestor problemRequestor,
+        IWorkspaceRunnable runnable) throws CoreException
+    {
+        workingCopy.becomeWorkingCopy(buffer, new JavaWorkingCopyInfoFactory(
+            problemRequestor), null);
         try
         {
             runnable.run(null);
@@ -293,6 +379,33 @@ public class WorkingCopyTest
         finally
         {
             workingCopy.discardWorkingCopy();
+        }
+    }
+
+    private class ProblemRequestor
+        implements IProblemRequestor
+    {
+        @Override
+        public void acceptProblem(IProblem problem)
+        {
+            problems.add(problem);
+        }
+
+        @Override
+        public void beginReporting()
+        {
+            problems.clear();
+        }
+
+        @Override
+        public void endReporting()
+        {
+        }
+
+        @Override
+        public boolean isActive()
+        {
+            return true;
         }
     }
 }

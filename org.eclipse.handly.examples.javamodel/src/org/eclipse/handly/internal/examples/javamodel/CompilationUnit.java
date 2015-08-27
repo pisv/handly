@@ -28,9 +28,13 @@ import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.HandleManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
+import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 
@@ -41,8 +45,13 @@ public class CompilationUnit
     extends SourceFile
     implements ICompilationUnit
 {
+    @SuppressWarnings("restriction")
+    private static final WorkingCopyOwner PRIMARY_OWNER =
+        org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner.PRIMARY;
     private static final IImportDeclaration[] NO_IMPORTS =
         new IImportDeclaration[0];
+
+    private final WorkingCopyOwner owner;
 
     /**
      * Constructs a handle for a Java compilation unit with the given
@@ -50,14 +59,20 @@ public class CompilationUnit
      *
      * @param parent the parent of the element (not <code>null</code>)
      * @param file the workspace file underlying the element (not <code>null</code>)
+     * @param owner the working copy owner, or <code>null</code> if the primary
+     *  owner should be used
      */
-    public CompilationUnit(PackageFragment parent, IFile file)
+    public CompilationUnit(PackageFragment parent, IFile file,
+        WorkingCopyOwner owner)
     {
         super(parent, file);
         if (!file.getParent().equals(parent.getResource()))
             throw new IllegalArgumentException();
         if (!"java".equals(file.getFileExtension())) //$NON-NLS-1$
             throw new IllegalArgumentException();
+        if (owner == null)
+            owner = PRIMARY_OWNER;
+        this.owner = owner;
     }
 
     @Override
@@ -134,6 +149,15 @@ public class CompilationUnit
     }
 
     @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof CompilationUnit))
+            return false;
+        CompilationUnit other = (CompilationUnit)obj;
+        return owner.equals(other.owner) && super.equals(obj);
+    }
+
+    @Override
     protected HandleManager getHandleManager()
     {
         return JavaModelManager.INSTANCE.getHandleManager();
@@ -188,6 +212,37 @@ public class CompilationUnit
             monitor);
     }
 
+    void reportProblems(IProblem[] problems)
+    {
+        if (problems == null || problems.length == 0)
+            return;
+        WorkingCopyInfo info = peekAtWorkingCopyInfo();
+        if (info instanceof JavaWorkingCopyInfo)
+        {
+            reportProblems(((JavaWorkingCopyInfo)info).problemRequestor,
+                problems);
+        }
+    }
+
+    private static void reportProblems(IProblemRequestor requestor,
+        IProblem[] problems)
+    {
+        if (requestor == null || !requestor.isActive())
+            return;
+        try
+        {
+            requestor.beginReporting();
+            for (IProblem problem : problems)
+            {
+                requestor.acceptProblem(problem);
+            }
+        }
+        finally
+        {
+            requestor.endReporting();
+        }
+    }
+
     @Override
     protected void buildStructure(SourceElementBody body,
         Map<IHandle, Body> newElements, Object ast, String source)
@@ -223,6 +278,9 @@ public class CompilationUnit
                 CompilationUnit.this);
 
             super.reconcile(ast, snapshot, forced);
+
+            reportProblems(
+                ((org.eclipse.jdt.core.dom.CompilationUnit)ast).getProblems());
 
             deltaBuilder.buildDelta();
 
