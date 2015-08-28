@@ -296,7 +296,7 @@ public class WorkingCopyTest
             {
                 workingCopy.reconcile(ICompilationUnit.NO_AST,
                     ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
-                assertEquals(1, problems.size());
+                assertFalse(problems.isEmpty());
             }
         });
     }
