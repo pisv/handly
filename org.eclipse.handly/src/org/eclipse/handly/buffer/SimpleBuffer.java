@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.buffer;
 
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -17,42 +19,52 @@ import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.snapshot.DocumentSnapshot;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
+import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.text.edits.MalformedTreeException;
 
 /**
- * A "private copy" of a buffer. The private buffer is created on top
- * of another buffer and has the contents of that buffer initially, but is
- * modified independently. Saving the private buffer propagates its contents
- * to both the underlying buffer and that buffer's resource. The underlying
- * buffer must not be disposed before the private buffer is disposed. Disposing
- * the private buffer does not dispose the underlying buffer.
+ * A simple implementation of {@link IDocumentBuffer}. This implementation
+ * is not backed by an underlying resource, so saving the buffer only modifies
+ * {@link #hasUnsavedChanges()} flag -- it does not really save the buffer's
+ * contents.
  * <p>
- * Concurrent access to a private buffer or its document will result
- * in unspecified behavior.
+ * An instance of this class is safe for use by multiple threads. Clients can
+ * use this class as it stands or subclass it as circumstances warrant.
  * </p>
  */
-public class PrivateBuffer
+public class SimpleBuffer
     implements IDocumentBuffer
 {
-    protected final IBuffer buffer;
-    protected final Document document;
-    protected long modificationStamp;
-    private boolean closed;
+    protected final IDocument document;
+    private volatile long synchronizationStamp;
+    private volatile boolean closed;
 
     /**
-     * Creates a new private buffer on top of the given buffer
-     * and initializes it with the contents of that buffer.
-     *
-     * @param buffer the given buffer (not <code>null</code>)
+     * Creates a new buffer instance that is initially empty.
+     * It is the client responsibility to {@link IBuffer#dispose() dispose}
+     * the created buffer after it is no longer needed.
      */
-    public PrivateBuffer(IBuffer buffer)
+    public SimpleBuffer()
     {
-        if ((this.buffer = buffer) == null)
-            throw new IllegalArgumentException();
-        document = new Document(buffer.getContents());
-        modificationStamp = document.getModificationStamp();
+        this(null);
+    }
+
+    /**
+     * Creates a new buffer instance and initializes it with the given contents.
+     * It is the client responsibility to {@link IBuffer#dispose() dispose}
+     * the created buffer after it is no longer needed.
+     *
+     * @param contents initial contents
+     */
+    public SimpleBuffer(String contents)
+    {
+        document = createEmptyDocument();
+        if (contents != null && !contents.isEmpty())
+            document.set(contents);
+        synchronizationStamp =
+            ((IDocumentExtension4)document).getModificationStamp();
     }
 
     @Override
@@ -111,7 +123,7 @@ public class PrivateBuffer
     public boolean hasUnsavedChanges()
     {
         checkNotClosed();
-        return document.getModificationStamp() != modificationStamp;
+        return ((IDocumentExtension4)document).getModificationStamp() != synchronizationStamp;
     }
 
     @Override
@@ -121,13 +133,13 @@ public class PrivateBuffer
     }
 
     @Override
-    public void save(boolean overwrite, IProgressMonitor monitor)
+    public synchronized void save(boolean overwrite, IProgressMonitor monitor)
         throws CoreException
     {
         checkNotClosed();
-        buffer.setContents(document.get());
-        buffer.save(overwrite, monitor);
-        modificationStamp = document.getModificationStamp();
+        doSave(overwrite, monitor);
+        synchronizationStamp =
+            ((IDocumentExtension4)document).getModificationStamp();
     }
 
     @Override
@@ -135,6 +147,25 @@ public class PrivateBuffer
     {
         checkNotClosed();
         closed = true;
+    }
+
+    protected IDocument createEmptyDocument()
+    {
+        IDocument document = ITextFileBufferManager.DEFAULT.createEmptyDocument(
+            null, LocationKind.NORMALIZE);
+        ((ISynchronizable)document).setLockObject(new Object());
+        return document;
+    }
+
+    protected BufferChangeOperation createChangeOperation(IBufferChange change)
+    {
+        return new BufferChangeOperation(this, change);
+    }
+
+    protected void doSave(boolean overwrite, IProgressMonitor monitor)
+        throws CoreException
+    {
+        // default implementation does nothing; subclasses may override
     }
 
     protected boolean isClosed()
@@ -146,10 +177,5 @@ public class PrivateBuffer
     {
         if (isClosed())
             throw new IllegalStateException("the buffer has been closed"); //$NON-NLS-1$
-    }
-
-    protected BufferChangeOperation createChangeOperation(IBufferChange change)
-    {
-        return new BufferChangeOperation(this, change);
     }
 }

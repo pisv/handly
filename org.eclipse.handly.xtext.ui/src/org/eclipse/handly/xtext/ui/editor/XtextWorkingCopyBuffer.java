@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
 import org.eclipse.handly.buffer.IDocumentBuffer;
 import org.eclipse.handly.internal.xtext.ui.Activator;
@@ -24,26 +27,36 @@ import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.util.CancelIndicator;
 
 /**
- * Implements {@link IWorkingCopyBuffer} on top of a {@link HandlyXtextDocument}.
- * Reconciles the working copy when the underlying document is reconciled.
+ * Implementation of {@link IWorkingCopyBuffer} delegating to the given
+ * {@link HandlyXtextDocument}-based buffer. Reconciles the working copy
+ * when the underlying document is reconciled.
+ * <p>
+ * An instance of this class is safe for use by multiple threads,
+ * provided that the given delegate buffer is thread-safe.
+ * </p>
  */
 public final class XtextWorkingCopyBuffer
     implements IWorkingCopyBuffer
 {
     private final IDocumentBuffer delegate;
     private final HandlyXtextDocument.IReconcilingListener reconcilingListener;
-    private int refCount = 1;
+    private final AtomicInteger refCount = new AtomicInteger(1);
 
     /**
-     * Constructs a new working copy buffer that takes ownership of the given
-     * delegate buffer. The delegate will be disposed by the created instance
-     * and must not be disposed by the client who initially obtained the delegate,
-     * even if the constructor throwed an exception.
+     * Constructs a new working copy buffer delegating to the given
+     * {@link HandlyXtextDocument}-based buffer.
+     * <p>
+     * The client gives up ownership of the delegate buffer and must not dispose
+     * it, even if this constructor threw an exception. Ownership of the delegate
+     * is transferred to the created buffer. It is the client responsibility to
+     * {@link IBuffer#dispose() dispose} the created buffer after it is no longer
+     * needed.
+     * </p>
      *
-     * @param workingCopy the working copy the buffer is for -
-     *  must not be <code>null</code>
-     * @param delegate the underlying document buffer -
-     *  must not be <code>null</code> and must provide a {@link HandlyXtextDocument}
+     * @param workingCopy the source file the working copy buffer is created for
+     *  - must not be <code>null</code>
+     * @param delegate the delegate buffer - must not be <code>null</code>
+     *  and must provide a <code>HandlyXtextDocument</code>
      */
     public XtextWorkingCopyBuffer(final SourceFile workingCopy,
         IDocumentBuffer delegate)
@@ -147,15 +160,15 @@ public final class XtextWorkingCopyBuffer
     }
 
     @Override
-    public synchronized void addRef()
+    public void addRef()
     {
-        ++refCount;
+        refCount.incrementAndGet();
     }
 
     @Override
-    public synchronized void release()
+    public void release()
     {
-        if (--refCount == 0)
+        if (refCount.decrementAndGet() == 0)
         {
             try
             {

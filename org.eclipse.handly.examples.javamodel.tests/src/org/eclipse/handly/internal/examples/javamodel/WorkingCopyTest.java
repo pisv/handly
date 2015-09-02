@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
-import org.eclipse.handly.buffer.PrivateBuffer;
+import org.eclipse.handly.buffer.Buffers;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IField;
@@ -313,7 +313,9 @@ public class WorkingCopyTest
                     new WorkingCopyOwner() {});
                 assertFalse(privateCopy.equals(workingCopy));
                 final IWorkingCopyBuffer privateBuffer =
-                    new DelegatingWorkingCopyBuffer(new PrivateBuffer(buffer),
+                    new DelegatingWorkingCopyBuffer(
+                        Buffers.createChildBuffer(workingCopy.openBuffer(null),
+                            true),
                         new JavaWorkingCopyReconciler(privateCopy));
                 try
                 {

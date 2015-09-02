@@ -17,11 +17,21 @@ import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
 
 /**
- * Abstraction of a shared buffer. Clients can take a snapshot of the buffer,
- * construct an edit tree based on the snapshot, and apply the change back to
- * the buffer. Note that an update conflict may occur if the buffer's contents
- * have changed since the inception of the base snapshot. When finished, clients
- * must explicitly give up ownership of the buffer by disposing it.
+ * Represents a potentially shared buffer. A buffer contains the text contents
+ * of a resource. The contents may be in the process of being edited, differing
+ * from the actual contents of the underlying resource.
+ * <p>
+ * Clients can take a snapshot of the buffer, construct an edit tree based on
+ * the snapshot, and apply the change back to the buffer. Note that an update
+ * conflict may occur if the buffer's contents have changed since the inception
+ * of the base snapshot. When finished, clients must explicitly give up ownership
+ * of the buffer by disposing it.
+ * </p>
+ * <p>
+ * Buffers are generally designed to be safe for use by multiple threads.
+ * Each buffer implementation is expected to clearly document thread-safety
+ * guarantees it provides.
+ * </p>
  *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
@@ -51,9 +61,10 @@ public interface IBuffer
      * @return undo change, if requested. Otherwise, <code>null</code>
      * @throws StaleSnapshotException if the buffer's contents have changed
      *  since the inception of the snapshot on which the change is based
-     * @throws CoreException in case of underlying resource failure, or
-     *  if the change's edit tree isn't in a valid state, or if one of the edits
-     *  in the tree can't be executed
+     * @throws CoreException if the change's edit tree isn't in a valid state,
+     *  or if one of the edits in the tree can't be executed, or (if the save
+     *  mode of the change requested buffer save) in case of underlying resource
+     *  failure or if the resource is not synchronized with the file system
      */
     IBufferChange applyChange(IBufferChange change, IProgressMonitor monitor)
         throws CoreException;
@@ -94,14 +105,15 @@ public interface IBuffer
 
     /**
      * Saves the buffer by changing the contents of the underlying resource
-     * to the contents of the buffer. After that call, {@link #hasUnsavedChanges()}
-     * returns <code>false</code>.
+     * to the contents of the buffer.
      *
      * @param overwrite indicates whether the underlying resource should be
      *  overwritten if it is not synchronized with the file system
      * @param monitor a progress monitor to report progress,
      *  or <code>null</code> if no progress reporting is desired
-     * @throws CoreException in case of underlying resource failure
+     * @throws CoreException in case of underlying resource failure,
+     *  or if the resource is not synchronized with the file system
+     *  and <code>overwrite == false</code>
      */
     void save(boolean overwrite, IProgressMonitor monitor) throws CoreException;
 

@@ -13,15 +13,13 @@ package org.eclipse.handly.model.impl;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.handly.buffer.Buffers;
 import org.eclipse.handly.buffer.IBuffer;
-import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceFile;
@@ -88,13 +86,7 @@ public abstract class SourceFile
         WorkingCopyInfo info = getWorkingCopyInfo();
         if (info == null)
         {
-            if (!create && ITextFileBufferManager.DEFAULT.getTextFileBuffer(
-                file.getFullPath(), LocationKind.IFILE) == null)
-            {
-                return null;
-            }
-            return new TextFileBuffer(file, ITextFileBufferManager.DEFAULT,
-                monitor);
+            return Buffers.getTextFileBuffer(file, create);
         }
         else
         {

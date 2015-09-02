@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
@@ -20,6 +22,10 @@ import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 /**
  * Implementation of {@link IWorkingCopyBuffer} delegating to the given
  * {@link IBuffer} and the given {@link IWorkingCopyReconciler}.
+ * <p>
+ * An instance of this class is safe for use by multiple threads,
+ * provided that the given delegate buffer is thread-safe.
+ * </p>
  */
 public final class DelegatingWorkingCopyBuffer
     implements IWorkingCopyBuffer
@@ -28,13 +34,18 @@ public final class DelegatingWorkingCopyBuffer
     private final IWorkingCopyReconciler reconciler;
     private final Object reconcilingLock = new Object();
     private volatile ISnapshot reconciledSnapshot;
-    private int refCount = 1;
+    private final AtomicInteger refCount = new AtomicInteger(1);
 
     /**
-     * Constructs a new working copy buffer that takes ownership of the given
-     * delegate buffer. The delegate will be disposed by the created instance
-     * and must not be disposed by the client who initially obtained the delegate,
-     * even if the constructor throwed an exception.
+     * Constructs a new working copy buffer with the given delegate buffer and
+     * the given working copy reconciler.
+     * <p>
+     * The client gives up ownership of the delegate buffer and must not dispose
+     * it, even if this constructor threw an exception. Ownership of the delegate
+     * is transferred to the created buffer. It is the client responsibility to
+     * {@link IBuffer#dispose() dispose} the created buffer after it is no longer
+     * needed.
+     * </p>
      *
      * @param delegate the delegate buffer (not <code>null</code>)
      * @param reconciler the working copy reconciler (not <code>null</code>)
@@ -92,7 +103,7 @@ public final class DelegatingWorkingCopyBuffer
     @Override
     public boolean mustSaveChanges()
     {
-        return delegate.mustSaveChanges();
+        return refCount.get() == 1 && delegate.mustSaveChanges();
     }
 
     @Override
@@ -126,15 +137,15 @@ public final class DelegatingWorkingCopyBuffer
     }
 
     @Override
-    public synchronized void addRef()
+    public void addRef()
     {
-        ++refCount;
+        refCount.incrementAndGet();
     }
 
     @Override
-    public synchronized void release()
+    public void release()
     {
-        if (--refCount == 0)
+        if (refCount.decrementAndGet() == 0)
             delegate.dispose();
     }
 

@@ -30,7 +30,11 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
- * Implements {@link IBuffer} on top of a {@link ITextEditor}.
+ * Implementation of {@link IDocumentBuffer} backed by an {@link ITextEditor}.
+ * <p>
+ * An instance of this class is safe for use by multiple threads,
+ * provided that the underlying text editor's document is thread-safe.
+ * </p>
  */
 public class TextEditorBuffer
     implements IDocumentBuffer
@@ -42,8 +46,8 @@ public class TextEditorBuffer
 
     /**
      * Creates a new buffer instance and connects it to the given text editor.
-     * It is the client responsibility to {@link #dispose() close} the buffer
-     * after it is no longer needed.
+     * It is the client responsibility to {@link IBuffer#dispose() dispose}
+     * the created buffer after it is no longer needed.
      *
      * @param editor the text editor (not <code>null</code>)
      * @throws CoreException if the buffer could not be connected

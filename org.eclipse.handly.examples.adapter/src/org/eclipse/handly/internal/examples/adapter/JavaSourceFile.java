@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.adapter;
 
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.buffer.Buffers;
 import org.eclipse.handly.buffer.IBuffer;
-import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -95,12 +93,6 @@ class JavaSourceFile
     public IBuffer getBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException
     {
-        if (!create && ITextFileBufferManager.DEFAULT.getTextFileBuffer(
-            getFile().getFullPath(), LocationKind.IFILE) == null)
-        {
-            return null;
-        }
-        return new TextFileBuffer(getFile(), ITextFileBufferManager.DEFAULT,
-            monitor);
+        return Buffers.getTextFileBuffer(getFile(), create);
     }
 }

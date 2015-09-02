@@ -15,6 +15,7 @@ import org.eclipse.jface.text.IDocument;
 /**
  * A buffer that stores its contents in a document.
  *
+ * @see IBuffer
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */

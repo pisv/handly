@@ -26,7 +26,11 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 
 /**
- * Implements {@link IBuffer} on top of a {@link ITextFileBuffer}.
+ * Implementation of {@link IDocumentBuffer} backed by an {@link ITextFileBuffer}.
+ * <p>
+ * An instance of this class is safe for use by multiple threads, provided that
+ * the underlying <code>ITextFileBuffer</code> is thread-safe.
+ * </p>
  */
 public class TextFileBuffer
     implements IDocumentBuffer
@@ -39,23 +43,22 @@ public class TextFileBuffer
     /**
      * Creates a new buffer instance and connects it to the underlying {@link
      * ITextFileBuffer} for the given file. It is the client responsibility
-     * to {@link #dispose() close} the buffer after it is no longer needed.
+     * to {@link IBuffer#dispose() dispose} the created buffer after it is no
+     * longer needed.
      *
      * @param file the text file (not <code>null</code>)
      * @param bufferManager the manager of the underlying file buffer
      *  (not <code>null</code>)
-     * @param monitor a progress monitor to report progress,
-     *  or <code>null</code> if no progress reporting is desired
      * @throws CoreException if the buffer could not be connected
      */
-    public TextFileBuffer(IFile file, ITextFileBufferManager bufferManager,
-        IProgressMonitor monitor) throws CoreException
+    public TextFileBuffer(IFile file, ITextFileBufferManager bufferManager)
+        throws CoreException
     {
         if ((this.file = file) == null)
             throw new IllegalArgumentException();
         if ((this.bufferManager = bufferManager) == null)
             throw new IllegalArgumentException();
-        bufferManager.connect(file.getFullPath(), LocationKind.IFILE, monitor);
+        bufferManager.connect(file.getFullPath(), LocationKind.IFILE, null);
         buffer = bufferManager.getTextFileBuffer(file.getFullPath(),
             LocationKind.IFILE);
     }
