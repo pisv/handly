@@ -222,7 +222,7 @@ public class SourceFileChange
         if (base == null)
             return result; // OK
 
-        IBuffer buffer = sourceFile.openBuffer(pm);
+        IBuffer buffer = sourceFile.getBuffer(true, pm);
         try
         {
             if (!base.isEqualTo(buffer.getSnapshot()))
@@ -245,8 +245,8 @@ public class SourceFileChange
         pm.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            IBuffer buffer = sourceFile.openBuffer(new SubProgressMonitor(pm,
-                1));
+            IBuffer buffer = sourceFile.getBuffer(true, new SubProgressMonitor(
+                pm, 1));
             try
             {
                 BufferChangeWithExcludes change = new BufferChangeWithExcludes(
@@ -301,7 +301,7 @@ public class SourceFileChange
     @Override
     public String getCurrentContent(IProgressMonitor pm) throws CoreException
     {
-        IBuffer buffer = sourceFile.openBuffer(pm);
+        IBuffer buffer = sourceFile.getBuffer(true, pm);
         try
         {
             NonExpiringSnapshot snapshot = new NonExpiringSnapshot(buffer);

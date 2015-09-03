@@ -61,7 +61,7 @@ public class WorkingCopyTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
+        buffer = new DelegatingWorkingCopyBuffer(workingCopy.getBuffer(),
             new JavaWorkingCopyReconciler(workingCopy));
         problems = new ArrayList<IProblem>();
     }
@@ -314,8 +314,7 @@ public class WorkingCopyTest
                 assertFalse(privateCopy.equals(workingCopy));
                 final IWorkingCopyBuffer privateBuffer =
                     new DelegatingWorkingCopyBuffer(
-                        Buffers.createChildBuffer(workingCopy.openBuffer(null),
-                            true),
+                        Buffers.createChildBuffer(workingCopy.getBuffer(), true),
                         new JavaWorkingCopyReconciler(privateCopy));
                 try
                 {

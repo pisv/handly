@@ -82,7 +82,7 @@ class UndoSourceFileChange
         if (undoChange.getBase() == null)
             return result; // OK
 
-        IBuffer buffer = sourceFile.openBuffer(pm);
+        IBuffer buffer = sourceFile.getBuffer(true, pm);
         try
         {
             if (!undoChange.getBase().isEqualTo(buffer.getSnapshot()))
@@ -105,8 +105,8 @@ class UndoSourceFileChange
         pm.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            IBuffer buffer = sourceFile.openBuffer(new SubProgressMonitor(pm,
-                1));
+            IBuffer buffer = sourceFile.getBuffer(true, new SubProgressMonitor(
+                pm, 1));
             try
             {
                 IBufferChange redoChange;

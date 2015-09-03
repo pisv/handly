@@ -54,7 +54,7 @@ public class FooWorkingCopyNotificationTest
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
         fooModel.addElementChangeListener(listener);
-        buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
+        buffer = new DelegatingWorkingCopyBuffer(workingCopy.getBuffer(),
             new WorkingCopyReconciler(workingCopy));
     }
 

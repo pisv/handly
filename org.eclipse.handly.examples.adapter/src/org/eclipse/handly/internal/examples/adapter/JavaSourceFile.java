@@ -84,9 +84,9 @@ class JavaSourceFile
     }
 
     @Override
-    public IBuffer openBuffer(IProgressMonitor monitor) throws CoreException
+    public IBuffer getBuffer() throws CoreException
     {
-        return getBuffer(true, monitor);
+        return getBuffer(true, null);
     }
 
     @Override
@@ -94,5 +94,12 @@ class JavaSourceFile
         throws CoreException
     {
         return Buffers.getTextFileBuffer(getFile(), create);
+    }
+
+    @Override
+    @Deprecated
+    public IBuffer openBuffer(IProgressMonitor monitor) throws CoreException
+    {
+        return getBuffer(true, monitor);
     }
 }

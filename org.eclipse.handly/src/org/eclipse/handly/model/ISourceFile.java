@@ -66,16 +66,23 @@ public interface ISourceFile
         throws CoreException;
 
     /**
-     * Convenience method. Same as <code>getBuffer(true, monitor)</code>.
+     * Returns the buffer opened for this source file. Note that buffers may
+     * be shared by multiple clients, so the returned buffer may have unsaved
+     * changes if it has been modified by another client.
+     * </p>
+     * <p>
+     * The client takes (potentially shared) ownership of the returned buffer
+     * and is responsible for disposing it when finished. The buffer will be
+     * closed only after it is disposed by every owner. The buffer must not
+     * be accessed by clients which don't own it.
+     * </p>
      *
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
      * @return the buffer opened for this source file (never <code>null</code>)
      * @throws CoreException if this source file does not exist
      *  or if its contents cannot be accessed
-     * @see #getBuffer(boolean, IProgressMonitor)
+     * @see IBuffer
      */
-    IBuffer openBuffer(IProgressMonitor monitor) throws CoreException;
+    IBuffer getBuffer() throws CoreException;
 
     /**
      * Returns the buffer opened for this source file. Note that buffers may
@@ -105,4 +112,16 @@ public interface ISourceFile
      */
     IBuffer getBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException;
+
+    /**
+     * Convenience method. Same as <code>getBuffer(true, monitor)</code>.
+     *
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the buffer opened for this source file (never <code>null</code>)
+     * @throws CoreException if this source file does not exist
+     *  or if its contents cannot be accessed
+     * @deprecated
+     */
+    IBuffer openBuffer(IProgressMonitor monitor) throws CoreException;
 }

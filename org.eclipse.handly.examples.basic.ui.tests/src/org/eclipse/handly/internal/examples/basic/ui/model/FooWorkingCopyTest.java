@@ -46,7 +46,7 @@ public class FooWorkingCopyTest
         super.setUp();
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
-        buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
+        buffer = new DelegatingWorkingCopyBuffer(workingCopy.getBuffer(),
             new WorkingCopyReconciler(workingCopy));
     }
 

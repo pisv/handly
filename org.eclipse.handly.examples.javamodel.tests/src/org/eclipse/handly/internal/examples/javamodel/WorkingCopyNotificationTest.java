@@ -47,7 +47,7 @@ public class WorkingCopyNotificationTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        buffer = new DelegatingWorkingCopyBuffer(workingCopy.openBuffer(null),
+        buffer = new DelegatingWorkingCopyBuffer(workingCopy.getBuffer(),
             new JavaWorkingCopyReconciler(workingCopy));
         workingCopy.getRoot().addElementChangeListener(listener);
     }

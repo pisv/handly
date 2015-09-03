@@ -89,12 +89,12 @@ public class SourceFileDocumentProvider
         if (sourceFile == null)
             return null;
         IWorkingCopyBuffer buffer = new DelegatingWorkingCopyBuffer(
-            sourceFile.openBuffer(null), createWorkingCopyReconciler(sourceFile,
+            sourceFile.getBuffer(), createWorkingCopyReconciler(sourceFile,
                 element));
         try
         {
-            sourceFile.becomeWorkingCopy(buffer, WorkingCopyInfoFactory.INSTANCE,
-                null); // will addRef() the buffer
+            sourceFile.becomeWorkingCopy(buffer,
+                WorkingCopyInfoFactory.INSTANCE, null); // will addRef() the buffer
         }
         finally
         {
