@@ -34,6 +34,9 @@ import org.eclipse.handly.util.TextIndent;
  * to exist. Methods that require underlying elements to exist throw a
  * <code>CoreException</code> when the underlying element is missing.
  * </p>
+ * <p>
+ * Handles are safe for use by multiple threads.
+ * </p>
  *
  * @noimplement This interface is not intended to be implemented by clients.
  */
