@@ -13,7 +13,6 @@ package org.eclipse.handly.xtext.ui.editor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -22,7 +21,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
-import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.ui.IInputElementProvider;
@@ -34,7 +32,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.xtext.ui.editor.IXtextEditorCallback;
 import org.eclipse.xtext.ui.editor.XtextEditor;
@@ -55,11 +52,7 @@ import com.google.inject.Inject;
 public class HandlyXtextEditorCallback
     extends IXtextEditorCallback.NullImpl
 {
-    @Inject(optional = true)
     private IInputElementProvider inputElementProvider;
-    @Inject(optional = true)
-    @SuppressWarnings("deprecation")
-    private org.eclipse.handly.model.ISourceFileFactory sourceFileFactory;
 
     private Map<XtextEditor, SourceFile> workingCopies =
         new HashMap<XtextEditor, SourceFile>();
@@ -69,31 +62,9 @@ public class HandlyXtextEditorCallback
         new HashMap<XtextEditor, HighlightRangeJob>();
 
     @Inject
-    void init()
+    public void setInputElementProvider(IInputElementProvider provider)
     {
-        if (inputElementProvider == null)
-        {
-            if (sourceFileFactory == null)
-                throw new AssertionError(
-                    "No implementation for IInputElementProvider or ISourceFileFactory was bound"); //$NON-NLS-1$
-
-            inputElementProvider = new IInputElementProvider()
-            {
-                @Override
-                public IHandle getElement(IEditorInput input)
-                {
-                    if (input == null)
-                        return null;
-                    IFile file = (IFile)input.getAdapter(IFile.class);
-                    if (file == null)
-                        return null;
-                    @SuppressWarnings("deprecation")
-                    ISourceFile sourceFile = sourceFileFactory.getSourceFile(
-                        file);
-                    return sourceFile;
-                }
-            };
-        }
+        inputElementProvider = provider;
     }
 
     @Override
