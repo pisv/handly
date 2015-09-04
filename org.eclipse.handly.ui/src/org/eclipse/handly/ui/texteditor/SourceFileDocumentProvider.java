@@ -15,6 +15,7 @@ import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
+import org.eclipse.handly.model.impl.IWorkingCopyInfoFactory;
 import org.eclipse.handly.model.impl.IWorkingCopyReconciler;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
@@ -26,8 +27,8 @@ import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 /**
- * Extends {@link TextFileDocumentProvider} for integration with
- * Handly working copy functionality.
+ * Subclass of {@link TextFileDocumentProvider} specialized for
+ * working copy management of {@link SourceFile}s.
  * <p>
  * Clients can use this class as it stands or subclass it
  * as circumstances warrant.
@@ -41,38 +42,43 @@ public class SourceFileDocumentProvider
 
     /**
      * Creates a new source file document provider with no parent.
+     * <p>
+     * The given input element provider is used in the default implementation
+     * of {@link #getSourceFile(Object)}.
+     * </p>
      *
      * @param inputElementProvider the input element provider
-     * @see IInputElementProvider
      */
     public SourceFileDocumentProvider(
         IInputElementProvider inputElementProvider)
     {
-        this(inputElementProvider, null);
+        this(null, inputElementProvider);
     }
 
     /**
      * Creates a new source file document provider with the given parent.
+     * <p>
+     * The given input element provider is used in the default implementation
+     * of {@link #getSourceFile(Object)}.
+     * </p>
      *
+     * @param parent the parent document provider
      * @param inputElementProvider the input element provider
-     * @param parentDocumentProvider the parent document provider
-     * @see IInputElementProvider
      */
-    public SourceFileDocumentProvider(
-        IInputElementProvider inputElementProvider,
-        IDocumentProvider parentDocumentProvider)
+    public SourceFileDocumentProvider(IDocumentProvider parent,
+        IInputElementProvider inputElementProvider)
     {
-        super(parentDocumentProvider);
+        super(parent);
         this.inputElementProvider = inputElementProvider;
     }
 
     @Override
-    public ISourceFile getWorkingCopy(IEditorInput input)
+    public ISourceFile getWorkingCopy(IEditorInput editorInput)
     {
-        FileInfo info = getFileInfo(input);
-        if (info instanceof WorkingCopyInfo)
+        FileInfo info = getFileInfo(editorInput);
+        if (info instanceof SourceFileInfo)
         {
-            return ((WorkingCopyInfo)info).workingCopy;
+            return ((SourceFileInfo)info).workingCopy;
         }
         return null;
     }
@@ -80,49 +86,71 @@ public class SourceFileDocumentProvider
     @Override
     protected FileInfo createEmptyFileInfo()
     {
-        return new WorkingCopyInfo();
+        return new SourceFileInfo();
     }
 
+    /*
+     * Subclasses may extend this method.
+     */
     @Override
     protected FileInfo createFileInfo(Object element) throws CoreException
     {
         FileInfo info = super.createFileInfo(element);
-        if (!(info instanceof WorkingCopyInfo))
+        if (!(info instanceof SourceFileInfo))
             return null;
         SourceFile sourceFile = getSourceFile(element);
         if (sourceFile == null)
             return null;
         IWorkingCopyBuffer buffer = new DelegatingWorkingCopyBuffer(
-            sourceFile.getBuffer(), createWorkingCopyReconciler(sourceFile,
+            sourceFile.getBuffer(), getWorkingCopyReconciler(sourceFile,
                 element));
         try
         {
-            sourceFile.becomeWorkingCopy(buffer,
-                WorkingCopyInfoFactory.INSTANCE, null); // will addRef() the buffer
+            sourceFile.becomeWorkingCopy(buffer, getWorkingCopyInfoFactory(
+                sourceFile, element), null); // will addRef() the buffer
         }
         finally
         {
             buffer.dispose();
         }
-        ((WorkingCopyInfo)info).workingCopy = sourceFile;
+        ((SourceFileInfo)info).workingCopy = sourceFile;
         return info;
     }
 
+    /*
+     * Subclasses may extend this method.
+     */
     @Override
     protected void disposeFileInfo(Object element, FileInfo info)
     {
-        if (info instanceof WorkingCopyInfo)
+        if (info instanceof SourceFileInfo)
         {
-            ((WorkingCopyInfo)info).workingCopy.discardWorkingCopy();
+            ((SourceFileInfo)info).workingCopy.discardWorkingCopy();
         }
         super.disposeFileInfo(element, info);
     }
 
     /**
      * Returns the source file corresponding to the given element.
+     * <p>
+     * The resulting source file will be switched to working copy mode
+     * and associated with the file info object for the given element
+     * in {@link #createFileInfo(Object)}.
+     * </p>
+     * <p>
+     * If the given element is an <code>IEditorInput</code>, this implementation
+     * uses the {@link IInputElementProvider} specified in the constructor to get
+     * the input element for the editor input. If the provided input element is
+     * a {@link SourceFile}, it is returned. Otherwise, <code>null</code> is
+     * returned.
+     * </p>
+     * <p>
+     * Subclasses may extend this method or override it completely.
+     * </p>
      *
      * @param element the element from which to compute the source file
-     * @return the source file, or <code>null</code> if none can be found
+     * @return the source file for the given element,
+     *  or <code>null</code> if none
      */
     protected SourceFile getSourceFile(Object element)
     {
@@ -136,28 +164,58 @@ public class SourceFileDocumentProvider
     }
 
     /**
-     * Returns a new working copy reconciler for the given source file.
+     * Returns the working copy reconciler that is to be used when
+     * reconciling the given source file.
+     * <p>
+     * This implementation returns a {@link WorkingCopyReconciler default}
+     * reconciler. Subclasses may override.
+     * </p>
      *
      * @param sourceFile the source file corresponding to the given element
      *  (never <code>null</code>)
-     * @param element the element
-     * @return the working copy reconciler (not <code>null</code>)
+     * @param element the element (never <code>null</code>)
+     * @return the working copy reconciler for the given source file
+     *  (not <code>null</code>)
      */
-    protected IWorkingCopyReconciler createWorkingCopyReconciler(
+    protected IWorkingCopyReconciler getWorkingCopyReconciler(
         SourceFile sourceFile, Object element)
     {
         return new WorkingCopyReconciler(sourceFile);
     }
 
     /**
-     * Bundle of all required information to allow working copy management.
+     * Returns the working copy info factory that is to be used when
+     * switching the given source file to working copy mode.
+     * <p>
+     * This implementation returns a {@link WorkingCopyInfoFactory default}
+     * factory. Subclasses may override.
+     * </p>
+     *
+     * @param sourceFile the source file corresponding to the given element
+     *  (never <code>null</code>)
+     * @param element the element (never <code>null</code>)
+     * @return the working copy info factory for the given source file
+     *  (not <code>null</code>)
      */
-    protected static class WorkingCopyInfo
+    protected IWorkingCopyInfoFactory getWorkingCopyInfoFactory(
+        SourceFile sourceFile, Object element)
+    {
+        return WorkingCopyInfoFactory.INSTANCE;
+    }
+
+    /**
+     * Bundle of all required information to allow working copy management.
+     * <p>
+     * Can be used as it stands or extended in subclasses as circumstances
+     * warrant.
+     * </p>
+     */
+    protected static class SourceFileInfo
         extends FileInfo
     {
         /**
          * A source file in working copy mode.
          */
-        public SourceFile workingCopy;
+        SourceFile workingCopy;
     }
 }

@@ -24,13 +24,14 @@ import org.eclipse.ui.IEditorInput;
 public interface IWorkingCopyManager
 {
     /**
-     * Returns the working copy remembered for the source file encoded in the
-     * given editor input.
+     * Returns the working copy remembered for the source file corresponding to
+     * the given editor input.
      *
-     * @param input the editor input (may be <code>null</code>)
-     * @return the working copy of the source file, or <code>null</code>
-     *  if the input does not encode a source file, or if there is no
-     *  remembered working copy for this source file
+     * @param editorInput the editor input (may be <code>null</code>)
+     * @return the working copy remembered for the source file corresponding
+     *  to the given editor input, or <code>null</code> if there is no source
+     *  file corresponding to the input or if there is no working copy
+     *  remembered for the corresponding source file
      */
-    ISourceFile getWorkingCopy(IEditorInput input);
+    ISourceFile getWorkingCopy(IEditorInput editorInput);
 }

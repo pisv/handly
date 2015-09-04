@@ -73,7 +73,7 @@ public abstract class SourceFile
     }
 
     @Override
-    public IBuffer getBuffer() throws CoreException
+    public final IBuffer getBuffer() throws CoreException
     {
         return getBuffer(true, null);
     }
