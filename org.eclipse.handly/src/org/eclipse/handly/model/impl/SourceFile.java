@@ -274,7 +274,7 @@ public abstract class SourceFile
     }
 
     /**
-     * This method should only be used from {@link IWorkingCopyBuffer}
+     * This method may only be used from {@link IWorkingCopyBuffer}
      * implementations. Other clients are not intended to invoke this method.
      * Subclasses may override.
      *
@@ -351,7 +351,8 @@ public abstract class SourceFile
                     throw (CoreException)cause;
                 throw new AssertionError(e); // should never happen
             }
-            Object ast = createStructuralAst(snapshot.getContents());
+            Object ast = createStructuralAst(snapshot.getContents(),
+                new NullProgressMonitor());
             astHolder = new AstHolder(ast, snapshot);
         }
 
@@ -371,12 +372,13 @@ public abstract class SourceFile
      * structure and properties as well as of all of its descendant elements.
      *
      * @param source the source string to parse (not <code>null</code>)
+     * @param monitor a progress monitor (not <code>null</code>)
      * @return the (possibly abridged) AST created from the given source string
      *  (never <code>null</code>)
-     * @throws CoreException
+     * @throws CoreException if the AST could not be created
      */
-    protected abstract Object createStructuralAst(String source)
-        throws CoreException;
+    protected abstract Object createStructuralAst(String source,
+        IProgressMonitor monitor) throws CoreException;
 
     /**
      * Initializes the given body based on the given AST and the given source

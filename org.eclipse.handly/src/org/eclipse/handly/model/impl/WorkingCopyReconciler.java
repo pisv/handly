@@ -42,7 +42,8 @@ public class WorkingCopyReconciler
     public void reconcile(NonExpiringSnapshot snapshot, boolean forced,
         Object arg, IProgressMonitor monitor) throws CoreException
     {
-        Object ast = workingCopy.createStructuralAst(snapshot.getContents());
+        Object ast = workingCopy.createStructuralAst(snapshot.getContents(),
+            monitor);
         workingCopy.getReconcileOperation().reconcile(ast, snapshot, forced);
     }
 }

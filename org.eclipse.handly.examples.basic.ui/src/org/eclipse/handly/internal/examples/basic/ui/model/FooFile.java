@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -136,8 +137,8 @@ public class FooFile
      * @throws CoreException if resource loading failed
      */
     @Override
-    protected XtextResource createStructuralAst(String source)
-        throws CoreException
+    protected XtextResource createStructuralAst(String source,
+        IProgressMonitor monitor) throws CoreException
     {
         try
         {

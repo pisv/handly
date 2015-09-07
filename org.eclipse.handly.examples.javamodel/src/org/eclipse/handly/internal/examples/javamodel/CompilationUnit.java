@@ -185,14 +185,15 @@ public class CompilationUnit
     }
 
     @Override
-    protected Object createStructuralAst(String source) throws CoreException
+    protected Object createStructuralAst(String source,
+        IProgressMonitor monitor) throws CoreException
     {
         ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setSource(source.toCharArray());
         parser.setUnitName(getPath().toString());
         parser.setProject(JavaCore.create(getResource().getProject()));
         parser.setFocalPosition(0); // reduced AST
-        return parser.createAST(null);
+        return parser.createAST(monitor);
     }
 
     org.eclipse.jdt.core.dom.CompilationUnit createAst(String source,

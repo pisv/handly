@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.IHandle;
 
 /**
@@ -37,7 +38,8 @@ class SimpleSourceFile
     }
 
     @Override
-    protected Object createStructuralAst(String source) throws CoreException
+    protected Object createStructuralAst(String source,
+        IProgressMonitor monitor) throws CoreException
     {
         return null;
     }
