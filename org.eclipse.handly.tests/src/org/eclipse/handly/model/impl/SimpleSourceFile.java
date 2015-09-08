@@ -46,7 +46,8 @@ class SimpleSourceFile
 
     @Override
     protected void buildStructure(SourceElementBody body,
-        Map<IHandle, Body> newElements, Object ast, String source)
+        Map<IHandle, Body> newElements, Object ast, String source,
+        IProgressMonitor monitor)
     {
     }
 

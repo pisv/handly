@@ -13,6 +13,7 @@ package org.eclipse.handly.model;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.buffer.IBuffer;
 
 /**
@@ -61,6 +62,7 @@ public interface ISourceFile
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if this working copy cannot be reconciled
+     * @throws OperationCanceledException if this method is cancelled
      */
     void reconcile(boolean forceProblemDetection, IProgressMonitor monitor)
         throws CoreException;
@@ -108,6 +110,7 @@ public interface ISourceFile
      *  for this source file
      * @throws CoreException if this source file does not exist
      *  or if its contents cannot be accessed
+     * @throws OperationCanceledException if this method is cancelled
      * @see IBuffer
      */
     IBuffer getBuffer(boolean create, IProgressMonitor monitor)
@@ -121,6 +124,7 @@ public interface ISourceFile
      * @return the buffer opened for this source file (never <code>null</code>)
      * @throws CoreException if this source file does not exist
      *  or if its contents cannot be accessed
+     * @throws OperationCanceledException if this method is cancelled
      * @deprecated
      */
     IBuffer openBuffer(IProgressMonitor monitor) throws CoreException;

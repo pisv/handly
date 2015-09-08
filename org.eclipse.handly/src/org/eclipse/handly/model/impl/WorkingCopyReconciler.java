@@ -12,6 +12,7 @@ package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 
 /**
@@ -42,8 +43,17 @@ public class WorkingCopyReconciler
     public void reconcile(NonExpiringSnapshot snapshot, boolean forced,
         Object arg, IProgressMonitor monitor) throws CoreException
     {
-        Object ast = workingCopy.createStructuralAst(snapshot.getContents(),
-            monitor);
-        workingCopy.getReconcileOperation().reconcile(ast, snapshot, forced);
+        monitor.beginTask("", 2); //$NON-NLS-1$
+        try
+        {
+            Object ast = workingCopy.createStructuralAst(snapshot.getContents(),
+                new SubProgressMonitor(monitor, 1));
+            workingCopy.getReconcileOperation().reconcile(ast, snapshot, forced,
+                new SubProgressMonitor(monitor, 1));
+        }
+        finally
+        {
+            monitor.done();
+        }
     }
 }

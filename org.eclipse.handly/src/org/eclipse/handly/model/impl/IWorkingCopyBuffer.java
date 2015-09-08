@@ -12,6 +12,7 @@ package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.buffer.IBuffer;
 
 /**
@@ -47,6 +48,7 @@ public interface IWorkingCopyBuffer
      * @param arg reserved for model-specific use (may be <code>null</code>)
      * @param monitor a progress monitor (not <code>null</code>)
      * @throws CoreException if the buffer cannot be reconciled
+     * @throws OperationCanceledException if this method is cancelled
      */
     void reconcile(boolean force, Object arg, IProgressMonitor monitor)
         throws CoreException;

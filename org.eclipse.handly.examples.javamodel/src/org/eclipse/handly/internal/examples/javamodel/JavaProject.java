@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
@@ -202,8 +203,8 @@ public class JavaProject
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IHandle, Body> newElements)
-        throws CoreException
+    protected void buildStructure(Body body, Map<IHandle, Body> newElements,
+        IProgressMonitor monitor) throws CoreException
     {
         IClasspathEntry[] rawClasspath = getRawClasspath();
         List<IPackageFragmentRoot> roots =

@@ -83,7 +83,7 @@ public final class XtextWorkingCopyBuffer
                         try
                         {
                             workingCopy.getReconcileOperation().reconcile(
-                                resource, snapshot, forced);
+                                resource, snapshot, forced, null);
                         }
                         catch (CoreException e)
                         {
@@ -109,10 +109,10 @@ public final class XtextWorkingCopyBuffer
     }
 
     @Override
-    public IBufferChange applyChange(IBufferChange change, IProgressMonitor pm)
-        throws CoreException
+    public IBufferChange applyChange(IBufferChange change,
+        IProgressMonitor monitor) throws CoreException
     {
-        return delegate.applyChange(change, pm);
+        return delegate.applyChange(change, monitor);
     }
 
     @Override
@@ -140,10 +140,10 @@ public final class XtextWorkingCopyBuffer
     }
 
     @Override
-    public void save(boolean overwrite, IProgressMonitor pm)
+    public void save(boolean overwrite, IProgressMonitor monitor)
         throws CoreException
     {
-        delegate.save(overwrite, pm);
+        delegate.save(overwrite, monitor);
     }
 
     @Override
@@ -153,7 +153,7 @@ public final class XtextWorkingCopyBuffer
     }
 
     @Override
-    public void reconcile(boolean force, Object arg, IProgressMonitor pm)
+    public void reconcile(boolean force, Object arg, IProgressMonitor monitor)
         throws CoreException
     {
         getDocument().reconcile(force);

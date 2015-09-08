@@ -12,6 +12,7 @@ package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 
 /**
@@ -32,6 +33,7 @@ public interface IWorkingCopyReconciler
      * @param arg reserved for model-specific use (may be <code>null</code>)
      * @param monitor a progress monitor (not <code>null</code>)
      * @throws CoreException if the working copy cannot be reconciled
+     * @throws OperationCanceledException if this method is cancelled
      */
     void reconcile(NonExpiringSnapshot snapshot, boolean forced, Object arg,
         IProgressMonitor monitor) throws CoreException;

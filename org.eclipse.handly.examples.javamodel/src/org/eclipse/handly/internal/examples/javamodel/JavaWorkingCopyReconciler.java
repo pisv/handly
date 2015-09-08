@@ -12,6 +12,7 @@ package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
@@ -41,23 +42,31 @@ public class JavaWorkingCopyReconciler
             super.reconcile(snapshot, forced, arg, monitor);
         else
         {
-            boolean enableStatementsRecovery = (info.reconcileFlags
-                & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0;
-            boolean enableBindingsRecovery = (info.reconcileFlags
-                & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
-            boolean ignoreMethodBodies = (info.reconcileFlags
-                & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
+            monitor.beginTask("", 2); //$NON-NLS-1$
+            try
+            {
+                boolean enableStatementsRecovery = (info.reconcileFlags
+                    & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0;
+                boolean enableBindingsRecovery = (info.reconcileFlags
+                    & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
+                boolean ignoreMethodBodies = (info.reconcileFlags
+                    & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 
-            org.eclipse.jdt.core.dom.CompilationUnit ast =
-                ((CompilationUnit)workingCopy).createAst(snapshot.getContents(),
-                    info.astLevel, true/*resolve bindings*/,
-                    enableStatementsRecovery, enableBindingsRecovery,
-                    ignoreMethodBodies, monitor);
+                org.eclipse.jdt.core.dom.CompilationUnit ast =
+                    ((CompilationUnit)workingCopy).createAst(
+                        snapshot.getContents(), info.astLevel, true,
+                        enableStatementsRecovery, enableBindingsRecovery,
+                        ignoreMethodBodies, new SubProgressMonitor(monitor, 1));
 
-            workingCopy.getReconcileOperation().reconcile(ast, snapshot,
-                forced);
+                workingCopy.getReconcileOperation().reconcile(ast, snapshot,
+                    forced, new SubProgressMonitor(monitor, 1));
 
-            info.setAst(ast);
+                info.setAst(ast);
+            }
+            finally
+            {
+                monitor.done();
+            }
         }
     }
 }

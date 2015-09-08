@@ -20,8 +20,12 @@ import java.util.Map;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.util.TextIndent;
@@ -392,11 +396,14 @@ public abstract class Handle
      *  (never <code>null</code>)
      * @param newElements a map containing handle/body relationships
      *  (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>)
      * @throws CoreException if an exception occurs while accessing
      *  the element's corresponding resource
+     * @throws OperationCanceledException if this method is cancelled
      */
     protected abstract void buildStructure(Body body,
-        Map<IHandle, Body> newElements) throws CoreException;
+        Map<IHandle, Body> newElements, IProgressMonitor monitor)
+            throws CoreException;
 
     /**
      * Returns the cached body for this element. If this element is not already
@@ -408,10 +415,26 @@ public abstract class Handle
      */
     protected final Body getBody() throws CoreException
     {
+        return getBody(null);
+    }
+
+    /**
+     * Returns the cached body for this element. If this element is not already
+     * "open" (i.e. present in the body cache), it and all its parents are opened.
+     *
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the cached body for this element (never <code>null</code>)
+     * @throws CoreException if this element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is cancelled
+     */
+    protected final Body getBody(IProgressMonitor monitor) throws CoreException
+    {
         Body body = findBody();
         if (body != null)
             return body;
-        return openWhenClosed(newBody());
+        return openWhenClosed(newBody(), monitor);
     }
 
     /**
@@ -437,18 +460,22 @@ public abstract class Handle
      *
      * @param body a new body to be initialized for this element, or
      *  <code>null</code> if the body is to be created by the openable parent
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
      * @return the fully initialized body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is cancelled
      */
-    protected final Body openWhenClosed(Body body) throws CoreException
+    protected final Body openWhenClosed(Body body, IProgressMonitor monitor)
+        throws CoreException
     {
         HandleManager handleManager = getHandleManager();
         boolean hadTemporaryCache = handleManager.hasTemporaryCache();
         try
         {
             Map<IHandle, Body> newElements = handleManager.getTemporaryCache();
-            generateBodies(body, newElements);
+            generateBodies(body, newElements, monitor);
             if (body == null)
             {
                 body = newElements.get(this);
@@ -493,33 +520,52 @@ public abstract class Handle
         return parent;
     }
 
-    private void generateBodies(Body body, Map<IHandle, Body> newElements)
-        throws CoreException
+    private void generateBodies(Body body, Map<IHandle, Body> newElements,
+        IProgressMonitor monitor) throws CoreException
     {
-        Handle openableParent = getOpenableParent();
-        if (openableParent != null && openableParent.findBody() == null)
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+        monitor.beginTask("", 2); //$NON-NLS-1$
+        try
         {
-            openableParent.generateBodies(openableParent.newBody(),
-                newElements);
+            Handle openableParent = getOpenableParent();
+            if (openableParent != null && openableParent.findBody() == null)
+            {
+                openableParent.generateBodies(openableParent.newBody(),
+                    newElements, new SubProgressMonitor(monitor, 1));
+            }
+
+            if (body != null)
+            {
+                validateExistence();
+
+                if (monitor.isCanceled())
+                    throw new OperationCanceledException();
+
+                // put the body before building the structure so that
+                // questions to the handle behave as if the element existed
+                newElements.put(this, body);
+
+                try
+                {
+                    buildStructure(body, newElements, new SubProgressMonitor(
+                        monitor, 1));
+                }
+                catch (CoreException e)
+                {
+                    newElements.remove(this);
+                    throw e;
+                }
+                catch (RuntimeException e)
+                {
+                    newElements.remove(this);
+                    throw e;
+                }
+            }
         }
-
-        if (body != null)
+        finally
         {
-            validateExistence();
-
-            // put the body before building the structure so that
-            // questions to the handle behave as if the element existed
-            newElements.put(this, body);
-
-            try
-            {
-                buildStructure(body, newElements);
-            }
-            catch (CoreException e)
-            {
-                newElements.remove(this);
-                throw e;
-            }
+            monitor.done();
         }
     }
 }

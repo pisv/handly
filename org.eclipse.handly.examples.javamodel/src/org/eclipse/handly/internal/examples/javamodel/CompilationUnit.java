@@ -246,7 +246,8 @@ public class CompilationUnit
 
     @Override
     protected void buildStructure(SourceElementBody body,
-        Map<IHandle, Body> newElements, Object ast, String source)
+        Map<IHandle, Body> newElements, Object ast, String source,
+        IProgressMonitor monitor)
     {
         CompilatonUnitStructureBuilder builder =
             new CompilatonUnitStructureBuilder(newElements);
@@ -273,12 +274,12 @@ public class CompilationUnit
     {
         @Override
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
-            boolean forced) throws CoreException
+            boolean forced, IProgressMonitor monitor) throws CoreException
         {
             JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(
                 CompilationUnit.this);
 
-            super.reconcile(ast, snapshot, forced);
+            super.reconcile(ast, snapshot, forced, monitor);
 
             reportProblems(
                 ((org.eclipse.jdt.core.dom.CompilationUnit)ast).getProblems());

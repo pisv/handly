@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceConstruct;
 
@@ -130,7 +131,8 @@ public abstract class SourceConstruct
 
     @Override
     protected final void buildStructure(Body body,
-        Map<IHandle, Body> newElements) throws CoreException
+        Map<IHandle, Body> newElements, IProgressMonitor monitor)
+            throws CoreException
     {
         // The openable parent builds the whole structure
         throw new AssertionError("This method should not be called"); //$NON-NLS-1$

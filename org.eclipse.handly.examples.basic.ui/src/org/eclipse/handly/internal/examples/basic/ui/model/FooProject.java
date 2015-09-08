@@ -186,8 +186,8 @@ public class FooProject
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IHandle, Body> newElements)
-        throws CoreException
+    protected void buildStructure(Body body, Map<IHandle, Body> newElements,
+        IProgressMonitor monitor) throws CoreException
     {
         IResource[] members = project.members();
         List<IFooFile> fooFiles = new ArrayList<IFooFile>(members.length);

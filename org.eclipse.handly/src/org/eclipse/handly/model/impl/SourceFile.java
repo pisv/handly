@@ -18,6 +18,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.buffer.Buffers;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.internal.Activator;
@@ -240,6 +242,7 @@ public abstract class SourceFile
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if this working copy cannot be reconciled
+     * @throws OperationCanceledException if this method is cancelled
      * @see {@link #reconcile(boolean, IProgressMonitor)}
      */
     public final void reconcile(boolean force, Object arg,
@@ -274,11 +277,17 @@ public abstract class SourceFile
     }
 
     /**
-     * This method may only be used from {@link IWorkingCopyBuffer}
-     * implementations. Other clients are not intended to invoke this method.
-     * Subclasses may override.
+     * Returns a reconcile operation for this source file.
+     * <p>
+     * This method may be used in {@link IWorkingCopyBuffer} implementations.
+     * Other clients are not intended to invoke this method.
+     * </p>
+     * <p>
+     * Subclasses which extend {@link ReconcileOperation} should override
+     * this method.
+     * </p>
      *
-     * @return a {@link ReconcileOperation} (never <code>null</code>)
+     * @return a reconcile operation for this source file (not <code>null</code>)
      */
     public ReconcileOperation getReconcileOperation()
     {
@@ -315,55 +324,67 @@ public abstract class SourceFile
 
     @Override
     protected final void buildStructure(Body body,
-        Map<IHandle, Body> newElements) throws CoreException
+        Map<IHandle, Body> newElements, IProgressMonitor monitor)
+            throws CoreException
     {
-        AstHolder astHolder = AST_HOLDER.get();
-
-        if (astHolder == null) // not a working copy
+        int ticks = 2;
+        monitor.beginTask("", ticks); //$NON-NLS-1$
+        try
         {
-            // NOTE: AST is created from the underlying file contents,
-            // not from the buffer contents, since source files that are not
-            // working copies must reflect the structure of the underlying file
-            NonExpiringSnapshot snapshot;
-            try
+            AstHolder astHolder = AST_HOLDER.get();
+
+            if (astHolder == null) // not a working copy
             {
-                snapshot = new NonExpiringSnapshot(new ISnapshotProvider()
+                // NOTE: AST is created from the underlying file contents,
+                // not from the buffer contents, since source files that are not
+                // working copies must reflect the structure of the underlying file
+                NonExpiringSnapshot snapshot;
+                try
                 {
-                    @Override
-                    public ISnapshot getSnapshot()
+                    snapshot = new NonExpiringSnapshot(new ISnapshotProvider()
                     {
-                        TextFileSnapshot result = new TextFileSnapshot(
-                            getFile(), true);
-                        if (result.getContents() == null
-                            && !result.getStatus().isOK())
+                        @Override
+                        public ISnapshot getSnapshot()
                         {
-                            throw new IllegalStateException(new CoreException(
-                                result.getStatus()));
+                            TextFileSnapshot result = new TextFileSnapshot(
+                                getFile(), true);
+                            if (result.getContents() == null
+                                && !result.getStatus().isOK())
+                            {
+                                throw new IllegalStateException(
+                                    new CoreException(result.getStatus()));
+                            }
+                            return result;
                         }
-                        return result;
-                    }
-                });
+                    });
+                }
+                catch (IllegalStateException e)
+                {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof CoreException)
+                        throw (CoreException)cause;
+                    throw new AssertionError(e); // should never happen
+                }
+                Object ast = createStructuralAst(snapshot.getContents(),
+                    new SubProgressMonitor(monitor, 1));
+                astHolder = new AstHolder(ast, snapshot);
+                --ticks;
             }
-            catch (IllegalStateException e)
-            {
-                Throwable cause = e.getCause();
-                if (cause instanceof CoreException)
-                    throw (CoreException)cause;
-                throw new AssertionError(e); // should never happen
-            }
-            Object ast = createStructuralAst(snapshot.getContents(),
-                new NullProgressMonitor());
-            astHolder = new AstHolder(ast, snapshot);
+
+            SourceElementBody thisBody = (SourceElementBody)body;
+            String source = astHolder.snapshot.getContents();
+            ISnapshot snapshot = astHolder.snapshot.getWrappedSnapshot();
+
+            buildStructure(thisBody, newElements, astHolder.ast, source,
+                new SubProgressMonitor(monitor, ticks));
+
+            thisBody.setFullRange(new TextRange(0, source.length()));
+            setSnapshot(thisBody, snapshot, newElements);
         }
-
-        SourceElementBody thisBody = (SourceElementBody)body;
-        String source = astHolder.snapshot.getContents();
-        ISnapshot snapshot = astHolder.snapshot.getWrappedSnapshot();
-
-        buildStructure(thisBody, newElements, astHolder.ast, source);
-
-        thisBody.setFullRange(new TextRange(0, source.length()));
-        setSnapshot(thisBody, snapshot, newElements);
+        finally
+        {
+            monitor.done();
+        }
     }
 
     /**
@@ -371,11 +392,12 @@ public abstract class SourceFile
      * contain just enough information for computing this source file's
      * structure and properties as well as of all of its descendant elements.
      *
-     * @param source the source string to parse (not <code>null</code>)
-     * @param monitor a progress monitor (not <code>null</code>)
+     * @param source the source string to parse (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>)
      * @return the (possibly abridged) AST created from the given source string
-     *  (never <code>null</code>)
+     *  (not <code>null</code>)
      * @throws CoreException if the AST could not be created
+     * @throws OperationCanceledException if this method is cancelled
      */
     protected abstract Object createStructuralAst(String source,
         IProgressMonitor monitor) throws CoreException;
@@ -399,12 +421,15 @@ public abstract class SourceFile
      * @param newElements a map containing handle/body relationships
      *  (never <code>null</code>)
      * @param ast the AST created from the given source string
-     *  (not <code>null</code>)
+     *  (never <code>null</code>)
      * @param source the source string from which the given AST was created
-     *  (not <code>null</code>)
+     *  (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>)
+     * @throws OperationCanceledException if this method is cancelled
      */
     protected abstract void buildStructure(SourceElementBody body,
-        Map<IHandle, Body> newElements, Object ast, String source);
+        Map<IHandle, Body> newElements, Object ast, String source,
+        IProgressMonitor monitor);
 
     /**
      * Returns whether the structure should be rebuilt when reconciling
@@ -469,38 +494,30 @@ public abstract class SourceFile
     }
 
     /**
-     * This class is intended to be used in {@link IWorkingCopyBuffer}
-     * implementations.
+     * A reconcile operation for this source file.
+     * Intended to be used in {@link IWorkingCopyBuffer} implementations.
      * <p>
-     * Clients can use this class as it stands, or extend it to augment
-     * the default behavior, e.g. to send out a delta notification indicating
-     * the nature of the change of the working copy since the last time
-     * it was reconciled.
+     * This class can be extended to augment the default behavior, e.g.
+     * to send out a delta notification indicating the nature of the change
+     * of the working copy since the last time it was reconciled.
      * </p>
+     * @see SourceFile#getReconcileOperation()
      */
     public class ReconcileOperation
     {
-        /**
-         * Use {@link SourceFile#getReconcileOperation()} for obtaining
-         * an instance.
-         */
-        protected ReconcileOperation()
-        {
-        }
-
         /**
          * Reconciles this working copy according to the given AST and the given
          * non-expiring snapshot on which the AST is based. The AST should contain
          * enough information for computing this working copy's structure and
          * properties as well as of all its descendant elements.
          * <p>
-         * The AST is safe to read in the dynamic context of the method call,
+         * The AST is safe to read in the dynamic context of this method call,
          * but must not be modified. Implementations must not keep references
-         * to any part of the AST or of the snapshot outside the dynamic scope
+         * to any part of the AST or the snapshot outside the dynamic scope
          * of the invocation of this method.
          * </p>
          * <p>
-         * Subclasses may override this method, but must call the super
+         * Subclasses may override this method, but must call the <b>super</b>
          * implementation.
          * </p>
          *
@@ -511,10 +528,13 @@ public abstract class SourceFile
          * @param forced indicates whether reconciling was forced, i.e.
          *  the working copy buffer has not been modified since the last time
          *  it was reconciled
+         * @param monitor a progress monitor, or <code>null</code>
+         *  if progress reporting is not desired
          * @throws CoreException if the working copy cannot be reconciled
+         * @throws OperationCanceledException if this method is cancelled
          */
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
-            boolean forced) throws CoreException
+            boolean forced, IProgressMonitor monitor) throws CoreException
         {
             if (!forced || shouldRebuildStructureIfForced())
             {
@@ -523,7 +543,7 @@ public abstract class SourceFile
                 AST_HOLDER.set(new AstHolder(ast, snapshot));
                 try
                 {
-                    openWhenClosed(newBody());
+                    openWhenClosed(newBody(), monitor);
                 }
                 finally
                 {

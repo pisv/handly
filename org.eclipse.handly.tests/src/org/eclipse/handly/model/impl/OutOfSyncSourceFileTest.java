@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.handly.junit.WorkspaceTestCase;
@@ -71,13 +72,13 @@ public class OutOfSyncSourceFileTest
     public void testInSync() throws Exception
     {
         sourceFile.buildStructure(new SourceElementBody(),
-            new HashMap<IHandle, Body>());
+            new HashMap<IHandle, Body>(), new NullProgressMonitor());
     }
 
     public void testOutOfSync() throws Exception
     {
         localFile.setLastModified(localFile.lastModified() + 1000);
         sourceFile.buildStructure(new SourceElementBody(),
-            new HashMap<IHandle, Body>());
+            new HashMap<IHandle, Body>(), new NullProgressMonitor());
     }
 }
