@@ -14,12 +14,12 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.BufferChange;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
-import org.eclipse.handly.internal.examples.basic.ui.model.FooFile;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
@@ -46,14 +46,23 @@ public class FooWorkingCopyTest
         super.setUp();
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
-        buffer = new DelegatingWorkingCopyBuffer(workingCopy.getBuffer(),
-            new WorkingCopyReconciler(workingCopy));
+        IBuffer delegate = workingCopy.getBuffer();
+        try
+        {
+            buffer = new DelegatingWorkingCopyBuffer(delegate,
+                new WorkingCopyReconciler(workingCopy));
+        }
+        finally
+        {
+            delegate.release();
+        }
     }
 
     @Override
     protected void tearDown() throws Exception
     {
-        buffer.dispose();
+        if (buffer != null)
+            buffer.release();
         super.tearDown();
     }
 

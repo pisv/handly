@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
@@ -34,17 +32,19 @@ public final class DelegatingWorkingCopyBuffer
     private final IWorkingCopyReconciler reconciler;
     private final Object reconcilingLock = new Object();
     private volatile ISnapshot reconciledSnapshot;
-    private final AtomicInteger refCount = new AtomicInteger(1);
 
     /**
      * Constructs a new working copy buffer with the given delegate buffer and
      * the given working copy reconciler.
      * <p>
-     * The client gives up ownership of the delegate buffer and must not dispose
-     * it, even if this constructor threw an exception. Ownership of the delegate
-     * is transferred to the created buffer. It is the client responsibility to
-     * {@link IBuffer#dispose() dispose} the created buffer after it is no longer
-     * needed.
+     * The working copy buffer takes an independent ownership of the delegate
+     * buffer to ensure that it is kept open as long as the working copy buffer
+     * is in use. The client still owns the delegate buffer, but may release it
+     * immediately.
+     * </p>
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
+     * the created buffer after it is no longer needed.
      * </p>
      *
      * @param delegate the delegate buffer (not <code>null</code>)
@@ -55,18 +55,9 @@ public final class DelegatingWorkingCopyBuffer
     {
         if ((this.delegate = delegate) == null)
             throw new IllegalArgumentException();
-        boolean success = false;
-        try
-        {
-            if ((this.reconciler = reconciler) == null)
-                throw new IllegalArgumentException();
-            success = true;
-        }
-        finally
-        {
-            if (!success)
-                delegate.dispose();
-        }
+        if ((this.reconciler = reconciler) == null)
+            throw new IllegalArgumentException();
+        delegate.addRef();
     }
 
     @Override
@@ -103,7 +94,7 @@ public final class DelegatingWorkingCopyBuffer
     @Override
     public boolean mustSaveChanges()
     {
-        return refCount.get() == 1 && delegate.mustSaveChanges();
+        return delegate.mustSaveChanges();
     }
 
     @Override
@@ -111,6 +102,25 @@ public final class DelegatingWorkingCopyBuffer
         throws CoreException
     {
         delegate.save(overwrite, monitor);
+    }
+
+    @Override
+    public void addRef()
+    {
+        delegate.addRef();
+    }
+
+    @Override
+    public void release()
+    {
+        delegate.release();
+    }
+
+    @Override
+    @Deprecated
+    public void dispose()
+    {
+        release();
     }
 
     @Override
@@ -134,24 +144,5 @@ public final class DelegatingWorkingCopyBuffer
                 reconciledSnapshot = snapshot.getWrappedSnapshot();
             }
         }
-    }
-
-    @Override
-    public void addRef()
-    {
-        refCount.incrementAndGet();
-    }
-
-    @Override
-    public void release()
-    {
-        if (refCount.decrementAndGet() == 0)
-            delegate.dispose();
-    }
-
-    @Override
-    public void dispose()
-    {
-        release();
     }
 }

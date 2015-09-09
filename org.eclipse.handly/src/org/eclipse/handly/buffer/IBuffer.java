@@ -24,8 +24,12 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
  * Clients can take a snapshot of the buffer, construct an edit tree based on
  * the snapshot, and apply the change back to the buffer. Note that an update
  * conflict may occur if the buffer's contents have changed since the inception
- * of the base snapshot. When finished, clients must explicitly give up ownership
- * of the buffer by disposing it.
+ * of the base snapshot.
+ * </p>
+ * <p>
+ * When finished, clients must explicitly release their ownership of the buffer.
+ * Clients that don't own the buffer must not access it. Attempting that may
+ * result in unspecified behavior.
  * </p>
  * <p>
  * Buffers are generally designed to be safe for use by multiple threads.
@@ -96,7 +100,7 @@ public interface IBuffer
     /**
      * Returns <code>true</code> if the buffer is not shared and has unsaved
      * changes. In this case, the client should save the buffer before
-     * disposing it, or else the unsaved changes will be lost.
+     * letting it go, or else unsaved changes will be lost.
      *
      * @return <code>true</code> if the buffer is not shared and has unsaved
      *  changes, <code>false</code> otherwise
@@ -118,11 +122,24 @@ public interface IBuffer
     void save(boolean overwrite, IProgressMonitor monitor) throws CoreException;
 
     /**
-     * Signals that a client who owns the buffer has finished using it.
-     * Must be called exactly once by each client who owns the buffer.
-     * After completion of this method the client no more owns the buffer.
-     * Clients that don't own the buffer must not access it.
-     * Attempting that will result in unspecified behavior.
+     * Spawns a new independent ownership of the buffer. Each successful call
+     * to <code>addRef</code> must ultimately be followed by exactly one call
+     * to <code>release</code>.
+     *
+     * @see #release()
+     */
+    void addRef();
+
+    /**
+     * Relinquishes an independent ownership of the buffer. Each independent
+     * ownership of the buffer must ultimately end with exactly one call to
+     * this method.
+     */
+    void release();
+
+    /**
+     * Alias for {@link #release()}.
+     * @deprecated
      */
     void dispose();
 }

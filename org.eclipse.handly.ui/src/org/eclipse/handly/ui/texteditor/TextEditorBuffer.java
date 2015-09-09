@@ -39,15 +39,15 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class TextEditorBuffer
     implements IDocumentBuffer
 {
-    private volatile boolean closed;
-    protected final IEditorInput editorInput;
-    protected final IDocumentProvider documentProvider;
-    protected final IDocument document;
+    private final IEditorInput editorInput;
+    private final IDocumentProvider documentProvider;
 
     /**
      * Creates a new buffer instance and connects it to the given text editor.
-     * It is the client responsibility to {@link IBuffer#dispose() dispose}
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
      * the created buffer after it is no longer needed.
+     * </p>
      *
      * @param editor the text editor (not <code>null</code>)
      * @throws CoreException if the buffer could not be connected
@@ -61,35 +61,36 @@ public class TextEditorBuffer
         if ((this.documentProvider = editor.getDocumentProvider()) == null)
             throw new IllegalArgumentException();
         documentProvider.connect(editorInput);
-        document = documentProvider.getDocument(editorInput);
     }
 
     @Override
     public IDocument getDocument()
     {
-        checkNotClosed();
+        IDocument document = documentProvider.getDocument(editorInput);
+        if (document == null)
+            throw new IllegalStateException("No document is provided for " //$NON-NLS-1$
+                + editorInput);
         return document;
     }
 
     @Override
     public ISnapshot getSnapshot()
     {
-        checkNotClosed();
-        return new DocumentSnapshot(document);
+        return new DocumentSnapshot(getDocument());
     }
 
     @Override
-    public IBufferChange applyChange(IBufferChange change, IProgressMonitor pm)
-        throws CoreException
+    public IBufferChange applyChange(IBufferChange change,
+        IProgressMonitor monitor) throws CoreException
     {
-        checkNotClosed();
-        if (pm == null)
-            pm = new NullProgressMonitor();
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
         try
         {
             UiBufferChangeRunner runner = new UiBufferChangeRunner(
-                UiSynchronizer.DEFAULT, createChangeOperation(change));
-            return runner.run(pm);
+                UiSynchronizer.DEFAULT, new BufferChangeOperation(this,
+                    change));
+            return runner.run(monitor);
         }
         catch (MalformedTreeException e)
         {
@@ -106,28 +107,24 @@ public class TextEditorBuffer
     @Override
     public void setContents(String contents)
     {
-        checkNotClosed();
-        document.set(contents);
+        getDocument().set(contents);
     }
 
     @Override
     public String getContents()
     {
-        checkNotClosed();
-        return document.get();
+        return getDocument().get();
     }
 
     @Override
     public boolean hasUnsavedChanges()
     {
-        checkNotClosed();
         return documentProvider.canSaveDocument(editorInput);
     }
 
     @Override
     public boolean mustSaveChanges()
     {
-        checkNotClosed();
         return documentProvider.mustSaveDocument(editorInput);
     }
 
@@ -135,50 +132,34 @@ public class TextEditorBuffer
     public void save(boolean overwrite, IProgressMonitor pm)
         throws CoreException
     {
-        checkNotClosed();
-        documentProvider.saveDocument(pm, editorInput, document, overwrite);
+        documentProvider.saveDocument(pm, editorInput, getDocument(),
+            overwrite);
     }
 
     @Override
-    public void dispose()
+    public void addRef()
     {
-        checkNotClosed();
-        closed = true;
+        try
+        {
+            documentProvider.connect(editorInput);
+        }
+        catch (CoreException e)
+        {
+            Activator.log(e.getStatus());
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public void release()
+    {
         documentProvider.disconnect(editorInput);
     }
 
     @Override
-    public int hashCode()
+    @Deprecated
+    public void dispose()
     {
-        return document.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        TextEditorBuffer other = (TextEditorBuffer)obj;
-        return (document == other.document);
-    }
-
-    protected boolean isClosed()
-    {
-        return closed;
-    }
-
-    protected void checkNotClosed()
-    {
-        if (isClosed())
-            throw new IllegalStateException("the buffer has been closed"); //$NON-NLS-1$
-    }
-
-    protected BufferChangeOperation createChangeOperation(IBufferChange change)
-    {
-        return new BufferChangeOperation(this, change);
+        release();
     }
 }

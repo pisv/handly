@@ -167,17 +167,25 @@ public class HandlyXtextEditorCallback
         {
             try
             {
-                XtextWorkingCopyBuffer buffer = new XtextWorkingCopyBuffer(
-                    sourceFile, new TextEditorBuffer(editor));
+                TextEditorBuffer delegate = new TextEditorBuffer(editor);
                 try
                 {
-                    sourceFile.becomeWorkingCopy(buffer,
-                        WorkingCopyInfoFactory.INSTANCE, null); // will addRef() the buffer
-                    workingCopies.put(editor, sourceFile);
+                    XtextWorkingCopyBuffer buffer = new XtextWorkingCopyBuffer(
+                        sourceFile, delegate); // will addRef() the delegate
+                    try
+                    {
+                        sourceFile.becomeWorkingCopy(buffer,
+                            WorkingCopyInfoFactory.INSTANCE, null); // will addRef() the buffer
+                        workingCopies.put(editor, sourceFile);
+                    }
+                    finally
+                    {
+                        buffer.release();
+                    }
                 }
                 finally
                 {
-                    buffer.dispose();
+                    delegate.release();
                 }
             }
             catch (CoreException e)

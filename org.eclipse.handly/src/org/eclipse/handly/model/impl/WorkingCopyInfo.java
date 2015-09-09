@@ -39,6 +39,7 @@ public class WorkingCopyInfo
 
     /**
      * Returns the buffer of the working copy.
+     * The buffer is NOT <code>addRef</code>'ed.
      *
      * @return the buffer of the working copy (never <code>null</code>)
      */

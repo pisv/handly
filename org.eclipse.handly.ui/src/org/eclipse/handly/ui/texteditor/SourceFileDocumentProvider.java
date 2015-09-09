@@ -11,6 +11,7 @@
 package org.eclipse.handly.ui.texteditor;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
@@ -101,17 +102,24 @@ public class SourceFileDocumentProvider
         SourceFile sourceFile = getSourceFile(element);
         if (sourceFile == null)
             return null;
-        IWorkingCopyBuffer buffer = new DelegatingWorkingCopyBuffer(
-            sourceFile.getBuffer(), getWorkingCopyReconciler(sourceFile,
-                element));
+        IBuffer delegate = sourceFile.getBuffer();
         try
         {
-            sourceFile.becomeWorkingCopy(buffer, getWorkingCopyInfoFactory(
-                sourceFile, element), null); // will addRef() the buffer
+            IWorkingCopyBuffer buffer = new DelegatingWorkingCopyBuffer(
+                delegate, getWorkingCopyReconciler(sourceFile, element)); // will addRef() the delegate
+            try
+            {
+                sourceFile.becomeWorkingCopy(buffer, getWorkingCopyInfoFactory(
+                    sourceFile, element), null); // will addRef() the buffer
+            }
+            finally
+            {
+                buffer.release();
+            }
         }
         finally
         {
-            buffer.dispose();
+            delegate.release();
         }
         ((SourceFileInfo)info).workingCopy = sourceFile;
         return info;

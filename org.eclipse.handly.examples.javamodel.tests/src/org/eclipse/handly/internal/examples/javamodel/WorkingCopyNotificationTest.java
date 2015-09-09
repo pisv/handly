@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
@@ -47,16 +48,26 @@ public class WorkingCopyNotificationTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        buffer = new DelegatingWorkingCopyBuffer(workingCopy.getBuffer(),
-            new JavaWorkingCopyReconciler(workingCopy));
+        IBuffer delegate = workingCopy.getBuffer();
+        try
+        {
+            buffer = new DelegatingWorkingCopyBuffer(delegate,
+                new JavaWorkingCopyReconciler(workingCopy));
+        }
+        finally
+        {
+            delegate.release();
+        }
         workingCopy.getRoot().addElementChangeListener(listener);
     }
 
     @Override
     protected void tearDown() throws Exception
     {
-        workingCopy.getRoot().removeElementChangeListener(listener);
-        buffer.dispose();
+        if (workingCopy != null)
+            workingCopy.getRoot().removeElementChangeListener(listener);
+        if (buffer != null)
+            buffer.release();
         super.tearDown();
     }
 

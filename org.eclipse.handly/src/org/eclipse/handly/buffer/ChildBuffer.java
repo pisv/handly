@@ -15,38 +15,52 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * A child buffer is created on top of a parent buffer and inherits the parent's
- * contents initially, but is modified independently.
- * <p>
- * Saving the child buffer propagates its contents to the parent buffer and
- * the parent's underlying resource, so in general the parent should be kept
- * alive while the child is in use.
- * </p>
- * <p>
- * In cases where a child buffer is to take ownership of its parent, the child's
- * <code>dispose()</code> method must be overridden to dispose the parent buffer
- * after disposing itself.
- * </p>
+ * contents initially, but is modified independently. Saving the child buffer
+ * propagates its contents to the parent buffer and also to the parent buffer's
+ * underlying resource.
  * <p>
  * An instance of this class is safe for use by multiple threads.
  * </p>
  */
-class ChildBuffer
+public class ChildBuffer
     extends SimpleBuffer
 {
-    protected final IBuffer parent;
+    private final IBuffer parent;
 
     /**
      * Creates a new child buffer instance on top of the given parent buffer and
-     * initializes it with the parent's contents. It is the client responsibility
-     * to {@link IBuffer#dispose() dispose} the created buffer after it is no
-     * longer needed.
+     * initializes it with the parent's contents.
+     * <p>
+     * The child buffer takes an independent ownership of the parent buffer
+     * to ensure that it is kept open as long as the child buffer is in use.
+     * The client still owns the parent buffer, but may release it immediately.
+     * </p>
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
+     * the created buffer after it is no longer needed.
+     * </p>
      *
      * @param parent the parent buffer (not <code>null</code>)
      */
-    ChildBuffer(IBuffer parent)
+    public ChildBuffer(IBuffer parent)
     {
         super(parent.getContents());
         this.parent = parent;
+        parent.addRef();
+    }
+
+    @Override
+    public void addRef()
+    {
+        super.addRef();
+        parent.addRef();
+    }
+
+    @Override
+    public void release()
+    {
+        parent.release();
+        super.release();
     }
 
     @Override
@@ -57,7 +71,7 @@ class ChildBuffer
         boolean saved = false;
         try
         {
-            parent.setContents(document.get());
+            parent.setContents(getContents());
             parent.save(overwrite, monitor);
             saved = true;
         }
@@ -69,5 +83,10 @@ class ChildBuffer
                 parent.setContents(parentContents);
             }
         }
+    }
+
+    protected final IBuffer getParent()
+    {
+        return parent;
     }
 }

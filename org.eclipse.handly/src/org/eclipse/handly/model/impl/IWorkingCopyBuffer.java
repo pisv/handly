@@ -52,21 +52,4 @@ public interface IWorkingCopyBuffer
      */
     void reconcile(boolean force, Object arg, IProgressMonitor monitor)
         throws CoreException;
-
-    /**
-     * Increments reference count.
-     */
-    void addRef();
-
-    /**
-     * Decrements reference count. Disposes the buffer when there are no more
-     * references to it.
-     */
-    void release();
-
-    /**
-     * Just calls <code>release()</code>.
-     */
-    @Override
-    void dispose();
 }

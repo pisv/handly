@@ -19,7 +19,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
-import org.eclipse.handly.buffer.Buffers;
+import org.eclipse.handly.buffer.ChildBuffer;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IField;
@@ -61,15 +62,24 @@ public class WorkingCopyTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        buffer = new DelegatingWorkingCopyBuffer(workingCopy.getBuffer(),
-            new JavaWorkingCopyReconciler(workingCopy));
+        IBuffer delegate = workingCopy.getBuffer();
+        try
+        {
+            buffer = new DelegatingWorkingCopyBuffer(delegate,
+                new JavaWorkingCopyReconciler(workingCopy));
+        }
+        finally
+        {
+            delegate.release();
+        }
         problems = new ArrayList<IProblem>();
     }
 
     @Override
     protected void tearDown() throws Exception
     {
-        buffer.dispose();
+        if (buffer != null)
+            buffer.release();
         super.tearDown();
     }
 
@@ -313,9 +323,7 @@ public class WorkingCopyTest
                     new WorkingCopyOwner() {});
                 assertFalse(privateCopy.equals(workingCopy));
                 final IWorkingCopyBuffer privateBuffer =
-                    new DelegatingWorkingCopyBuffer(
-                        Buffers.createChildBuffer(workingCopy.getBuffer(), true),
-                        new JavaWorkingCopyReconciler(privateCopy));
+                    newPrivateWorkingCopyBuffer(privateCopy);
                 try
                 {
                     doWithWorkingCopy(privateCopy, privateBuffer, null, new IWorkspaceRunnable()
@@ -355,7 +363,7 @@ public class WorkingCopyTest
                 }
                 finally
                 {
-                    privateBuffer.dispose();
+                    privateBuffer.release();
                 }
             }
         });
@@ -380,6 +388,21 @@ public class WorkingCopyTest
         finally
         {
             workingCopy.discardWorkingCopy();
+        }
+    }
+
+    private IWorkingCopyBuffer newPrivateWorkingCopyBuffer(
+        CompilationUnit privateCopy)
+    {
+        IBuffer delegate = new ChildBuffer(buffer);
+        try
+        {
+            return new DelegatingWorkingCopyBuffer(delegate,
+                new JavaWorkingCopyReconciler(privateCopy));
+        }
+        finally
+        {
+            delegate.release();
         }
     }
 

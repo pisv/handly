@@ -37,14 +37,15 @@ import org.eclipse.text.edits.MalformedTreeException;
 public class SimpleBuffer
     implements IDocumentBuffer
 {
-    protected final IDocument document;
+    private final IDocument document;
     private volatile long synchronizationStamp;
-    private volatile boolean closed;
 
     /**
      * Creates a new buffer instance that is initially empty.
-     * It is the client responsibility to {@link IBuffer#dispose() dispose}
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
      * the created buffer after it is no longer needed.
+     * </p>
      */
     public SimpleBuffer()
     {
@@ -53,8 +54,10 @@ public class SimpleBuffer
 
     /**
      * Creates a new buffer instance and initializes it with the given contents.
-     * It is the client responsibility to {@link IBuffer#dispose() dispose}
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
      * the created buffer after it is no longer needed.
+     * </p>
      *
      * @param contents initial contents
      */
@@ -70,14 +73,12 @@ public class SimpleBuffer
     @Override
     public IDocument getDocument()
     {
-        checkNotClosed();
         return document;
     }
 
     @Override
     public ISnapshot getSnapshot()
     {
-        checkNotClosed();
         return new DocumentSnapshot(document);
     }
 
@@ -85,12 +86,12 @@ public class SimpleBuffer
     public IBufferChange applyChange(IBufferChange change,
         IProgressMonitor monitor) throws CoreException
     {
-        checkNotClosed();
         if (monitor == null)
             monitor = new NullProgressMonitor();
         try
         {
-            BufferChangeOperation operation = createChangeOperation(change);
+            BufferChangeOperation operation = new BufferChangeOperation(this,
+                change);
             return operation.execute(monitor);
         }
         catch (MalformedTreeException e)
@@ -108,21 +109,18 @@ public class SimpleBuffer
     @Override
     public void setContents(String contents)
     {
-        checkNotClosed();
         document.set(contents);
     }
 
     @Override
     public String getContents()
     {
-        checkNotClosed();
         return document.get();
     }
 
     @Override
     public boolean hasUnsavedChanges()
     {
-        checkNotClosed();
         return ((IDocumentExtension4)document).getModificationStamp() != synchronizationStamp;
     }
 
@@ -136,17 +134,28 @@ public class SimpleBuffer
     public synchronized void save(boolean overwrite, IProgressMonitor monitor)
         throws CoreException
     {
-        checkNotClosed();
         doSave(overwrite, monitor);
         synchronizationStamp =
             ((IDocumentExtension4)document).getModificationStamp();
     }
 
     @Override
+    public void addRef()
+    {
+        // do nothing
+    }
+
+    @Override
+    public void release()
+    {
+        // do nothing
+    }
+
+    @Override
+    @Deprecated
     public void dispose()
     {
-        checkNotClosed();
-        closed = true;
+        release();
     }
 
     protected IDocument createEmptyDocument()
@@ -157,25 +166,9 @@ public class SimpleBuffer
         return document;
     }
 
-    protected BufferChangeOperation createChangeOperation(IBufferChange change)
-    {
-        return new BufferChangeOperation(this, change);
-    }
-
     protected void doSave(boolean overwrite, IProgressMonitor monitor)
         throws CoreException
     {
         // default implementation does nothing; subclasses may override
-    }
-
-    protected boolean isClosed()
-    {
-        return closed;
-    }
-
-    protected void checkNotClosed()
-    {
-        if (isClosed())
-            throw new IllegalStateException("the buffer has been closed"); //$NON-NLS-1$
     }
 }

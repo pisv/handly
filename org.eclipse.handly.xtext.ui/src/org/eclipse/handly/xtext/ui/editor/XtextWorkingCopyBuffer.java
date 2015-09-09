@@ -46,11 +46,14 @@ public final class XtextWorkingCopyBuffer
      * Constructs a new working copy buffer delegating to the given
      * {@link HandlyXtextDocument}-based buffer.
      * <p>
-     * The client gives up ownership of the delegate buffer and must not dispose
-     * it, even if this constructor threw an exception. Ownership of the delegate
-     * is transferred to the created buffer. It is the client responsibility to
-     * {@link IBuffer#dispose() dispose} the created buffer after it is no longer
-     * needed.
+     * The working copy buffer takes an independent ownership of the delegate
+     * buffer to ensure that it is kept open as long as the working copy buffer
+     * is in use. The client still owns the delegate buffer, but may release it
+     * immediately.
+     * </p>
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
+     * the created buffer after it is no longer needed.
      * </p>
      *
      * @param workingCopy the source file the working copy buffer is created for
@@ -61,45 +64,36 @@ public final class XtextWorkingCopyBuffer
     public XtextWorkingCopyBuffer(final SourceFile workingCopy,
         IDocumentBuffer delegate)
     {
+        if (workingCopy == null)
+            throw new IllegalArgumentException();
         if (delegate == null)
             throw new IllegalArgumentException();
-        boolean success = false;
-        try
-        {
-            if (workingCopy == null)
-                throw new IllegalArgumentException();
-            IDocument document = delegate.getDocument();
-            if (!(document instanceof HandlyXtextDocument))
-                throw new IllegalArgumentException();
-            this.delegate = delegate;
-            this.reconcilingListener =
-                new HandlyXtextDocument.IReconcilingListener()
+        IDocument document = delegate.getDocument();
+        if (!(document instanceof HandlyXtextDocument))
+            throw new IllegalArgumentException();
+        this.delegate = delegate;
+        this.reconcilingListener =
+            new HandlyXtextDocument.IReconcilingListener()
+            {
+                @Override
+                public void reconciled(XtextResource resource,
+                    NonExpiringSnapshot snapshot, boolean forced,
+                    CancelIndicator cancelIndicator)
                 {
-                    @Override
-                    public void reconciled(XtextResource resource,
-                        NonExpiringSnapshot snapshot, boolean forced,
-                        CancelIndicator cancelIndicator)
+                    try
                     {
-                        try
-                        {
-                            workingCopy.getReconcileOperation().reconcile(
-                                resource, snapshot, forced, null);
-                        }
-                        catch (CoreException e)
-                        {
-                            Activator.log(e.getStatus());
-                        }
+                        workingCopy.getReconcileOperation().reconcile(resource,
+                            snapshot, forced, null);
                     }
-                };
-            ((HandlyXtextDocument)document).addReconcilingListener(
-                reconcilingListener);
-            success = true;
-        }
-        finally
-        {
-            if (!success)
-                delegate.dispose();
-        }
+                    catch (CoreException e)
+                    {
+                        Activator.log(e.getStatus());
+                    }
+                }
+            };
+        ((HandlyXtextDocument)document).addReconcilingListener(
+            reconcilingListener);
+        delegate.addRef();
     }
 
     @Override
@@ -172,18 +166,17 @@ public final class XtextWorkingCopyBuffer
         {
             try
             {
-                if (reconcilingListener != null)
-                    getDocument().removeReconcilingListener(
-                        reconcilingListener);
+                getDocument().removeReconcilingListener(reconcilingListener);
             }
             finally
             {
-                delegate.dispose();
+                delegate.release();
             }
         }
     }
 
     @Override
+    @Deprecated
     public void dispose()
     {
         release();

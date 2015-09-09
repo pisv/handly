@@ -35,16 +35,16 @@ import org.eclipse.text.edits.MalformedTreeException;
 public class TextFileBuffer
     implements IDocumentBuffer
 {
-    private volatile boolean closed;
-    protected final IFile file;
-    protected final ITextFileBufferManager bufferManager;
-    protected final ITextFileBuffer buffer;
+    private final IFile file;
+    private final ITextFileBufferManager bufferManager;
 
     /**
      * Creates a new buffer instance and connects it to the underlying {@link
-     * ITextFileBuffer} for the given file. It is the client responsibility
-     * to {@link IBuffer#dispose() dispose} the created buffer after it is no
-     * longer needed.
+     * ITextFileBuffer} for the given file.
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
+     * the created buffer after it is no longer needed.
+     * </p>
      *
      * @param file the text file (not <code>null</code>)
      * @param bufferManager the manager of the underlying file buffer
@@ -59,35 +59,31 @@ public class TextFileBuffer
         if ((this.bufferManager = bufferManager) == null)
             throw new IllegalArgumentException();
         bufferManager.connect(file.getFullPath(), LocationKind.IFILE, null);
-        buffer = bufferManager.getTextFileBuffer(file.getFullPath(),
-            LocationKind.IFILE);
     }
 
     @Override
     public IDocument getDocument()
     {
-        checkNotClosed();
-        return buffer.getDocument();
+        return getDelegate().getDocument();
     }
 
     @Override
     public ISnapshot getSnapshot()
     {
-        checkNotClosed();
-        return new TextFileBufferSnapshot(buffer, bufferManager);
+        return new TextFileBufferSnapshot(getDelegate(), bufferManager);
     }
 
     @Override
     public IBufferChange applyChange(IBufferChange change,
         IProgressMonitor monitor) throws CoreException
     {
-        checkNotClosed();
         if (monitor == null)
             monitor = new NullProgressMonitor();
         try
         {
-            BufferChangeOperation operation = createChangeOperation(change);
-            if (!buffer.isSynchronizationContextRequested())
+            BufferChangeOperation operation = new BufferChangeOperation(this,
+                change);
+            if (!getDelegate().isSynchronizationContextRequested())
                 return operation.execute(monitor);
 
             UiBufferChangeRunner runner = new UiBufferChangeRunner(
@@ -109,44 +105,52 @@ public class TextFileBuffer
     @Override
     public void setContents(String contents)
     {
-        checkNotClosed();
-        buffer.getDocument().set(contents);
+        getDelegate().getDocument().set(contents);
     }
 
     @Override
     public String getContents()
     {
-        checkNotClosed();
-        return buffer.getDocument().get();
+        return getDelegate().getDocument().get();
     }
 
     @Override
     public boolean hasUnsavedChanges()
     {
-        checkNotClosed();
-        return buffer.isDirty();
+        return getDelegate().isDirty();
     }
 
     @Override
     public boolean mustSaveChanges()
     {
-        checkNotClosed();
-        return buffer.isDirty() && !buffer.isShared();
+        ITextFileBuffer delegate = getDelegate();
+        return delegate.isDirty() && !delegate.isShared();
     }
 
     @Override
     public void save(boolean overwrite, IProgressMonitor monitor)
         throws CoreException
     {
-        checkNotClosed();
-        buffer.commit(monitor, overwrite);
+        getDelegate().commit(monitor, overwrite);
     }
 
     @Override
-    public void dispose()
+    public void addRef()
     {
-        checkNotClosed();
-        closed = true;
+        try
+        {
+            bufferManager.connect(file.getFullPath(), LocationKind.IFILE, null);
+        }
+        catch (CoreException e)
+        {
+            Activator.log(e.getStatus());
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public void release()
+    {
         try
         {
             bufferManager.disconnect(file.getFullPath(), LocationKind.IFILE,
@@ -155,41 +159,25 @@ public class TextFileBuffer
         catch (CoreException e)
         {
             Activator.log(e.getStatus());
+            throw new IllegalStateException(e);
         }
     }
 
     @Override
-    public int hashCode()
+    @Deprecated
+    public void dispose()
     {
-        return buffer.hashCode();
+        release();
     }
 
-    @Override
-    public boolean equals(Object obj)
+    protected final ITextFileBuffer getDelegate()
     {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        TextFileBuffer other = (TextFileBuffer)obj;
-        return (buffer == other.buffer);
-    }
-
-    protected boolean isClosed()
-    {
-        return closed;
-    }
-
-    protected void checkNotClosed()
-    {
-        if (isClosed())
-            throw new IllegalStateException("the buffer has been closed"); //$NON-NLS-1$
-    }
-
-    protected BufferChangeOperation createChangeOperation(IBufferChange change)
-    {
-        return new BufferChangeOperation(this, change);
+        ITextFileBuffer buffer = bufferManager.getTextFileBuffer(
+            file.getFullPath(), LocationKind.IFILE);
+        if (buffer == null)
+            throw new IllegalStateException(
+                "No text file buffer is managed for " //$NON-NLS-1$
+                    + file.getFullPath());
+        return buffer;
     }
 }

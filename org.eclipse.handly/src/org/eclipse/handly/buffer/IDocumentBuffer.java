@@ -23,7 +23,7 @@ public interface IDocumentBuffer
     extends IBuffer
 {
     /**
-     * Returns the same document instance until the buffer is disposed.
+     * Returns the same document instance until the buffer is released.
      *
      *  @return the buffer's underlying document (never <code>null</code>)
      */
