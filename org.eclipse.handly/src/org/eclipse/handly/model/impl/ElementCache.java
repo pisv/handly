@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,15 +11,23 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import java.util.EnumSet;
+
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.util.OverflowingLruCache;
+import org.eclipse.handly.util.TextIndent;
 
 /**
  * An overflowing LRU cache of handle/body relationships that is intended
  * to be used in advanced implementations of {@link IBodyCache}.
  * <p>
+ * This implementation is NOT thread-safe. If multiple threads access the cache
+ * concurrently, it must be synchronized externally.
+ * </p>
+ * <p>
  * Adapted from <code>org.eclipse.jdt.internal.core.ElementCache</code>.
  * </p>
+ * @see OverflowingLruCache
  */
 public class ElementCache
     extends OverflowingLruCache<IHandle, Body>
@@ -27,28 +35,30 @@ public class ElementCache
     private IHandle spaceLimitParent = null;
 
     /**
-     * Constructs a new element cache of the given size.
-     * @param size size limit of cache
+     * Constructs a new cache with the given space limit.
+     *
+     * @param spaceLimit the maximum amount of space that the cache can store
      */
-    public ElementCache(int size)
+    public ElementCache(int spaceLimit)
     {
-        super(size);
+        super(spaceLimit);
     }
 
     /**
-     * Constructs a new element cache of the given size.
-     * @param size size limit of cache
-     * @param overflow size of the overflow
+     * Constructs a new cache with the given space limit and overflow.
+     *
+     * @param spaceLimit the maximum amount of space that the cache can store
+     * @param overflow the space by which the cache has overflowed
      */
-    public ElementCache(int size, int overflow)
+    protected ElementCache(int spaceLimit, int overflow)
     {
-        super(size, overflow);
+        super(spaceLimit, overflow);
     }
 
     /**
-     * Ensures that there is enough room for adding the children of the given body.
-     * If the space limit must be increased, record the parent that needed
-     * this space limit.
+     * Ensures that there is enough room for adding the children of the given
+     * body. If the space limit must be increased, record the parent that
+     * needed this space limit.
      */
     public void ensureSpaceLimit(Body body, IHandle parent)
     {
@@ -85,9 +95,16 @@ public class ElementCache
     }
 
     @Override
-    protected OverflowingLruCache<IHandle, Body> newInstance(int size,
-        int newOverflow)
+    protected OverflowingLruCache<IHandle, Body> newInstance(int spaceLimit,
+        int overflow)
     {
-        return new ElementCache(size, newOverflow);
+        return new ElementCache(spaceLimit, overflow);
+    }
+
+    @Override
+    protected String toStringKey(IHandle key)
+    {
+        return key.toString(new IHandle.ToStringStyle(TextIndent.NONE,
+            EnumSet.of(IHandle.ToStringStyle.Option.ANCESTORS)));
     }
 }

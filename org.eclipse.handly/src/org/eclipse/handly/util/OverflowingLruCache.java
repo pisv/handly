@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,87 +12,73 @@
 package org.eclipse.handly.util;
 
 /**
- * An <code>LruCache</code> which attempts to maintain a size equal or less
- * than its space limit by removing the least recently used elements.
+ * A cache which attempts to maintain a size equal or less than its space limit
+ * by removing the least recently used entries that successfully {@link
+ * #close(org.eclipse.handly.util.LruCache.LruCacheEntry) close}. If the cache
+ * cannot remove enough old entries to add the new entries, it will grow
+ * beyond its space limit. Later, it will attempt to shrink back to its
+ * space limit.
  * <p>
- * The cache will remove elements which successfully close and all elements
- * which are explicitly removed.
- * </p>
- * <p>
- * If the cache cannot remove enough old elements to add new elements,
- * it will grow beyond space limit. Later, it will attempt to shink back
- * to the maximum space limit.
- * </p>
- * <p>
- * The method <code>close</code> should attempt to close the element. If the
- * element is successfully closed it will return true and the element will be
- * removed from the cache. Otherwise the element will remain in the cache.
- * </p>
- * <p>
- * The cache implicitly attempts shrinks on calls to <code>put</code> and
+ * The cache implicitly attempts to shrink on calls to <code>put</code> and
  * <code>setSpaceLimit</code>. Explicitly calling the <code>shrink</code> method
  * will also cause the cache to attempt to shrink.
  * </p>
  * <p>
- * Use the <code>peek</code> and <code>disableTimestamps</code> methods
- * to circumvent the timestamp feature of the cache. This feature is intended
- * to be used only when the <code>close</code> method causes changes to the cache.
- * For example, if a parent closes its children when <code>close</code> is called,
- * it should be careful not to change the LRU linked list. It can be sure
- * it is not causing problems by calling <code>peek</code> instead of
- * <code>get</code> method.
+ * This implementation is NOT thread-safe. If multiple threads access the cache
+ * concurrently, it must be synchronized externally.
  * </p>
  * <p>
  * Adapted from <code>org.eclipse.jdt.internal.core.OverflowingLRUCache</code>.
  * </p>
  * @see LruCache
  */
-public abstract class OverflowingLruCache<K, V>
+public class OverflowingLruCache<K, V>
     extends LruCache<K, V>
 {
     /**
      * Indicates if the cache has been over filled and by how much.
      */
     protected int overflow = 0;
+
     /**
      * Indicates whether or not timestamps should be updated
      */
     protected boolean timestampsOn = true;
+
     /**
      * Indicates how much space should be reclaimed when the cache overflows.
-     * Inital load factor of one third.
+     * Initial load factor of one third.
      */
     protected double loadFactor = 0.333;
 
     /**
-     * Creates a new cache.
-     * @param size size limit of cache
+     * Creates a new cache with the given space limit.
+     *
+     * @param spaceLimit the maximum amount of space that the cache can store
      */
-    public OverflowingLruCache(int size)
+    public OverflowingLruCache(int spaceLimit)
     {
-        this(size, 0);
+        this(spaceLimit, 0);
     }
 
     /**
-     * Creates a new cache.
-     * @param size size limit of cache
-     * @param overflow size of the overflow
+     * Creates a new cache with the given space limit and overflow.
+     *
+     * @param spaceLimit the maximum amount of space that the cache can store
+     * @param overflow the space by which the cache has overflowed
      */
-    public OverflowingLruCache(int size, int overflow)
+    protected OverflowingLruCache(int spaceLimit, int overflow)
     {
-        super(size);
+        super(spaceLimit);
         this.overflow = overflow;
     }
 
     @Override
     public Object clone()
     {
-        OverflowingLruCache<K, V> newCache = newInstance(spaceLimit,
-            overflow);
-        LruCacheEntry<K, V> qEntry;
-
-        /* Preserve order of entries by copying from oldest to newest */
-        qEntry = entryQueueTail;
+        OverflowingLruCache<K, V> newCache = newInstance(spaceLimit, overflow);
+        // Preserve order of entries by copying from oldest to newest
+        LruCacheEntry<K, V> qEntry = entryQueueTail;
         while (qEntry != null)
         {
             newCache.privateAdd(qEntry.key, qEntry.value, qEntry.space);
@@ -104,21 +90,20 @@ public abstract class OverflowingLruCache<K, V>
     @Override
     public V put(K key, V value)
     {
-        /* attempt to rid ourselves of the overflow, if there is any */
+        // Attempt to rid ourselves of the overflow, if there is any
         if (overflow > 0)
             shrink();
 
-        /* Check whether there's an entry in the cache */
+        V oldValue = null;
         int newSpace = spaceFor(value);
+        // Check whether there's an entry in the cache
         LruCacheEntry<K, V> entry = entryTable.get(key);
-
         if (entry != null)
         {
-            /*
-             * Replace the entry in the cache if it would not overflow
-             * the cache. Otherwise flush the entry and re-add it so as
-             * to keep cache within budget
-             */
+            oldValue = entry.value;
+            // Replace the entry in the cache if it would not overflow
+            // the cache. Otherwise flush the entry and re-add it so as
+            // to keep the cache within budget
             int oldSpace = entry.space;
             int newTotal = currentSpace - oldSpace + newSpace;
             if (newTotal <= spaceLimit)
@@ -128,7 +113,7 @@ public abstract class OverflowingLruCache<K, V>
                 entry.space = newSpace;
                 currentSpace = newTotal;
                 overflow = 0;
-                return value;
+                return oldValue;
             }
             else
             {
@@ -139,16 +124,18 @@ public abstract class OverflowingLruCache<K, V>
         // attempt to make new space
         makeSpace(newSpace);
 
-        // add without worring about space, it will
+        // add without worrying about space, it will
         // be handled later in a makeSpace call
         privateAdd(key, value, newSpace);
 
-        return value;
+        return oldValue;
     }
 
     /**
-     * Attempts to shrink the cache if it has overflown. Returns <code>true</code>
-     * if the cache shrinks to less than or equal to its space limit.
+     * Attempts to shrink the cache if it has overflowed.
+     *
+     * @return <code>true</code> if the cache shrinks to less than or equal to
+     *  its space limit; <code>false</code> otherwise
      */
     public boolean shrink()
     {
@@ -164,18 +151,18 @@ public abstract class OverflowingLruCache<K, V>
     }
 
     /**
-     * Returns the space by which the cache has overflown.
+     * Returns the space by which the cache has overflowed.
      */
-    public int getOverflow()
+    public final int getOverflow()
     {
         return overflow;
     }
 
     /**
-     * Returns the load factor for the cache.  The load factor determines
+     * Returns the load factor for the cache. The load factor determines
      * how much space is reclaimed when the cache exceeds its space limit.
      */
-    public double getLoadFactor()
+    public final double getLoadFactor()
     {
         return loadFactor;
     }
@@ -184,74 +171,73 @@ public abstract class OverflowingLruCache<K, V>
      * Sets the load factor for the cache. The load factor determines
      * how much space is reclaimed when the cache exceeds its space limit.
      *
-     * @param newLoadFactor
+     * @param loadFactor the new load factor
      * @throws IllegalArgumentException when the new load factor is not in
-     *  (0.0, 1.0]
+     *  range (0.0, 1.0]
      */
-    public void setLoadFactor(double newLoadFactor)
-        throws IllegalArgumentException
+    public void setLoadFactor(double loadFactor)
     {
-        if (newLoadFactor <= 1.0 && newLoadFactor > 0.0)
-            loadFactor = newLoadFactor;
-        else
+        if (loadFactor <= 0.0 || loadFactor > 1.0)
             throw new IllegalArgumentException();
-    }
 
-    @Override
-    public void setSpaceLimit(int limit)
-    {
-        if (limit < spaceLimit)
-        {
-            makeSpace(spaceLimit - limit);
-        }
-        spaceLimit = limit;
+        this.loadFactor = loadFactor;
     }
 
     @Override
     public String toString()
     {
-        return toStringFillingRation("OverflowingLruCache") + //$NON-NLS-1$
-            toStringContents();
+        return toStringFillingRatio("OverflowingLruCache") + //$NON-NLS-1$
+            '\n' + toStringContents();
     }
 
     /**
-     * Returns <code>true</code> if the element is successfully closed and
-     * removed from the cache, otherwise <code>false</code>.
+     * Attempts to close the given cache entry.
      * <p>
-     * NOTE: this triggers an external remove from the cache
-     * by closing the object.
+     * This may trigger an external remove from the cache.
      * </p>
+     *
+     * @param entry the cache entry to close (never <code>null</code>)
+     * @return <code>true</code> if the given entry is successfully closed;
+     *  <code>false</code> otherwise
      */
-    protected abstract boolean close(LruCacheEntry<K, V> entry);
+    protected boolean close(LruCacheEntry<K, V> entry)
+    {
+        return true;
+    }
 
     /**
-     * Returns a new instance of the reciever.
+     * Returns a new OverflowingLruCache instance.
      */
-    protected abstract OverflowingLruCache<K, V> newInstance(int size,
-        int newOverflow);
+    protected OverflowingLruCache<K, V> newInstance(int spaceLimit,
+        int overflow)
+    {
+        return new OverflowingLruCache<K, V>(spaceLimit, overflow);
+    }
+
+    @Override
+    protected LruCache<K, V> newInstance(int spaceLimit)
+    {
+        return newInstance(spaceLimit, 0);
+    }
 
     @Override
     protected boolean makeSpace(int space)
     {
-        int limit = spaceLimit;
-        if (overflow == 0 && currentSpace + space <= limit)
-        {
-            /* if space is already available */
-            return true;
-        }
+        if (overflow == 0 && currentSpace + space <= spaceLimit)
+            return true; // space is already available
 
-        /* Free up space by removing oldest entries */
-        int spaceNeeded = (int)((1 - loadFactor) * limit);
+        // Free up space by removing oldest entries
+        int spaceNeeded = (int)((1 - loadFactor) * spaceLimit);
         spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
-        LruCacheEntry<K, V> entry = entryQueueTail;
 
+        // Disable timestamp update while making space
+        // so that the previous and next links are not changed
+        // (by a call to get(Object) for example)
+        timestampsOn = false;
         try
         {
-            // disable timestamps update while making space so that the previous and next links are not changed
-            // (by a call to get(Object) for example)
-            timestampsOn = false;
-
-            while (currentSpace + spaceNeeded > limit && entry != null)
+            LruCacheEntry<K, V> entry = entryQueueTail;
+            while (currentSpace + spaceNeeded > spaceLimit && entry != null)
             {
                 privateRemoveEntry(entry, false, false);
                 entry = entry.previous;
@@ -262,15 +248,14 @@ public abstract class OverflowingLruCache<K, V>
             timestampsOn = true;
         }
 
-        /* check again, since we may have aquired enough space */
-        if (currentSpace + space <= limit)
+        // Check again, since we may have acquired enough space
+        if (currentSpace + space <= spaceLimit)
         {
             overflow = 0;
             return true;
         }
 
-        /* update fOverflow */
-        overflow = currentSpace + space - limit;
+        overflow = currentSpace + space - spaceLimit;
         return false;
     }
 
@@ -282,71 +267,37 @@ public abstract class OverflowingLruCache<K, V>
     }
 
     /**
-     * Removes the entry from the entry queue.
+     * Removes the given entry if possible.
      * <p>
-     * If <i>external</i> is <code>true</code>, the entry is removed without
-     * checking if it can be removed. It is assumed that the client has already
-     * closed the element it is trying to remove (or will close it promptly).
+     * If <code>external</code> is <code>false</code>, and the entry could not
+     * be closed, the entry is not removed.
      * </p>
      * <p>
-     * If <i>external</i> is <code>false</code>, and the entry could not
-     * be closed, it is not removed and the pointers are not changed.
+     * If <code>external</code> is <code>true</code>, the entry is just removed
+     * without attempting to close it. It is assumed that the client has already
+     * closed the element or will close it promptly.
      * </p>
      *
      * @param entry
      * @param shuffle indicates whether we are just shuffling the queue
      *  (in which case, the entry table is not modified)
-     * @param external
+     * @param external indicates whether the request is initiated by
+     *  an external client rather than the cache itself
      */
     protected void privateRemoveEntry(LruCacheEntry<K, V> entry,
         boolean shuffle, boolean external)
     {
-        if (!shuffle)
+        if (!shuffle && !external)
         {
-            if (external)
-            {
-                entryTable.remove(entry.key);
-                currentSpace -= entry.space;
-            }
-            else
-            {
-                if (!close(entry))
-                    return;
-                // buffer close will recursively call #privateRemoveEntry with external==true
-                // thus entry will already be removed if reaching this point.
-                if (entryTable.get(entry.key) == null)
-                {
-                    return;
-                }
-                else
-                {
-                    // basic removal
-                    entryTable.remove(entry.key);
-                    currentSpace -= entry.space;
-                }
-            }
+            if (!close(entry))
+                return;
+            // close might recursively call #privateRemoveEntry with external==true
+            // thus the entry may have already be removed at this point
+            if (entryTable.get(entry.key) == null)
+                return;
         }
-        LruCacheEntry<K, V> previous = entry.previous;
-        LruCacheEntry<K, V> next = entry.next;
-
-        /* if this was the first entry */
-        if (previous == null)
-        {
-            entryQueue = next;
-        }
-        else
-        {
-            previous.next = next;
-        }
-        /* if this was the last entry */
-        if (next == null)
-        {
-            entryQueueTail = previous;
-        }
-        else
-        {
-            next.previous = previous;
-        }
+        // basic removal
+        super.privateRemoveEntry(entry, shuffle);
     }
 
     @Override
@@ -354,12 +305,7 @@ public abstract class OverflowingLruCache<K, V>
     {
         if (timestampsOn)
         {
-            entry.timestamp = timestampCounter++;
-            if (entryQueue != entry)
-            {
-                privateRemoveEntry(entry, true);
-                privateAddEntry(entry, true);
-            }
+            super.updateTimestamp(entry);
         }
     }
 }
