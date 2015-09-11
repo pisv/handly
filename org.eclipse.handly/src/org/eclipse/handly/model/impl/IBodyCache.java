@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import java.util.Map;
+
 import org.eclipse.handly.model.IHandle;
 
 /**
@@ -54,6 +56,14 @@ public interface IBodyCache
      *  (not <code>null</code>)
      */
     void put(IHandle handle, Body body);
+
+    /**
+     * Remembers the given handle/body relationships in this cache.
+     *
+     * @param elements handle/body relationships to be stored in the cache
+     *  (not <code>null</code>)
+     */
+    void putAll(Map<IHandle, Body> elements);
 
     /**
      * Removes the corresponding body for the given handle from this cache.

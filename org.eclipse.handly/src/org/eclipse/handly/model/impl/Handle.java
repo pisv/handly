@@ -388,9 +388,9 @@ public abstract class Handle
     protected abstract void validateExistence() throws CoreException;
 
     /**
-     * Initializes the given body based on the element's current contents.
-     * Children are to be placed in the given <code>newElements</code> map
-     * (note that this element has already been placed in the map).
+     * Initializes the given body based on this element's current contents.
+     * Also, creates and initializes bodies for all non-openable descendants
+     * and puts them into the given <code>newElements</code> map.
      *
      * @param body a new, uninitialized body for this element
      *  (never <code>null</code>)
@@ -434,7 +434,7 @@ public abstract class Handle
         Body body = findBody();
         if (body != null)
             return body;
-        return openWhenClosed(newBody(), monitor);
+        return open(newBody(), false, monitor);
     }
 
     /**
@@ -450,25 +450,23 @@ public abstract class Handle
     }
 
     /**
-     * "Opens" this element that is known to be "closed" (absent in the body cache).
-     * Automatically opens all openable parent elements that are not already open.
-     * Returns the fully initialized body for this element.
-     * <p>
-     * Opening an element means creating and initializing its body and
-     * putting the handle/body relationship into the body cache.
-     * </p>
+     * "Opens" this element if necessary by initializing the given body and
+     * putting it into the body cache. Ensures that all openable parent elements
+     * are open. Returns the cached body for this element.
      *
      * @param body a new body to be initialized for this element, or
      *  <code>null</code> if the body is to be created by the openable parent
+     * @param force whether to forcibly reopen this element if it is already
+     *  open (i.e. present in the body cache)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
-     * @return the fully initialized body for this element (never <code>null</code>)
+     * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is cancelled
      */
-    protected final Body openWhenClosed(Body body, IProgressMonitor monitor)
-        throws CoreException
+    protected final Body open(Body body, boolean force,
+        IProgressMonitor monitor) throws CoreException
     {
         HandleManager handleManager = getHandleManager();
         boolean hadTemporaryCache = handleManager.hasTemporaryCache();
@@ -488,7 +486,15 @@ public abstract class Handle
             }
             if (!hadTemporaryCache)
             {
-                handleManager.put(this, newElements);
+                if (force)
+                    handleManager.put(this, newElements);
+                else
+                {
+                    Body existingBody = handleManager.putIfAbsent(this,
+                        newElements);
+                    if (existingBody != null)
+                        body = existingBody;
+                }
             }
         }
         finally
@@ -502,17 +508,17 @@ public abstract class Handle
     }
 
     /**
-     * Returns the first "openable" element in the parent hierarchy of
+     * Returns the innermost "openable" element in the parent chain of
      * this element, or <code>null</code> if this element has no parent.
      * <p>
-     * An openable element knows how to open itself on demand (i.e. build
-     * its structure and properties and put it in the body cache). When opening
-     * an element, all openable parent elements are automatically opened.
-     * On the other hand, opening an element does not automatically open
-     * any descendents which are themselves openable.
+     * An openable element knows how to open itself on demand (i.e. initialize
+     * its body and put it in the body cache). When opening an element, it is
+     * ensured that all openable parent elements are open. On the other hand,
+     * opening an element should open only those child elements that are not
+     * openable: all other children will open themselves on demand.
      * </p>
      *
-     * @return the first "openable" element in the parent hierarchy of
+     * @return the innermost "openable" element in the parent chain of
      *  this element, or <code>null</code> if this element has no parent
      */
     protected Handle getOpenableParent()

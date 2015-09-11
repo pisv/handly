@@ -194,7 +194,8 @@ public abstract class SourceFile
      * @return <code>true</code> if this source file was switched from
      *  working copy mode back to its original mode, <code>false</code>
      *  otherwise
-     * @see #becomeWorkingCopy(IWorkingCopyBuffer, IProgressMonitor)
+     * @see #becomeWorkingCopy(IWorkingCopyBuffer, IWorkingCopyInfoFactory,
+     *  IProgressMonitor)
      */
     public final boolean discardWorkingCopy()
     {
@@ -401,23 +402,21 @@ public abstract class SourceFile
      *
      * @param source the source string to parse (never <code>null</code>)
      * @param monitor a progress monitor (never <code>null</code>)
-     * @return the (possibly abridged) AST created from the given source string
-     *  (not <code>null</code>)
+     * @return the AST created from the given source string (not <code>null</code>)
      * @throws CoreException if the AST could not be created
      * @throws OperationCanceledException if this method is cancelled
+     * @see #buildStructure(SourceElementBody, Map, Object, String, IProgressMonitor)
      */
     protected abstract Object createStructuralAst(String source,
         IProgressMonitor monitor) throws CoreException;
 
     /**
      * Initializes the given body based on the given AST and the given source
-     * string from which the AST was created. The AST should contain enough
-     * information for computing this source file's structure and properties
-     * as well as of all of its descendant elements. The descendants are to be
-     * placed in the given <code>newElements</code> map (note that this element
-     * has already been placed in the map).
+     * string from which the AST was created. Also, creates and initializes
+     * bodies for all descendant elements and puts them into the given
+     * <code>newElements</code> map.
      * <p>
-     * The AST is safe to read in the dynamic context of the method call,
+     * The AST is safe to read in the dynamic context of this method call,
      * but must not be modified. Implementations must not keep references
      * to any part of the AST or the source string outside the dynamic scope
      * of the invocation of this method.
@@ -550,7 +549,7 @@ public abstract class SourceFile
                 AST_HOLDER.set(new AstHolder(ast, snapshot));
                 try
                 {
-                    openWhenClosed(newBody(), monitor);
+                    open(newBody(), true, monitor);
                 }
                 finally
                 {

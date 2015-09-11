@@ -15,10 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.IHandle;
 
 /**
- * A useful superclass for structure builders of "terminal openables"
+ * A useful superclass for structure builders of innermost "openables"
  * such as source files.
  * <p>
  * Subclasses provide a client API of the structure builder.
@@ -26,7 +27,7 @@ import org.eclipse.handly.model.IHandle;
  * {@link #complete(Body)} to build the structure.
  * </p>
  *
- * @see Handle#buildStructure(Body, Map)
+ * @see Handle#buildStructure(Body, Map, IProgressMonitor)
  */
 public class StructureHelper
 {

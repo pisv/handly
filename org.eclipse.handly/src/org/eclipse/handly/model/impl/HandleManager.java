@@ -100,34 +100,51 @@ public class HandleManager
     }
 
     /**
-     * Registers the given handle/body relationships with this manager.
-     * Any previously registered relationships for the given handle and
-     * its existing descendants will be de-registered.
+     * Atomically updates the body cache associated with this manager.
      *
-     * @param handle the handle for the root of a subtree of elements
-     *  whose handle/body relationships are to be registered
-     *  (not <code>null</code>)
+     * @param handle the element being "opened" (not <code>null</code>)
      * @param newElements a map containing handle/body relationships
-     *  to be registered (not <code>null</code>). At a minimum, must
-     *  contain the body for the the first argument
+     *  to be stored in the body cache (not <code>null</code>). At a minimum,
+     *  must contain the body for the given handle
      */
     synchronized void put(IHandle handle, Map<IHandle, Body> newElements)
     {
         // remove existing children as they are replaced with the new children contained in newElements
         removeBodyAndChildren(handle);
 
-        for (Map.Entry<IHandle, Body> entry : newElements.entrySet())
-        {
-            cache.put(entry.getKey(), entry.getValue());
-        }
+        cache.putAll(newElements);
     }
 
     /**
-     * Removes any previously registered handle/body relationships
-     * for the given handle and its existing descendants.
+     * If a body for the given handle is not already present in the body cache
+     * associated with this manager, atomically updates the body cache.
+     *
+     * @param handle the element being "opened" (not <code>null</code>)
+     * @param newElements a map containing handle/body relationships
+     *  to be stored in the body cache (not <code>null</code>). At a minimum,
+     *  must contain the body for the given handle
+     * @return the previous body for the given handle, or <code>null</code>
+     *  if the body cache did not previously contain a body for the handle
+     */
+    synchronized Body putIfAbsent(IHandle handle,
+        Map<IHandle, Body> newElements)
+    {
+        Body existingBody = cache.peek(handle);
+        if (existingBody != null)
+            return existingBody;
+
+        cache.putAll(newElements);
+        return null;
+    }
+
+    /**
+     * Removes from the body cache associated with this manager any previously
+     * contained handle/body relationships for the given handle and its existing
+     * descendants.
      *
      * @param handle the handle for the root of a subtree of elements
      *  whose existing handle/body relationships are to be removed
+     *  from the body cache
      */
     synchronized void removeBodyAndChildren(IHandle handle)
     {
