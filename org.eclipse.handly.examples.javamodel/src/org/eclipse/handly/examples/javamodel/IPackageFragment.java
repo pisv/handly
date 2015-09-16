@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
+ *     Ondrej Ilcik (Codasip)
  *******************************************************************************/
 package org.eclipse.handly.examples.javamodel;
 
@@ -65,4 +66,15 @@ public interface IPackageFragment
      * @return <code>true</code> if this package fragment is a default package
      */
     boolean isDefaultPackage();
+
+    /**
+     * Returns whether this package fragment's name is a prefix of other
+     * package fragments in this package fragment's root.
+     *
+     * @return <code>true</code> if this package fragment's name is a prefix
+     *  of other package fragments in this package fragment's root
+     * @throws CoreException if this element does not exist or if an exception
+     *  occurs while accessing its corresponding resource
+     */
+    boolean hasSubpackages() throws CoreException;
 }

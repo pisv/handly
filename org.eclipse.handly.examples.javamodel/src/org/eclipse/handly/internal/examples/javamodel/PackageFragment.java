@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
+ *     Ondrej Ilcik (Codasip)
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
@@ -125,6 +126,27 @@ public class PackageFragment
     public boolean isDefaultPackage()
     {
         return name.isEmpty();
+    }
+
+    @Override
+    public boolean hasSubpackages() throws CoreException
+    {
+        IPackageFragment[] packages = getParent().getChildren(
+            IPackageFragment.class);
+        int namesLength = simpleNames.length;
+        nextPackage: for (IPackageFragment pkg : packages)
+        {
+            String[] otherNames = ((PackageFragment)pkg).simpleNames;
+            if (otherNames.length <= namesLength)
+                continue nextPackage;
+            for (int i = 0; i < namesLength; i++)
+            {
+                if (!simpleNames[i].equals(otherNames[i]))
+                    continue nextPackage;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
