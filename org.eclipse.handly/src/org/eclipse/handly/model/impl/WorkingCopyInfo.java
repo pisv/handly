@@ -16,57 +16,60 @@ package org.eclipse.handly.model.impl;
  * Clients can use this class as it stands or subclass it
  * as circumstances warrant.
  * </p>
- *
- * @see IWorkingCopyInfoFactory
  */
 public class WorkingCopyInfo
 {
     private final IWorkingCopyBuffer buffer;
-    private int refCount;
+    int refCount;
 
     /**
      * Constructs a new working copy info and associates it with the given
-     * buffer. The buffer is NOT <code>addRef</code>'ed, and the info's
-     * reference count is set to 0.
+     * buffer; the buffer is NOT <code>addRef</code>'ed.
      *
-     * @param buffer the buffer of the working copy (not <code>null</code>)
+     * @param buffer the working copy buffer (not <code>null</code>)
      */
-    protected WorkingCopyInfo(IWorkingCopyBuffer buffer)
+    public WorkingCopyInfo(IWorkingCopyBuffer buffer)
     {
         if ((this.buffer = buffer) == null)
             throw new IllegalArgumentException();
     }
 
     /**
-     * Returns the buffer of the working copy.
-     * The buffer is NOT <code>addRef</code>'ed.
+     * Returns the buffer associated with this working copy info;
+     * does NOT <code>addRef</code> the buffer.
      *
-     * @return the buffer of the working copy (never <code>null</code>)
+     * @return the working copy buffer (never <code>null</code>)
      */
-    IWorkingCopyBuffer getBuffer()
+    public final IWorkingCopyBuffer getBuffer()
     {
         return buffer;
     }
 
     /**
-     * Calls <code>addRef()</code> on the working copy buffer
-     * and increments the reference count of the working copy info.
+     * Disposes of this working copy info. Does nothing if the working copy info
+     * is already disposed.
+     *
+     * @throws IllegalStateException if the working copy info is still in use
+     *  and cannot be disposed
      */
-    void addRef()
+    public final void dispose()
     {
-        buffer.addRef();
-        ++refCount;
+        synchronized (this)
+        {
+            if (refCount > 0)
+                throw new IllegalStateException();
+            if (refCount < 0)
+                return; // already disposed
+            refCount = -1;
+        }
+        onDispose();
     }
 
     /**
-     * Calls <code>release()</code> on the working copy buffer
-     * and decrements the reference count of the working copy info.
-     *
-     * @return the updated count
+     * Disposal callback.
      */
-    int release()
+    protected void onDispose()
     {
-        buffer.release();
-        return --refCount;
+        // does nothing: subclasses may override
     }
 }

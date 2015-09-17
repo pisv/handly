@@ -36,7 +36,7 @@ import org.eclipse.xtext.util.CancelIndicator;
  * </p>
  */
 public final class XtextWorkingCopyBuffer
-    implements IWorkingCopyBuffer
+    implements IWorkingCopyBuffer, IDocumentBuffer
 {
     private final IDocumentBuffer delegate;
     private final HandlyXtextDocument.IReconcilingListener reconcilingListener;
@@ -94,6 +94,12 @@ public final class XtextWorkingCopyBuffer
         ((HandlyXtextDocument)document).addReconcilingListener(
             reconcilingListener);
         delegate.addRef();
+    }
+
+    @Override
+    public HandlyXtextDocument getDocument()
+    {
+        return (HandlyXtextDocument)delegate.getDocument();
     }
 
     @Override
@@ -180,10 +186,5 @@ public final class XtextWorkingCopyBuffer
     public void dispose()
     {
         release();
-    }
-
-    private HandlyXtextDocument getDocument()
-    {
-        return (HandlyXtextDocument)delegate.getDocument();
     }
 }

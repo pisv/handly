@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.BufferChange;
-import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
+import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
@@ -29,7 +30,6 @@ import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.HandleDelta;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
@@ -54,7 +54,8 @@ public class FooWorkingCopyNotificationTest
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
         fooModel.addElementChangeListener(listener);
-        IBuffer delegate = workingCopy.getBuffer();
+        TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
+            ITextFileBufferManager.DEFAULT);
         try
         {
             buffer = new DelegatingWorkingCopyBuffer(delegate,
@@ -228,8 +229,7 @@ public class FooWorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.becomeWorkingCopy(buffer, WorkingCopyInfoFactory.INSTANCE,
-            null);
+        workingCopy.becomeWorkingCopy(buffer, null);
         try
         {
             runnable.run(null);

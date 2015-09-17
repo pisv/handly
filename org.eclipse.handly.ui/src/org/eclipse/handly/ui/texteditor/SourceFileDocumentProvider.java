@@ -10,16 +10,18 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.texteditor;
 
+import java.text.MessageFormat;
+
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.buffer.IBuffer;
+import org.eclipse.handly.buffer.TextFileBuffer;
+import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyInfoFactory;
 import org.eclipse.handly.model.impl.IWorkingCopyReconciler;
 import org.eclipse.handly.model.impl.SourceFile;
-import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.ui.IWorkingCopyManager;
@@ -102,15 +104,26 @@ public class SourceFileDocumentProvider
         SourceFile sourceFile = getSourceFile(element);
         if (sourceFile == null)
             return null;
-        IBuffer delegate = sourceFile.getBuffer();
+        TextFileBuffer delegate = new TextFileBuffer(sourceFile.getFile(),
+            ITextFileBufferManager.DEFAULT);
         try
         {
-            IWorkingCopyBuffer buffer = new DelegatingWorkingCopyBuffer(
-                delegate, getWorkingCopyReconciler(sourceFile, element)); // will addRef() the delegate
+            DelegatingWorkingCopyBuffer buffer =
+                new DelegatingWorkingCopyBuffer(delegate, // will addRef() the delegate
+                    createWorkingCopyReconciler(sourceFile, element, info));
             try
             {
-                sourceFile.becomeWorkingCopy(buffer, getWorkingCopyInfoFactory(
-                    sourceFile, element), null); // will addRef() the buffer
+                if (sourceFile.becomeWorkingCopy(buffer, // will addRef() the buffer
+                    getWorkingCopyInfoFactory(sourceFile, element, info),
+                    getProgressMonitor()) != null)
+                {
+                    sourceFile.discardWorkingCopy();
+
+                    throw new CoreException(Activator.createErrorStatus(
+                        MessageFormat.format(
+                            Messages.SourceFileDocumentProvider_Working_copy_already_exists__0,
+                            sourceFile), null));
+                }
             }
             finally
             {
@@ -172,8 +185,7 @@ public class SourceFileDocumentProvider
     }
 
     /**
-     * Returns the working copy reconciler that is to be used when
-     * reconciling the given source file.
+     * Returns a new working copy reconciler for the given source file.
      * <p>
      * This implementation returns a {@link WorkingCopyReconciler default}
      * reconciler. Subclasses may override.
@@ -182,33 +194,36 @@ public class SourceFileDocumentProvider
      * @param sourceFile the source file corresponding to the given element
      *  (never <code>null</code>)
      * @param element the element (never <code>null</code>)
+     * @param fileInfo the file info for the given element
+     *  (never <code>null</code>)
      * @return the working copy reconciler for the given source file
      *  (not <code>null</code>)
      */
-    protected IWorkingCopyReconciler getWorkingCopyReconciler(
-        SourceFile sourceFile, Object element)
+    protected IWorkingCopyReconciler createWorkingCopyReconciler(
+        SourceFile sourceFile, Object element, FileInfo fileInfo)
     {
         return new WorkingCopyReconciler(sourceFile);
     }
 
     /**
-     * Returns the working copy info factory that is to be used when
-     * switching the given source file to working copy mode.
+     * Returns the working copy info factory for the given source file,
+     * or <code>null</code> if a default factory is to be used.
      * <p>
-     * This implementation returns a {@link WorkingCopyInfoFactory default}
-     * factory. Subclasses may override.
+     * This implementation returns <code>null</code>. Subclasses may override.
      * </p>
      *
      * @param sourceFile the source file corresponding to the given element
      *  (never <code>null</code>)
      * @param element the element (never <code>null</code>)
-     * @return the working copy info factory for the given source file
-     *  (not <code>null</code>)
+     * @param fileInfo the file info for the given element
+     *  (never <code>null</code>)
+     * @return the working copy info factory for the given source file,
+     *  or <code>null</code> if a default factory is to be used
      */
     protected IWorkingCopyInfoFactory getWorkingCopyInfoFactory(
-        SourceFile sourceFile, Object element)
+        SourceFile sourceFile, Object element, FileInfo fileInfo)
     {
-        return WorkingCopyInfoFactory.INSTANCE;
+        return null;
     }
 
     /**

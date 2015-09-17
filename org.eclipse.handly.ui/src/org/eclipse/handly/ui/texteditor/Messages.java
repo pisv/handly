@@ -8,27 +8,25 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.model.impl;
+package org.eclipse.handly.ui.texteditor;
 
-/**
- * Default implementation of {@link IWorkingCopyInfoFactory}.
- */
-public final class WorkingCopyInfoFactory
-    implements IWorkingCopyInfoFactory
+import org.eclipse.osgi.util.NLS;
+
+class Messages
+    extends NLS
 {
-    /**
-     * The sole instance of the default working copy info factory.
-     */
-    public static final IWorkingCopyInfoFactory INSTANCE =
-        new WorkingCopyInfoFactory();
+    private static final String BUNDLE_NAME =
+        "org.eclipse.handly.ui.texteditor.messages"; //$NON-NLS-1$
 
-    @Override
-    public WorkingCopyInfo createWorkingCopyInfo(IWorkingCopyBuffer buffer)
+    public static String SourceFileDocumentProvider_Working_copy_already_exists__0;
+
+    static
     {
-        return new WorkingCopyInfo(buffer);
+        // initialize resource bundle
+        NLS.initializeMessages(BUNDLE_NAME, Messages.class);
     }
 
-    private WorkingCopyInfoFactory()
+    private Messages()
     {
     }
 }

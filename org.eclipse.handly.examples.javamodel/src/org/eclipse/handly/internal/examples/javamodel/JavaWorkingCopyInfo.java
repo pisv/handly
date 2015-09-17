@@ -17,12 +17,12 @@ import org.eclipse.jdt.core.IProblemRequestor;
 /**
  * Model-specific extension of {@link WorkingCopyInfo}.
  */
-class JavaWorkingCopyInfo
+public class JavaWorkingCopyInfo
     extends WorkingCopyInfo
 {
     final IProblemRequestor problemRequestor;
 
-    JavaWorkingCopyInfo(IWorkingCopyBuffer buffer,
+    public JavaWorkingCopyInfo(IWorkingCopyBuffer buffer,
         IProblemRequestor problemRequestor)
     {
         super(buffer);

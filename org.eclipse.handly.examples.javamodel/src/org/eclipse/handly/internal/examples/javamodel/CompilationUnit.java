@@ -213,37 +213,6 @@ public class CompilationUnit
             monitor);
     }
 
-    void reportProblems(IProblem[] problems)
-    {
-        if (problems == null || problems.length == 0)
-            return;
-        WorkingCopyInfo info = peekAtWorkingCopyInfo();
-        if (info instanceof JavaWorkingCopyInfo)
-        {
-            reportProblems(((JavaWorkingCopyInfo)info).problemRequestor,
-                problems);
-        }
-    }
-
-    private static void reportProblems(IProblemRequestor requestor,
-        IProblem[] problems)
-    {
-        if (requestor == null || !requestor.isActive())
-            return;
-        try
-        {
-            requestor.beginReporting();
-            for (IProblem problem : problems)
-            {
-                requestor.acceptProblem(problem);
-            }
-        }
-        finally
-        {
-            requestor.endReporting();
-        }
-    }
-
     @Override
     protected void buildStructure(SourceElementBody body,
         Map<IHandle, Body> newElements, Object ast, String source,
@@ -292,6 +261,37 @@ public class CompilationUnit
                 JavaModelManager.INSTANCE.fireElementChangeEvent(
                     new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,
                         delta));
+            }
+        }
+
+        private void reportProblems(IProblem[] problems)
+        {
+            if (problems == null || problems.length == 0)
+                return;
+            WorkingCopyInfo info = getWorkingCopyInfo();
+            if (info instanceof JavaWorkingCopyInfo)
+            {
+                reportProblems(((JavaWorkingCopyInfo)info).problemRequestor,
+                    problems);
+            }
+        }
+
+        private void reportProblems(IProblemRequestor requestor,
+            IProblem[] problems)
+        {
+            if (requestor == null || !requestor.isActive())
+                return;
+            try
+            {
+                requestor.beginReporting();
+                for (IProblem problem : problems)
+                {
+                    requestor.acceptProblem(problem);
+                }
+            }
+            finally
+            {
+                requestor.endReporting();
             }
         }
     }

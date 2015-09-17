@@ -22,7 +22,6 @@ import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.impl.SourceFile;
-import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.ui.texteditor.TextEditorBuffer;
 import org.eclipse.handly.util.TextRange;
@@ -174,8 +173,15 @@ public class HandlyXtextEditorCallback
                         sourceFile, delegate); // will addRef() the delegate
                     try
                     {
-                        sourceFile.becomeWorkingCopy(buffer,
-                            WorkingCopyInfoFactory.INSTANCE, null); // will addRef() the buffer
+                        if (sourceFile.becomeWorkingCopy(buffer, // will addRef() the buffer
+                            null) != null)
+                        {
+                            sourceFile.discardWorkingCopy();
+
+                            throw new IllegalStateException(
+                                "Already a working copy: " //$NON-NLS-1$
+                                    + sourceFile);
+                        }
                         workingCopies.put(editor, sourceFile);
                     }
                     finally

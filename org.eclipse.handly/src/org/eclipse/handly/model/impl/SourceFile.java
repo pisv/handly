@@ -86,7 +86,7 @@ public abstract class SourceFile
     public final IBuffer getBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException
     {
-        WorkingCopyInfo info = getWorkingCopyInfo();
+        WorkingCopyInfo info = acquireWorkingCopy();
         if (info == null)
         {
             if (!create && ITextFileBufferManager.DEFAULT.getTextFileBuffer(
@@ -106,7 +106,7 @@ public abstract class SourceFile
             }
             finally
             {
-                discardWorkingCopyInfo();
+                discardWorkingCopy();
             }
         }
     }
@@ -120,44 +120,87 @@ public abstract class SourceFile
     }
 
     /**
-     * Switches this source file into a working copy. Switching to working copy
-     * means that the source file's structure and properties shall no longer
-     * correspond to the underlying resource contents and shall no longer
-     * be updated by a resource delta processor. Instead, those structure and
-     * properties can be explicitly {@link #reconcile(boolean, IProgressMonitor)
-     * reconciled} with the current contents of the working copy's buffer.
+     * If this source file is not already in working copy mode, switches it
+     * into a working copy, associates it with the given buffer, and acquires
+     * an independent ownership of the working copy and its buffer. Performs
+     * atomically.
      * <p>
-     * If this source file was already in working copy mode, an internal counter
-     * is incremented and no other action is taken on this source file.
-     * To bring this source file back into the original mode (where it reflects
-     * the underlying resource), <code>discardWorkingCopy()</code> must be called
-     * as many times as <code>becomeWorkingCopy</code>.
+     * Switching to working copy means that the source file's structure and
+     * properties will no longer correspond to the underlying resource contents
+     * and will no longer be updated by a resource delta processor. Instead,
+     * those structure and properties can be explicitly {@link #reconcile(
+     * boolean, IProgressMonitor) reconciled} with the current contents of
+     * the working copy buffer.
      * </p>
      * <p>
-     * If this source file was already in working copy mode, but was associated
-     * with a different buffer, an <code>IllegalStateException</code> is thrown
-     * and the internal counter is NOT incremented.
+     * If the source file was already in working copy mode, this method acquires
+     * a new independent ownership of the working copy by incrementing an internal
+     * counter and returns the info associated with the working copy; the given
+     * buffer is ignored.
+     * </p>
+     * <p>
+     * Each successful call to this method must ultimately be followed
+     * by exactly one call to <code>discardWorkingCopy</code>.
      * </p>
      *
-     * @param buffer the working copy buffer to be associated with
-     *  this source file (not <code>null</code>). The buffer will be
-     *  <code>addRef</code>'ed if this method succeeds, and will NOT be
-     *  <code>addRef</code>'ed if this method throws an exception
-     * @param factory the factory of working copy info (not <code>null</code>).
-     *  The working copy info is used to associate such information as
-     *  the working copy buffer with the working copy. Clients can
-     *  use a {@link WorkingCopyInfoFactory#INSTANCE default} factory
-     *  or substitute a custom implementation of the factory
+     * @param buffer the working copy buffer (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
+     * @return the working copy info previously associated with
+     *  this source file, or <code>null</code> if there was no
+     *  working copy info for this source file
      * @throws CoreException if the working copy cannot be created
-     * @see {@link #discardWorkingCopy()}
+     * @see #discardWorkingCopy()
      */
-    public final void becomeWorkingCopy(IWorkingCopyBuffer buffer,
+    public final WorkingCopyInfo becomeWorkingCopy(IWorkingCopyBuffer buffer,
+        IProgressMonitor monitor) throws CoreException
+    {
+        return becomeWorkingCopy(buffer, null, monitor);
+    }
+
+    /**
+     * If this source file is not already in working copy mode, switches it
+     * into a working copy, associates it with the given buffer via a new
+     * working copy info obtained from the given factory, and acquires an
+     * independent ownership of the working copy and its buffer. Performs
+     * atomically.
+     * <p>
+     * Switching to working copy means that the source file's structure and
+     * properties will no longer correspond to the underlying resource contents
+     * and will no longer be updated by a resource delta processor. Instead,
+     * those structure and properties can be explicitly {@link #reconcile(
+     * boolean, IProgressMonitor) reconciled} with the current contents of
+     * the working copy buffer.
+     * </p>
+     * <p>
+     * If the source file was already in working copy mode, this method acquires
+     * a new independent ownership of the working copy by incrementing an internal
+     * counter and returns the info associated with the working copy; the given
+     * buffer and factory are ignored.
+     * </p>
+     * <p>
+     * Each successful call to this method must ultimately be followed
+     * by exactly one call to <code>discardWorkingCopy</code>.
+     * </p>
+     *
+     * @param buffer the working copy buffer (not <code>null</code>)
+     * @param factory the working copy info factory, or <code>null</code>
+     *  if a default factory is to be used
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the working copy info previously associated with
+     *  this source file, or <code>null</code> if there was no
+     *  working copy info for this source file
+     * @throws CoreException if the working copy cannot be created
+     * @see #discardWorkingCopy()
+     */
+    public final WorkingCopyInfo becomeWorkingCopy(IWorkingCopyBuffer buffer,
         IWorkingCopyInfoFactory factory, IProgressMonitor monitor)
             throws CoreException
     {
-        if (createWorkingCopyInfo(buffer, factory))
+        WorkingCopyInfo oldInfo = getHandleManager().putWorkingCopyInfoIfAbsent(
+            this, buffer, factory);
+        if (oldInfo == null)
         {
             boolean success = false;
             try
@@ -172,7 +215,7 @@ public abstract class SourceFile
                 WC_CREATION.set(null);
                 if (!success)
                 {
-                    if (discardWorkingCopyInfo()
+                    if (getHandleManager().discardWorkingCopyInfo(this)
                         && creationState == WcCreation.FINISHED)
                     {
                         workingCopyModeChanged();
@@ -180,26 +223,47 @@ public abstract class SourceFile
                 }
             }
         }
+        return oldInfo;
     }
 
     /**
-     * Switches this source file from working copy mode back to its original mode.
-     * Has no effect if this source file was not in working copy mode.
+     * If this source file is in working copy mode, acquires a new independent
+     * ownership of the working copy by incrementing an internal counter and
+     * returns the info associated with the working copy. Returns <code>null</code>
+     * if this source file is not a working copy. Performs atomically.
      * <p>
-     * If <code>becomeWorkingCopy</code> method was called several times
-     * on this source file, <code>discardWorkingCopy()</code> must be called
-     * exactly as many times before it switches back to the original mode.
+     * Each successful call to this method that did not return
+     * <code>null</code> must ultimately be followed by exactly
+     * one call to <code>discardWorkingCopy</code>.
+     * </p>
+     *
+     * @return the working copy info for this source file,
+     *  or <code>null</code> if this source file is not a working copy
+     * @see #discardWorkingCopy()
+     */
+    public final WorkingCopyInfo acquireWorkingCopy()
+    {
+        return getHandleManager().getWorkingCopyInfo(this);
+    }
+
+    /**
+     * Relinquishes an independent ownership of the working copy by decrementing
+     * an internal counter. If there are no remaining independent owners of the
+     * working copy, switches this source file from working copy mode back to
+     * its original mode and releases the working copy buffer. Has no effect
+     * if this source file was not in working copy mode. Performs atomically.
+     * <p>
+     * Each independent ownership of the working copy must ultimately end
+     * with exactly one call to this method.
      * </p>
      *
      * @return <code>true</code> if this source file was switched from
      *  working copy mode back to its original mode, <code>false</code>
      *  otherwise
-     * @see #becomeWorkingCopy(IWorkingCopyBuffer, IWorkingCopyInfoFactory,
-     *  IProgressMonitor)
      */
     public final boolean discardWorkingCopy()
     {
-        if (discardWorkingCopyInfo())
+        if (getHandleManager().discardWorkingCopyInfo(this))
         {
             workingCopyModeChanged();
             return true;
@@ -210,13 +274,13 @@ public abstract class SourceFile
     @Override
     public final boolean isWorkingCopy()
     {
-        return peekAtWorkingCopyInfo() != null;
+        return getWorkingCopyInfo() != null;
     }
 
     @Override
     public final boolean needsReconciling()
     {
-        WorkingCopyInfo info = getWorkingCopyInfo();
+        WorkingCopyInfo info = acquireWorkingCopy();
         if (info == null)
             return false;
         else
@@ -227,7 +291,7 @@ public abstract class SourceFile
             }
             finally
             {
-                discardWorkingCopyInfo();
+                discardWorkingCopy();
             }
         }
     }
@@ -251,12 +315,12 @@ public abstract class SourceFile
      *  if progress reporting is not desired
      * @throws CoreException if this working copy cannot be reconciled
      * @throws OperationCanceledException if this method is cancelled
-     * @see {@link #reconcile(boolean, IProgressMonitor)}
+     * @see #reconcile(boolean, IProgressMonitor)
      */
     public final void reconcile(boolean force, Object arg,
         IProgressMonitor monitor) throws CoreException
     {
-        WorkingCopyInfo info = getWorkingCopyInfo();
+        WorkingCopyInfo info = acquireWorkingCopy();
         if (info == null)
             return; // not a working copy
         else
@@ -270,7 +334,7 @@ public abstract class SourceFile
             }
             finally
             {
-                discardWorkingCopyInfo();
+                discardWorkingCopy();
             }
         }
     }
@@ -300,6 +364,20 @@ public abstract class SourceFile
     public ReconcileOperation getReconcileOperation()
     {
         return new ReconcileOperation();
+    }
+
+    /**
+     * If this source file is in working copy mode, returns the working copy info
+     * without acquiring an independent ownership of the working copy. Returns
+     * <code>null</code> if this source file is not a working copy.
+     *
+     * @return the working copy info for this source file,
+     *  or <code>null</code> if this source file is not a working copy
+     * @see #acquireWorkingCopy()
+     */
+    protected final WorkingCopyInfo getWorkingCopyInfo()
+    {
+        return getHandleManager().peekAtWorkingCopyInfo(this);
     }
 
     /**
@@ -469,34 +547,6 @@ public abstract class SourceFile
             setSnapshot((SourceElementBody)newElements.get(child), snapshot,
                 newElements);
         }
-    }
-
-    private boolean createWorkingCopyInfo(IWorkingCopyBuffer buffer,
-        IWorkingCopyInfoFactory factory)
-    {
-        return getHandleManager().createWorkingCopyInfo(this, buffer, factory);
-    }
-
-    private WorkingCopyInfo getWorkingCopyInfo()
-    {
-        return getHandleManager().getWorkingCopyInfo(this);
-    }
-
-    /**
-     * Returns the working copy info for this source file without
-     * incrementing the info's reference count.
-     *
-     * @return the working copy info for this source file,
-     *  or <code>null</code> if this source file has no working copy info
-     */
-    protected final WorkingCopyInfo peekAtWorkingCopyInfo()
-    {
-        return getHandleManager().peekAtWorkingCopyInfo(this);
-    }
-
-    private boolean discardWorkingCopyInfo()
-    {
-        return getHandleManager().discardWorkingCopyInfo(this);
     }
 
     /**

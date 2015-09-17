@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
-import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
+import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
@@ -25,7 +26,6 @@ import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.WorkingCopyInfoFactory;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
@@ -48,7 +48,8 @@ public class WorkingCopyNotificationTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        IBuffer delegate = workingCopy.getBuffer();
+        TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
+            ITextFileBufferManager.DEFAULT);
         try
         {
             buffer = new DelegatingWorkingCopyBuffer(delegate,
@@ -257,8 +258,7 @@ public class WorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.becomeWorkingCopy(buffer, WorkingCopyInfoFactory.INSTANCE,
-            null);
+        workingCopy.becomeWorkingCopy(buffer, null);
         try
         {
             runnable.run(null);

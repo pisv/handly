@@ -16,7 +16,8 @@ package org.eclipse.handly.model.impl;
 public interface IWorkingCopyInfoFactory
 {
     /**
-     * Returns a new working copy info associated with the given buffer.
+     * Returns a new working copy info associated with the given buffer;
+     * the buffer is NOT <code>addRef</code>'ed.
      *
      * @param buffer the working copy buffer to be associated with
      *  the created info (not <code>null</code>)

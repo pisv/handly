@@ -19,9 +19,11 @@ import org.eclipse.handly.model.ISourceFile;
 /**
  * Manages handle/body relationships for a handle-based model.
  * Generally, each model will have its own instance of the handle manager.
+ * <p>
+ * An instance of this class is safe for use by multiple threads.
+ * </p>
  *
  * @see Handle#getHandleManager()
- * @threadsafe This class is intended to be thread-safe
  */
 public class HandleManager
 {
@@ -54,7 +56,7 @@ public class HandleManager
      * <p>
      * Checks the temporary cache first. If the current thread has no temporary
      * cache or it contains no body for the handle, checks the body cache
-     * associated with this manager.
+     * associated with this manager. Performs atomically.
      * </p>
      *
      * @param handle the handle whose body is to be returned
@@ -80,7 +82,7 @@ public class HandleManager
      * <p>
      * Checks the temporary cache first. If the current thread has no temporary
      * cache or it contains no body for the handle, checks the body cache
-     * associated with this manager.
+     * associated with this manager. Performs atomically.
      * </p>
      *
      * @param handle the handle whose body is to be returned
@@ -117,7 +119,7 @@ public class HandleManager
 
     /**
      * If a body for the given handle is not already present in the body cache
-     * associated with this manager, atomically updates the body cache.
+     * associated with this manager, updates the body cache. Performs atomically.
      *
      * @param handle the element being "opened" (not <code>null</code>)
      * @param newElements a map containing handle/body relationships
@@ -140,7 +142,7 @@ public class HandleManager
     /**
      * Removes from the body cache associated with this manager any previously
      * contained handle/body relationships for the given handle and its existing
-     * descendants.
+     * descendants. Performs atomically.
      *
      * @param handle the handle for the root of a subtree of elements
      *  whose existing handle/body relationships are to be removed
@@ -199,74 +201,106 @@ public class HandleManager
     }
 
     /**
-     * Creates the working copy info for the given source file via the given
-     * factory, or increments the reference count of the existing info.
+     * If the given source file is not already associated with a working copy
+     * info, uses the given factory to create a working copy info holding the
+     * given working copy buffer, associates the source file with the created
+     * info, and acquires a new independent ownership of the working copy buffer.
+     * Otherwise, returns the working copy info already associated with the
+     * source file; the given buffer and factory are ignored. Increments the
+     * reference count of the working copy info associated with the source file.
+     * Performs atomically.
      * <p>
-     * If there is no working copy info for the given source file,
-     * the given factory is used to create a working copy info and
-     * associate it with the given working copy buffer; the new info
-     * is then <code>addRef</code>'ed. If the working copy info for
-     * the given source file already exists, but with a different buffer,
-     * a runtime exception is thrown. Otherwise, the existing info is
-     * <code>addRef</code>'ed.
+     * Each successful call to this method must ultimately be followed
+     * by exactly one call to <code>discardWorkingCopyInfo</code>.
      * </p>
      *
-     * @param handle the source file whose working copy info is to be created
-     *  (not <code>null</code>)
-     * @param buffer the working copy buffer to be associated with the created
-     *  info (not <code>null</code>)
-     * @param factory the factory of working copy info (not <code>null</code>)
-     * @return <code>true</code> if the working copy info was created;
-     *  <code>false</code> if the working copy info already exists
-     * @throws IllegalStateException if the working copy info already exists,
-     *  but with a different buffer
+     * @param handle the source file with which a working copy info
+     *  is to be associated (not <code>null</code>)
+     * @param buffer the working copy buffer (not <code>null</code>)
+     * @param factory the working copy info factory, or <code>null</code>
+     *  if a default factory is to be used
+     * @return the previous working copy info associated with the given
+     *  source file, or <code>null</code> if there was no working copy info
+     *  for the source file
+     * @see #discardWorkingCopyInfo(ISourceFile)
      */
-    synchronized boolean createWorkingCopyInfo(ISourceFile handle,
+    WorkingCopyInfo putWorkingCopyInfoIfAbsent(ISourceFile handle,
         IWorkingCopyBuffer buffer, IWorkingCopyInfoFactory factory)
     {
         if (handle == null)
             throw new IllegalArgumentException();
         if (buffer == null)
             throw new IllegalArgumentException();
-        if (factory == null)
-            throw new IllegalArgumentException();
 
-        boolean created = false;
-        WorkingCopyInfo info = workingCopyInfos.get(handle);
-        if (info == null)
-        {
+        final WorkingCopyInfo info;
+        if (factory == null)
+            info = new WorkingCopyInfo(buffer);
+        else
             info = factory.createWorkingCopyInfo(buffer);
-            workingCopyInfos.put(handle, info);
-            created = true;
-        }
-        else if (!buffer.equals(info.getBuffer()))
+        if (info.refCount != 0)
+            throw new AssertionError();
+        boolean disposeInfo = true;
+        try
         {
-            throw new IllegalStateException(
-                "Already a working copy with another buffer"); //$NON-NLS-1$
+            if (info.getBuffer() != buffer)
+                throw new AssertionError();
+            buffer.addRef();
+            boolean releaseBuffer = true;
+            try
+            {
+                synchronized (this)
+                {
+                    WorkingCopyInfo oldInfo = workingCopyInfos.get(handle);
+                    if (oldInfo != null)
+                        oldInfo.refCount++;
+                    else
+                    {
+                        workingCopyInfos.put(handle, info);
+                        info.refCount = 1;
+                        releaseBuffer = disposeInfo = false;
+                    }
+                    return oldInfo;
+                }
+            }
+            finally
+            {
+                if (releaseBuffer)
+                    buffer.release();
+            }
         }
-        info.addRef();
-        return created;
+        finally
+        {
+            if (disposeInfo)
+                info.dispose();
+        }
     }
 
     /**
-     * Returns the working copy info for the given source file,
-     * incrementing its reference count.
+     * Returns the working copy info for the given source file, incrementing
+     * the reference count for the info. Returns <code>null</code> if the
+     * source file has no working copy info. Performs atomically.
+     * <p>
+     * Each successful call to this method that did not return
+     * <code>null</code> must ultimately be followed by exactly
+     * one call to <code>discardWorkingCopyInfo</code>.
+     * </p>
      *
      * @param handle the source file whose working copy info is to be returned
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file has no working copy info
+     * @see #discardWorkingCopyInfo(ISourceFile)
      */
     synchronized WorkingCopyInfo getWorkingCopyInfo(ISourceFile handle)
     {
         WorkingCopyInfo info = workingCopyInfos.get(handle);
         if (info != null)
-            info.addRef();
+            info.refCount++;
         return info;
     }
 
     /**
      * Returns the working copy info for the given source file without
-     * incrementing its reference count.
+     * incrementing the reference count for the info.
      *
      * @param handle the source file whose working copy info is to be returned
      * @return the working copy info for the given source file,
@@ -278,25 +312,44 @@ public class HandleManager
     }
 
     /**
-     * Decrements the reference count of the working copy info for the given
-     * source file. Removes the working copy info if there are no more
-     * references to it. Does nothing if the source file has no
-     * working copy info.
+     * Decrements the reference count of the working copy info associated with
+     * the given source file. If there are no remaining references, removes the
+     * working copy info and releases the working copy buffer. Has no effect if
+     * there was no working copy info for the source file. Performs atomically.
      *
      * @param handle the source file whose working copy info is to be discarded
-     * @return <code>true</code> if the working copy info for the given
-     *  source file was removed; <code>false</code> if the source file
-     *  has had no working copy info or there are still references to
-     *  the working copy info left
+     * @return <code>true</code> if the working copy info for the given source
+     *  file was removed; <code>false</code> if there was no working copy info
+     *  for the source file or there are remaining references
      */
-    synchronized boolean discardWorkingCopyInfo(ISourceFile handle)
+    boolean discardWorkingCopyInfo(ISourceFile handle)
     {
-        WorkingCopyInfo info = workingCopyInfos.get(handle);
-        if (info == null || info.release() != 0)
-            return false;
+        WorkingCopyInfo infoToDispose = null;
+        try
+        {
+            synchronized (this)
+            {
+                WorkingCopyInfo info = workingCopyInfos.get(handle);
+                if (info == null)
+                    return false;
 
-        workingCopyInfos.remove(handle);
-        removeBodyAndChildren(handle);
-        return true;
+                if (--info.refCount != 0)
+                    return false;
+
+                infoToDispose = info;
+
+                workingCopyInfos.remove(handle);
+                removeBodyAndChildren(handle);
+                return true;
+            }
+        }
+        finally
+        {
+            if (infoToDispose != null)
+            {
+                infoToDispose.getBuffer().release();
+                infoToDispose.dispose();
+            }
+        }
     }
 }
