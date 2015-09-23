@@ -26,17 +26,20 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 
 /**
- * Implementation of {@link IDocumentBuffer} backed by an {@link ITextFileBuffer}.
+ * Implementation of {@link IBuffer} backed by an {@link ITextFileBuffer}.
  * <p>
  * An instance of this class is safe for use by multiple threads, provided that
- * the underlying <code>ITextFileBuffer</code> is thread-safe.
+ * the underlying <code>ITextFileBuffer</code> and its document are thread-safe.
  * </p>
  */
+@SuppressWarnings("deprecation")
 public class TextFileBuffer
-    implements IDocumentBuffer
+    implements IBuffer, IDocumentBuffer
 {
     private final IFile file;
     private final ITextFileBufferManager bufferManager;
+    private ITextFileBuffer delegate;
+    private int refCount = 1;
 
     /**
      * Creates a new buffer instance and connects it to the underlying {@link
@@ -59,6 +62,9 @@ public class TextFileBuffer
         if ((this.bufferManager = bufferManager) == null)
             throw new IllegalArgumentException();
         bufferManager.connect(file.getFullPath(), LocationKind.IFILE, null);
+        if ((this.delegate = bufferManager.getTextFileBuffer(file.getFullPath(),
+            LocationKind.IFILE)) == null)
+            throw new AssertionError();
     }
 
     @Override
@@ -105,13 +111,13 @@ public class TextFileBuffer
     @Override
     public void setContents(String contents)
     {
-        getDelegate().getDocument().set(contents);
+        getDocument().set(contents);
     }
 
     @Override
     public String getContents()
     {
-        return getDelegate().getDocument().get();
+        return getDocument().get();
     }
 
     @Override
@@ -137,20 +143,23 @@ public class TextFileBuffer
     @Override
     public void addRef()
     {
-        try
+        synchronized (this)
         {
-            bufferManager.connect(file.getFullPath(), LocationKind.IFILE, null);
-        }
-        catch (CoreException e)
-        {
-            Activator.log(e.getStatus());
-            throw new IllegalStateException(e);
+            ++refCount;
         }
     }
 
     @Override
     public void release()
     {
+        synchronized (this)
+        {
+            if (--refCount != 0)
+                return;
+            if (delegate == null)
+                return;
+            delegate = null;
+        }
         try
         {
             bufferManager.disconnect(file.getFullPath(), LocationKind.IFILE,
@@ -159,7 +168,6 @@ public class TextFileBuffer
         catch (CoreException e)
         {
             Activator.log(e.getStatus());
-            throw new IllegalStateException(e);
         }
     }
 
@@ -170,14 +178,20 @@ public class TextFileBuffer
         release();
     }
 
+    /**
+     * Returns the underlying {@link ITextFileBuffer}.
+     *
+     * @return the underlying <code>ITextFileBuffer</code>
+     *  (never <code>null</code>)
+     * @throws IllegalStateException if the buffer is disconnected
+     */
     protected final ITextFileBuffer getDelegate()
     {
-        ITextFileBuffer buffer = bufferManager.getTextFileBuffer(
-            file.getFullPath(), LocationKind.IFILE);
-        if (buffer == null)
+        ITextFileBuffer result = delegate;
+        if (result == null)
             throw new IllegalStateException(
-                "No text file buffer is managed for " //$NON-NLS-1$
+                "Attempt to access a disconnected TextFileBuffer for " //$NON-NLS-1$
                     + file.getFullPath());
-        return buffer;
+        return result;
     }
 }

@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
+import org.eclipse.jface.text.IDocument;
 
 /**
  * Represents a potentially shared buffer. A buffer contains the text contents
@@ -142,4 +143,12 @@ public interface IBuffer
      * @deprecated
      */
     void dispose();
+
+    /**
+     * Returns the underlying document of this buffer,
+     * or <code>null</code> if there is no such document.
+     *
+     * @return the buffer's underlying document or <code>null</code> if none
+     */
+    IDocument getDocument();
 }

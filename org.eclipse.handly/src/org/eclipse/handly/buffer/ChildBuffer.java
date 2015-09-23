@@ -50,14 +50,14 @@ public class ChildBuffer
     }
 
     @Override
-    public void addRef()
+    public synchronized void addRef()
     {
         super.addRef();
         parent.addRef();
     }
 
     @Override
-    public void release()
+    public synchronized void release()
     {
         parent.release();
         super.release();

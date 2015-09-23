@@ -16,6 +16,7 @@ import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
+import org.eclipse.jface.text.IDocument;
 
 /**
  * Implementation of {@link IWorkingCopyBuffer} delegating to the given
@@ -58,6 +59,12 @@ public final class DelegatingWorkingCopyBuffer
         if ((this.reconciler = reconciler) == null)
             throw new IllegalArgumentException();
         delegate.addRef();
+    }
+
+    @Override
+    public IDocument getDocument()
+    {
+        return delegate.getDocument();
     }
 
     @Override

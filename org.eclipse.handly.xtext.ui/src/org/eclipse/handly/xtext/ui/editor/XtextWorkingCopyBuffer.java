@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
-import org.eclipse.handly.buffer.IDocumentBuffer;
 import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.SourceFile;
@@ -36,11 +33,11 @@ import org.eclipse.xtext.util.CancelIndicator;
  * </p>
  */
 public final class XtextWorkingCopyBuffer
-    implements IWorkingCopyBuffer, IDocumentBuffer
+    implements IWorkingCopyBuffer
 {
-    private final IDocumentBuffer delegate;
+    private final IBuffer delegate;
     private final HandlyXtextDocument.IReconcilingListener reconcilingListener;
-    private final AtomicInteger refCount = new AtomicInteger(1);
+    private int refCount = 1;
 
     /**
      * Constructs a new working copy buffer delegating to the given
@@ -62,7 +59,7 @@ public final class XtextWorkingCopyBuffer
      *  and must provide a <code>HandlyXtextDocument</code>
      */
     public XtextWorkingCopyBuffer(final SourceFile workingCopy,
-        IDocumentBuffer delegate)
+        IBuffer delegate)
     {
         if (workingCopy == null)
             throw new IllegalArgumentException();
@@ -160,24 +157,23 @@ public final class XtextWorkingCopyBuffer
     }
 
     @Override
-    public void addRef()
+    public synchronized void addRef()
     {
-        refCount.incrementAndGet();
+        delegate.addRef();
+        ++refCount;
     }
 
     @Override
-    public void release()
+    public synchronized void release()
     {
-        if (refCount.decrementAndGet() == 0)
+        try
         {
-            try
-            {
+            if (--refCount == 0)
                 getDocument().removeReconcilingListener(reconcilingListener);
-            }
-            finally
-            {
-                delegate.release();
-            }
+        }
+        finally
+        {
+            delegate.release();
         }
     }
 

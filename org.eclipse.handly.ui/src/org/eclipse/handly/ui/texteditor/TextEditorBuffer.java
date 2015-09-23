@@ -30,23 +30,36 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
- * Implementation of {@link IDocumentBuffer} backed by an {@link ITextEditor}.
+ * Implementation of {@link IBuffer} backed by an {@link ITextEditor}.
  * <p>
  * An instance of this class is safe for use by multiple threads,
  * provided that the underlying text editor's document is thread-safe.
+ * However, certain operations can only be executed by the UI thread:
+ * <ul>
+ * <li><code>hasUnsavedChanges</code></li>
+ * <li><code>mustSaveChanges</code></li>
+ * <li><code>save</code></li>
+ * </ul>
  * </p>
  */
+@SuppressWarnings("deprecation")
 public class TextEditorBuffer
-    implements IDocumentBuffer
+    implements IBuffer, IDocumentBuffer
 {
+    private final UiSynchronizer uiSynchronizer;
     private final IEditorInput editorInput;
     private final IDocumentProvider documentProvider;
+    private IDocument document;
+    private int refCount = 1;
 
     /**
      * Creates a new buffer instance and connects it to the given text editor.
      * <p>
      * It is the client responsibility to {@link IBuffer#release() release}
      * the created buffer after it is no longer needed.
+     * </p>
+     * <p>
+     * This constructor can only be executed by the UI thread.
      * </p>
      *
      * @param editor the text editor (not <code>null</code>)
@@ -56,21 +69,27 @@ public class TextEditorBuffer
     {
         if (editor == null)
             throw new IllegalArgumentException();
+        if ((this.uiSynchronizer = UiSynchronizer.DEFAULT) == null)
+            throw new AssertionError();
         if ((this.editorInput = editor.getEditorInput()) == null)
             throw new IllegalArgumentException();
+        checkThread();
         if ((this.documentProvider = editor.getDocumentProvider()) == null)
             throw new IllegalArgumentException();
         documentProvider.connect(editorInput);
+        if ((this.document = documentProvider.getDocument(editorInput)) == null)
+            throw new AssertionError();
     }
 
     @Override
     public IDocument getDocument()
     {
-        IDocument document = documentProvider.getDocument(editorInput);
-        if (document == null)
-            throw new IllegalStateException("No document is provided for " //$NON-NLS-1$
-                + editorInput);
-        return document;
+        IDocument result = document;
+        if (result == null)
+            throw new IllegalStateException(
+                "Attempt to access a disconnected TextEditorBuffer for " //$NON-NLS-1$
+                    + editorInput);
+        return result;
     }
 
     @Override
@@ -88,8 +107,7 @@ public class TextEditorBuffer
         try
         {
             UiBufferChangeRunner runner = new UiBufferChangeRunner(
-                UiSynchronizer.DEFAULT, new BufferChangeOperation(this,
-                    change));
+                uiSynchronizer, new BufferChangeOperation(this, change));
             return runner.run(monitor);
         }
         catch (MalformedTreeException e)
@@ -119,41 +137,46 @@ public class TextEditorBuffer
     @Override
     public boolean hasUnsavedChanges()
     {
+        checkThread();
         return documentProvider.canSaveDocument(editorInput);
     }
 
     @Override
     public boolean mustSaveChanges()
     {
+        checkThread();
         return documentProvider.mustSaveDocument(editorInput);
     }
 
     @Override
-    public void save(boolean overwrite, IProgressMonitor pm)
+    public void save(boolean overwrite, IProgressMonitor monitor)
         throws CoreException
     {
-        documentProvider.saveDocument(pm, editorInput, getDocument(),
+        checkThread();
+        documentProvider.saveDocument(monitor, editorInput, getDocument(),
             overwrite);
     }
 
     @Override
-    public void addRef()
+    public synchronized void addRef()
     {
-        try
-        {
-            documentProvider.connect(editorInput);
-        }
-        catch (CoreException e)
-        {
-            Activator.log(e.getStatus());
-            throw new IllegalStateException(e);
-        }
+        ++refCount;
     }
 
     @Override
-    public void release()
+    public synchronized void release()
     {
-        documentProvider.disconnect(editorInput);
+        if (--refCount == 0 && document != null)
+        {
+            document = null;
+            uiSynchronizer.asyncExec(new Runnable()
+            {
+                public void run()
+                {
+                    documentProvider.disconnect(editorInput);
+                }
+            });
+        }
     }
 
     @Override
@@ -161,5 +184,13 @@ public class TextEditorBuffer
     public void dispose()
     {
         release();
+    }
+
+    private void checkThread()
+    {
+        if (!Thread.currentThread().equals(uiSynchronizer.getThread()))
+            throw new IllegalStateException(
+                "Invalid thread access to TextEditorBuffer for " //$NON-NLS-1$
+                    + editorInput);
     }
 }

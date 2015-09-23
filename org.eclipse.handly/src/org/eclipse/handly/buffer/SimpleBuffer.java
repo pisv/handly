@@ -25,17 +25,16 @@ import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.text.edits.MalformedTreeException;
 
 /**
- * A simple implementation of {@link IDocumentBuffer}. This implementation
- * is not backed by an underlying resource, so saving the buffer only modifies
- * {@link #hasUnsavedChanges()} flag -- it does not really save the buffer's
- * contents.
+ * A simple {@link IBuffer} implementation. This implementation is not backed
+ * by an underlying resource, so saving the buffer only modifies its {@link
+ * #hasUnsavedChanges() "saved"} state -- it does not really save its contents.
  * <p>
  * An instance of this class is safe for use by multiple threads. Clients can
  * use this class as it stands or subclass it as circumstances warrant.
  * </p>
  */
 public class SimpleBuffer
-    implements IDocumentBuffer
+    implements IBuffer
 {
     private final IDocument document;
     private volatile long synchronizationStamp;
