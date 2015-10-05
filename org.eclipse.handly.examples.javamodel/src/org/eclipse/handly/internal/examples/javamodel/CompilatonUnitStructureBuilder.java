@@ -39,8 +39,9 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
  * Builds the inner structure for a compilation unit.
  */
 class CompilatonUnitStructureBuilder
-    extends StructureHelper
 {
+    private final StructureHelper helper;
+
     /**
      * Constructs a new compilation unit structure builder.
      *
@@ -49,7 +50,7 @@ class CompilatonUnitStructureBuilder
      */
     CompilatonUnitStructureBuilder(Map<IHandle, Body> newElements)
     {
-        super(newElements);
+        helper = new StructureHelper(newElements);
     }
 
     /**
@@ -76,7 +77,7 @@ class CompilatonUnitStructureBuilder
         for (AbstractTypeDeclaration type : types)
             buildStructure(handle, body, type);
 
-        complete(body);
+        helper.complete(body);
     }
 
     private void buildStructure(CompilationUnit parent, Body parentBody,
@@ -87,8 +88,8 @@ class CompilatonUnitStructureBuilder
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(pkg));
         body.setIdentifyingRange(getTextRange(pkg.getName()));
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private void buildStructure(CompilationUnit parent, Body parentBody,
@@ -102,10 +103,10 @@ class CompilatonUnitStructureBuilder
         body.setFullRange(new TextRange(firstImport.getStartPosition(),
             lastImport.getStartPosition() + lastImport.getLength()
                 - firstImport.getStartPosition()));
-        addChild(parentBody, handle, body);
         for (org.eclipse.jdt.core.dom.ImportDeclaration importDecl : imports)
             buildStructure(handle, body, importDecl);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private void buildStructure(ImportContainer parent, Body parentBody,
@@ -118,8 +119,8 @@ class CompilatonUnitStructureBuilder
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(importDecl));
         body.setIdentifyingRange(getTextRange(importDecl.getName()));
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private void buildStructure(Handle parent, Body parentBody,
@@ -186,8 +187,8 @@ class CompilatonUnitStructureBuilder
                 buildStructure(handle, body,
                     (AnnotationTypeMemberDeclaration)bd);
         }
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private void buildStructure(Type parent, Body parentBody,
@@ -210,8 +211,8 @@ class CompilatonUnitStructureBuilder
         body.set(Field.TYPE, Signature.createArraySignature(
             AstUtil.getSignature(field.getType()),
             fragment.getExtraDimensions()));
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private void buildStructure(Type parent, Body parentBody,
@@ -225,8 +226,8 @@ class CompilatonUnitStructureBuilder
         body.set(Field.FLAGS, enumConstant.getModifiers() | Flags.AccEnum);
         body.set(Field.TYPE, Signature.createTypeSignature(
             enumDeclaration.getName().getIdentifier(), false));
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private void buildStructure(Type parent, Body parentBody,
@@ -266,8 +267,8 @@ class CompilatonUnitStructureBuilder
             thrownExceptions));
         if (method.isConstructor())
             body.set(Method.IS_CONSTRUCTOR, Boolean.TRUE);
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private void buildStructure(Type parent, Body parentBody,
@@ -281,8 +282,8 @@ class CompilatonUnitStructureBuilder
         body.set(Method.FLAGS, annotationTypeMember.getModifiers());
         body.set(Method.RETURN_TYPE, AstUtil.getSignature(
             annotationTypeMember.getType()));
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private static TextRange getTextRange(ASTNode node)

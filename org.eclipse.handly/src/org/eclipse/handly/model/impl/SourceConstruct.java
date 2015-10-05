@@ -49,7 +49,7 @@ public abstract class SourceConstruct
      *
      * @return the occurrence count for this element
      */
-    public final int getOccurenceCount()
+    public final int getOccurrenceCount()
     {
         return occurrenceCount;
     }
@@ -61,10 +61,10 @@ public abstract class SourceConstruct
      * a source file to distinguish source constructs with duplicate names.
      * </p>
      *
-     * @see #getOccurenceCount()
+     * @see #getOccurrenceCount()
      * @see StructureHelper
      */
-    public final void incrementOccurenceCount()
+    public final void incrementOccurrenceCount()
     {
         occurrenceCount++;
     }

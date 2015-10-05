@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,14 +29,14 @@ import org.eclipse.xtext.util.ITextRegion;
  * Builds the inner structure for a {@link FooFile}.
  */
 class FooFileStructureBuilder
-    extends StructureHelper
 {
+    private final StructureHelper helper;
     private final ILocationInFileProvider locationProvider;
 
     /**
      * Constructs a new Foo file structure builder.
      *
-     * @param newElements the map to populate with stucture elements
+     * @param newElements the map to populate with structure elements
      *  (not <code>null</code>)
      * @param resourceServiceProvider Xtext's {@link IResourceServiceProvider}
      *  for the language (not <code>null</code>)
@@ -44,7 +44,7 @@ class FooFileStructureBuilder
     FooFileStructureBuilder(Map<IHandle, Body> newElements,
         IResourceServiceProvider resourceServiceProvider)
     {
-        super(newElements);
+        this.helper = new StructureHelper(newElements);
         if (resourceServiceProvider == null)
             throw new IllegalArgumentException();
         this.locationProvider = resourceServiceProvider.get(
@@ -65,7 +65,7 @@ class FooFileStructureBuilder
             buildStructure(handle, body, var);
         for (Def def : module.getDefs())
             buildStructure(handle, body, def);
-        complete(body);
+        helper.complete(body);
     }
 
     private void buildStructure(FooFile parent, Body parentBody, Var var)
@@ -77,8 +77,8 @@ class FooFileStructureBuilder
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getFullRange(var));
         body.setIdentifyingRange(getIdentifyingRange(var));
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private void buildStructure(FooFile parent, Body parentBody, Def def)
@@ -93,8 +93,8 @@ class FooFileStructureBuilder
         body.setIdentifyingRange(getIdentifyingRange(def));
         body.set(FooDef.PARAMETER_NAMES, def.getParams().toArray(
             new String[arity]));
-        addChild(parentBody, handle, body);
-        complete(body);
+        helper.complete(body);
+        helper.addChild(parentBody, handle, body);
     }
 
     private TextRange getFullRange(EObject eObject)

@@ -144,7 +144,7 @@ public class Method
                 builder.append(", "); //$NON-NLS-1$
         }
         builder.append(')');
-        int occurenceCount = getOccurenceCount();
+        int occurenceCount = getOccurrenceCount();
         if (occurenceCount > 1)
         {
             builder.append('#');

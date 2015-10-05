@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,20 +11,28 @@
 package org.eclipse.handly.model.impl;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IHandle.ToStringStyle;
+import org.eclipse.handly.util.TextIndent;
 
 /**
- * A useful superclass for structure builders of innermost "openables"
+ * A helper class for building the entire structure of innermost "openables"
  * such as source files.
  * <p>
- * Subclasses provide a client API of the structure builder.
- * Subclasses call {@link #addChild(Body, IHandle, Body)} and
- * {@link #complete(Body)} to build the structure.
+ * The structure is represented by a given map of handle/body relationships
+ * that will be populated as calls to {@link #addChild(Body, IHandle, Body)}
+ * are made on the helper. Make sure to complete initialization of each
+ * <code>Body</code> with a call to {@link #complete(Body)}.
+ * </p>
+ * <p>
+ * Clients can use this class as it stands or subclass it
+ * as circumstances warrant.
  * </p>
  *
  * @see Handle#buildStructure(Body, Map, IProgressMonitor)
@@ -40,12 +48,13 @@ public class StructureHelper
         new HashMap<Body, List<IHandle>>();
 
     /**
-     * Constructs a new structure helper.
+     * Constructs a new structure helper with the given <code>newElements</code>
+     * map.
      *
      * @param newElements the map to populate with structure elements
      *  (not <code>null</code>)
      */
-    protected StructureHelper(Map<IHandle, Body> newElements)
+    public StructureHelper(Map<IHandle, Body> newElements)
     {
         if (newElements == null)
             throw new IllegalArgumentException();
@@ -54,15 +63,17 @@ public class StructureHelper
     }
 
     /**
-     * Remembers the given handle as a child of the given parent body.
-     * Puts the given handle/body pair to the structure elements map,
-     * resolving duplicates along the way.
+     * Remembers the given handle as a child of the given <code>parentBody</code>
+     * yet-to-be-{@link #complete(Body) completed} and adds a new handle/body
+     * relationship for the given handle and <code>body</code> to the <code>
+     * newElements</code> map, resolving {@link #resolveDuplicates(IHandle)
+     * duplicates} along the way.
      *
      * @param parentBody the body of the parent element (not <code>null</code>)
      * @param handle the handle of the child element (not <code>null</code>)
      * @param body the body of the child element (not <code>null</code>)
      */
-    protected void addChild(Body parentBody, IHandle handle, Body body)
+    public void addChild(Body parentBody, IHandle handle, Body body)
     {
         if (parentBody == null)
             throw new IllegalArgumentException();
@@ -71,8 +82,12 @@ public class StructureHelper
         if (body == null)
             throw new IllegalArgumentException();
 
-        if (handle instanceof SourceConstruct)
-            resolveDuplicates((SourceConstruct)handle);
+        resolveDuplicates(handle);
+        if (newElements.containsKey(handle))
+            throw new AssertionError(
+                "Attempt to add an already present element: " //$NON-NLS-1$
+                    + handle.toString(new ToStringStyle(TextIndent.NONE,
+                        EnumSet.of(ToStringStyle.Option.ANCESTORS))));
         newElements.put(handle, body);
         List<IHandle> childrenList = children.get(parentBody);
         if (childrenList == null)
@@ -81,35 +96,39 @@ public class StructureHelper
     }
 
     /**
-     * Completes the given body. In particular, sets the body's children to the
-     * handles previously remembered by {@link #addChild(Body, IHandle, Body)}.
+     * Completes initialization of the given body. In particular, initializes it
+     * with a list of handles previously {@link #addChild(Body, IHandle, Body)
+     * remembered} as children of the body.
      *
-     * @param body the body to complete (not <code>null</code>)
+     * @param body the given body (not <code>null</code>)
      */
-    protected void complete(Body body)
+    public void complete(Body body)
     {
         if (body == null)
             throw new IllegalArgumentException();
 
         List<IHandle> childrenList = children.remove(body);
         body.setChildren(childrenList == null ? Body.NO_CHILDREN
-            : childrenList.toArray(new IHandle[childrenList.size()]));
+            : childrenList.toArray(Body.NO_CHILDREN));
     }
 
     /**
-     * Returns whether the given string is <code>null</code> or empty.
+     * Allows to make distinctions among handles which would otherwise be equal.
+     * <p>
+     * If the given handle is a <code>SourceConstruct</code> already present
+     * in the <code>newElements</code> map, this implementation increments its
+     * {@link SourceConstruct#getOccurrenceCount() occurrence count} until
+     * it becomes a unique key in the map.
+     * </p>
      *
-     * @param s the given string
-     * @return <code>true</code> if the string is <code>null</code> or empty
+     * @param handle the given handle (never <code>null</code>)
      */
-    protected static boolean isEmpty(String s)
+    protected void resolveDuplicates(IHandle handle)
     {
-        return s == null || s.isEmpty();
-    }
-
-    private void resolveDuplicates(SourceConstruct element)
-    {
+        if (!(handle instanceof SourceConstruct))
+            return;
+        SourceConstruct element = (SourceConstruct)handle;
         while (newElements.containsKey(element))
-            element.incrementOccurenceCount();
+            element.incrementOccurrenceCount();
     }
 }
