@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.handly.examples.javamodel.tests
-Bundle-Version: 0.3.1.qualifier
+Bundle-Version: 0.3.2.qualifier
 Bundle-Name: Handly Java Model Example Tests (Incubation)
 Bundle-Vendor: Eclipse Handly
 Fragment-Host: org.eclipse.handly.examples.javamodel
