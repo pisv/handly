@@ -12,8 +12,11 @@ package org.eclipse.handly.xtext.ui.editor;
 
 import static org.eclipse.xtext.ui.editor.XtextSourceViewerConfiguration.XTEXT_TEMPLATE_POS_CATEGORY;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.xtext.ui.Activator;
@@ -112,6 +115,7 @@ public class HandlyXtextReconciler
         private boolean isInstalled;
         private boolean shouldInstallCompletionListener;
         private volatile boolean paused;
+        private final AtomicBoolean forced = new AtomicBoolean();
         private ITextViewer viewer;
         private final TextInputListener textInputListener =
             new TextInputListener();
@@ -133,11 +137,11 @@ public class HandlyXtextReconciler
 
         public void forceReconcile()
         {
-            if (viewer == null)
+            if (viewer == null || viewer.getDocument() == null)
                 return;
-            IDocument document = viewer.getDocument();
-            if (document instanceof HandlyXtextDocument)
-                ((HandlyXtextDocument)document).reconcile(true);
+            cancel();
+            forced.set(true);
+            schedule(delay);
         }
 
         @Override
@@ -212,15 +216,25 @@ public class HandlyXtextReconciler
             if (document instanceof HandlyXtextDocument)
             {
                 HandlyXtextDocument doc = (HandlyXtextDocument)document;
-                if (doc.needsReconciling())
+                final boolean forced = this.forced.compareAndSet(true, false);
+                if (forced || doc.needsReconciling())
                 {
-                    doc.reconcile(false, new CancelIndicator()
+                    try
                     {
-                        public boolean isCanceled()
+                        doc.reconcile(forced, new CancelIndicator()
                         {
-                            return monitor.isCanceled();
-                        }
-                    });
+                            public boolean isCanceled()
+                            {
+                                return monitor.isCanceled();
+                            }
+                        });
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        if (forced)
+                            this.forced.set(true);
+                        throw e;
+                    }
                 }
             }
             return Status.OK_STATUS;
