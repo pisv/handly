@@ -41,8 +41,15 @@ import org.eclipse.xtext.util.CancelIndicator;
 
 /**
  * Adapted from <code>org.eclipse.xtext.ui.editor.reconciler.XtextReconciler</code>.
- * Customized for Handly reconciling story. Should be used together with
- * {@link HandlyXtextDocument}.
+ * Customized for Handly reconciling story.
+ * <p>
+ * Bind this class in place of the default <code>XtextReconciler</code>
+ * if you have {@link HandlyXtextDocument} bound:
+ * </p>
+ * <pre>
+ * public Class&lt;? extends IReconciler&gt; bindIReconciler() {
+ *     return HandlyXtextReconciler.class;
+ * }</pre>
  *
  * @noextend This class is not intended to be extended by clients.
  */

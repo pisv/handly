@@ -46,6 +46,24 @@ import com.google.inject.Inject;
 /**
  * Extends {@link XtextDocument} for Handly reconciling story.
  * Implements {@link IHandlyXtextDocument}.
+ * <p>
+ * Bind this class in place of the default <code>XtextDocument</code> if you
+ * have {@link HandlyXtextEditorCallback} configured. Note that if you bind
+ * this class, you should also bind other classes pertaining to Handly/Xtext
+ * integration:
+ * </p>
+ * <pre>
+ * public Class&lt;? extends XtextDocument&gt; bindXtextDocument() {
+ *     return HandlyXtextDocument.class;
+ * }
+ *
+ * public Class&lt;? extends IReconciler&gt; bindIReconciler() {
+ *     return HandlyXtextReconciler.class;
+ * }
+ *
+ * public Class&lt;? extends DirtyStateEditorSupport&gt; bindDirtyStateEditorSupport() {
+ *     return HandlyDirtyStateEditorSupport.class; // or its subclass
+ * }</pre>
  *
  * @noextend This class is not intended to be extended by clients.
  */

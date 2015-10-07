@@ -1,0 +1,62 @@
+/*******************************************************************************
+ * Copyright (c) 2015 itemis AG (http://www.itemis.eu) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
+package org.eclipse.handly.xtext.ui.editor;
+
+import java.util.List;
+
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.xtext.common.types.TypesPackage;
+import org.eclipse.xtext.resource.IEObjectDescription;
+import org.eclipse.xtext.resource.IResourceDescription;
+
+/**
+ * Adapted from org.eclipse.xtext.common.types.ui.editor.JvmTypesAwareDirtyStateEditorSupport.
+ * Customized for Handly reconciling story.
+ * <p>
+ * If you extend DefaultCommonTypesUiModule (directly or indirectly) and have
+ * {@link HandlyXtextDocument} bound, bind this class in place of the default
+ * <code>JvmTypesAwareDirtyStateEditorSupport</code>:
+ * </p>
+ * <pre>
+ * &#064;Override
+ * // super would bind JvmTypesAwareDirtyStateEditorSupport
+ * public Class&lt;? extends DirtyStateEditorSupport&gt; bindDirtyStateEditorSupport() {
+ *     return HandlyJvmTypesAwareDirtyStateEditorSupport.class;
+ * }
+ * </pre>
+ */
+public class HandlyJvmTypesAwareDirtyStateEditorSupport
+    extends HandlyDirtyStateEditorSupport
+{
+    private static final URI OBJECTS_URI = URI.createURI("java:/Objects"); //$NON-NLS-1$
+
+    @Override
+    protected void processDelta(IResourceDescription.Delta delta,
+        Resource context, List<Resource> result)
+    {
+        super.processDelta(delta, context, result);
+        ResourceSet resourceSet = context.getResourceSet();
+        if (delta.getNew() != null)
+        {
+            Iterable<IEObjectDescription> exportedJvmTypes =
+                delta.getNew().getExportedObjectsByType(
+                    TypesPackage.Literals.JVM_GENERIC_TYPE);
+            for (IEObjectDescription jvmTypeDesc : exportedJvmTypes)
+            {
+                URI uriToJvmType = OBJECTS_URI.appendSegment(
+                    jvmTypeDesc.getQualifiedName().toString());
+                Resource jvmResourceInResourceSet = resourceSet.getResource(
+                    uriToJvmType, false);
+                if (jvmResourceInResourceSet != null)
+                    result.add(jvmResourceInResourceSet);
+            }
+        }
+    }
+}

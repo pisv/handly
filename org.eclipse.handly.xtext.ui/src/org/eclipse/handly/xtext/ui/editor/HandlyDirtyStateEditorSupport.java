@@ -15,7 +15,16 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 
 /**
  * Extends {@link DirtyStateEditorSupport} for Handly reconciling story.
- * Should be used together with {@link HandlyXtextDocument}.
+ * <p>
+ * Bind this class or its subclass in place of the default <code>DirtyStateEditorSupport</code>
+ * if you have {@link HandlyXtextDocument} bound:
+ * </p>
+ * <pre>
+ * public Class&lt;? extends DirtyStateEditorSupport&gt; bindDirtyStateEditorSupport() {
+ *     return HandlyDirtyStateEditorSupport.class; // or its subclass
+ * }</pre>
+ *
+ * @see HandlyJvmTypesAwareDirtyStateEditorSupport
  */
 public class HandlyDirtyStateEditorSupport
     extends DirtyStateEditorSupport

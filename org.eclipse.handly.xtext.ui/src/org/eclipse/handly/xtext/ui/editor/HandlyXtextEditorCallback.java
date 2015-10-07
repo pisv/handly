@@ -39,14 +39,39 @@ import com.google.inject.Inject;
 
 /**
  * Integrates Xtext editor with Handly working copy management facility.
- * Should be used together with {@link HandlyXtextDocument}.
  * Creates a working copy when a source file is opened in Xtext editor.
  * Discards the working copy when the editor is being disposed. Also,
  * sets the editor highlight range for the currently selected element.
  * <p>
  * Note that this class relies on a language-specific implementation of
  * {@link IInputElementProvider} being available through injection.
+ * Also, {@link HandlyXtextDocument} and other classes pertaining to
+ * Handly/Xtext integration should be bound if this callback is configured.
+ * For example:
  * </p>
+ * <pre>
+ * public Class&lt;? extends IInputElementProvider&gt; bindIInputElementProvider() {
+ *     return FooInputElementProvider.class;
+ * }
+ *
+ * public void configureXtextEditorCallback(Binder binder) {
+ *     binder.bind(IXtextEditorCallback.class).annotatedWith(Names.named(
+ *         HandlyXtextEditorCallback.class.getName())).to(
+ *             HandlyXtextEditorCallback.class);
+ * }
+ *
+ * public Class&lt;? extends XtextDocument&gt; bindXtextDocument() {
+ *     return HandlyXtextDocument.class;
+ * }
+ *
+ * public Class&lt;? extends IReconciler&gt; bindIReconciler() {
+ *     return HandlyXtextReconciler.class;
+ * }
+ *
+ * public Class&lt;? extends DirtyStateEditorSupport&gt; bindDirtyStateEditorSupport() {
+ *     return HandlyDirtyStateEditorSupport.class; // or its subclass
+ * }
+ * </pre>
  */
 public class HandlyXtextEditorCallback
     extends IXtextEditorCallback.NullImpl
