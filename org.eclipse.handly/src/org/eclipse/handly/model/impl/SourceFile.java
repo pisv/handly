@@ -12,6 +12,8 @@ package org.eclipse.handly.model.impl;
 
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
@@ -42,8 +44,6 @@ public abstract class SourceFile
 {
     private static final ThreadLocal<AstHolder> AST_HOLDER =
         new ThreadLocal<AstHolder>();
-    private static final ThreadLocal<WcCreation> WC_CREATION =
-        new ThreadLocal<WcCreation>();
 
     /**
      * The underlying workspace file.
@@ -150,6 +150,7 @@ public abstract class SourceFile
      *  this source file, or <code>null</code> if there was no
      *  working copy info for this source file
      * @throws CoreException if the working copy cannot be created
+     * @throws OperationCanceledException if this method is cancelled
      * @see #discardWorkingCopy()
      */
     public final WorkingCopyInfo becomeWorkingCopy(IWorkingCopyBuffer buffer,
@@ -192,35 +193,43 @@ public abstract class SourceFile
      *  this source file, or <code>null</code> if there was no
      *  working copy info for this source file
      * @throws CoreException if the working copy cannot be created
+     * @throws OperationCanceledException if this method is cancelled
      * @see #discardWorkingCopy()
      */
-    public final WorkingCopyInfo becomeWorkingCopy(IWorkingCopyBuffer buffer,
-        IWorkingCopyInfoFactory factory, IProgressMonitor monitor)
-            throws CoreException
+    public final WorkingCopyInfo becomeWorkingCopy(
+        final IWorkingCopyBuffer buffer, final IWorkingCopyInfoFactory factory,
+        final IProgressMonitor monitor) throws CoreException
     {
-        WorkingCopyInfo oldInfo = getHandleManager().putWorkingCopyInfoIfAbsent(
-            this, buffer, factory);
+        WorkingCopyProvider provider = new WorkingCopyProvider()
+        {
+            @Override
+            protected WorkingCopyInfo doAcquireWorkingCopy()
+            {
+                return putWorkingCopyInfoIfAbsent(buffer, factory);
+            }
+
+            @Override
+            protected boolean isCanceled()
+            {
+                if (monitor == null)
+                    return false;
+                return monitor.isCanceled();
+            }
+        };
+        WorkingCopyInfo oldInfo = provider.acquireWorkingCopy();
         if (oldInfo == null)
         {
             boolean success = false;
             try
             {
-                WC_CREATION.set(WcCreation.IN_PROGRESS);
-                reconcile(false, monitor);
+                WorkingCopyInfo newInfo = peekAtWorkingCopyInfo();
+                newInfo.initTask.execute(monitor);
                 success = true;
             }
             finally
             {
-                WcCreation creationState = WC_CREATION.get();
-                WC_CREATION.set(null);
                 if (!success)
-                {
-                    if (getHandleManager().discardWorkingCopyInfo(this)
-                        && creationState == WcCreation.FINISHED)
-                    {
-                        workingCopyModeChanged();
-                    }
-                }
+                    discardWorkingCopy();
             }
         }
         return oldInfo;
@@ -232,9 +241,8 @@ public abstract class SourceFile
      * returns the info associated with the working copy. Returns <code>null</code>
      * if this source file is not a working copy. Performs atomically.
      * <p>
-     * Each successful call to this method that did not return
-     * <code>null</code> must ultimately be followed by exactly
-     * one call to <code>discardWorkingCopy</code>.
+     * Each successful call to this method that did not return <code>null</code>
+     * must ultimately be followed by exactly one call to <code>discardWorkingCopy</code>.
      * </p>
      *
      * @return the working copy info for this source file,
@@ -243,18 +251,27 @@ public abstract class SourceFile
      */
     public final WorkingCopyInfo acquireWorkingCopy()
     {
-        return getHandleManager().getWorkingCopyInfo(this);
+        WorkingCopyProvider provider = new WorkingCopyProvider()
+        {
+            @Override
+            protected WorkingCopyInfo doAcquireWorkingCopy()
+            {
+                return getWorkingCopyInfo();
+            }
+        };
+        return provider.acquireWorkingCopy();
     }
 
     /**
      * Relinquishes an independent ownership of the working copy by decrementing
      * an internal counter. If there are no remaining independent owners of the
      * working copy, switches this source file from working copy mode back to
-     * its original mode and releases the working copy buffer. Has no effect
-     * if this source file was not in working copy mode. Performs atomically.
+     * its original mode and releases the working copy buffer. Performs
+     * atomically.
      * <p>
      * Each independent ownership of the working copy must ultimately end
-     * with exactly one call to this method.
+     * with exactly one call to this method. If a client is not an independent
+     * owner of the working copy, it must not call this method.
      * </p>
      *
      * @return <code>true</code> if this source file was switched from
@@ -263,7 +280,10 @@ public abstract class SourceFile
      */
     public final boolean discardWorkingCopy()
     {
-        if (getHandleManager().discardWorkingCopyInfo(this))
+        WorkingCopyInfo info = getHandleManager().discardWorkingCopyInfo(this);
+        if (info == null)
+            throw new IllegalStateException("Not a working copy: " + getPath()); //$NON-NLS-1$
+        if (info.isDisposed() && info.created)
         {
             workingCopyModeChanged();
             return true;
@@ -274,7 +294,16 @@ public abstract class SourceFile
     @Override
     public final boolean isWorkingCopy()
     {
-        return getWorkingCopyInfo() != null;
+        WorkingCopyInfo info = peekAtWorkingCopyInfo();
+        if (info == null)
+            return false;
+        if (info.created)
+            return true;
+        // special case: wc creation is in progress on the current thread
+        AstHolder astHolder = AST_HOLDER.get();
+        if (astHolder != null && astHolder.getSourceFile().equals(this))
+            return true;
+        return false;
     }
 
     @Override
@@ -375,7 +404,7 @@ public abstract class SourceFile
      *  or <code>null</code> if this source file is not a working copy
      * @see #acquireWorkingCopy()
      */
-    protected final WorkingCopyInfo getWorkingCopyInfo()
+    protected final WorkingCopyInfo peekAtWorkingCopyInfo()
     {
         return getHandleManager().peekAtWorkingCopyInfo(this);
     }
@@ -383,6 +412,7 @@ public abstract class SourceFile
     /**
      * Notifies about a working copy mode change: either the source file
      * became a working copy or reverted back from the working copy mode.
+     * Clients are not supposed to call this method, but may override it.
      */
     protected void workingCopyModeChanged()
     {
@@ -456,6 +486,9 @@ public abstract class SourceFile
                 astHolder = new AstHolder(ast, snapshot);
                 --ticks;
             }
+
+            if (!astHolder.getSourceFile().equals(this))
+                throw new AssertionError(); // should never happen
 
             SourceElementBody thisBody = (SourceElementBody)body;
             String source = astHolder.snapshot.getContents();
@@ -549,6 +582,18 @@ public abstract class SourceFile
         }
     }
 
+    private WorkingCopyInfo putWorkingCopyInfoIfAbsent(
+        IWorkingCopyBuffer buffer, IWorkingCopyInfoFactory factory)
+    {
+        return getHandleManager().putWorkingCopyInfoIfAbsent(this, buffer,
+            factory);
+    }
+
+    private WorkingCopyInfo getWorkingCopyInfo()
+    {
+        return getHandleManager().getWorkingCopyInfo(this);
+    }
+
     /**
      * A reconcile operation for this source file.
      * Intended to be used in {@link IWorkingCopyBuffer} implementations.
@@ -592,7 +637,9 @@ public abstract class SourceFile
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
             boolean forced, IProgressMonitor monitor) throws CoreException
         {
-            if (!forced || shouldRebuildStructureIfForced())
+            WorkingCopyInfo info = peekAtWorkingCopyInfo();
+            boolean create = !info.created; // case of wc creation
+            if (create || !forced || shouldRebuildStructureIfForced())
             {
                 if (AST_HOLDER.get() != null)
                     throw new AssertionError(); // should never happen
@@ -606,22 +653,71 @@ public abstract class SourceFile
                     AST_HOLDER.set(null);
                 }
             }
-
-            if (WC_CREATION.get() == WcCreation.IN_PROGRESS)
+            if (create)
             {
+                if (!info.created)
+                    throw new AssertionError(); // should never happen
                 workingCopyModeChanged(); // notify about wc creation
-                WC_CREATION.set(WcCreation.FINISHED);
             }
         }
     }
 
-    private static enum WcCreation
+    private abstract class WorkingCopyProvider
     {
-        IN_PROGRESS,
-        FINISHED
+        public WorkingCopyInfo acquireWorkingCopy()
+        {
+            for (;;)
+            {
+                if (isCanceled())
+                    throw new OperationCanceledException();
+                WorkingCopyInfo info = doAcquireWorkingCopy();
+                if (info == null)
+                    return null;
+                boolean success = false;
+                try
+                {
+                    success = waitForInit(info);
+                }
+                finally
+                {
+                    if (!success)
+                        discardWorkingCopy();
+                }
+                if (success)
+                    return info;
+            }
+        }
+
+        protected abstract WorkingCopyInfo doAcquireWorkingCopy();
+
+        protected boolean isCanceled()
+        {
+            return false;
+        }
+
+        private boolean waitForInit(WorkingCopyInfo info)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                if (isCanceled())
+                    throw new OperationCanceledException();
+                try
+                {
+                    return info.initTask.wasSuccessful(10,
+                        TimeUnit.MILLISECONDS);
+                }
+                catch (InterruptedException e)
+                {
+                }
+                catch (TimeoutException e)
+                {
+                }
+            }
+            return false;
+        }
     }
 
-    private static class AstHolder
+    private class AstHolder
     {
         public final Object ast;
         public final NonExpiringSnapshot snapshot;
@@ -630,6 +726,11 @@ public abstract class SourceFile
         {
             this.ast = ast;
             this.snapshot = snapshot;
+        }
+
+        public SourceFile getSourceFile()
+        {
+            return SourceFile.this;
         }
     }
 }

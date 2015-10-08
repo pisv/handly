@@ -25,6 +25,7 @@ import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
+import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
@@ -156,6 +157,74 @@ public class FooWorkingCopyTest
                 assertEquals(var1, vars[1]);
             }
         });
+    }
+
+    public void test3() throws Exception
+    {
+        // working copy for a non-existing source file
+        workingCopy.getFile().delete(true, null);
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                IFooVar[] vars = workingCopy.getVars();
+                assertEquals(2, vars.length);
+                IFooDef[] defs = workingCopy.getDefs();
+                assertEquals(3, defs.length);
+            }
+        });
+    }
+
+    public void test4() throws Exception
+    {
+        // concurrent creation/acquisition of working copy (see bug 479623)
+        final boolean[] stop = new boolean[1];
+        final boolean[] failure = new boolean[1];
+        Thread thread = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                while (!stop[0])
+                {
+                    WorkingCopyInfo info = workingCopy.acquireWorkingCopy();
+                    if (info != null)
+                    {
+                        try
+                        {
+                            if (!info.isInitialized())
+                            {
+                                failure[0] = true;
+                                return;
+                            }
+                        }
+                        finally
+                        {
+                            workingCopy.discardWorkingCopy();
+                        }
+                    }
+                }
+            }
+        });
+        thread.start();
+        try
+        {
+            doWithWorkingCopy(new IWorkspaceRunnable()
+            {
+                @Override
+                public void run(IProgressMonitor monitor) throws CoreException
+                {
+                }
+            });
+            assertFalse(failure[0]);
+            assertTrue(thread.isAlive());
+        }
+        finally
+        {
+            stop[0] = true;
+            thread.join();
+        }
     }
 
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)

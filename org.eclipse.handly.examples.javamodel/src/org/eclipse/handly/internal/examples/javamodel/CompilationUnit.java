@@ -232,8 +232,10 @@ public class CompilationUnit
         JavaElementDelta delta = new JavaElementDelta(getRoot());
         if (file.exists())
             delta.insertChanged(this, JavaElementDelta.F_WORKING_COPY);
-        else
+        else if (isWorkingCopy())
             delta.insertAdded(this, JavaElementDelta.F_WORKING_COPY);
+        else
+            delta.insertRemoved(this, JavaElementDelta.F_WORKING_COPY);
         JavaModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
             ElementChangeEvent.POST_CHANGE, delta));
     }
@@ -268,7 +270,7 @@ public class CompilationUnit
         {
             if (problems == null || problems.length == 0)
                 return;
-            WorkingCopyInfo info = getWorkingCopyInfo();
+            WorkingCopyInfo info = peekAtWorkingCopyInfo();
             if (info instanceof JavaWorkingCopyInfo)
             {
                 reportProblems(((JavaWorkingCopyInfo)info).problemRequestor,

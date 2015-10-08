@@ -115,6 +115,13 @@ public class HandleManager
         removeBodyAndChildren(handle);
 
         cache.putAll(newElements);
+
+        if (handle instanceof ISourceFile)
+        {
+            WorkingCopyInfo info = workingCopyInfos.get((ISourceFile)handle);
+            if (info != null && !info.created) // case of wc creation
+                info.created = true;
+        }
     }
 
     /**
@@ -318,11 +325,10 @@ public class HandleManager
      * there was no working copy info for the source file. Performs atomically.
      *
      * @param handle the source file whose working copy info is to be discarded
-     * @return <code>true</code> if the working copy info for the given source
-     *  file was removed; <code>false</code> if there was no working copy info
-     *  for the source file or there are remaining references
+     * @return the working copy info for the given source file,
+     *  or <code>null</code> if the source file had no working copy info
      */
-    boolean discardWorkingCopyInfo(ISourceFile handle)
+    WorkingCopyInfo discardWorkingCopyInfo(ISourceFile handle)
     {
         WorkingCopyInfo infoToDispose = null;
         try
@@ -330,17 +336,14 @@ public class HandleManager
             synchronized (this)
             {
                 WorkingCopyInfo info = workingCopyInfos.get(handle);
-                if (info == null)
-                    return false;
+                if (info != null && --info.refCount == 0)
+                {
+                    infoToDispose = info;
 
-                if (--info.refCount != 0)
-                    return false;
-
-                infoToDispose = info;
-
-                workingCopyInfos.remove(handle);
-                removeBodyAndChildren(handle);
-                return true;
+                    workingCopyInfos.remove(handle);
+                    removeBodyAndChildren(handle);
+                }
+                return info;
             }
         }
         finally

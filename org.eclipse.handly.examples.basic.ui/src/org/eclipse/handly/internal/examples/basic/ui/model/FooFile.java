@@ -222,8 +222,10 @@ public class FooFile
         HandleDelta delta = new HandleDelta(getRoot());
         if (file.exists())
             delta.insertChanged(this, HandleDelta.F_WORKING_COPY);
-        else
+        else if (isWorkingCopy())
             delta.insertAdded(this, HandleDelta.F_WORKING_COPY);
+        else
+            delta.insertRemoved(this, HandleDelta.F_WORKING_COPY);
         FooModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
             ElementChangeEvent.POST_CHANGE, delta));
     }
