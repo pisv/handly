@@ -12,6 +12,8 @@ package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.handly.examples.basic.foo.Def;
 import org.eclipse.handly.examples.basic.foo.Module;
@@ -58,14 +60,36 @@ class FooFileStructureBuilder
      * @param handle the handle to a Foo file (not <code>null</code>)
      * @param body the body of the Foo file (not <code>null</code>)
      * @param module the AST of the Foo file (not <code>null</code>)
+     * @param monitor a progress monitor (not <code>null</code>)
+     * @throws OperationCanceledException if this method is canceled
      */
-    void buildStructure(FooFile handle, SourceElementBody body, Module module)
+    void buildStructure(FooFile handle, SourceElementBody body, Module module,
+        IProgressMonitor monitor)
     {
-        for (Var var : module.getVars())
-            buildStructure(handle, body, var);
-        for (Def def : module.getDefs())
-            buildStructure(handle, body, def);
-        helper.complete(body);
+        monitor.beginTask("", //$NON-NLS-1$
+            module.getVars().size() + module.getDefs().size());
+        try
+        {
+            for (Var var : module.getVars())
+            {
+                if (monitor.isCanceled())
+                    throw new OperationCanceledException();
+                buildStructure(handle, body, var);
+                monitor.worked(1);
+            }
+            for (Def def : module.getDefs())
+            {
+                if (monitor.isCanceled())
+                    throw new OperationCanceledException();
+                buildStructure(handle, body, def);
+                monitor.worked(1);
+            }
+            helper.complete(body);
+        }
+        finally
+        {
+            monitor.done();
+        }
     }
 
     private void buildStructure(FooFile parent, Body parentBody, Var var)

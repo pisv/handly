@@ -14,14 +14,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
-import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.xtext.resource.XtextResource;
-import org.eclipse.xtext.util.CancelIndicator;
 
 /**
  * Implementation of {@link IWorkingCopyBuffer} delegating to the given
@@ -75,17 +73,10 @@ public final class XtextWorkingCopyBuffer
                 @Override
                 public void reconciled(XtextResource resource,
                     NonExpiringSnapshot snapshot, boolean forced,
-                    CancelIndicator cancelIndicator)
+                    IProgressMonitor monitor) throws Exception
                 {
-                    try
-                    {
-                        workingCopy.getReconcileOperation().reconcile(resource,
-                            snapshot, forced, null);
-                    }
-                    catch (CoreException e)
-                    {
-                        Activator.log(e.getStatus());
-                    }
+                    workingCopy.getReconcileOperation().reconcile(resource,
+                        snapshot, forced, monitor);
                 }
             };
         ((HandlyXtextDocument)document).addReconcilingListener(
@@ -150,10 +141,10 @@ public final class XtextWorkingCopyBuffer
     }
 
     @Override
-    public void reconcile(boolean force, Object arg, IProgressMonitor monitor)
-        throws CoreException
+    public void reconcile(boolean force, Object arg,
+        final IProgressMonitor monitor) throws CoreException
     {
-        getDocument().reconcile(force);
+        getDocument().reconcile(force, monitor);
     }
 
     @Override

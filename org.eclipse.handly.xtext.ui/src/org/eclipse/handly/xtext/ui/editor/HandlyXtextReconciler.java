@@ -37,7 +37,6 @@ import org.eclipse.jface.text.source.ISourceViewerExtension4;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver;
 import org.eclipse.xtext.ui.editor.reconciler.XtextReconciler;
-import org.eclipse.xtext.util.CancelIndicator;
 
 /**
  * Adapted from <code>org.eclipse.xtext.ui.editor.reconciler.XtextReconciler</code>.
@@ -228,13 +227,7 @@ public class HandlyXtextReconciler
                 {
                     try
                     {
-                        doc.reconcile(forced, new CancelIndicator()
-                        {
-                            public boolean isCanceled()
-                            {
-                                return monitor.isCanceled();
-                            }
-                        });
+                        doc.reconcile(forced, monitor);
                     }
                     catch (OperationCanceledException e)
                     {

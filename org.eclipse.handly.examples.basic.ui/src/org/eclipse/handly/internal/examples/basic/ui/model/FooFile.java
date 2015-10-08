@@ -122,7 +122,7 @@ public class FooFile
             {
                 FooFileStructureBuilder builder = new FooFileStructureBuilder(
                     newElements, resource.getResourceServiceProvider());
-                builder.buildStructure(this, body, (Module)root);
+                builder.buildStructure(this, body, (Module)root, monitor);
             }
         }
     }

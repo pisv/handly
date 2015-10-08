@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.emf.common.util.WrappedException;
 import org.eclipse.handly.document.DocumentChange;
 import org.eclipse.handly.document.DocumentChangeOperation;
@@ -84,6 +87,9 @@ public class HandlyXtextDocument
 
     private ITextEditComposer composer2; // unfortunately had to duplicate
     private volatile NonExpiringSnapshot reconciledSnapshot;
+    private volatile boolean reconcilingWasCanceled;
+    private final ThreadLocal<IProgressMonitor> reconcilingMonitor =
+        new ThreadLocal<IProgressMonitor>();
     private final ListenerList reconcilingListeners = new ListenerList(
         ListenerList.IDENTITY);
     private final DocumentListener selfListener = new DocumentListener();
@@ -154,35 +160,33 @@ public class HandlyXtextDocument
         ISnapshot reconciledSnapshot = getReconciledSnapshot();
         if (reconciledSnapshot == null)
             return false;
-        return !getSnapshot().isEqualTo(reconciledSnapshot);
+        return !getSnapshot().isEqualTo(reconciledSnapshot)
+            || reconcilingWasCanceled;
     }
 
     @Override
-    public void reconcile(boolean force)
+    public void reconcile(boolean force, IProgressMonitor monitor)
     {
-        reconcile(force, CancelIndicator.NullImpl);
-    }
+        reconcilingMonitor.set(monitor);
+        try
+        {
+            if (!force)
+            {
+                readOnly(NO_OP);
+            }
+            else
+            {
+                T2MReconcilingUnitOfWork reconcilingUnitOfWork =
+                    new T2MReconcilingUnitOfWork(true);
+                internalModify(reconcilingUnitOfWork);
+            }
 
-    /**
-     * Re-parses the resource so it becomes reconciled with the document contents.
-     * Does nothing if already reconciled. <b>For internal use only.</b>
-     *
-     * @param force indicates whether reconciling has to be performed
-     *  even if it is not {@link #needsReconciling() needed}
-     * @param cancelIndicator a {@link CancelIndicator}
-     * @throws OperationCanceledException
-     */
-    public void reconcile(boolean force, CancelIndicator cancelIndicator)
-    {
-        if (!force)
-        {
-            readOnly(NO_OP);
+            if (monitor != null && monitor.isCanceled())
+                throw new OperationCanceledException();
         }
-        else
+        finally
         {
-            T2MReconcilingUnitOfWork reconcilingUnitOfWork =
-                new T2MReconcilingUnitOfWork(true, cancelIndicator);
-            internalModify(reconcilingUnitOfWork);
+            reconcilingMonitor.remove();
         }
     }
 
@@ -198,7 +202,7 @@ public class HandlyXtextDocument
     public boolean reconcile(Processor processor)
     {
         T2MReconcilingUnitOfWork reconcilingUnitOfWork =
-            new T2MReconcilingUnitOfWork(false, CancelIndicator.NullImpl);
+            new T2MReconcilingUnitOfWork(false);
         return processor.process(reconcilingUnitOfWork);
     }
 
@@ -260,36 +264,53 @@ public class HandlyXtextDocument
      * that the document's XtextResource contents is based on the given snapshot.
      * Notifies reconciling listeners (if any). Should only be called
      * in the dynamic context of {@link XtextDocument#internalModify}.
+     * <p>
+     * If this method is canceled, it does NOT throw OperationCanceledException.
+     * Rather, it makes a note that reconciling was canceled and returns.
+     * </p>
      *
      * @param resource the reconciled resource (never <code>null</code>)
      * @param snapshot the reconciled snapshot (never <code>null</code>)
      * @param forced whether reconciling was forced, i.e. the document has not
      *  changed since it was reconciled the last time
-     * @param cancelIndicator a {@link CancelIndicator} (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>)
      */
     private void reconciled(final XtextResource resource,
         final NonExpiringSnapshot snapshot, final boolean forced,
-        final CancelIndicator cancelIndicator)
+        final IProgressMonitor monitor)
     {
         Object[] listeners = reconcilingListeners.getListeners();
-        for (final Object listener : listeners)
+        monitor.beginTask("", listeners.length); //$NON-NLS-1$
+        try
         {
-            SafeRunner.run(new ISafeRunnable()
+            for (final Object listener : listeners)
             {
-                @Override
-                public void run() throws Exception
-                {
-                    ((IReconcilingListener)listener).reconciled(resource,
-                        snapshot, forced, cancelIndicator);
-                }
+                if (monitor.isCanceled())
+                    break;
 
-                @Override
-                public void handleException(Throwable exception)
+                SafeRunner.run(new ISafeRunnable()
                 {
-                }
-            });
+                    @Override
+                    public void run() throws Exception
+                    {
+                        ((IReconcilingListener)listener).reconciled(resource,
+                            snapshot, forced, new SubProgressMonitor(monitor,
+                                1));
+                    }
+
+                    @Override
+                    public void handleException(Throwable exception)
+                    {
+                    }
+                });
+            }
+            reconcilingWasCanceled = monitor.isCanceled();
+            reconciledSnapshot = snapshot;
         }
-        reconciledSnapshot = snapshot;
+        finally
+        {
+            monitor.done();
+        }
     }
 
     private void internalReconcile(XtextResource resource)
@@ -320,10 +341,12 @@ public class HandlyXtextDocument
          * @param snapshot the reconciled snapshot (never <code>null</code>)
          * @param forced whether reconciling was forced, i.e. the document
          *  has not changed since it was reconciled the last time
-         * @param cancelIndicator a {@link CancelIndicator} (never <code>null</code>)
+         * @param monitor a progress monitor (never <code>null</code>)
+         * @throws Exception if a problem occurred while running this method
+         * @throws OperationCanceledException if this method is canceled
          */
         void reconciled(XtextResource resource, NonExpiringSnapshot snapshot,
-            boolean forced, CancelIndicator cancelIndicator);
+            boolean forced, IProgressMonitor monitor) throws Exception;
     }
 
     private class DocumentListener
@@ -388,66 +411,84 @@ public class HandlyXtextDocument
         implements IUnitOfWork<Boolean, XtextResource>
     {
         private final boolean force;
-        private final CancelIndicator cancelIndicator;
 
-        public T2MReconcilingUnitOfWork(boolean force,
-            CancelIndicator cancelIndicator)
+        public T2MReconcilingUnitOfWork(boolean force)
         {
             this.force = force;
-            this.cancelIndicator = cancelIndicator;
         }
 
         @Override
         public Boolean exec(XtextResource resource) throws Exception
         {
-            if (resource == null) // input not set or already disposed
-                return false;
+            IProgressMonitor monitor = reconcilingMonitor.get();
+            if (monitor == null)
+                monitor = new NullProgressMonitor();
+            monitor.beginTask("", 2); //$NON-NLS-1$
+            try
+            {
+                if (resource == null) // input not set or already disposed
+                    return false;
 
-            PendingChange change = getAndResetPendingChange();
-            if (change == null)
-            {
-                if (force) // reconciling is forced
+                if (monitor.isCanceled())
                 {
-                    NonExpiringSnapshot snapshot = reconciledSnapshot;
-                    // no need to reparse -- just update internal state
-                    resource.update(0, 0, ""); //$NON-NLS-1$
-                    reconciled(resource, snapshot, true, cancelIndicator);
+                    reconcilingWasCanceled = true;
+                    return false;
                 }
-                return false;
-            }
-            else
-            {
-                NonExpiringSnapshot snapshot = change.getSnapshotToReconcile();
-                ReplaceRegion replaceRegion =
-                    change.getReplaceRegionToReconcile();
-                long modificationStamp = change.getModificationStamp();
-                try
+
+                PendingChange change = getAndResetPendingChange();
+                if (change == null)
                 {
-                    resource.update(replaceRegion.getOffset(),
-                        replaceRegion.getLength(), replaceRegion.getText());
-                    resource.setModificationStamp(modificationStamp);
+                    if (force || reconcilingWasCanceled)
+                    {
+                        NonExpiringSnapshot snapshot = reconciledSnapshot;
+                        if (force) // no need to reparse -- just update internal state
+                            resource.update(0, 0, ""); //$NON-NLS-1$
+                        reconciled(resource, snapshot, !reconcilingWasCanceled,
+                            new SubProgressMonitor(monitor, 2));
+                    }
+                    return false;
                 }
-                catch (Exception e)
+                else
                 {
-                    // partial parsing failed - performing full reparse
-                    Activator.log(Activator.createErrorStatus(e.getMessage(),
-                        e));
+                    NonExpiringSnapshot snapshot =
+                        change.getSnapshotToReconcile();
+                    ReplaceRegion replaceRegion =
+                        change.getReplaceRegionToReconcile();
+                    long modificationStamp = change.getModificationStamp();
                     try
                     {
-                        resource.reparse(snapshot.getContents());
+                        resource.update(replaceRegion.getOffset(),
+                            replaceRegion.getLength(), replaceRegion.getText());
                         resource.setModificationStamp(modificationStamp);
                     }
-                    catch (Exception e2)
+                    catch (Exception e)
                     {
-                        // full parsing also failed - restore state
+                        // partial parsing failed - performing full reparse
                         Activator.log(Activator.createErrorStatus(
-                            e2.getMessage(), e2));
-                        resource.reparse(reconciledSnapshot.getContents());
-                        throw e2;
+                            e.getMessage(), e));
+                        try
+                        {
+                            resource.reparse(snapshot.getContents());
+                            resource.setModificationStamp(modificationStamp);
+                        }
+                        catch (Exception e2)
+                        {
+                            // full parsing also failed - restore state
+                            Activator.log(Activator.createErrorStatus(
+                                e2.getMessage(), e2));
+                            resource.reparse(reconciledSnapshot.getContents());
+                            throw e2;
+                        }
                     }
+                    monitor.worked(1);
+                    reconciled(resource, snapshot, false,
+                        new SubProgressMonitor(monitor, 1));
+                    return true;
                 }
-                reconciled(resource, snapshot, false, cancelIndicator);
-                return true;
+            }
+            finally
+            {
+                monitor.done();
             }
         }
     }
@@ -569,14 +610,22 @@ public class HandlyXtextDocument
         @Override
         public void reconciled(XtextResource resource,
             NonExpiringSnapshot snapshot, boolean forced,
-            CancelIndicator cancelIndicator)
+            final IProgressMonitor monitor) throws Exception
         {
+            CancelIndicator cancelIndicator = new CancelIndicator()
+            {
+                @Override
+                public boolean isCanceled()
+                {
+                    return monitor.isCanceled();
+                }
+            };
+            monitor.beginTask("", 1); //$NON-NLS-1$
             try
             {
                 EcoreUtil2.resolveLazyCrossReferences(resource,
                     cancelIndicator);
-                if (dirtyStateEditorSupport != null
-                    && !cancelIndicator.isCanceled())
+                if (dirtyStateEditorSupport != null && !monitor.isCanceled())
                 {
                     dirtyStateEditorSupport.announceDirtyState(resource);
                 }
@@ -587,6 +636,10 @@ public class HandlyXtextDocument
 
                 if (!(t instanceof OperationCanceledError))
                     Throwables.propagate(t);
+            }
+            finally
+            {
+                monitor.done();
             }
         }
     }
