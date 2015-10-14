@@ -50,6 +50,15 @@ public class JavaOutlinePage
     }
 
     @Override
+    public void dispose()
+    {
+        IEditorPart editor = getEditor();
+        if (editor instanceof JavaEditor)
+            ((JavaEditor)editor).outlinePageClosed();
+        super.dispose();
+    }
+
+    @Override
     public IContentAdapter getContentAdapter()
     {
         return DefaultContentAdapter.INSTANCE;

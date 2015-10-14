@@ -50,7 +50,7 @@ public class OverflowingCacheTest
         for (int i = spaceLimit - 1; i >= 0; i--)
         {
             Integer value = cache.get(elements[i]);
-            assertEquals("wrong value", new Integer(i), value);
+            assertEquals("wrong value", Integer.valueOf(i), value);
         }
     }
 
@@ -91,7 +91,7 @@ public class OverflowingCacheTest
         for (int i = entryCount - 1; i >= entryCount - predictedCurrent; i--)
         {
             Integer value = cache.get(elements[i]);
-            assertEquals("wrong value", new Integer(i), value);
+            assertEquals("wrong value", Integer.valueOf(i), value);
         }
 
         // ensure previous entries swapped out
@@ -132,7 +132,7 @@ public class OverflowingCacheTest
         {
             Integer value = cache.get(elements[i]);
             if (hasUnsavedChanges(i))
-                assertEquals("wrong value", new Integer(i), value);
+                assertEquals("wrong value", Integer.valueOf(i), value);
             else
                 assertNull("entry should not be present", value);
         }

@@ -471,7 +471,6 @@ public class ScopedPreferenceStore
     @Override
     public void setToDefault(String name)
     {
-
         String oldValue = getString(name);
         String defaultValue = getDefaultString(name);
         try
@@ -484,13 +483,11 @@ public class ScopedPreferenceStore
                 dirty = true;
                 firePropertyChangeEvent(name, oldValue, defaultValue);
             }
-
         }
         finally
         {
             silentRunning = false; // Restart listening to preferences
         }
-
     }
 
     @Override

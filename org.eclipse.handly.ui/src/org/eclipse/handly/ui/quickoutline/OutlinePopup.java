@@ -438,12 +438,12 @@ public abstract class OutlinePopup
             {
                 if (tree.equals(e.getSource()))
                 {
-                    Object o = tree.getItem(new Point(e.x, e.y));
-                    if (o instanceof TreeItem)
+                    TreeItem treeItem = tree.getItem(new Point(e.x, e.y));
+                    if (treeItem != null)
                     {
-                        if (!o.equals(lastItem))
+                        if (!treeItem.equals(lastItem))
                         {
-                            lastItem = (TreeItem)o;
+                            lastItem = treeItem;
                             tree.setSelection(new TreeItem[] { lastItem });
                         }
                         else if (e.y < tree.getItemHeight() / 4)

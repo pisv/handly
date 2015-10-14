@@ -28,7 +28,11 @@ public class JavaEditor
     public Object getAdapter(@SuppressWarnings("rawtypes") Class required)
     {
         if (required == IContentOutlinePage.class)
-            return new JavaOutlinePage(this);
+        {
+            if (outlinePage == null)
+                outlinePage = new JavaOutlinePage(this);
+            return outlinePage;
+        }
 
         return super.getAdapter(required);
     }

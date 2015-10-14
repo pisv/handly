@@ -77,7 +77,7 @@ public class OutOfSyncSourceFileTest
 
     public void testOutOfSync() throws Exception
     {
-        localFile.setLastModified(localFile.lastModified() + 1000);
+        assertTrue(localFile.setLastModified(localFile.lastModified() + 1000));
         sourceFile.buildStructure(new SourceElementBody(),
             new HashMap<IHandle, Body>(), new NullProgressMonitor());
     }
