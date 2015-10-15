@@ -11,6 +11,8 @@
 package org.eclipse.handly.model;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.impl.SimpleSourceElementInfo;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -116,17 +118,21 @@ public class SourceElements
      * if the element existed, it may cease to exist.
      *
      * @param element a source element (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
      * @return <code>true</code> if the call completed successfully,
      *  <code>false</code> in case of failure
+     * @throws OperationCanceledException if this method is canceled
      */
-    public static boolean ensureReconciled(ISourceElement element)
+    public static boolean ensureReconciled(ISourceElement element,
+        IProgressMonitor monitor)
     {
         ISourceFile sourceFile = getSourceFile(element);
         if (sourceFile != null)
         {
             try
             {
-                sourceFile.reconcile(false, null);
+                sourceFile.reconcile(false, monitor);
             }
             catch (CoreException e)
             {

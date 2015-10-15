@@ -302,7 +302,8 @@ public final class FooOutlinePage
                 Object input = treeViewer.getInput();
                 if (!(input instanceof ISourceElement))
                     return Status.OK_STATUS;
-                if (!SourceElements.ensureReconciled((ISourceElement)input))
+                if (!SourceElements.ensureReconciled((ISourceElement)input,
+                    monitor))
                     return Status.OK_STATUS;
                 final ISourceElement element = SourceElements.getElementAt(
                     (ISourceElement)input, baseSelection.getOffset(), null);

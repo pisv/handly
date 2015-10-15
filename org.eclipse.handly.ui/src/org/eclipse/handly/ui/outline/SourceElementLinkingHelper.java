@@ -12,6 +12,7 @@ package org.eclipse.handly.ui.outline;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.model.IHandle;
@@ -122,13 +123,16 @@ public class SourceElementLinkingHelper
      *
      * @param selection the selection in the editor
      *  (never <code>null</code>, never empty)
+     * @param monitor a progress monitor (never <code>null</code>)
      * @return the outline selection corresponding to the given selection
      *  in the editor, or <code>null</code>
+     * @throws OperationCanceledException if this method is canceled
      */
-    protected IStructuredSelection getLinkedSelection(ISelection selection)
+    protected IStructuredSelection getLinkedSelection(ISelection selection,
+        IProgressMonitor monitor)
     {
         if (selection instanceof ITextSelection)
-            return getLinkedSelection((ITextSelection)selection);
+            return getLinkedSelection((ITextSelection)selection, monitor);
         if (selection instanceof IStructuredSelection)
             return (IStructuredSelection)selection;
         return null;
@@ -147,17 +151,20 @@ public class SourceElementLinkingHelper
      *
      * @param selection the text selection in the editor
      *  (never <code>null</code>, never empty)
+     * @param monitor a progress monitor (never <code>null</code>)
      * @return the outline selection corresponding to the given selection
      *  in the editor, or <code>null</code>
+     * @throws OperationCanceledException if this method is canceled
      */
-    protected IStructuredSelection getLinkedSelection(ITextSelection selection)
+    protected IStructuredSelection getLinkedSelection(ITextSelection selection,
+        IProgressMonitor monitor)
     {
         IHandle input = getContentAdapter().getHandle(
             getOutlinePage().getTreeViewer().getInput());
         if (!(input instanceof ISourceElement))
             return null;
         ISourceElement sourceElement = (ISourceElement)input;
-        if (!SourceElements.ensureReconciled(sourceElement))
+        if (!SourceElements.ensureReconciled(sourceElement, monitor))
             return null;
         Object element = getContentAdapter().getCorrespondingElement(
             SourceElements.getElementAt(sourceElement, selection.getOffset(),
@@ -264,16 +271,17 @@ public class SourceElementLinkingHelper
             final ISelection baseSelection = selection;
             if (baseSelection == null || baseSelection.isEmpty())
                 return Status.OK_STATUS;
+
             IHandle input = getContentAdapter().getHandle(
                 getOutlinePage().getTreeViewer().getInput());
             if (!(input instanceof ISourceElement))
                 return Status.OK_STATUS;
 
             final IStructuredSelection linkedSelection = getLinkedSelection(
-                baseSelection);
-
+                baseSelection, monitor);
             if (linkedSelection == null)
                 return Status.OK_STATUS;
+
             if (monitor.isCanceled())
                 return Status.CANCEL_STATUS;
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()

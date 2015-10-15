@@ -79,7 +79,7 @@ public abstract class HandlyOutlinePopup
         if (!(input instanceof ISourceElement))
             return null;
         ISourceElement sourceElement = (ISourceElement)input;
-        if (!SourceElements.ensureReconciled(sourceElement))
+        if (!SourceElements.ensureReconciled(sourceElement, null))
             return null;
         return getContentAdapter().getCorrespondingElement(
             SourceElements.getElementAt(sourceElement,
