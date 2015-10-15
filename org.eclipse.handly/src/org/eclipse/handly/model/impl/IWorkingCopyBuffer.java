@@ -48,7 +48,7 @@ public interface IWorkingCopyBuffer
      * @param arg reserved for model-specific use (may be <code>null</code>)
      * @param monitor a progress monitor (not <code>null</code>)
      * @throws CoreException if the buffer cannot be reconciled
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      */
     void reconcile(boolean force, Object arg, IProgressMonitor monitor)
         throws CoreException;

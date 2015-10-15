@@ -150,7 +150,7 @@ public abstract class SourceFile
      *  this source file, or <code>null</code> if there was no
      *  working copy info for this source file
      * @throws CoreException if the working copy cannot be created
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      * @see #discardWorkingCopy()
      */
     public final WorkingCopyInfo becomeWorkingCopy(IWorkingCopyBuffer buffer,
@@ -193,7 +193,7 @@ public abstract class SourceFile
      *  this source file, or <code>null</code> if there was no
      *  working copy info for this source file
      * @throws CoreException if the working copy cannot be created
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      * @see #discardWorkingCopy()
      */
     public final WorkingCopyInfo becomeWorkingCopy(
@@ -343,7 +343,7 @@ public abstract class SourceFile
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if this working copy cannot be reconciled
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      * @see #reconcile(boolean, IProgressMonitor)
      */
     public final void reconcile(boolean force, Object arg,
@@ -515,7 +515,7 @@ public abstract class SourceFile
      * @param monitor a progress monitor (never <code>null</code>)
      * @return the AST created from the given source string (not <code>null</code>)
      * @throws CoreException if the AST could not be created
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      * @see #buildStructure(SourceElementBody, Map, Object, String, IProgressMonitor)
      */
     protected abstract Object createStructuralAst(String source,
@@ -542,7 +542,7 @@ public abstract class SourceFile
      * @param source the source string from which the given AST was created
      *  (never <code>null</code>)
      * @param monitor a progress monitor (never <code>null</code>)
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      */
     protected abstract void buildStructure(SourceElementBody body,
         Map<IHandle, Body> newElements, Object ast, String source,
@@ -632,7 +632,7 @@ public abstract class SourceFile
          * @param monitor a progress monitor, or <code>null</code>
          *  if progress reporting is not desired
          * @throws CoreException if the working copy cannot be reconciled
-         * @throws OperationCanceledException if this method is cancelled
+         * @throws OperationCanceledException if this method is canceled
          */
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
             boolean forced, IProgressMonitor monitor) throws CoreException

@@ -62,7 +62,7 @@ public interface ISourceFile
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if this working copy cannot be reconciled
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      */
     void reconcile(boolean forceProblemDetection, IProgressMonitor monitor)
         throws CoreException;
@@ -110,7 +110,7 @@ public interface ISourceFile
      *  for this source file
      * @throws CoreException if this source file does not exist
      *  or if its contents cannot be accessed
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      * @see IBuffer
      */
     IBuffer getBuffer(boolean create, IProgressMonitor monitor)
@@ -124,7 +124,7 @@ public interface ISourceFile
      * @return the buffer opened for this source file (never <code>null</code>)
      * @throws CoreException if this source file does not exist
      *  or if its contents cannot be accessed
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      * @deprecated
      */
     IBuffer openBuffer(IProgressMonitor monitor) throws CoreException;

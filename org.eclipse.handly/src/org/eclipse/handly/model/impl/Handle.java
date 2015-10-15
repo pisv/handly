@@ -399,7 +399,7 @@ public abstract class Handle
      * @param monitor a progress monitor (never <code>null</code>)
      * @throws CoreException if an exception occurs while accessing
      *  the element's corresponding resource
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      */
     protected abstract void buildStructure(Body body,
         Map<IHandle, Body> newElements, IProgressMonitor monitor)
@@ -427,7 +427,7 @@ public abstract class Handle
      * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      */
     protected final Body getBody(IProgressMonitor monitor) throws CoreException
     {
@@ -463,7 +463,7 @@ public abstract class Handle
      * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
-     * @throws OperationCanceledException if this method is cancelled
+     * @throws OperationCanceledException if this method is canceled
      */
     protected final Body open(Body body, boolean force,
         IProgressMonitor monitor) throws CoreException
