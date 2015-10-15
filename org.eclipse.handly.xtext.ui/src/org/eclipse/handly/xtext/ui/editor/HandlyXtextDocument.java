@@ -264,16 +264,13 @@ public class HandlyXtextDocument
      * that the document's XtextResource contents is based on the given snapshot.
      * Notifies reconciling listeners (if any). Should only be called
      * in the dynamic context of {@link XtextDocument#internalModify}.
-     * <p>
-     * If this method is canceled, it does NOT throw OperationCanceledException.
-     * Rather, it makes a note that reconciling was canceled and returns.
-     * </p>
      *
      * @param resource the reconciled resource (never <code>null</code>)
      * @param snapshot the reconciled snapshot (never <code>null</code>)
      * @param forced whether reconciling was forced, i.e. the document has not
      *  changed since it was reconciled the last time
      * @param monitor a progress monitor (never <code>null</code>)
+     * @throws OperationCanceledException if this method is canceled
      */
     private void reconciled(final XtextResource resource,
         final NonExpiringSnapshot snapshot, final boolean forced,
@@ -304,8 +301,8 @@ public class HandlyXtextDocument
                     }
                 });
             }
-            reconcilingWasCanceled = monitor.isCanceled();
-            reconciledSnapshot = snapshot;
+            if (monitor.isCanceled())
+                throw new OperationCanceledException();
         }
         finally
         {
@@ -316,6 +313,14 @@ public class HandlyXtextDocument
     private void internalReconcile(XtextResource resource)
     {
         reconcile(new InternalProcessor(resource));
+    }
+
+    private IProgressMonitor getReconcilingMonitor()
+    {
+        IProgressMonitor monitor = reconcilingMonitor.get();
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+        return monitor;
     }
 
     /**
@@ -417,12 +422,16 @@ public class HandlyXtextDocument
             this.force = force;
         }
 
+        /*
+         * This method uses a thread-local reconciling monitor to support
+         * cancellation and report progress. If this method is canceled,
+         * it does NOT throw OperationCanceledException. Rather, it
+         * makes a note that reconciling was canceled and returns.
+         */
         @Override
-        public Boolean exec(XtextResource resource) throws Exception
+        public Boolean exec(final XtextResource resource) throws Exception
         {
-            IProgressMonitor monitor = reconcilingMonitor.get();
-            if (monitor == null)
-                monitor = new NullProgressMonitor();
+            final IProgressMonitor monitor = getReconcilingMonitor();
             monitor.beginTask("", 2); //$NON-NLS-1$
             try
             {
@@ -440,17 +449,32 @@ public class HandlyXtextDocument
                 {
                     if (force || reconcilingWasCanceled)
                     {
-                        NonExpiringSnapshot snapshot = reconciledSnapshot;
+                        final NonExpiringSnapshot snapshot = reconciledSnapshot;
                         if (force) // no need to reparse -- just update internal state
                             resource.update(0, 0, ""); //$NON-NLS-1$
-                        reconciled(resource, snapshot, !reconcilingWasCanceled,
-                            new SubProgressMonitor(monitor, 2));
+                        SafeRunner.run(new ISafeRunnable()
+                        {
+                            @Override
+                            public void run() throws Exception
+                            {
+                                reconciled(resource, snapshot,
+                                    !reconcilingWasCanceled,
+                                    new SubProgressMonitor(monitor, 2));
+                            }
+
+                            @Override
+                            public void handleException(Throwable exception)
+                            {
+                                // the exception is suppressed, including OCE
+                            }
+                        });
+                        reconcilingWasCanceled = monitor.isCanceled();
                     }
                     return false;
                 }
                 else
                 {
-                    NonExpiringSnapshot snapshot =
+                    final NonExpiringSnapshot snapshot =
                         change.getSnapshotToReconcile();
                     ReplaceRegion replaceRegion =
                         change.getReplaceRegionToReconcile();
@@ -480,9 +504,24 @@ public class HandlyXtextDocument
                             throw e2;
                         }
                     }
-                    monitor.worked(1);
-                    reconciled(resource, snapshot, false,
-                        new SubProgressMonitor(monitor, 1));
+                    SafeRunner.run(new ISafeRunnable()
+                    {
+                        @Override
+                        public void run() throws Exception
+                        {
+                            monitor.worked(1);
+                            reconciled(resource, snapshot, false,
+                                new SubProgressMonitor(monitor, 1));
+                        }
+
+                        @Override
+                        public void handleException(Throwable exception)
+                        {
+                            // the exception is suppressed, including OCE
+                        }
+                    });
+                    reconcilingWasCanceled = monitor.isCanceled();
+                    reconciledSnapshot = snapshot;
                     return true;
                 }
             }
