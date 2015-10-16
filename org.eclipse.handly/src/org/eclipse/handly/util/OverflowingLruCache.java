@@ -144,12 +144,6 @@ public class OverflowingLruCache<K, V>
         return true;
     }
 
-    @Override
-    public double fillingRatio()
-    {
-        return (currentSpace + overflow) * 100.0 / spaceLimit;
-    }
-
     /**
      * Returns the space by which the cache has overflowed.
      */

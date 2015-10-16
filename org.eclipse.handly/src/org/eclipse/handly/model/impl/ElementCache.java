@@ -41,7 +41,7 @@ public class ElementCache
      */
     public ElementCache(int spaceLimit)
     {
-        super(spaceLimit);
+        this(spaceLimit, 0);
     }
 
     /**
@@ -63,8 +63,8 @@ public class ElementCache
     public void ensureSpaceLimit(Body body, IHandle parent)
     {
         // ensure the children can be put without closing other elements
-        int childrenSize = body.getChildren().length;
-        int spaceNeeded = 1 + (int)((1 + loadFactor) * (childrenSize
+        int numberOfChildren = body.getChildren().length;
+        int spaceNeeded = 1 + (int)((1 + loadFactor) * (numberOfChildren
             + overflow));
         if (spaceLimit < spaceNeeded)
         {
@@ -102,9 +102,17 @@ public class ElementCache
     }
 
     @Override
-    protected String toStringKey(IHandle key)
+    protected String toStringContents()
     {
-        return key.toString(new IHandle.ToStringStyle(TextIndent.NONE,
-            EnumSet.of(IHandle.ToStringStyle.Option.ANCESTORS)));
+        StringBuilder result = new StringBuilder();
+        IHandle.ToStringStyle style = new IHandle.ToStringStyle(TextIndent.NONE,
+            EnumSet.of(IHandle.ToStringStyle.Option.ANCESTORS));
+        for (LruCacheEntry<IHandle, Body> entry =
+            entryQueue; entry != null; entry = entry.next)
+        {
+            result.append(entry.key.toString(style));
+            result.append('\n');
+        }
+        return result.toString();
     }
 }

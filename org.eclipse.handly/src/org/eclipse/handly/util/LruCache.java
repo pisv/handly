@@ -13,7 +13,8 @@ package org.eclipse.handly.util;
 
 import java.text.NumberFormat;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * A cache with a space limit. When an attempt is made to add a new entry
@@ -48,7 +49,7 @@ public class LruCache<K, V>
     /**
      * Hash table for fast random access to cache entries
      */
-    protected Hashtable<K, LruCacheEntry<K, V>> entryTable;
+    protected HashMap<K, LruCacheEntry<K, V>> entryTable;
 
     /**
      * Start of queue (most recently used entry)
@@ -69,7 +70,7 @@ public class LruCache<K, V>
     {
         this.timestampCounter = this.currentSpace = 0;
         this.entryQueue = this.entryQueueTail = null;
-        this.entryTable = new Hashtable<K, LruCacheEntry<K, V>>(spaceLimit);
+        this.entryTable = new HashMap<K, LruCacheEntry<K, V>>(spaceLimit);
         this.spaceLimit = spaceLimit;
     }
 
@@ -148,7 +149,22 @@ public class LruCache<K, V>
      */
     public Enumeration<K> keys()
     {
-        return entryTable.keys();
+        return new Enumeration<K>()
+        {
+            Iterator<K> keys = entryTable.keySet().iterator();
+
+            @Override
+            public boolean hasMoreElements()
+            {
+                return keys.hasNext();
+            }
+
+            @Override
+            public K nextElement()
+            {
+                return keys.next();
+            }
+        };
     }
 
     /**
@@ -159,28 +175,29 @@ public class LruCache<K, V>
     {
         return new ICacheEnumeration<K, V>()
         {
-            Enumeration<LruCacheEntry<K, V>> values = entryTable.elements();
-            LruCacheEntry<K, V> entry;
+            Iterator<LruCacheEntry<K, V>> entries =
+                entryTable.values().iterator();
+            LruCacheEntry<K, V> current;
 
             @Override
             public boolean hasMoreElements()
             {
-                return values.hasMoreElements();
+                return entries.hasNext();
             }
 
             @Override
             public K nextElement()
             {
-                entry = values.nextElement();
-                return entry.key;
+                current = entries.next();
+                return current.key;
             }
 
             @Override
             public V getValue()
             {
-                if (entry == null)
-                    throw new java.util.NoSuchElementException();
-                return entry.value;
+                if (current == null)
+                    throw new IllegalStateException();
+                return current.value;
             }
         };
     }
@@ -254,7 +271,7 @@ public class LruCache<K, V>
     public void clear()
     {
         currentSpace = 0;
-        entryTable = new Hashtable<K, LruCacheEntry<K, V>>();
+        entryTable = new HashMap<K, LruCacheEntry<K, V>>();
         entryQueue = entryQueueTail = null;
     }
 
@@ -343,6 +360,8 @@ public class LruCache<K, V>
     {
         StringBuilder builder = new StringBuilder(cacheName);
         builder.append('[');
+        builder.append(currentSpace);
+        builder.append('/');
         builder.append(spaceLimit);
         builder.append("]: "); //$NON-NLS-1$
         builder.append(NumberFormat.getInstance().format(fillingRatio()));
@@ -356,35 +375,15 @@ public class LruCache<K, V>
     protected String toStringContents()
     {
         StringBuilder result = new StringBuilder();
-        int length = entryTable.size();
-        Object[] unsortedKeys = new Object[length];
-        String[] unsortedToStrings = new String[length];
-        Enumeration<K> e = keys();
-        for (int i = 0; i < length; i++)
+        for (LruCacheEntry<K, V> entry = entryQueue; entry != null; entry =
+            entry.next)
         {
-            K key = e.nextElement();
-            unsortedKeys[i] = key;
-            unsortedToStrings[i] = toStringKey(key);
-        }
-        ToStringSorter sorter = new ToStringSorter();
-        sorter.sort(unsortedKeys, unsortedToStrings);
-        for (int i = 0; i < length; i++)
-        {
-            V value = get(sorter.sortedObjects[i]);
-            result.append(sorter.sortedStrings[i]);
+            result.append(entry.key);
             result.append(" -> "); //$NON-NLS-1$
-            result.append(value);
+            result.append(entry.value);
             result.append('\n');
         }
         return result.toString();
-    }
-
-    /**
-     * Debugging purposes.
-     */
-    protected String toStringKey(K key)
-    {
-        return String.valueOf(key);
     }
 
     /**
@@ -504,6 +503,7 @@ public class LruCache<K, V>
     /**
      * Returns the space taken by the given value.
      *
+     * @param value
      * @return the space taken by the given value
      */
     protected int spaceFor(V value)
@@ -519,9 +519,8 @@ public class LruCache<K, V>
      * <code>getValue()</code> method.
      * <p>
      * The iteration can be made efficient by making use of the fact that entries
-     * in the cache (instances of <code>LruCacheEntry</code>) know their key.
-     * For this reason, Hashtable lookups don't have to be made at each step
-     * of the iteration.
+     * in the cache know their key. For this reason, hash table lookups don't
+     * have to be made at each step of the iteration.
      * </p>
      * <p>
      * Modifications to the cache must not be performed while using
@@ -538,188 +537,6 @@ public class LruCache<K, V>
          * @return the value of the current cache entry
          */
         public V getValue();
-    }
-
-    /**
-     * Cache statistics.
-     */
-    public class Stats
-    {
-        private int[] counters = new int[20];
-        private long[] timestamps = new long[20];
-        private int counterIndex = -1;
-
-        public String printStats()
-        {
-            int numberOfEntries = currentSpace;
-            if (numberOfEntries == 0)
-                return "No entries in the cache"; //$NON-NLS-1$
-
-            StringBuilder builder = new StringBuilder();
-            builder.append("Number of entries in the cache: "); //$NON-NLS-1$
-            builder.append(numberOfEntries);
-
-            final int numberOfGroups = 5;
-            int numberOfEntriesPerGroup = numberOfEntries / numberOfGroups;
-            builder.append("\n("); //$NON-NLS-1$
-            builder.append(numberOfGroups);
-            builder.append(" groups of "); //$NON-NLS-1$
-            builder.append(numberOfEntriesPerGroup);
-            builder.append(" entries)"); //$NON-NLS-1$
-            builder.append("\n\nAverage age:"); //$NON-NLS-1$
-            int groupNumber = 1;
-            int entryCounter = 0;
-            long currentTime = System.currentTimeMillis();
-            long accumulatedTime = 0;
-            LruCacheEntry<K, V> entry = entryQueueTail;
-            while (entry != null)
-            {
-                long timeStamp = getTimestamp(entry.timestamp);
-                if (timeStamp > 0)
-                {
-                    accumulatedTime += timeStamp;
-                    entryCounter++;
-                }
-                if (entryCounter >= numberOfEntriesPerGroup
-                    && groupNumber < numberOfGroups)
-                {
-                    builder.append("\nGroup "); //$NON-NLS-1$
-                    builder.append(groupNumber);
-                    if (groupNumber == 1)
-                        builder.append(" (oldest)\t: "); //$NON-NLS-1$
-                    else
-                        builder.append("\t\t: "); //$NON-NLS-1$
-                    groupNumber++;
-                    builder.append(getAverageAge(accumulatedTime, entryCounter,
-                        currentTime));
-                    entryCounter = 0;
-                    accumulatedTime = 0;
-                }
-                entry = entry.previous;
-            }
-            builder.append("\nGroup "); //$NON-NLS-1$
-            builder.append(numberOfGroups);
-            builder.append(" (youngest)\t: "); //$NON-NLS-1$
-            builder.append(getAverageAge(accumulatedTime, entryCounter,
-                currentTime));
-
-            return builder.toString();
-        }
-
-        public void snapshot()
-        {
-            removeCountersOlderThan(getOldestTimestamp());
-            add(getNewestTimestamp());
-        }
-
-        private void add(int counter)
-        {
-            for (int i = 0; i <= counterIndex; i++)
-            {
-                if (counters[i] == counter)
-                    return;
-            }
-            int length = counters.length;
-            if (++counterIndex == length)
-            {
-                int newLength = counters.length * 2;
-                System.arraycopy(counters, 0, counters = new int[newLength], 0,
-                    length);
-                System.arraycopy(timestamps, 0, timestamps =
-                    new long[newLength], 0, length);
-            }
-            counters[counterIndex] = counter;
-            timestamps[counterIndex] = System.currentTimeMillis();
-        }
-
-        private String getAverageAge(long totalTime, int numberOfEntries,
-            long currentTime)
-        {
-            if (numberOfEntries == 0)
-                return "N/A"; //$NON-NLS-1$
-            long time = totalTime / numberOfEntries;
-            long age = currentTime - time;
-            long ageInSeconds = age / 1000;
-            int seconds = 0;
-            int minutes = 0;
-            int hours = 0;
-            int days = 0;
-            if (ageInSeconds > 60)
-            {
-                long ageInMin = ageInSeconds / 60;
-                seconds = (int)(ageInSeconds - (60 * ageInMin));
-                if (ageInMin > 60)
-                {
-                    long ageInHours = ageInMin / 60;
-                    minutes = (int)(ageInMin - (60 * ageInHours));
-                    if (ageInHours > 24)
-                    {
-                        long ageInDays = ageInHours / 24;
-                        hours = (int)(ageInHours - (24 * ageInDays));
-                        days = (int)ageInDays;
-                    }
-                    else
-                    {
-                        hours = (int)ageInHours;
-                    }
-                }
-                else
-                {
-                    minutes = (int)ageInMin;
-                }
-            }
-            else
-            {
-                seconds = (int)ageInSeconds;
-            }
-            StringBuilder builder = new StringBuilder();
-            if (days > 0)
-            {
-                builder.append(days);
-                builder.append(" days "); //$NON-NLS-1$
-            }
-            if (hours > 0)
-            {
-                builder.append(hours);
-                builder.append(" hours "); //$NON-NLS-1$
-            }
-            if (minutes > 0)
-            {
-                builder.append(minutes);
-                builder.append(" minutes "); //$NON-NLS-1$
-            }
-            builder.append(seconds);
-            builder.append(" seconds"); //$NON-NLS-1$
-            return builder.toString();
-        }
-
-        private long getTimestamp(int counter)
-        {
-            for (int i = 0; i <= counterIndex; i++)
-            {
-                if (counters[i] >= counter)
-                    return timestamps[i];
-            }
-            return -1;
-        }
-
-        private void removeCountersOlderThan(int counter)
-        {
-            for (int i = 0; i <= counterIndex; i++)
-            {
-                if (counters[i] >= counter)
-                {
-                    if (i > 0)
-                    {
-                        int length = counterIndex - i + 1;
-                        System.arraycopy(counters, i, counters, 0, length);
-                        System.arraycopy(timestamps, i, timestamps, 0, length);
-                        counterIndex = length;
-                    }
-                    return;
-                }
-            }
-        }
     }
 
     /**
@@ -776,67 +593,6 @@ public class LruCache<K, V>
         public String toString()
         {
             return "LruCacheEntry [" + key + " -> " + value + ']'; //$NON-NLS-1$ //$NON-NLS-2$
-        }
-    }
-
-    /**
-     * Helper class that takes a collection of objects and sorts them
-     * based on their string representation.
-     *
-     * @see LruCache#toStringContents()
-     */
-    protected static class ToStringSorter
-    {
-        public Object[] sortedObjects;
-        public String[] sortedStrings;
-
-        public void sort(Object[] unsortedObjects, String[] unsortedStrings)
-        {
-            int size = unsortedObjects.length;
-            sortedObjects = new Object[size];
-            sortedStrings = new String[size];
-            System.arraycopy(unsortedObjects, 0, sortedObjects, 0, size);
-            System.arraycopy(unsortedStrings, 0, sortedStrings, 0, size);
-            if (size > 1)
-                quickSort(0, size - 1);
-        }
-
-        protected boolean compare(String stringOne, String stringTwo)
-        {
-            return stringOne.compareTo(stringTwo) < 0;
-        }
-
-        private void quickSort(int left, int right)
-        {
-            int originalLeft = left;
-            int originalRight = right;
-            int midIndex = left + (right - left) / 2;
-            String midToString = sortedStrings[midIndex];
-
-            do
-            {
-                while (compare(sortedStrings[left], midToString))
-                    left++;
-                while (compare(midToString, sortedStrings[right]))
-                    right--;
-                if (left <= right)
-                {
-                    Object tmp = sortedObjects[left];
-                    sortedObjects[left] = sortedObjects[right];
-                    sortedObjects[right] = tmp;
-                    String tmpToString = sortedStrings[left];
-                    sortedStrings[left] = sortedStrings[right];
-                    sortedStrings[right] = tmpToString;
-                    left++;
-                    right--;
-                }
-            }
-            while (left <= right);
-
-            if (originalLeft < right)
-                quickSort(originalLeft, right);
-            if (left < originalRight)
-                quickSort(left, originalRight);
         }
     }
 }
