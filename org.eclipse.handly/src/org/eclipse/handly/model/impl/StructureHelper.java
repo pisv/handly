@@ -11,15 +11,12 @@
 package org.eclipse.handly.model.impl;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandle.ToStringStyle;
-import org.eclipse.handly.util.TextIndent;
 
 /**
  * A helper class for building the entire structure of innermost "openables"
@@ -86,8 +83,7 @@ public class StructureHelper
         if (newElements.containsKey(handle))
             throw new AssertionError(
                 "Attempt to add an already present element: " //$NON-NLS-1$
-                    + handle.toString(new ToStringStyle(TextIndent.NONE,
-                        EnumSet.of(ToStringStyle.Option.ANCESTORS))));
+                    + handle.toString(IHandle.ToStringStyle.COMPACT));
         newElements.put(handle, body);
         List<IHandle> childrenList = children.get(parentBody);
         if (childrenList == null)

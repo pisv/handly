@@ -19,7 +19,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.handly.util.TextIndent;
+import org.eclipse.handly.util.IndentationPolicy;
 
 /**
  * Represents an element of a handle-based model.
@@ -165,33 +165,60 @@ public interface IHandle
      */
     final class ToStringStyle
     {
-        private final TextIndent indent;
-        private final Set<Option> options;
+        public static final IndentationPolicy DEFAULT_INDENTATION_POLICY =
+            new IndentationPolicy();
 
         /**
-         * Creates a new style with the given indent and options.
+         * A minimal representation that does not list ancestors or children.
+         */
+        public static final ToStringStyle MINIMAL = new ToStringStyle(
+            EnumSet.noneOf(Option.class));
+        /**
+         * A compact representation that lists ancestors but not children.
+         */
+        public static final ToStringStyle COMPACT = new ToStringStyle(
+            EnumSet.of(Option.ANCESTORS));
+        /**
+         * A full representation that lists ancestors and children.
+         */
+        public static final ToStringStyle FULL = new ToStringStyle(
+            EnumSet.allOf(Option.class));
+
+        private final Set<Option> options;
+        private final IndentationPolicy indentationPolicy;
+        private final int indentationLevel;
+
+        /**
+         * Creates a new style with the given options, default indentation policy,
+         * and indentation level of zero.
          *
-         * @param indent indentation info (not <code>null</code>)
          * @param options style options (not <code>null</code>)
          */
-        public ToStringStyle(TextIndent indent, EnumSet<Option> options)
+        public ToStringStyle(EnumSet<Option> options)
         {
-            if (indent == null)
-                throw new IllegalArgumentException();
-            if (options == null)
-                throw new IllegalArgumentException();
-            this.indent = indent;
-            this.options = Collections.unmodifiableSet(options);
+            this(options, DEFAULT_INDENTATION_POLICY, 0);
         }
 
         /**
-         * Returns the indentation info.
+         * Creates a new style with the given options, indentation policy,
+         * and indentation level.
          *
-         * @return the indentation info (never <code>null</code>)
+         * @param options style options (not <code>null</code>)
+         * @param indentationPolicy indentation policy (not <code>null</code>)
+         * @param indentationLevel indentation level (may be 0)
          */
-        public TextIndent getIndent()
+        public ToStringStyle(EnumSet<Option> options,
+            IndentationPolicy indentationPolicy, int indentationLevel)
         {
-            return indent;
+            if (options == null)
+                throw new IllegalArgumentException();
+            if (indentationPolicy == null)
+                throw new IllegalArgumentException();
+            if (indentationLevel < 0)
+                throw new IllegalArgumentException();
+            this.options = Collections.unmodifiableSet(options);
+            this.indentationPolicy = indentationPolicy;
+            this.indentationLevel = indentationLevel;
         }
 
         /**
@@ -205,16 +232,36 @@ public interface IHandle
         }
 
         /**
+         * Returns the indentation policy.
+         *
+         * @return the indentation policy (never <code>null</code>)
+         */
+        public IndentationPolicy getIndentationPolicy()
+        {
+            return indentationPolicy;
+        }
+
+        /**
+         * Returns the indentation level.
+         *
+         * @return the indentation level (may be 0)
+         */
+        public int getIndentationLevel()
+        {
+            return indentationLevel;
+        }
+
+        /**
          * Style options.
          */
         public enum Option
         {
             /**
-             * Include ancestors info.
+             * List ancestors.
              */
             ANCESTORS,
             /**
-             * Include children info.
+             * List children.
              */
             CHILDREN
         }

@@ -19,7 +19,7 @@ import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Handle;
 import org.eclipse.handly.model.impl.HandleManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
-import org.eclipse.handly.util.TextIndent;
+import org.eclipse.handly.util.IndentationPolicy;
 
 /**
  * Implementation of {@link IImportContainer}.
@@ -79,7 +79,8 @@ public class ImportContainer
     }
 
     @Override
-    protected void toString(TextIndent indent, StringBuilder builder)
+    protected void toString(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder)
     {
         Body body = peekAtBody();
         if (body == null)
@@ -88,8 +89,9 @@ public class ImportContainer
         for (int i = 0; i < children.length; i++)
         {
             if (i > 0)
-                indent.appendLineSeparatorTo(builder);
-            ((Handle)children[i]).toStringBody(indent, builder);
+                indentationPolicy.appendLineSeparatorTo(builder);
+            ((Handle)children[i]).toStringBody(indentationPolicy,
+                indentationLevel, builder);
         }
     }
 }

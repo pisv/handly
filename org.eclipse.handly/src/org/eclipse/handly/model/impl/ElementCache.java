@@ -11,11 +11,8 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import java.util.EnumSet;
-
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.util.OverflowingLruCache;
-import org.eclipse.handly.util.TextIndent;
 
 /**
  * An overflowing LRU cache of handle/body relationships that is intended
@@ -105,12 +102,10 @@ public class ElementCache
     protected String toStringContents()
     {
         StringBuilder result = new StringBuilder();
-        IHandle.ToStringStyle style = new IHandle.ToStringStyle(TextIndent.NONE,
-            EnumSet.of(IHandle.ToStringStyle.Option.ANCESTORS));
         for (LruCacheEntry<IHandle, Body> entry =
             entryQueue; entry != null; entry = entry.next)
         {
-            result.append(entry.key.toString(style));
+            result.append(entry.key.toString(IHandle.ToStringStyle.COMPACT));
             result.append('\n');
         }
         return result.toString();

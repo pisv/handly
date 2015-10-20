@@ -29,7 +29,7 @@ import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Handle;
 import org.eclipse.handly.model.impl.HandleManager;
-import org.eclipse.handly.util.TextIndent;
+import org.eclipse.handly.util.IndentationPolicy;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
@@ -212,19 +212,22 @@ public class PackageFragment
     }
 
     @Override
-    protected void toStringBody(TextIndent indent, StringBuilder builder,
-        Body body, boolean showResolvedInfo)
+    protected void toStringBody(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder, Body body,
+        boolean showResolvedInfo)
     {
-        super.toStringBody(indent, builder, body, showResolvedInfo);
-        if (body != null && indent.getLevel() > 0)
+        super.toStringBody(indentationPolicy, indentationLevel, builder, body,
+            showResolvedInfo);
+        if (body != null && indentationLevel > 0)
             builder.append(" (...)"); //$NON-NLS-1$
     }
 
     @Override
-    protected void toStringChildren(TextIndent indent, StringBuilder builder,
-        Body body)
+    protected void toStringChildren(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder, Body body)
     {
-        if (indent.getLevel() == 0)
-            super.toStringChildren(indent, builder, body);
+        if (indentationLevel == 0)
+            super.toStringChildren(indentationPolicy, indentationLevel, builder,
+                body);
     }
 }

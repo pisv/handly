@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.SourceElementBody;
-import org.eclipse.handly.util.TextIndent;
+import org.eclipse.handly.util.IndentationPolicy;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.Signature;
 
@@ -58,10 +58,11 @@ public class Field
     }
 
     @Override
-    protected void toStringBody(TextIndent indent, StringBuilder builder,
-        Body body, boolean showResolvedInfo)
+    protected void toStringBody(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder, Body body,
+        boolean showResolvedInfo)
     {
-        indent.appendTo(builder);
+        indentationPolicy.appendIndentTo(builder, indentationLevel);
         if (body != null && body != NO_BODY)
         {
             SourceElementBody fieldBody = (SourceElementBody)body;

@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.util.TextIndent;
+import org.eclipse.handly.util.IndentationPolicy;
 
 /**
  * The root of the handle class hierarchy.
@@ -227,7 +227,7 @@ public abstract class Handle
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        toString(TextIndent.with("  "), builder); //$NON-NLS-1$
+        toString(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder);
         return builder.toString();
     }
 
@@ -237,11 +237,13 @@ public abstract class Handle
         StringBuilder builder = new StringBuilder();
         if (style.getOptions().contains(ToStringStyle.Option.CHILDREN))
         {
-            toString(style.getIndent(), builder);
+            toString(style.getIndentationPolicy(), style.getIndentationLevel(),
+                builder);
         }
         else
         {
-            toStringBody(style.getIndent(), builder, NO_BODY,
+            toStringBody(style.getIndentationPolicy(),
+                style.getIndentationLevel(), builder, NO_BODY,
                 true/*show resolved info*/);
             if (style.getOptions().contains(ToStringStyle.Option.ANCESTORS))
                 toStringAncestors(builder);
@@ -255,8 +257,8 @@ public abstract class Handle
     public String toDebugString()
     {
         StringBuilder builder = new StringBuilder();
-        toStringBody(TextIndent.NONE, builder, NO_BODY,
-            true/*show resolved info*/);
+        toStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder,
+            NO_BODY, true/*show resolved info*/);
         return builder.toString();
     }
 
@@ -274,7 +276,8 @@ public abstract class Handle
     public String toStringWithAncestors(boolean showResolvedInfo)
     {
         StringBuilder builder = new StringBuilder();
-        toStringBody(TextIndent.NONE, builder, NO_BODY, showResolvedInfo);
+        toStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder,
+            NO_BODY, showResolvedInfo);
         toStringAncestors(builder);
         return builder.toString();
     }
@@ -282,10 +285,12 @@ public abstract class Handle
     /**
      * Debugging purposes
      */
-    public Body toStringBody(TextIndent indent, StringBuilder builder)
+    public Body toStringBody(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder)
     {
         Body body = peekAtBody();
-        toStringBody(indent, builder, body, true/*show resolved info*/);
+        toStringBody(indentationPolicy, indentationLevel, builder, body,
+            true/*show resolved info*/);
         return body;
     }
 
@@ -297,8 +302,8 @@ public abstract class Handle
         if (parent != null && parent.getParent() != null)
         {
             builder.append(" [in "); //$NON-NLS-1$
-            parent.toStringBody(TextIndent.NONE, builder, NO_BODY,
-                false/*don't show resolved info*/);
+            parent.toStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0,
+                builder, NO_BODY, false/*don't show resolved info*/);
             parent.toStringAncestors(builder);
             builder.append(']');
         }
@@ -307,31 +312,33 @@ public abstract class Handle
     /**
      * Debugging purposes
      */
-    protected void toString(TextIndent indent, StringBuilder builder)
+    protected void toString(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder)
     {
-        Body body = toStringBody(indent, builder);
-        if (indent.getLevel() == 0)
+        Body body = toStringBody(indentationPolicy, indentationLevel, builder);
+        if (indentationLevel == 0)
         {
             toStringAncestors(builder);
         }
-        toStringChildren(indent, builder, body);
+        toStringChildren(indentationPolicy, indentationLevel, builder, body);
     }
 
     /**
      * Debugging purposes
      */
-    protected void toStringChildren(TextIndent indent, StringBuilder builder,
-        Body body)
+    protected void toStringChildren(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder, Body body)
     {
         if (body == null)
             return;
         ToStringStyle childStyle = null;
         for (IHandle child : body.getChildren())
         {
-            indent.appendLineSeparatorTo(builder);
+            indentationPolicy.appendLineSeparatorTo(builder);
             if (childStyle == null)
-                childStyle = new ToStringStyle(indent.getIncreasedIndent(),
-                    EnumSet.of(ToStringStyle.Option.CHILDREN));
+                childStyle = new ToStringStyle(EnumSet.of(
+                    ToStringStyle.Option.CHILDREN), indentationPolicy,
+                    indentationLevel + 1);
             builder.append(child.toString(childStyle));
         }
     }
@@ -339,10 +346,11 @@ public abstract class Handle
     /**
      * Debugging purposes
      */
-    protected void toStringBody(TextIndent indent, StringBuilder builder,
-        Body body, boolean showResolvedInfo)
+    protected void toStringBody(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder, Body body,
+        boolean showResolvedInfo)
     {
-        indent.appendTo(builder);
+        indentationPolicy.appendIndentTo(builder, indentationLevel);
         toStringName(builder);
         if (body == null)
         {
