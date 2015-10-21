@@ -24,6 +24,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
+import org.eclipse.handly.model.impl.Handle;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
@@ -159,10 +160,10 @@ public class FooWorkingCopyTest
         });
     }
 
-    public void test3() throws Exception
+    public void testBug480397_1() throws Exception
     {
         // working copy for a non-existing source file
-        workingCopy.getFile().delete(true, null);
+        workingCopy.getParent().getResource().delete(true, null);
         doWithWorkingCopy(new IWorkspaceRunnable()
         {
             @Override
@@ -176,9 +177,9 @@ public class FooWorkingCopyTest
         });
     }
 
-    public void test4() throws Exception
+    public void testBug479623() throws Exception
     {
-        // concurrent creation/acquisition of working copy (see bug 479623)
+        // concurrent creation/acquisition of working copy
         final boolean[] stop = new boolean[1];
         final boolean[] failure = new boolean[1];
         Thread thread = new Thread(new Runnable()
@@ -225,6 +226,41 @@ public class FooWorkingCopyTest
             stop[0] = true;
             thread.join();
         }
+    }
+
+    public void testBug480397_2() throws Exception
+    {
+        // closing the parent of working copy
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                workingCopy.getParent().close();
+                assertNotNull("working copy must remain in the cache",
+                    workingCopy.peekAtBody());
+            }
+        });
+    }
+
+    public void testBug480397_3() throws Exception
+    {
+        // attempting to close a non-openable element
+        IWorkspaceRunnable testRunnable = new IWorkspaceRunnable()
+        {
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                IFooDef def = workingCopy.getDef("f", 0);
+                assertTrue(def.exists());
+                assertFalse("non-openable elements cannot be closed",
+                    ((Handle)def).close());
+                assertNotNull(((Handle)def).peekAtBody());
+            }
+        };
+        // non-openable elements cannot be closed, in working copy or not
+        doWithWorkingCopy(testRunnable);
+        testRunnable.run(null);
     }
 
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)

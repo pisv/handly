@@ -217,10 +217,9 @@ public abstract class Handle
      *  <code>false</code> if the current state of this element does not
      *  permit closing (e.g., a working copy)
      */
-    public boolean close()
+    public final boolean close()
     {
-        getHandleManager().removeBodyAndChildren(this);
-        return true;
+        return close(true);
     }
 
     @Override
@@ -397,8 +396,8 @@ public abstract class Handle
 
     /**
      * Initializes the given body based on this element's current contents.
-     * Also, creates and initializes bodies for all non-openable descendants
-     * and puts them into the given <code>newElements</code> map.
+     * Also, creates and initializes bodies for all non-{@link #isOpenable()
+     * openable} descendants and puts them into the given map.
      *
      * @param body a new, uninitialized body for this element
      *  (never <code>null</code>)
@@ -414,8 +413,9 @@ public abstract class Handle
             throws CoreException;
 
     /**
-     * Returns the cached body for this element. If this element is not already
-     * "open" (i.e. present in the body cache), it and all its parents are opened.
+     * Returns the cached body for this element. If this element is not
+     * already present in the body cache, it is {@link #open(Body, boolean,
+     * IProgressMonitor) opened}.
      *
      * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
@@ -427,8 +427,9 @@ public abstract class Handle
     }
 
     /**
-     * Returns the cached body for this element. If this element is not already
-     * "open" (i.e. present in the body cache), it and all its parents are opened.
+     * Returns the cached body for this element. If this element is not
+     * already present in the body cache, it is {@link #open(Body, boolean,
+     * IProgressMonitor) opened}.
      *
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
@@ -454,18 +455,20 @@ public abstract class Handle
      */
     protected Body newBody()
     {
+        if (!isOpenable())
+            return null;
         return new Body();
     }
 
     /**
-     * "Opens" this element if necessary by initializing the given body and
-     * putting it into the body cache. Ensures that all openable parent elements
-     * are open. Returns the cached body for this element.
+     * Creates and initializes bodies for this element, its ancestors and its
+     * children as necessary and then atomically puts them into the body cache.
+     * Returns the cached body for this element.
      *
      * @param body a new body to be initialized for this element, or
      *  <code>null</code> if the body is to be created by the openable parent
      * @param force whether to forcibly reopen this element if it is already
-     *  open (i.e. present in the body cache)
+     *  open (i.e. already present in the body cache)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @return the cached body for this element (never <code>null</code>)
@@ -476,6 +479,8 @@ public abstract class Handle
     protected final Body open(Body body, boolean force,
         IProgressMonitor monitor) throws CoreException
     {
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
         HandleManager handleManager = getHandleManager();
         boolean hadTemporaryCache = handleManager.hasTemporaryCache();
         try
@@ -484,14 +489,17 @@ public abstract class Handle
             generateBodies(body, newElements, monitor);
             if (body == null)
             {
+                // a body for this element was to be created by the openable parent
                 body = newElements.get(this);
             }
             if (body == null)
             {
-                // a source construct could not be opened
+                // the openable parent did not create a body for this element
                 throw new CoreException(Activator.createErrorStatus(
                     "The element does not exist: " + toString(), null)); //$NON-NLS-1$
             }
+            if (monitor.isCanceled())
+                throw new OperationCanceledException();
             if (!hadTemporaryCache)
             {
                 if (force)
@@ -516,8 +524,7 @@ public abstract class Handle
     }
 
     /**
-     * Returns the innermost "openable" element in the parent chain of
-     * this element, or <code>null</code> if this element has no parent.
+     * Returns whether this element is "openable".
      * <p>
      * An openable element knows how to open itself on demand (i.e. initialize
      * its body and put it in the body cache). When opening an element, it is
@@ -525,29 +532,90 @@ public abstract class Handle
      * opening an element should open only those child elements that are not
      * openable: all other children will open themselves on demand.
      * </p>
+     * <p>
+     * This implementation returns <code>true</code>. Non-openable elements
+     * must override this method and return <code>false</code>.
+     * </p>
      *
-     * @return the innermost "openable" element in the parent chain of
-     *  this element, or <code>null</code> if this element has no parent
+     * @return <code>true</code> if this element is openable,
+     *  <code>false</code> otherwise
      */
-    protected Handle getOpenableParent()
+    protected boolean isOpenable()
     {
-        return parent;
+        return true;
     }
 
-    private void generateBodies(Body body, Map<IHandle, Body> newElements,
+    /**
+     * Returns the innermost {@link #isOpenable() openable} element
+     * in the parent chain of this element, or <code>null</code>
+     * if this element has no openable parent.
+     *
+     * @return the innermost openable element in the parent chain of this
+     *  element, or <code>null</code> if this element has no openable parent
+     */
+    protected final Handle getOpenableParent()
+    {
+        Handle result = parent;
+        while (result != null && !result.isOpenable())
+            result = result.parent;
+        return result;
+    }
+
+    /**
+     * Creates and initializes bodies for ancestors of this element
+     * as necessary and puts them into the given map.
+     *
+     * @param newElements a map containing handle/body relationships
+     *  (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>)
+     * @throws CoreException if an ancestor does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is canceled
+     */
+    protected void generateAncestorBodies(Map<IHandle, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
-        if (monitor == null)
-            monitor = new NullProgressMonitor();
+        Handle openableParent = getOpenableParent();
+        if (openableParent != null && openableParent.findBody() == null)
+        {
+            openableParent.generateBodies(openableParent.newBody(), newElements,
+                monitor);
+        }
+    }
+
+    /**
+     * Creates and initializes bodies for this element, its ancestors
+     * and its children as necessary and puts them into the given map.
+     *
+     * @param body a new body to be initialized for this element, or
+     *  <code>null</code> if the body is to be created by the openable parent
+     * @param newElements a map containing handle/body relationships
+     *  (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>)
+     * @throws CoreException if this element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is canceled
+     */
+    protected final void generateBodies(Body body,
+        Map<IHandle, Body> newElements, IProgressMonitor monitor)
+            throws CoreException
+    {
         monitor.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            Handle openableParent = getOpenableParent();
-            if (openableParent != null && openableParent.findBody() == null)
+            if (isOpenable())
             {
-                openableParent.generateBodies(openableParent.newBody(),
-                    newElements, new SubProgressMonitor(monitor, 1));
+                if (body == null)
+                    throw new IllegalArgumentException();
             }
+            else
+            {
+                if (body != null)
+                    throw new IllegalArgumentException();
+            }
+
+            generateAncestorBodies(newElements, new SubProgressMonitor(monitor,
+                1));
 
             if (body != null)
             {
@@ -581,5 +649,34 @@ public abstract class Handle
         {
             monitor.done();
         }
+    }
+
+    /**
+     * Closes this element, removing any previously registered handle/body
+     * relationships for it and its existing descendants.
+     *
+     * @param external <code>false</code> if this is a recursive call,
+     *  <code>true</code> otherwise
+     * @return <code>true</code> if this element was successfully closed;
+     *  <code>false</code> if the current state of this element does not
+     *  permit closing (e.g., a working copy)
+     */
+    protected boolean close(boolean external)
+    {
+        if (external && !isOpenable())
+            return false;
+        getHandleManager().remove(this);
+        return true;
+    }
+
+    /**
+     * The cached body for this element is going to be removed from the cache.
+     * Do any necessary cleanup.
+     *
+     * @param body the cached body for this element (never <code>null</code>)
+     */
+    protected void removing(Body body)
+    {
+        // Does nothing. Subclasses may override
     }
 }

@@ -99,13 +99,6 @@ public abstract class SourceConstruct
     }
 
     @Override
-    public final boolean close()
-    {
-        // The openable parent builds the whole structure and controls child life-cycle
-        throw new AssertionError("This method should not be called"); //$NON-NLS-1$
-    }
-
-    @Override
     protected final void validateExistence() throws CoreException
     {
         // The openable parent builds the whole structure and determines child existence
@@ -120,13 +113,10 @@ public abstract class SourceConstruct
     }
 
     @Override
-    protected final Handle getOpenableParent()
+    protected final boolean isOpenable()
     {
-        Handle result = parent;
         // Source constructs are never openable
-        while (result instanceof SourceConstruct)
-            result = result.parent;
-        return result;
+        return false;
     }
 
     @Override

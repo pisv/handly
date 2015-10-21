@@ -27,6 +27,8 @@ import org.eclipse.handly.model.ISourceFile;
  */
 public class HandleManager
 {
+    private static final ISourceFile[] NO_WORKING_COPIES = new ISourceFile[0];
+
     private IBodyCache cache;
 
     // Temporary cache of newly opened elements
@@ -48,6 +50,45 @@ public class HandleManager
             throw new IllegalArgumentException();
 
         this.cache = cache;
+    }
+
+    /**
+     * Returns the source files that have a corresponding working copy info.
+     */
+    public final synchronized ISourceFile[] getWorkingCopies()
+    {
+        return workingCopyInfos.keySet().toArray(NO_WORKING_COPIES);
+    }
+
+    /**
+     * Closes the given element if possible. This may trigger recursive calls
+     * to {@link #remove(IHandle)}.
+     * <p>
+     * This method is called internally; it is not intended to be called by clients.
+     * </p>
+     *
+     * @param handle the element to close (never <code>null</code>)
+     */
+    protected void internalClose(IHandle handle)
+    {
+        ((Handle)handle).close(false);
+    }
+
+    /**
+     * A handle/body relationship is going to be removed from the body cache
+     * associated with this manager. Do any necessary cleanup.
+     * <p>
+     * This method is called internally; it is not intended to be called by clients.
+     * </p>
+     *
+     * @param handle the handle whose body is going to be removed
+     *  (never <code>null</code>)
+     * @param body the corresponding body that is going to be removed
+     *  (never <code>null</code>)
+     */
+    protected void removing(IHandle handle, Body body)
+    {
+        ((Handle)handle).removing(body);
     }
 
     /**
@@ -102,17 +143,18 @@ public class HandleManager
     }
 
     /**
-     * Atomically updates the body cache associated with this manager.
+     * Atomically updates the body cache associated with this manager with the
+     * provided handle/body relationships.
      *
-     * @param handle the element being "opened" (not <code>null</code>)
+     * @param handle the element being (re-)opened (not <code>null</code>)
      * @param newElements a map containing handle/body relationships
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
-     *  must contain the body for the given handle
+     *  it must contain a body for the given handle
      */
     synchronized void put(IHandle handle, Map<IHandle, Body> newElements)
     {
         // remove existing children as they are replaced with the new children contained in newElements
-        removeBodyAndChildren(handle);
+        remove(handle);
 
         cache.putAll(newElements);
 
@@ -126,12 +168,13 @@ public class HandleManager
 
     /**
      * If a body for the given handle is not already present in the body cache
-     * associated with this manager, updates the body cache. Performs atomically.
+     * associated with this manager, puts the provided handle/body relationships
+     * into the body cache. Performs atomically.
      *
-     * @param handle the element being "opened" (not <code>null</code>)
+     * @param handle the element being opened (not <code>null</code>)
      * @param newElements a map containing handle/body relationships
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
-     *  must contain the body for the given handle
+     *  it must contain a body for the given handle
      * @return the previous body for the given handle, or <code>null</code>
      *  if the body cache did not previously contain a body for the handle
      */
@@ -147,22 +190,23 @@ public class HandleManager
     }
 
     /**
-     * Removes from the body cache associated with this manager any previously
-     * contained handle/body relationships for the given handle and its existing
-     * descendants. Performs atomically.
+     * Removes from the body cache associated with this manager the cached body
+     * for the given handle after closing its children. Does nothing if the cache
+     * contained no body for the handle. Performs atomically.
      *
-     * @param handle the handle for the root of a subtree of elements
-     *  whose existing handle/body relationships are to be removed
-     *  from the body cache
+     * @param handle the handle whose body is to be removed from the body cache
+     * @see #internalClose(IHandle)
+     * @see #removing(IHandle, Body)
      */
-    synchronized void removeBodyAndChildren(IHandle handle)
+    synchronized void remove(IHandle handle)
     {
         Body body = cache.peek(handle);
         if (body != null)
         {
+            removing(handle, body);
             for (IHandle child : body.getChildren())
             {
-                removeBodyAndChildren(child);
+                internalClose(child);
             }
             cache.remove(handle);
         }
@@ -341,7 +385,7 @@ public class HandleManager
                     infoToDispose = info;
 
                     workingCopyInfos.remove(handle);
-                    removeBodyAndChildren(handle);
+                    remove(handle);
                 }
                 return info;
             }

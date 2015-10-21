@@ -368,15 +368,6 @@ public abstract class SourceFile
         }
     }
 
-    @Override
-    public final boolean close()
-    {
-        if (isWorkingCopy())
-            return false; // must not close a working copy
-
-        return super.close();
-    }
-
     /**
      * Returns a reconcile operation for this source file.
      * <p>
@@ -548,27 +539,29 @@ public abstract class SourceFile
         Map<IHandle, Body> newElements, Object ast, String source,
         IProgressMonitor monitor);
 
-    /**
-     * Returns whether the structure should be rebuilt when reconciling
-     * is forced (i.e. the working copy buffer has not been modified
-     * since the last time it was reconciled). Default implementation
-     * returns <code>false</code> since typically the structure remains
-     * the same if reconciling is forced. Subclasses may override.
-     *
-     * @return <code>true</code> if the structure should be rebuilt
-     *  when reconciling is forced, <code>false</code> otherwise
-     */
-    protected boolean shouldRebuildStructureIfForced()
-    {
-        return false;
-    }
-
     @Override
     protected void toStringName(StringBuilder builder)
     {
         if (isWorkingCopy())
             builder.append("[Working copy] "); //$NON-NLS-1$
         super.toStringName(builder);
+    }
+
+    @Override
+    protected void generateAncestorBodies(Map<IHandle, Body> newElements,
+        IProgressMonitor monitor) throws CoreException
+    {
+        if (isWorkingCopy())
+            return; // don't open ancestors for a working copy
+        super.generateAncestorBodies(newElements, monitor);
+    }
+
+    @Override
+    protected boolean close(boolean external)
+    {
+        if (isWorkingCopy())
+            return false; // a working copy cannot be removed
+        return super.close(external);
     }
 
     private static void setSnapshot(SourceElementBody body, ISnapshot snapshot,
@@ -659,6 +652,21 @@ public abstract class SourceFile
                     throw new AssertionError(); // should never happen
                 workingCopyModeChanged(); // notify about wc creation
             }
+        }
+
+        /**
+         * Returns whether the structure should be rebuilt when reconciling
+         * is forced (i.e. the working copy buffer has not been modified
+         * since the last time it was reconciled). Default implementation
+         * returns <code>false</code> since typically the structure remains
+         * the same if reconciling is forced. Subclasses may override.
+         *
+         * @return <code>true</code> if the structure should be rebuilt
+         *  when reconciling is forced, <code>false</code> otherwise
+         */
+        protected boolean shouldRebuildStructureIfForced()
+        {
+            return false;
         }
     }
 
