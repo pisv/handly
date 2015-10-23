@@ -135,6 +135,7 @@
                 </includes>
                 <excludes>
                   <exclude>org.eclipse.handly.internal.*</exclude>
+                  <exclude>org.eclipse.handly.examples.*</exclude>
                 </excludes>
                 <additionalArguments>
                   <additionalArgument>-windowtitle "${javadoc.title}"</additionalArgument>
