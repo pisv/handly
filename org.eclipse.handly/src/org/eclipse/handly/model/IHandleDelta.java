@@ -22,12 +22,14 @@ import org.eclipse.core.resources.IResourceDelta;
  * Deltas have a different status depending on the kind of change they represent.
  * The list below summarizes each status (as returned by {@link #getKind})
  * and its meaning (see individual constants for a more detailed description):
+ * </p>
  * <ul>
  * <li>{@link #ADDED} - The element described by the delta has been added.
  * <li>{@link #REMOVED} - The element described by the delta has been removed.
  * <li>{@link #CHANGED} - The element described by the delta has been changed
  * in some way.
  * </ul>
+ * <p>
  * Specification of the type of change is provided by {@link #getFlags}.
  * </p>
  * <p>
@@ -173,10 +175,10 @@ public interface IHandleDelta
 
     /**
      * Returns flags that describe how the element has changed.
-     * Such flags should be tested using the <code>&</code> operator.
+     * Such flags should be tested using the <code>&amp;</code> operator.
      * For example:
      * <pre>
-     * if ((delta.getFlags() & IHandleDelta.F_CONTENT) != 0)
+     * if ((delta.getFlags() &amp; IHandleDelta.F_CONTENT) != 0)
      * {
      *     // the delta indicates a content change
      * }</pre>

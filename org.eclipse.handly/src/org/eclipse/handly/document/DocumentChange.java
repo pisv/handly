@@ -49,7 +49,7 @@ public class DocumentChange
      * Sets the flags controlling the execution of the change.
      *
      * @param style flags controlling the execution of the change. Valid
-     *  flags are: <code>CREATE_UNDO</code> and </code>UPDATE_REGIONS</code>
+     *  flags are: <code>CREATE_UNDO</code> and <code>UPDATE_REGIONS</code>
      */
     public void setStyle(int style)
     {

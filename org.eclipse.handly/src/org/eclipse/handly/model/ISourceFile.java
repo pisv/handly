@@ -71,7 +71,6 @@ public interface ISourceFile
      * Returns the buffer opened for this source file. Note that buffers may
      * be shared by multiple clients, so the returned buffer may have unsaved
      * changes if it has been modified by another client.
-     * </p>
      * <p>
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for disposing it when finished. The buffer will be

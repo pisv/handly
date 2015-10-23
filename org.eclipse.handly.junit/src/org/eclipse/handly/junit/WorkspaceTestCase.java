@@ -41,12 +41,12 @@ import org.eclipse.core.runtime.jobs.Job;
  * </p><p>
  * Also, in its {@link #setUp()} and {@link #tearDown()} methods,
  * this class enforces some common rules for workspace tests:
+ * </p>
  * <ul>
  * <li>each test starts running in a clean workspace with auto-build turned off;</li>
  * <li>each test is responsible for setting up the necessary workspace state;</li>
  * <li>after running each test, the workspace is cleaned up.</li>
  * </ul>
- * </p>
  */
 public abstract class WorkspaceTestCase
     extends TestCase

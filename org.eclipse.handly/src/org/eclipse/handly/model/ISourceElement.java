@@ -59,7 +59,7 @@ public interface ISourceElement
      * Represents a named property of the source element.
      *
      * @param <T> the type of property values
-     * @see ISourceElementInfo#get(Property)
+     * @see ISourceElementInfo#get(ISourceElement.Property)
      */
     final class Property<T>
     {

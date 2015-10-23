@@ -534,8 +534,8 @@ public abstract class CommonOutlinePage
          * Returns whether the given tree item can be expanded from
          * <code>expandXXX</code> methods.
          * <p>
-         * Default implementation simply delegates to {@link CommonOutlinePage#
-         * isAutoExpandable(TreeItem)}. Subclasses may extend.
+         * Default implementation simply delegates to {@link
+         * CommonOutlinePage#isAutoExpandable(TreeItem)}. Subclasses may extend.
          * </p>
          *
          * @param item the tree item (never <code>null</code>)

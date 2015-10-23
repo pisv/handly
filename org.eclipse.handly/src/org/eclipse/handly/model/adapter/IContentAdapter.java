@@ -18,11 +18,13 @@ import org.eclipse.handly.model.IHandle;
  * <p>
  * For every <code>handle</code> such that <code>getCorrespondingElement(handle)
  * != null</code>, the following invariant must hold:
+ * </p>
  * <pre>handle.equals(getHandle(getCorrespondingElement(handle))</pre>
+ * <p>
  * Likewise, for every <code>element</code> such that <code>getHandle(element)
  * != null</code>, the following invariant must hold:
- * <pre>element.equals(getCorrespondingElement(getHandle(element))</pre>
  * </p>
+ * <pre>element.equals(getCorrespondingElement(getHandle(element))</pre>
  * <p>
  * This interface may be implemented by clients.
  * </p>

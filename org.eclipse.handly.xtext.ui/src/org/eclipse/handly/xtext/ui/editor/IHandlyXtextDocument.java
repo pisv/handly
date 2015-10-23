@@ -54,9 +54,10 @@ public interface IHandlyXtextDocument
 
     /**
      * Returns the snapshot from which the document's resource was parsed
-     * in the last {@link #reconcile(boolean) reconcile} operation, or
-     * <code>null</code> if the document's resource is not set or already disposed.
-     * Note that the returned snapshot may turn out to be stale.
+     * in the last {@link #reconcile(boolean, IProgressMonitor) reconcile}
+     * operation, or <code>null</code> if the document's resource is not set
+     * or already disposed. Note that the returned snapshot may turn out to be
+     * stale.
      *
      * @return the last reconciled snapshot or <code>null</code>
      */
@@ -72,9 +73,10 @@ public interface IHandlyXtextDocument
      * While inside the dynamic context of the unit of work,
      * the resource contents is guaranteed to be based on the {@link
      * #getReconciledSnapshot() last reconciled snapshot}. Usually,
-     * there is no need for clients to do a {@link #reconcile(boolean) reconcile}
-     * before calling this method to ensure a fresh snapshot. Reconciling
-     * will happen automatically before the top-level unit of work is run.
+     * there is no need for clients to do a {@link #reconcile(boolean,
+     * IProgressMonitor) reconcile} before calling this method to ensure
+     * a fresh snapshot. Reconciling will happen automatically before
+     * the top-level unit of work is run.
      * </p>
      *
      * @param work a read-only unit of work - must not be <code>null</code>
@@ -108,9 +110,9 @@ public interface IHandlyXtextDocument
      * snapshot for the whole transaction, i.e. if it turns out to be stale
      * when changes are to be applied to the document, this method will throw
      * {@link StaleSnapshotException}. Usually, there is no need for clients
-     * to do a {@link #reconcile(boolean) reconcile} before calling this method
-     * to ensure a fresh snapshot. Reconciling will happen automatically
-     * before the top-level unit of work is run.
+     * to do a {@link #reconcile(boolean, IProgressMonitor) reconcile}
+     * before calling this method to ensure a fresh snapshot. Reconciling
+     * will happen automatically before the top-level unit of work is run.
      * </p>
      *
      * @param work a modifying unit of work - must not be <code>null</code>

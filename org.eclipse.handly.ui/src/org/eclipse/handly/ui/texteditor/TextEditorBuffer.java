@@ -35,12 +35,12 @@ import org.eclipse.ui.texteditor.ITextEditor;
  * An instance of this class is safe for use by multiple threads,
  * provided that the underlying text editor's document is thread-safe.
  * However, certain operations can only be executed by the UI thread:
+ * </p>
  * <ul>
  * <li><code>hasUnsavedChanges</code></li>
  * <li><code>mustSaveChanges</code></li>
  * <li><code>save</code></li>
  * </ul>
- * </p>
  */
 @SuppressWarnings("deprecation")
 public class TextEditorBuffer

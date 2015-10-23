@@ -992,7 +992,7 @@ public class HandleDelta
      * Returns whether {@link #childIndex} needs to be used for child lookup.
      * <p>
      * Default implementation answers <code>true</code> iff
-     * <code>affectedChildren.length >= 3</code>.
+     * <code>affectedChildren.length &gt;= 3</code>.
      * </p>
      */
     protected boolean needsChildIndex()
