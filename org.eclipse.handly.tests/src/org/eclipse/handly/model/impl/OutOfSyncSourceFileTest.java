@@ -24,8 +24,6 @@ import org.eclipse.handly.model.IHandle;
 /**
  * Regression test for bug 470336 -
  * AssertionError when building structure for out-of-sync source file.
- *
- * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=470336
  */
 public class OutOfSyncSourceFileTest
     extends WorkspaceTestCase

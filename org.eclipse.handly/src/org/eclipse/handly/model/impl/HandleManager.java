@@ -61,8 +61,8 @@ public class HandleManager
     }
 
     /**
-     * Closes the given element if possible. This may trigger recursive calls
-     * to {@link #remove(IHandle)}.
+     * Closes the given element if possible. Closing of an element usually
+     * involves closing its children and removal of its body from the cache.
      * <p>
      * This method is called internally; it is not intended to be called by clients.
      * </p>

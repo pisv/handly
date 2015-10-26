@@ -327,8 +327,9 @@ public abstract class FilteringOutlinePopup
     }
 
     /**
-     * Overrides {@link OutlineTreeViewer#canExpand(TreeItem) canExpand} method
-     * to allow expanding any tree item when the pattern-based filter is active.
+     * Overrides {@link OutlinePopup.OutlineTreeViewer#canExpand(TreeItem)
+     * canExpand} method to allow expanding any tree item when the pattern-based
+     * filter is active.
      */
     protected class FilteringOutlineTreeViewer
         extends OutlineTreeViewer

@@ -20,8 +20,6 @@ public class HandleDeltaTest
 {
     /**
      * Regression test for bug 456060 - AIOOB in HandleDelta.addAffectedChild.
-     *
-     * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=456060
      */
     public void testBug456060()
     {

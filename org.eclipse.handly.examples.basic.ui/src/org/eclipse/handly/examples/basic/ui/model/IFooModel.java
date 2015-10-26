@@ -46,7 +46,7 @@ public interface IFooModel
 
     /**
      * Returns the Foo project with the given name. The given name must be
-     * a valid path segment as defined by {@link IPath#isValidSegment(String)}.
+     * a valid path segment as defined by {@link org.eclipse.core.runtime.IPath#isValidSegment(String)}.
      * This is a handle-only method. The project may or may not exist.
      *
      * @param name the name of the Foo project (not <code>null</code>)
