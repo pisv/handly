@@ -36,6 +36,7 @@ import org.eclipse.xtext.ui.editor.IXtextEditorCallback;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Integrates Xtext editor with Handly working copy management facility.
@@ -73,6 +74,7 @@ import com.google.inject.Inject;
  * }
  * </pre>
  */
+@Singleton
 public class HandlyXtextEditorCallback
     extends IXtextEditorCallback.NullImpl
 {
