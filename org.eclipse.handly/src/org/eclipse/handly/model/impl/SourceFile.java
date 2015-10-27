@@ -70,6 +70,11 @@ public abstract class SourceFile
         return file;
     }
 
+    /**
+     * Returns the underlying {@link IFile}. This is a handle-only method.
+     *
+     * @return the underlying <code>IFile</code> (never <code>null</code>)
+     */
     @Override
     public final IFile getFile()
     {

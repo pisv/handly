@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.javamodel;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.ISourceFile;
@@ -62,6 +63,13 @@ public interface ICompilationUnit
         org.eclipse.jdt.core.ICompilationUnit.IGNORE_METHOD_BODIES;
 
     IPackageFragment getParent();
+
+    /**
+     * Returns the underlying {@link IFile}. This is a handle-only method.
+     *
+     * @return the underlying <code>IFile</code> (never <code>null</code>)
+     */
+    IFile getFile();
 
     /**
      * Returns the import declaration in this compilation unit

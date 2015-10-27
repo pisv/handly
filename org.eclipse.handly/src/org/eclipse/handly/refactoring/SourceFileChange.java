@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -295,7 +296,10 @@ public class SourceFileChange
     @Override
     public Object[] getAffectedObjects()
     {
-        return new Object[] { sourceFile.getFile() };
+        IFile file = sourceFile.getFile();
+        if (file == null)
+            return null;
+        return new Object[] { file };
     }
 
     @Override

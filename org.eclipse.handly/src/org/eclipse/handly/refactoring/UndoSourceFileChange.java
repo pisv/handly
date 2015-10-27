@@ -12,6 +12,7 @@ package org.eclipse.handly.refactoring;
 
 import java.text.MessageFormat;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -52,7 +53,7 @@ class UndoSourceFileChange
     @Override
     public void initializeValidationData(IProgressMonitor pm)
     {
-        existed = sourceFile.getFile().exists();
+        existed = sourceFile.exists();
     }
 
     @Override
@@ -63,7 +64,7 @@ class UndoSourceFileChange
 
         if (!existed) // got deleted/moved during refactoring
         {
-            if (sourceFile.getFile().exists())
+            if (sourceFile.exists())
             {
                 result.addFatalError(MessageFormat.format(
                     Messages.UndoSourceFileChange_Should_not_exist__0,
@@ -71,7 +72,7 @@ class UndoSourceFileChange
             }
             return result; // let the delete/move undo change handle the rest
         }
-        else if (!sourceFile.getFile().exists())
+        else if (!sourceFile.exists())
         {
             result.addFatalError(MessageFormat.format(
                 Messages.UndoSourceFileChange_Should_exist__0,
@@ -147,6 +148,9 @@ class UndoSourceFileChange
     @Override
     public Object[] getAffectedObjects()
     {
-        return new Object[] { sourceFile.getFile() };
+        IFile file = sourceFile.getFile();
+        if (file == null)
+            return null;
+        return new Object[] { file };
     }
 }

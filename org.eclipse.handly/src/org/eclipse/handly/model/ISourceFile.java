@@ -25,10 +25,16 @@ public interface ISourceFile
     extends ISourceElement
 {
     /**
-     * Returns the underlying workspace file. This is a handle-only method.
+     * Returns the underlying {@link IFile}, or <code>null</code>
+     * if this source file has no underlying file in the workspace.
+     * This is a handle-only method.
+     * <p>
+     * This method returns the same value as {@link #getResource()},
+     * but saves a downcast.
+     * </p>
      *
-     * @return the underlying {@link IFile} (never <code>null</code>)
-     * @see #getResource()
+     * @return the underlying <code>IFile</code>, or <code>null</code>
+     *  if this source file has no underlying file in the workspace
      */
     IFile getFile();
 

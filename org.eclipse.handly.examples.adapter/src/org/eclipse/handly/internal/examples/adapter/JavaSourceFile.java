@@ -51,10 +51,7 @@ class JavaSourceFile
     @Override
     public IFile getFile()
     {
-        IFile file = (IFile)getCompilationUnit().getResource();
-        if (file == null)
-            throw new AssertionError();
-        return file;
+        return (IFile)getCompilationUnit().getResource();
     }
 
     @Override
@@ -96,6 +93,8 @@ class JavaSourceFile
         throws CoreException
     {
         IFile file = getFile();
+        if (file == null)
+            throw new AssertionError("No underlying IFile for " + toString());
         if (!create && ITextFileBufferManager.DEFAULT.getTextFileBuffer(
             file.getFullPath(), LocationKind.IFILE) == null)
         {
