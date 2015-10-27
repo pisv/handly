@@ -188,8 +188,7 @@ public class HandlyXtextEditorCallback
     private void createWorkingCopy(XtextEditor editor)
     {
         SourceFile sourceFile = getSourceFile(editor);
-        if (sourceFile != null && !sourceFile.isWorkingCopy()
-            && sourceFile.getParent().exists())
+        if (sourceFile != null && !sourceFile.isWorkingCopy())
         {
             try
             {

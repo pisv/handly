@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2015 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
@@ -45,7 +44,7 @@ public class FooModelManager
      */
     public static final FooModelManager INSTANCE = new FooModelManager();
 
-    private IFooModel fooModel;
+    private FooModel fooModel;
     private HandleManager handleManager;
     private ListenerList listenerList;
 
@@ -100,7 +99,7 @@ public class FooModelManager
         }
     }
 
-    public IFooModel getFooModel()
+    public FooModel getFooModel()
     {
         if (fooModel == null)
             throw new IllegalStateException();
