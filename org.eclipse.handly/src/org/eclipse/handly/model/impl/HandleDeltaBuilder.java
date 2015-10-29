@@ -335,7 +335,7 @@ public class HandleDeltaBuilder
         }
         else
         {
-            for (HandleDelta child : delta.affectedChildren)
+            for (HandleDelta child : delta.getAffectedChildren())
             {
                 trimDelta(child);
             }

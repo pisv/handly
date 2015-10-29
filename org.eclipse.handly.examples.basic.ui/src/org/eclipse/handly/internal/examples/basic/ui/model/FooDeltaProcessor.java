@@ -390,28 +390,28 @@ class FooDeltaProcessor
         HandleDelta delta = currentDelta.getDeltaFor(fooElement);
         if (delta == null)
         {
-            delta = new HandleDelta(fooElement);
-            currentDelta.insert(delta);
+            currentDelta.insertChanged(fooElement, 0);
+            delta = currentDelta.getDeltaFor(fooElement);
         }
         delta.setMarkerDeltas(markerDeltas);
     }
 
-    private void addResourceDelta(IResourceDelta delta)
+    private void addResourceDelta(IResourceDelta resourceDelta)
     {
-        HandleDelta handleDelta;
-        IResource parent = delta.getResource().getParent();
+        HandleDelta delta;
+        IResource parent = resourceDelta.getResource().getParent();
         if (parent instanceof IWorkspaceRoot)
-            handleDelta = currentDelta;
+            delta = currentDelta;
         else if (parent instanceof IProject)
         {
             IFooProject fooProject = FooModelCore.create((IProject)parent);
-            handleDelta = currentDelta.getDeltaFor(fooProject);
-            if (handleDelta == null)
+            delta = currentDelta.getDeltaFor(fooProject);
+            if (delta == null)
             {
-                handleDelta = new HandleDelta(fooProject);
-                currentDelta.insert(handleDelta);
+                currentDelta.insertChanged(fooProject, 0);
+                delta = currentDelta.getDeltaFor(fooProject);
             }
-            if ((delta.getKind() & (IResourceDelta.ADDED
+            if ((resourceDelta.getKind() & (IResourceDelta.ADDED
                 | IResourceDelta.REMOVED)) != 0)
             {
                 // reset non-Foo resources
@@ -422,7 +422,7 @@ class FooDeltaProcessor
         }
         else
             throw new AssertionError();
-        handleDelta.addResourceDelta(delta);
+        delta.addResourceDelta(resourceDelta);
     }
 
     private static Body findBody(IFooElement element)

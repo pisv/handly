@@ -84,10 +84,10 @@ public class JavaElementDelta
     }
 
     @Override
-    protected boolean toDebugString(StringBuilder builder, long flags)
+    protected boolean toStringFlags(StringBuilder builder)
     {
-        boolean prev = super.toDebugString(builder, flags);
-        if ((flags & F_CLASSPATH_CHANGED) != 0)
+        boolean prev = super.toStringFlags(builder);
+        if ((getFlags() & F_CLASSPATH_CHANGED) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$

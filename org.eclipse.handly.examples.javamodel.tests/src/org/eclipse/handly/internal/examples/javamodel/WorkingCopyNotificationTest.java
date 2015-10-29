@@ -81,10 +81,10 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "Java Model[*]: {CHILDREN}\n" +
-                    "    Test010[*]: {CHILDREN}\n" +
-                    "        src[*]: {CHILDREN}\n" +
-                    "            <default>[*]: {CHILDREN}\n" +
-                    "                [Working copy] X.java[*]: {WORKING COPY}"
+                    "  Test010[*]: {CHILDREN}\n" +
+                    "    src[*]: {CHILDREN}\n" +
+                    "      <default>[*]: {CHILDREN}\n" +
+                    "        [Working copy] X.java[*]: {WORKING COPY}"
                 );
                 //@formatter:on
 
@@ -93,10 +93,10 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "Java Model[*]: {CHILDREN}\n" +
-                    "    Test010[*]: {CHILDREN}\n" +
-                    "        src[*]: {CHILDREN}\n" +
-                    "            <default>[*]: {CHILDREN}\n" +
-                    "                [Working copy] X.java[*]: {CONTENT | UNDERLYING_RESOURCE}"
+                    "  Test010[*]: {CHILDREN}\n" +
+                    "    src[*]: {CHILDREN}\n" +
+                    "      <default>[*]: {CHILDREN}\n" +
+                    "        [Working copy] X.java[*]: {CONTENT | UNDERLYING_RESOURCE}"
                 );
                 //@formatter:on
             }
@@ -104,10 +104,10 @@ public class WorkingCopyNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test010[*]: {CHILDREN}\n" +
-            "        src[*]: {CHILDREN}\n" +
-            "            <default>[*]: {CHILDREN}\n" +
-            "                X.java[*]: {WORKING COPY}"
+            "  Test010[*]: {CHILDREN}\n" +
+            "    src[*]: {CHILDREN}\n" +
+            "      <default>[*]: {CHILDREN}\n" +
+            "        X.java[*]: {WORKING COPY}"
         );
         //@formatter:on
     }
@@ -135,8 +135,8 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "    Y[+]: {}\n" +
-                    "    X[-]: {}"
+                    "  Y[+]: {}\n" +
+                    "  X[-]: {}"
                 );
                 //@formatter:on
             }
@@ -165,8 +165,8 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "    X[*]: {CHILDREN}\n" +
-                    "        x[-]: {}"
+                    "  X[*]: {CHILDREN}\n" +
+                    "    x[-]: {}"
                 );
                 //@formatter:on
 
@@ -184,8 +184,8 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "    X[*]: {CHILDREN}\n" +
-                    "        y[+]: {}"
+                    "  X[*]: {CHILDREN}\n" +
+                    "    y[+]: {}"
                 );
                 //@formatter:on
             }
@@ -215,9 +215,9 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "    X[*]: {CHILDREN}\n" +
-                    "        f()[+]: {}\n" +
-                    "        f(int)[-]: {}"
+                    "  X[*]: {CHILDREN}\n" +
+                    "    f()[+]: {}\n" +
+                    "    f(int)[-]: {}"
                 );
                 //@formatter:on
             }
@@ -247,8 +247,8 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "    X[*]: {CHILDREN}\n" +
-                    "        f(int)[*]: {CONTENT}"
+                    "  X[*]: {CHILDREN}\n" +
+                    "    f(int)[*]: {CONTENT}"
                 );
                 //@formatter:on
             }

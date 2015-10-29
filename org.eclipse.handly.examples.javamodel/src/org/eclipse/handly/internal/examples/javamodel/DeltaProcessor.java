@@ -50,7 +50,7 @@ class DeltaProcessor
 
     DeltaProcessor(DeltaProcessingState state)
     {
-        currentDelta = newDelta(state.getJavaModel());
+        currentDelta = new JavaElementDelta(state.getJavaModel());
         this.state = state;
     }
 
@@ -570,19 +570,20 @@ class DeltaProcessor
         currentDelta.insertChanged(element, IHandleDelta.F_CONTENT);
     }
 
-    private void markersChanged(IJavaElement javaElement,
+    private void markersChanged(IJavaElement element,
         IMarkerDelta[] markerDeltas)
     {
-        HandleDelta delta = currentDelta.getDeltaFor(javaElement);
+        HandleDelta delta = currentDelta.getDeltaFor(element);
         if (delta == null)
         {
-            delta = newDelta(javaElement);
-            currentDelta.insert(delta);
+            currentDelta.insertChanged(element, 0);
+            delta = currentDelta.getDeltaFor(element);
         }
         delta.setMarkerDeltas(markerDeltas);
     }
 
-    private void addResourceDelta(IJavaElement element, IResourceDelta delta)
+    private void addResourceDelta(IJavaElement element,
+        IResourceDelta resourceDelta)
     {
         if (element == null)
             return;
@@ -603,18 +604,13 @@ class DeltaProcessor
                 throw new AssertionError();
         }
 
-        HandleDelta handleDelta = currentDelta.getDeltaFor(element);
-        if (handleDelta == null)
+        HandleDelta delta = currentDelta.getDeltaFor(element);
+        if (delta == null)
         {
-            handleDelta = newDelta(element);
-            currentDelta.insert(handleDelta);
+            currentDelta.insertChanged(element, 0);
+            delta = currentDelta.getDeltaFor(element);
         }
-        handleDelta.addResourceDelta(delta);
-    }
-
-    private JavaElementDelta newDelta(IJavaElement element)
-    {
-        return new JavaElementDelta(element);
+        delta.addResourceDelta(resourceDelta);
     }
 
     private static Body findBody(IJavaElement element)

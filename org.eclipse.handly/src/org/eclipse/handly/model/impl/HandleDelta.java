@@ -21,42 +21,45 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.handly.model.IHandle;
 import org.eclipse.handly.model.IHandleDelta;
 import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.handly.util.IndentationPolicy;
 
 /**
- * To create a delta tree, use the <code>insertXXX</code> methods on a root delta.
+ * Implements {@link IHandleDelta}. Clients can use this class as it stands or
+ * subclass it as circumstances warrant. Subclasses should consider overriding
+ * {@link #newDelta(IHandle)} method.
+ * <p>
+ * To create a delta tree, call <code>insertXXX</code> methods on a root delta.
+ * </p>
  * <p>
  * Adapted from <code>org.eclipse.jdt.internal.core.JavaElementDelta</code>.
  * </p>
- *
- * @see IHandleDelta
  */
 public class HandleDelta
     implements IHandleDelta
 {
-    protected static final HandleDelta[] EMPTY_HANDLE_DELTAS =
-        new HandleDelta[0];
-    protected static final IMarkerDelta[] EMPTY_MARKER_DELTAS =
+    private static final HandleDelta[] EMPTY_HANDLE_DELTAS = new HandleDelta[0];
+    private static final IMarkerDelta[] EMPTY_MARKER_DELTAS =
         new IMarkerDelta[0];
-    protected static final IResourceDelta[] EMPTY_RESOURCE_DELTAS =
+    private static final IResourceDelta[] EMPTY_RESOURCE_DELTAS =
         new IResourceDelta[0];
 
-    protected int kind;
-    protected long flags;
-    protected final IHandle element;
-    protected IHandle movedFromElement;
-    protected IHandle movedToElement;
-    protected HandleDelta[] affectedChildren = EMPTY_HANDLE_DELTAS;
+    private int kind;
+    private long flags;
+    private final IHandle element;
+    private IHandle movedFromElement;
+    private IHandle movedToElement;
+    private HandleDelta[] affectedChildren = EMPTY_HANDLE_DELTAS;
 
     /**
      * On-demand index into <code>affectedChildren</code>
      * @see #needsChildIndex()
      * @see #indexOfChild(Key)
      */
-    protected Map<Key, Integer> childIndex;
+    private Map<Key, Integer> childIndex;
 
-    protected IMarkerDelta[] markerDeltas;
-    protected IResourceDelta[] resourceDeltas;
-    protected int resourceDeltasCounter;
+    private IMarkerDelta[] markerDeltas;
+    private IResourceDelta[] resourceDeltas;
+    private int resourceDeltasCounter;
 
     /**
      * Constructs an initially empty delta for the given element.
@@ -148,8 +151,10 @@ public class HandleDelta
     }
 
     /**
+     * Returns whether this delta is empty, i.e. represents an unchanged element.
+     *
      * @return <code>true</code> if the delta is empty,
-     *  i.e. it represents an unchanged element
+     *  <code>false</code> otherwise
      */
     public boolean isEmpty()
     {
@@ -157,10 +162,16 @@ public class HandleDelta
     }
 
     /**
-     * Same as <code>{@link #insertAdded(IHandle, long) insertAdded}(element, 0)</code>
+     * Convenience method. Same as <code>insertAdded(element, 0)</code>.
+     * <p>
+     * Note that this method returns the receiver (i.e. this delta)
+     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * to get the inserted delta.
+     * </p>
      *
      * @param element the added element (not <code>null</code>)
-     * @return this delta object (never <code>null</code>)
+     * @return the receiver (i.e. this delta)
+     * @see #insertAdded(IHandle, long)
      */
     public final HandleDelta insertAdded(IHandle element)
     {
@@ -168,13 +179,17 @@ public class HandleDelta
     }
 
     /**
-     * Inserts the nested deltas resulting from an add operation.
-     * The constructor should be used to create the root delta
-     * and then the add operation should call this method.
+     * Inserts an <code>ADDED</code> delta for the given element into
+     * this delta subtree.
+     * <p>
+     * Note that this method returns the receiver (i.e. this delta)
+     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * to get the inserted delta.
+     * </p>
      *
      * @param element the added element (not <code>null</code>)
      * @param flags change flags
-     * @return this delta object (never <code>null</code>)
+     * @return the receiver (i.e. this delta)
      */
     public HandleDelta insertAdded(IHandle element, long flags)
     {
@@ -183,10 +198,16 @@ public class HandleDelta
     }
 
     /**
-     * Same as <code>{@link #insertRemoved(IHandle, long) insertRemoved}(element, 0)</code>
+     * Convenience method. Same as <code>insertRemoved(element, 0)</code>.
+     * <p>
+     * Note that this method returns the receiver (i.e. this delta)
+     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * to get the inserted delta.
+     * </p>
      *
      * @param element the removed element (not <code>null</code>)
-     * @return this delta object (never <code>null</code>)
+     * @return the receiver (i.e. this delta)
+     * @see #insertRemoved(IHandle, long)
      */
     public final HandleDelta insertRemoved(IHandle element)
     {
@@ -194,13 +215,17 @@ public class HandleDelta
     }
 
     /**
-     * Inserts the nested deltas resulting from a delete operation.
-     * The constructor should be used to create the root delta
-     * and then the delete operation should call this method.
+     * Inserts a <code>REMOVED</code> delta for the given element into
+     * this delta subtree.
+     * <p>
+     * Note that this method returns the receiver (i.e. this delta)
+     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * to get the inserted delta.
+     * </p>
      *
      * @param element the removed element (not <code>null</code>)
      * @param flags change flags
-     * @return this delta object (never <code>null</code>)
+     * @return the receiver (i.e. this delta)
      */
     public HandleDelta insertRemoved(IHandle element, long flags)
     {
@@ -218,13 +243,17 @@ public class HandleDelta
     }
 
     /**
-     * Inserts the nested deltas resulting from a change operation.
-     * The constructor should be used to create the root delta
-     * and then the change operation should call this method.
+     * Inserts a <code>CHANGED</code> delta for the given element into
+     * this delta subtree.
+     * <p>
+     * Note that this method returns the receiver (i.e. this delta)
+     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * to get the inserted delta.
+     * </p>
      *
      * @param element the changed element (not <code>null</code>)
      * @param flags change flags
-     * @return this delta object (never <code>null</code>)
+     * @return the receiver (i.e. this delta)
      */
     public HandleDelta insertChanged(IHandle element, long flags)
     {
@@ -233,14 +262,18 @@ public class HandleDelta
     }
 
     /**
-     * Inserts the nested deltas resulting from a move operation.
-     * The constructor should be used to create the root delta
-     * and then the move operation should call this method.
+     * Inserts a new "moved from" (<code>REMOVED</code>) delta for the
+     * given element into this delta subtree.
+     * <p>
+     * Note that this method returns the receiver (i.e. this delta)
+     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * to get the inserted delta.
+     * </p>
      *
      * @param movedFromElement the element before it was moved to its current
      *  location (not <code>null</code>)
      * @param movedToElement the element in its new location (not <code>null</code>)
-     * @return this delta object (never <code>null</code>)
+     * @return the receiver (i.e. this delta)
      */
     public HandleDelta insertMovedFrom(IHandle movedFromElement,
         IHandle movedToElement)
@@ -250,14 +283,18 @@ public class HandleDelta
     }
 
     /**
-     * Inserts the nested deltas resulting from a move operation.
-     * The constructor should be used to create the root delta
-     * and then the move operation should call this method.
+     * Inserts a new "moved to" (<code>ADDED</code>) delta for the
+     * given element into this delta subtree.
+     * <p>
+     * Note that this method returns the receiver (i.e. this delta)
+     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * to get the inserted delta.
+     * </p>
      *
      * @param movedToElement the element in its new location (not <code>null</code>)
      * @param movedFromElement the element before it was moved to its current
      *  location (not <code>null</code>)
-     * @return this delta object (never <code>null</code>)
+     * @return the receiver (i.e. this delta)
      */
     public HandleDelta insertMovedTo(IHandle movedToElement,
         IHandle movedFromElement)
@@ -267,12 +304,12 @@ public class HandleDelta
     }
 
     /**
-     * Creates the delta tree for the given delta, and then inserts the tree
-     * as an affected child of this node.
+     * Creates a delta tree for the given delta, and then adds the tree
+     * as an affected child of this delta.
      *
      * @param delta the delta to insert (not <code>null</code>)
      */
-    public void insert(HandleDelta delta)
+    private void insert(HandleDelta delta)
     {
         HandleDelta childDelta = createDeltaTree(delta);
         if (!equalsAndSameParent(delta.getElement(), getElement()))
@@ -282,13 +319,13 @@ public class HandleDelta
     }
 
     /**
-     * Creates the nested deltas based on the given delta and the root of
-     * this delta tree. Returns the root of the created delta tree.
+     * Based on the given delta, creates a delta tree to add as an affected
+     * child of this delta. Returns the root of the created delta tree.
      *
-     * @param delta the delta to create the delta tree for (not <code>null</code>)
+     * @param delta the delta to create a delta tree for (not <code>null</code>)
      * @return the root of the created delta tree (never <code>null</code>)
      */
-    public HandleDelta createDeltaTree(HandleDelta delta)
+    private HandleDelta createDeltaTree(HandleDelta delta)
     {
         if (delta == null)
             throw new IllegalArgumentException();
@@ -320,12 +357,13 @@ public class HandleDelta
     }
 
     /**
-     * Adds the child delta to the collection of affected children.
-     * If the child is already in the collection, walks down the hierarchy.
+     * Adds the given delta to the collection of affected children.
+     * If the given delta is already in the collection, walks down
+     * this delta tree.
      *
      * @param child the child delta to add (not <code>null</code>)
      */
-    public void addAffectedChild(HandleDelta child)
+    private void addAffectedChild(HandleDelta child)
     {
         if (child == null)
             throw new IllegalArgumentException();
@@ -448,41 +486,20 @@ public class HandleDelta
     }
 
     /**
-     * Removes the child delta from the collection of affected children.
-     *
-     * @param child the child delta to remove (not <code>null</code>)
-     */
-    public void removeAffectedChild(HandleDelta child)
-    {
-        if (child == null)
-            throw new IllegalArgumentException();
-
-        if (affectedChildren.length == 0)
-            return;
-
-        Key key = new Key(child.getElement());
-        Integer index = indexOfChild(key);
-        if (index != null)
-        {
-            removeExistingChild(key, index);
-        }
-    }
-
-    /**
      * Clears the collection of affected children.
      */
-    public void clearAffectedChildren()
+    void clearAffectedChildren()
     {
         affectedChildren = EMPTY_HANDLE_DELTAS;
         childIndex = null;
     }
 
     /**
-     * Returns the delta for the given element in the delta tree,
-     * or <code>null</code> if no delta for the given element is found.
+     * Returns the delta for the given element in this delta subtree,
+     * or <code>null</code> if no delta is found for the given element.
      *
      * @param element the element to search delta for or <code>null</code>
-     * @return the delta for the given element, or <code>null</code> if not found
+     * @return the delta for the given element, or <code>null</code> if none
      */
     public HandleDelta getDeltaFor(IHandle element)
     {
@@ -561,34 +578,30 @@ public class HandleDelta
     @Override
     public String toString()
     {
-        return toDebugString(0);
+        StringBuilder builder = new StringBuilder();
+        toStringFull(IHandle.ToStringStyle.DEFAULT_INDENTATION_POLICY, 0,
+            builder);
+        return builder.toString();
     }
 
     /**
-     * Returns a string representation of this delta structure
-     * suitable for debugging purposes.
+     * Debugging purposes
      */
-    public String toDebugString(int depth)
+    public void toStringFull(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder)
     {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < depth; i++)
-        {
-            builder.append('\t');
-        }
-        builder.append(element.toString(IHandle.ToStringStyle.MINIMAL));
-        toDebugString(builder);
+        indentationPolicy.appendIndentTo(builder, indentationLevel);
+        toStringMinimal(builder);
         for (HandleDelta child : affectedChildren)
         {
-            builder.append('\n');
-            builder.append(child.toDebugString(depth + 1));
+            indentationPolicy.appendLineSeparatorTo(builder);
+            child.toStringFull(indentationPolicy, indentationLevel + 1,
+                builder);
         }
         for (int i = 0; i < resourceDeltasCounter; i++)
         {
-            builder.append('\n');
-            for (int j = 0; j < depth + 1; j++)
-            {
-                builder.append('\t');
-            }
+            indentationPolicy.appendLineSeparatorTo(builder);
+            indentationPolicy.appendIndentTo(builder, indentationLevel + 1);
             IResourceDelta resourceDelta = resourceDeltas[i];
             builder.append(resourceDelta.toString());
             builder.append('[');
@@ -609,16 +622,16 @@ public class HandleDelta
             }
             builder.append(']');
         }
-        return builder.toString();
     }
 
     /**
      * Debugging purposes
      */
-    protected void toDebugString(StringBuilder builder)
+    public void toStringMinimal(StringBuilder builder)
     {
+        builder.append(element.toString(IHandle.ToStringStyle.MINIMAL));
         builder.append('[');
-        switch (getKind())
+        switch (kind)
         {
         case ADDED:
             builder.append('+');
@@ -634,14 +647,18 @@ public class HandleDelta
             break;
         }
         builder.append("]: {"); //$NON-NLS-1$
-        toDebugString(builder, getFlags());
+        toStringFlags(builder);
         builder.append('}');
     }
 
     /**
      * Debugging purposes
+     *
+     * @param builder a string builder to append the delta flags to
+     * @return <code>true</code> if a flag was appended to the builder,
+     *  <code>false</code> if the builder was not modified by this method
      */
-    protected boolean toDebugString(StringBuilder builder, long flags)
+    protected boolean toStringFlags(StringBuilder builder)
     {
         boolean prev = false;
         if ((flags & F_CHILDREN) != 0)
@@ -739,6 +756,9 @@ public class HandleDelta
 
     /**
      * Returns a new, initially empty delta for the given element.
+     * <p>
+     * Subclasses should consider overriding this method.
+     * </p>
      *
      * @param element the element that this delta describes a change to
      *  (not <code>null</code>)
@@ -751,6 +771,17 @@ public class HandleDelta
     }
 
     /**
+     * Returns whether the child index needs to be used for child lookup.
+     *
+     * @return <code>true</code> if the child index needs to be used,
+     *  <code>false</code> otherwise
+     */
+    protected boolean needsChildIndex()
+    {
+        return affectedChildren.length >= 3;
+    }
+
+    /**
      * Returns a new <code>ADDED</code> delta for the given element.
      *
      * @param element the element that this delta describes a change to
@@ -759,7 +790,7 @@ public class HandleDelta
      * @return a new <code>ADDED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    protected HandleDelta newAdded(IHandle element, long flags)
+    private HandleDelta newAdded(IHandle element, long flags)
     {
         HandleDelta delta = newDelta(element);
         delta.kind = ADDED;
@@ -776,7 +807,7 @@ public class HandleDelta
      * @return a new <code>REMOVED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    protected HandleDelta newRemoved(IHandle element, long flags)
+    private HandleDelta newRemoved(IHandle element, long flags)
     {
         HandleDelta delta = newDelta(element);
         delta.kind = REMOVED;
@@ -793,7 +824,7 @@ public class HandleDelta
      * @return a new <code>CHANGED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    protected HandleDelta newChanged(IHandle element, long flags)
+    private HandleDelta newChanged(IHandle element, long flags)
     {
         HandleDelta delta = newDelta(element);
         delta.kind = CHANGED;
@@ -811,7 +842,7 @@ public class HandleDelta
      * @return a new "moved from" (<code>REMOVED</code>) delta
      *  (never <code>null</code>)
      */
-    protected HandleDelta newMovedFrom(IHandle movedFromElement,
+    private HandleDelta newMovedFrom(IHandle movedFromElement,
         IHandle movedToElement)
     {
         HandleDelta delta = newRemoved(movedFromElement, F_MOVED_TO);
@@ -830,7 +861,7 @@ public class HandleDelta
      * @return a new "moved to" (<code>ADDED</code>) delta
      *  (never <code>null</code>)
      */
-    protected HandleDelta newMovedTo(IHandle movedToElement,
+    private HandleDelta newMovedTo(IHandle movedToElement,
         IHandle movedFromElement)
     {
         HandleDelta delta = newAdded(movedToElement, F_MOVED_FROM);
@@ -841,12 +872,18 @@ public class HandleDelta
     }
 
     /**
-     * Returns a collection of all the parents of the given element up to (but
-     * not including) the root of this tree in bottom-up order. If the given
-     * element is not a descendant of the root of this tree, <code>null</code>
+     * Returns a collection of the parents of the given element up to (but
+     * not including) the element of this delta in bottom-up order. If the given
+     * element is not a descendant of this delta's element, <code>null</code>
      * is returned.
+     *
+     * @param child the given element (not <code>null</code>)
+     * @return the collection of the parents of the given element up to
+     *  (but not including) the element of this delta in bottom-up order,
+     *  or <code>null</code> if the given element is not a descendant
+     *  of the this delta's element
      */
-    protected final List<IHandle> getAncestors(IHandle child)
+    private List<IHandle> getAncestors(IHandle child)
     {
         IHandle parent = child.getParent();
         if (parent == null)
@@ -867,13 +904,15 @@ public class HandleDelta
     }
 
     /**
+     * Returns the deltas for the affected children of the given type.
+     *
      * @param type one of {@link IHandleDelta#ADDED ADDED},
      *  {@link IHandleDelta#REMOVED REMOVED}, or
      *  {@link IHandleDelta#CHANGED CHANGED}
-     * @return deltas for the affected children of the given type
+     * @return the deltas for the affected children of the given type
      *  (never <code>null</code>)
      */
-    protected final HandleDelta[] getChildrenOfType(int type)
+    private HandleDelta[] getChildrenOfType(int type)
     {
         int length = affectedChildren.length;
         if (length == 0)
@@ -890,13 +929,13 @@ public class HandleDelta
     }
 
     /**
-     * Returns the descendant delta for the given key in the delta tree,
-     * or <code>null</code> if no delta for the given key is found.
+     * Returns the delta for the given key in this delta subtree,
+     * or <code>null</code> if no delta is found for the given key.
      *
      * @param key the key to search delta for (not <code>null</code>)
-     * @return the delta for the given key, or <code>null</code> if not found
+     * @return the delta for the given key, or <code>null</code> if none
      */
-    protected final HandleDelta findDescendant(Key key)
+    private HandleDelta findDescendant(Key key)
     {
         if (affectedChildren.length == 0)
             return null;
@@ -913,14 +952,15 @@ public class HandleDelta
     }
 
     /**
-     * Returns the index of the delta in the collection of affected children,
-     * or <code>null</code> if the child delta for the given key is not found.
+     * Given a delta key, returns the index of the delta in the collection
+     * of affected children, or <code>null</code> if no child delta is found
+     * for the given key.
      *
      * @param key the key to search child delta for (not <code>null</code>)
      * @return the index of the child delta for the given key,
      *  or <code>null</code> if not found
      */
-    protected Integer indexOfChild(Key key)
+    private Integer indexOfChild(Key key)
     {
         int length = affectedChildren.length;
         if (!needsChildIndex())
@@ -947,11 +987,11 @@ public class HandleDelta
     }
 
     /**
-     * Adds the new child delta to the collection of affected children.
+     * Adds a new child delta to the collection of affected children.
      *
      * @param child the child delta to add (not <code>null</code>)
      */
-    protected void addNewChild(HandleDelta child)
+    private void addNewChild(HandleDelta child)
     {
         affectedChildren = growAndAddToArray(affectedChildren, child);
         if (childIndex != null)
@@ -962,14 +1002,14 @@ public class HandleDelta
     }
 
     /**
-     * Removes the existing child delta from the collection of affected children.
+     * Removes the specified child delta from the collection of affected children.
      *
      * @param key
-     *  the child delta key (not <code>null</code>)
+     *  the key of the child delta (not <code>null</code>)
      * @param index
      *  the index of the child delta in the collection of affected children
      */
-    protected void removeExistingChild(Key key, int index)
+    private void removeExistingChild(Key key, int index)
     {
         affectedChildren = removeAndShrinkArray(affectedChildren, index);
         if (childIndex != null)
@@ -989,21 +1029,14 @@ public class HandleDelta
     }
 
     /**
-     * Returns whether {@link #childIndex} needs to be used for child lookup.
-     * <p>
-     * Default implementation answers <code>true</code> iff
-     * <code>affectedChildren.length &gt;= 3</code>.
-     * </p>
+     * Returns whether the given elements are equal and have the same parent.
+     *
+     * @param e1 the first element (not <code>null</code>)
+     * @param e2 the second element (not <code>null</code>)
+     * @return <code>true</code> if the given elements are equal and have
+     *  the same parent, <code>false</code> otherwise
      */
-    protected boolean needsChildIndex()
-    {
-        return affectedChildren.length >= 3;
-    }
-
-    /**
-     * Returns whether the two elements are equal and have the same parent.
-     */
-    protected static boolean equalsAndSameParent(IHandle e1, IHandle e2)
+    private static boolean equalsAndSameParent(IHandle e1, IHandle e2)
     {
         if (!e1.equals(e2))
             return false;
@@ -1024,38 +1057,47 @@ public class HandleDelta
     }
 
     /**
-     * Adds the new element to a new array that contains all of the elements
-     * of the old array. Returns the new array.
+     * Adds the given element to a new array that contains all
+     * of the elements of the given array. Returns the new array.
+     *
+     * @param array the specified array (not <code>null</code>)
+     * @param addition the element to add
+     * @return the resulting array (never <code>null</code>)
      */
-    protected static HandleDelta[] growAndAddToArray(HandleDelta[] array,
+    private static HandleDelta[] growAndAddToArray(HandleDelta[] array,
         HandleDelta addition)
     {
-        HandleDelta[] old = array;
-        array = new HandleDelta[old.length + 1];
-        System.arraycopy(old, 0, array, 0, old.length);
-        array[old.length] = addition;
-        return array;
+        HandleDelta[] result = new HandleDelta[array.length + 1];
+        System.arraycopy(array, 0, result, 0, array.length);
+        result[array.length] = addition;
+        return result;
     }
 
     /**
-     * Removes the element from the array. Returns the new array which has shrunk.
+     * Copies the given array into a new array excluding
+     * an element at the given index. Returns the new array.
+     *
+     * @param array the specified array (not <code>null</code>)
+     * @param index a valid index which indicates the element to exclude
+     * @return the resulting array (never <code>null</code>)
      */
-    protected static HandleDelta[] removeAndShrinkArray(HandleDelta[] old,
+    private static HandleDelta[] removeAndShrinkArray(HandleDelta[] array,
         int index)
     {
-        HandleDelta[] array = new HandleDelta[old.length - 1];
+        HandleDelta[] result = new HandleDelta[array.length - 1];
         if (index > 0)
-            System.arraycopy(old, 0, array, 0, index);
-        int rest = old.length - index - 1;
+            System.arraycopy(array, 0, result, 0, index);
+        int rest = array.length - index - 1;
         if (rest > 0)
-            System.arraycopy(old, index + 1, array, index, rest);
-        return array;
+            System.arraycopy(array, index + 1, result, index, rest);
+        return result;
     }
 
     /**
-     * The delta key.
+     * Represents a delta key.
+     * @see HandleDelta#childIndex
      */
-    protected static class Key
+    private static class Key
     {
         private final IHandle element;
 

@@ -126,10 +126,8 @@ public class FooWorkingCopyNotificationTest
 
                 assertFalse(def.exists());
 
-                assertDelta(new HandleDelta(workingCopy).insertChanged(
-                    workingCopy, HandleDelta.F_CHILDREN
-                        | HandleDelta.F_FINE_GRAINED).insertAdded(
-                            workingCopy.getDef("g", 0)).insertRemoved(def),
+                assertDelta(new HandleDelta(workingCopy).insertAdded(
+                    workingCopy.getDef("g", 0)).insertRemoved(def),
                     listener.delta);
             }
         });
@@ -165,9 +163,7 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new HandleDelta(workingCopy).insertChanged(
-                    workingCopy, HandleDelta.F_CHILDREN
-                        | HandleDelta.F_FINE_GRAINED).insertRemoved(varY),
+                assertDelta(new HandleDelta(workingCopy).insertRemoved(varY),
                     listener.delta);
 
                 listener.delta = null;
@@ -184,9 +180,7 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new HandleDelta(workingCopy).insertChanged(
-                    workingCopy, HandleDelta.F_CHILDREN
-                        | HandleDelta.F_FINE_GRAINED).insertAdded(varY),
+                assertDelta(new HandleDelta(workingCopy).insertAdded(varY),
                     listener.delta);
             }
         });
@@ -218,10 +212,8 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new HandleDelta(workingCopy).insertChanged(
-                    workingCopy, HandleDelta.F_CHILDREN
-                        | HandleDelta.F_FINE_GRAINED).insertChanged(def,
-                            HandleDelta.F_CONTENT), listener.delta); // 'parameterNames' property changed
+                assertDelta(new HandleDelta(workingCopy).insertChanged(def,
+                    HandleDelta.F_CONTENT), listener.delta); // 'parameterNames' property changed
             }
         });
     }

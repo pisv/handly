@@ -53,7 +53,7 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test001[-]: {}"
+            "  Test001[-]: {}"
         );
         //@formatter:on
 
@@ -63,7 +63,7 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test001[+]: {}"
+            "  Test001[+]: {}"
         );
         //@formatter:on
     }
@@ -76,7 +76,7 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CONTENT}\n" +
-            "    ResourceDelta(/SimpleProject)[-]"
+            "  ResourceDelta(/SimpleProject)[-]"
         );
         //@formatter:on
 
@@ -86,7 +86,7 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CONTENT}\n" +
-            "    ResourceDelta(/SimpleProject)[+]"
+            "  ResourceDelta(/SimpleProject)[+]"
         );
         //@formatter:on
     }
@@ -99,8 +99,8 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN | CONTENT}\n" +
-            "    Test001[*]: {OPEN}\n" +
-            "    ResourceDelta(/Test001)[*]"
+            "  Test001[*]: {OPEN}\n" +
+            "  ResourceDelta(/Test001)[*]"
         );
         //@formatter:on
 
@@ -110,8 +110,8 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN | CONTENT}\n" +
-            "    Test001[*]: {OPEN}\n" +
-            "    ResourceDelta(/Test001)[*]"
+            "  Test001[*]: {OPEN}\n" +
+            "  ResourceDelta(/Test001)[*]"
         );
         //@formatter:on
     }
@@ -124,7 +124,7 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CONTENT}\n" +
-            "    ResourceDelta(/SimpleProject)[*]"
+            "  ResourceDelta(/SimpleProject)[*]"
         );
         //@formatter:on
 
@@ -134,7 +134,7 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CONTENT}\n" +
-            "    ResourceDelta(/SimpleProject)[*]"
+            "  ResourceDelta(/SimpleProject)[*]"
         );
         //@formatter:on
     }
@@ -149,8 +149,8 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN | CONTENT}\n" +
-            "    Test001[-]: {}\n" +
-            "    ResourceDelta(/Test001)[*]"
+            "  Test001[-]: {}\n" +
+            "  ResourceDelta(/Test001)[*]"
         );
         //@formatter:on
     }
@@ -165,8 +165,8 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN | CONTENT}\n" +
-            "    SimpleProject[+]: {}\n" +
-            "    ResourceDelta(/SimpleProject)[*]"
+            "  SimpleProject[+]: {}\n" +
+            "  ResourceDelta(/SimpleProject)[*]"
         );
         //@formatter:on
     }
@@ -179,8 +179,8 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test001[-]: {MOVED_TO(Test002)}\n" +
-            "    Test002[+]: {MOVED_FROM(Test001)}"
+            "  Test001[-]: {MOVED_TO(Test002)}\n" +
+            "  Test002[+]: {MOVED_FROM(Test001)}"
         );
         //@formatter:on
     }
@@ -193,8 +193,8 @@ public class JavaModelNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CONTENT}\n" +
-            "    ResourceDelta(/SimpleProject)[-]\n" +
-            "    ResourceDelta(/SimpleProject2)[+]"
+            "  ResourceDelta(/SimpleProject)[-]\n" +
+            "  ResourceDelta(/SimpleProject2)[+]"
         );
         //@formatter:on
     }

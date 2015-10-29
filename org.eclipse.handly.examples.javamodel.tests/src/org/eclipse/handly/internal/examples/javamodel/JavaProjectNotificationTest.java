@@ -66,8 +66,8 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test004[*]: {CHILDREN}\n" +
-            "        src[-]: {}"
+            "  Test004[*]: {CHILDREN}\n" +
+            "    src[-]: {}"
         );
         //@formatter:on
 
@@ -77,8 +77,8 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test004[*]: {CHILDREN}\n" +
-            "        src[+]: {}"
+            "  Test004[*]: {CHILDREN}\n" +
+            "    src[+]: {}"
         );
         //@formatter:on
     }
@@ -92,8 +92,8 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test004[*]: {CONTENT | CLASSPATH_CHANGED}\n" +
-            "        ResourceDelta(/Test004/.classpath)[*]"
+            "  Test004[*]: {CONTENT | CLASSPATH_CHANGED}\n" +
+            "    ResourceDelta(/Test004/.classpath)[*]"
         );
         //@formatter:on
 
@@ -104,8 +104,8 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test004[*]: {CONTENT | CLASSPATH_CHANGED}\n" +
-            "        ResourceDelta(/Test004/.classpath)[*]"
+            "  Test004[*]: {CONTENT | CLASSPATH_CHANGED}\n" +
+            "    ResourceDelta(/Test004/.classpath)[*]"
         );
         //@formatter:on
     }
@@ -126,9 +126,9 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test004[*]: {CHILDREN | CONTENT | CLASSPATH_CHANGED}\n" +
-            "        src-gen[-]: {}\n" +
-            "        ResourceDelta(/Test004/.classpath)[*]"
+            "  Test004[*]: {CHILDREN | CONTENT | CLASSPATH_CHANGED}\n" +
+            "    src-gen[-]: {}\n" +
+            "    ResourceDelta(/Test004/.classpath)[*]"
         );
         //@formatter:on
     }
@@ -141,9 +141,9 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test004[*]: {CHILDREN | CONTENT}\n" +
-            "        src[-]: {}\n" +
-            "        ResourceDelta(/Test004/src2)[+]"
+            "  Test004[*]: {CHILDREN | CONTENT}\n" +
+            "    src[-]: {}\n" +
+            "    ResourceDelta(/Test004/src2)[+]"
         );
         //@formatter:on
     }
@@ -164,10 +164,10 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test004[*]: {CHILDREN | CONTENT | CLASSPATH_CHANGED}\n" +
-            "        src[-]: {MOVED_TO(src2 [in Test004])}\n" +
-            "        src2[+]: {MOVED_FROM(src [in Test004])}\n" +
-            "        ResourceDelta(/Test004/.classpath)[*]"
+            "  Test004[*]: {CHILDREN | CONTENT | CLASSPATH_CHANGED}\n" +
+            "    src[-]: {MOVED_TO(src2 [in Test004])}\n" +
+            "    src2[+]: {MOVED_FROM(src [in Test004])}\n" +
+            "    ResourceDelta(/Test004/.classpath)[*]"
         );
         //@formatter:on
     }

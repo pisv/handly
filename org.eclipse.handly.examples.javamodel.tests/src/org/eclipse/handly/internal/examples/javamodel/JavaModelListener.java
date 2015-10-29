@@ -29,8 +29,7 @@ class JavaModelListener
 
     void assertDelta(String expected)
     {
-        String actual = (delta == null ? "<null>" : delta.toString().replace(
-            "\t", "    "));
+        String actual = (delta == null ? "<null>" : delta.toString());
         TestCase.assertEquals(expected, actual);
     }
 }

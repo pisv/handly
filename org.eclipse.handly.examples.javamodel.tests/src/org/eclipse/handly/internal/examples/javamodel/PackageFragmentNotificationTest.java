@@ -64,10 +64,10 @@ public class PackageFragmentNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test006[*]: {CHILDREN}\n" +
-            "        src[*]: {CHILDREN}\n" +
-            "            foo[*]: {CHILDREN}\n" +
-            "                A.java[-]: {}"
+            "  Test006[*]: {CHILDREN}\n" +
+            "    src[*]: {CHILDREN}\n" +
+            "      foo[*]: {CHILDREN}\n" +
+            "        A.java[-]: {}"
         );
         //@formatter:on
 
@@ -77,10 +77,10 @@ public class PackageFragmentNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test006[*]: {CHILDREN}\n" +
-            "        src[*]: {CHILDREN}\n" +
-            "            foo[*]: {CHILDREN}\n" +
-            "                A.java[+]: {}"
+            "  Test006[*]: {CHILDREN}\n" +
+            "    src[*]: {CHILDREN}\n" +
+            "      foo[*]: {CHILDREN}\n" +
+            "        A.java[+]: {}"
         );
         //@formatter:on
     }
@@ -100,11 +100,11 @@ public class PackageFragmentNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test006[*]: {CHILDREN}\n" +
-            "        src[*]: {CHILDREN}\n" +
-            "            foo[*]: {CONTENT}\n" +
-            "                ResourceDelta(/Test006/src/foo/META-INF)[-]\n" +
-            "                ResourceDelta(/Test006/src/foo/abc)[-]"
+            "  Test006[*]: {CHILDREN}\n" +
+            "    src[*]: {CHILDREN}\n" +
+            "      foo[*]: {CONTENT}\n" +
+            "        ResourceDelta(/Test006/src/foo/META-INF)[-]\n" +
+            "        ResourceDelta(/Test006/src/foo/abc)[-]"
         );
         //@formatter:on
 
@@ -122,11 +122,11 @@ public class PackageFragmentNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test006[*]: {CHILDREN}\n" +
-            "        src[*]: {CHILDREN}\n" +
-            "            foo[*]: {CONTENT}\n" +
-            "                ResourceDelta(/Test006/src/foo/META-INF)[+]\n" +
-            "                ResourceDelta(/Test006/src/foo/abc)[+]"
+            "  Test006[*]: {CHILDREN}\n" +
+            "    src[*]: {CHILDREN}\n" +
+            "      foo[*]: {CONTENT}\n" +
+            "        ResourceDelta(/Test006/src/foo/META-INF)[+]\n" +
+            "        ResourceDelta(/Test006/src/foo/abc)[+]"
         );
         //@formatter:on
     }
@@ -139,11 +139,11 @@ public class PackageFragmentNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test006[*]: {CHILDREN}\n" +
-            "        src[*]: {CHILDREN}\n" +
-            "            foo[*]: {CHILDREN}\n" +
-            "                A.java[-]: {MOVED_TO(B.java [in foo [in src [in Test006]]])}\n" +
-            "                B.java[+]: {MOVED_FROM(A.java [in foo [in src [in Test006]]])}"
+            "  Test006[*]: {CHILDREN}\n" +
+            "    src[*]: {CHILDREN}\n" +
+            "      foo[*]: {CHILDREN}\n" +
+            "        A.java[-]: {MOVED_TO(B.java [in foo [in src [in Test006]]])}\n" +
+            "        B.java[+]: {MOVED_FROM(A.java [in foo [in src [in Test006]]])}"
         );
         //@formatter:on
     }
@@ -156,12 +156,12 @@ public class PackageFragmentNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test006[*]: {CHILDREN}\n" +
-            "        src[*]: {CHILDREN}\n" +
-            "            <default>[*]: {CHILDREN}\n" +
-            "                A.java[+]: {MOVED_FROM(A.java [in foo [in src [in Test006]]])}\n" +
-            "            foo[*]: {CHILDREN}\n" +
-            "                A.java[-]: {MOVED_TO(A.java [in <default> [in src [in Test006]]])}"
+            "  Test006[*]: {CHILDREN}\n" +
+            "    src[*]: {CHILDREN}\n" +
+            "      <default>[*]: {CHILDREN}\n" +
+            "        A.java[+]: {MOVED_FROM(A.java [in foo [in src [in Test006]]])}\n" +
+            "      foo[*]: {CHILDREN}\n" +
+            "        A.java[-]: {MOVED_TO(A.java [in <default> [in src [in Test006]]])}"
         );
         //@formatter:on
     }
@@ -182,15 +182,15 @@ public class PackageFragmentNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "    Test006[*]: {CHILDREN}\n" +
-            "        src[*]: {CHILDREN}\n" +
-            "            foo[*]: {CHILDREN | CONTENT}\n" +
-            "                A.java[-]: {}\n" +
-            "                abc.java[+]: {}\n" +
-            "                ResourceDelta(/Test006/src/foo/A)[+]\n" +
-            "                ResourceDelta(/Test006/src/foo/META-INF)[-]\n" +
-            "                ResourceDelta(/Test006/src/foo/OSGI-INF)[+]\n" +
-            "                ResourceDelta(/Test006/src/foo/abc)[-]"
+            "  Test006[*]: {CHILDREN}\n" +
+            "    src[*]: {CHILDREN}\n" +
+            "      foo[*]: {CHILDREN | CONTENT}\n" +
+            "        A.java[-]: {}\n" +
+            "        abc.java[+]: {}\n" +
+            "        ResourceDelta(/Test006/src/foo/A)[+]\n" +
+            "        ResourceDelta(/Test006/src/foo/META-INF)[-]\n" +
+            "        ResourceDelta(/Test006/src/foo/OSGI-INF)[+]\n" +
+            "        ResourceDelta(/Test006/src/foo/abc)[-]"
         );
         //@formatter:on
     }
