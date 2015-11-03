@@ -414,8 +414,8 @@ public abstract class Handle
 
     /**
      * Returns the cached body for this element. If this element is not
-     * already present in the body cache, it is {@link #open(Body, boolean,
-     * IProgressMonitor) opened}.
+     * already present in the body cache, its body will be created,
+     * initialized, and put in the cache.
      *
      * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
@@ -428,8 +428,8 @@ public abstract class Handle
 
     /**
      * Returns the cached body for this element. If this element is not
-     * already present in the body cache, it is {@link #open(Body, boolean,
-     * IProgressMonitor) opened}.
+     * already present in the body cache, its body will be created,
+     * initialized, and put in the cache.
      *
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
@@ -476,8 +476,8 @@ public abstract class Handle
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected final Body open(Body body, boolean force,
-        IProgressMonitor monitor) throws CoreException
+    final Body open(Body body, boolean force, IProgressMonitor monitor)
+        throws CoreException
     {
         if (monitor == null)
             monitor = new NullProgressMonitor();
