@@ -173,7 +173,7 @@ public class HandleDelta
      * @return the receiver (i.e. this delta)
      * @see #insertAdded(IHandle, long)
      */
-    public final HandleDelta insertAdded(IHandle element)
+    public HandleDelta insertAdded(IHandle element)
     {
         return insertAdded(element, 0);
     }
@@ -209,7 +209,7 @@ public class HandleDelta
      * @return the receiver (i.e. this delta)
      * @see #insertRemoved(IHandle, long)
      */
-    public final HandleDelta insertRemoved(IHandle element)
+    public HandleDelta insertRemoved(IHandle element)
     {
         return insertRemoved(element, 0);
     }
