@@ -13,12 +13,10 @@ package org.eclipse.handly.internal.examples.javamodel.ui;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.handly.internal.examples.javamodel.ui.editor.CompilatonUnitDocumentProvider;
 import org.eclipse.handly.internal.examples.javamodel.ui.preferences.MembersOrderPreferenceCache;
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -34,6 +32,7 @@ public class Activator
 
     private ImageDescriptorRegistry imageDescriptorRegistry;
     private MembersOrderPreferenceCache membersOrderPreferenceCache;
+    private CompilatonUnitDocumentProvider compilationUnitDocumentProvider;
 
     @Override
     public void start(BundleContext context) throws Exception
@@ -43,7 +42,9 @@ public class Activator
 
         imageDescriptorRegistry = new ImageDescriptorRegistry();
         membersOrderPreferenceCache = new MembersOrderPreferenceCache();
-        membersOrderPreferenceCache.install(getJavaPreferenceStore());
+        membersOrderPreferenceCache.install(
+            PreferenceConstants.getPreferenceStore());
+        compilationUnitDocumentProvider = new CompilatonUnitDocumentProvider();
     }
 
     @Override
@@ -51,6 +52,7 @@ public class Activator
     {
         try
         {
+            compilationUnitDocumentProvider = null;
             if (membersOrderPreferenceCache != null)
             {
                 membersOrderPreferenceCache.dispose();
@@ -99,6 +101,16 @@ public class Activator
         return getDefault().membersOrderPreferenceCache;
     }
 
+    /**
+     * Returns the compilation unit document provider.
+     *
+     * @return the compilation unit document provider
+     */
+    public static CompilatonUnitDocumentProvider getCompilatonUnitDocumentProvider()
+    {
+        return getDefault().compilationUnitDocumentProvider;
+    }
+
     public static void log(IStatus status)
     {
         getDefault().getLog().log(status);
@@ -107,14 +119,5 @@ public class Activator
     public static IStatus createErrorStatus(String msg, Throwable e)
     {
         return new Status(IStatus.ERROR, PLUGIN_ID, 0, msg, e);
-    }
-
-    /*
-     * Returns preference store for JDT UI plug-in.
-     */
-    private IPreferenceStore getJavaPreferenceStore()
-    {
-        return new ScopedPreferenceStore(InstanceScope.INSTANCE,
-            JavaUI.ID_PLUGIN);
     }
 }

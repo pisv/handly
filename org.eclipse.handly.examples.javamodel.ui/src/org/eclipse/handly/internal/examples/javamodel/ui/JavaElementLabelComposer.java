@@ -200,7 +200,7 @@ public class JavaElementLabelComposer
     {
         if (typeArgsSig.length > 0)
         {
-            append("<");
+            append("<"); //$NON-NLS-1$
             for (int i = 0; i < typeArgsSig.length; i++)
             {
                 if (i > 0)
@@ -209,7 +209,7 @@ public class JavaElementLabelComposer
                 }
                 appendTypeSignatureLabel(enclosingElement, typeArgsSig[i]);
             }
-            append(">");
+            append(">"); //$NON-NLS-1$
         }
     }
 
