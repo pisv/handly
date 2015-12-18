@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Codasip Ltd.
+ * Copyright (c) 2015 Codasip Ltd and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Ondrej Ilcik (Codasip) - initial API and implementation
+ *    Vladimir Piskarev (1C)
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel.ui;
 
@@ -16,6 +17,7 @@ package org.eclipse.handly.internal.examples.javamodel.ui;
  */
 public interface IJavaImages
 {
+    String IMG_ELCL_PUBLIC = "icons/elcl16/public.gif"; //$NON-NLS-1$
     String IMG_OBJS_CUNIT_RESOURCE = "icons/obj16/jcu_resource_obj.gif"; //$NON-NLS-1$
     String IMG_OBJS_UNKNOWN = "icons/obj16/unknown_obj.gif"; //$NON-NLS-1$
     String IMG_OBJS_JAVA_MODEL = "icons/obj16/java_model_obj.gif"; //$NON-NLS-1$

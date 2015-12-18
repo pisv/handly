@@ -14,21 +14,28 @@ import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.examples.javamodel.ui.JavaModelContentProvider;
 import org.eclipse.handly.examples.javamodel.ui.JavaModelLabelProvider;
 import org.eclipse.handly.internal.examples.javamodel.ui.Activator;
+import org.eclipse.handly.internal.examples.javamodel.ui.IJavaImages;
 import org.eclipse.handly.internal.examples.javamodel.ui.JavaElementComparator;
 import org.eclipse.handly.internal.examples.javamodel.ui.JavaInputElementProvider;
+import org.eclipse.handly.internal.examples.javamodel.ui.filters.NonPublicMemberFilter;
 import org.eclipse.handly.model.IElementChangeListener;
+import org.eclipse.handly.ui.outline.ExpandableCheckFiltersContribution;
 import org.eclipse.handly.ui.outline.HandlyOutlinePage;
 import org.eclipse.handly.ui.outline.LexicalSortActionContribution;
 import org.eclipse.handly.ui.outline.LexicalSortContribution;
+import org.eclipse.handly.ui.outline.OutlineFilterContribution;
 import org.eclipse.handly.ui.outline.ProblemMarkerListenerContribution;
+import org.eclipse.handly.ui.outline.ToggleActionContribution;
 import org.eclipse.handly.ui.preference.BooleanPreference;
 import org.eclipse.handly.ui.preference.FlushingPreferenceStore;
 import org.eclipse.handly.ui.preference.IBooleanPreference;
 import org.eclipse.handly.ui.viewer.ProblemMarkerLabelDecorator;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.DecoratingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.ui.IEditorPart;
 
 /**
@@ -74,6 +81,8 @@ public class JavaOutlinePage
     {
         super.addOutlineContributions();
         addOutlineContribution(new ProblemMarkerListenerContribution());
+        addOutlineContribution(new ExpandableCheckFiltersContribution());
+        addNonPublicMemberFilterSupport();
     }
 
     @Override
@@ -116,6 +125,43 @@ public class JavaOutlinePage
         JavaModelCore.getJavaModel().removeElementChangeListener(listener);
     }
 
+    private void addNonPublicMemberFilterSupport()
+    {
+        addOutlineContribution(new OutlineFilterContribution()
+        {
+            @Override
+            protected IBooleanPreference getPreference()
+            {
+                return NonPublicMemberFilterPreference.INSTANCE;
+            }
+
+            @Override
+            protected ViewerFilter getFilter()
+            {
+                return new NonPublicMemberFilter();
+            }
+        });
+        addOutlineContribution(new ToggleActionContribution()
+        {
+            @Override
+            protected IBooleanPreference getPreference()
+            {
+                return NonPublicMemberFilterPreference.INSTANCE;
+            }
+
+            @Override
+            protected void configureAction(IAction action)
+            {
+                action.setId("HideNonPublicMembers"); //$NON-NLS-1$
+                action.setText("Hide Non-Public Members");
+                action.setDescription(
+                    "Toggles the visibility of non-public memebers");
+                action.setImageDescriptor(Activator.imageDescriptorFromPlugin(
+                    Activator.PLUGIN_ID, IJavaImages.IMG_ELCL_PUBLIC));
+            }
+        });
+    }
+
     private static class LinkWithEditorPreference
         extends BooleanPreference
     {
@@ -140,6 +186,20 @@ public class JavaOutlinePage
         {
             super("JavaOutline.LexicalSort", new FlushingPreferenceStore( //$NON-NLS-1$
                 Activator.getDefault().getPreferenceStore()));
+        }
+    }
+
+    private static class NonPublicMemberFilterPreference
+        extends BooleanPreference
+    {
+        static final NonPublicMemberFilterPreference INSTANCE =
+            new NonPublicMemberFilterPreference();
+
+        NonPublicMemberFilterPreference()
+        {
+            super("JavaOutline.NonPublicMemberFilter", //$NON-NLS-1$
+                new FlushingPreferenceStore(
+                    Activator.getDefault().getPreferenceStore()));
         }
     }
 }
