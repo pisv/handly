@@ -52,7 +52,7 @@
         <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.11.1.v20150806-0404">
+    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.11.0.v20150806-0404">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
