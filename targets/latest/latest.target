@@ -34,12 +34,12 @@
 <unit id="org.objectweb.asm" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.9.0"/>
+<repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.9.1"/>
 <unit id="org.eclipse.xtext.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xtend.sdk.feature.group" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.2"/>
+<repository location="http://download.eclipse.org/modeling/emft/mwe/updates/releases/2.8.3"/>
 <unit id="org.eclipse.emf.mwe.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="0.0.0"/>
