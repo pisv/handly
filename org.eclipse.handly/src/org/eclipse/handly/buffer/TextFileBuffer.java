@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,9 +32,8 @@ import org.eclipse.text.edits.MalformedTreeException;
  * the underlying <code>ITextFileBuffer</code> and its document are thread-safe.
  * </p>
  */
-@SuppressWarnings("deprecation")
 public class TextFileBuffer
-    implements IBuffer, IDocumentBuffer
+    implements IBuffer
 {
     private final IFile file;
     private final ITextFileBufferManager bufferManager;
@@ -169,13 +168,6 @@ public class TextFileBuffer
         {
             Activator.log(e.getStatus());
         }
-    }
-
-    @Override
-    @Deprecated
-    public void dispose()
-    {
-        release();
     }
 
     /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.handly.buffer.BufferChangeOperation;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
-import org.eclipse.handly.buffer.IDocumentBuffer;
 import org.eclipse.handly.buffer.UiBufferChangeRunner;
 import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.snapshot.DocumentSnapshot;
@@ -42,9 +41,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
  * <li><code>save</code></li>
  * </ul>
  */
-@SuppressWarnings("deprecation")
 public class TextEditorBuffer
-    implements IBuffer, IDocumentBuffer
+    implements IBuffer
 {
     private final UiSynchronizer uiSynchronizer;
     private final IEditorInput editorInput;
@@ -177,13 +175,6 @@ public class TextEditorBuffer
                 }
             });
         }
-    }
-
-    @Override
-    @Deprecated
-    public void dispose()
-    {
-        release();
     }
 
     private void checkThread()

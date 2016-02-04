@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -120,17 +120,4 @@ public interface ISourceFile
      */
     IBuffer getBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException;
-
-    /**
-     * Convenience method. Same as <code>getBuffer(true, monitor)</code>.
-     *
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @return the buffer opened for this source file (never <code>null</code>)
-     * @throws CoreException if this source file does not exist
-     *  or if its contents cannot be accessed
-     * @throws OperationCanceledException if this method is canceled
-     * @deprecated
-     */
-    IBuffer openBuffer(IProgressMonitor monitor) throws CoreException;
 }

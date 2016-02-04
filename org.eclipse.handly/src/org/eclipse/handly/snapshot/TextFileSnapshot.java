@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,19 +37,6 @@ public final class TextFileSnapshot
     private final long modificationStamp;
     private Reference<String> contents;
     private volatile IStatus status = Status.OK_STATUS;
-
-    /**
-     * Takes a snapshot of the given text file in the workspace,
-     * using workspace contents (as opposed to the contents of
-     * the local file system).
-     *
-     * @param file must not be <code>null</code>
-     * @deprecated Please use {@link #TextFileSnapshot(IFile, boolean)} instead.
-     */
-    public TextFileSnapshot(IFile file)
-    {
-        this(file, false);
-    }
 
     /**
      * Takes a snapshot of the given text file in the workspace, using either
