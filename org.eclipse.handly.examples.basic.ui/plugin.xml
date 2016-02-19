@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <!--
-    Copyright (c) 2014 1C LLC.
+    Copyright (c) 2014, 2016 1C-Soft LLC and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -164,7 +164,7 @@
       </navigatorContent>
       <actionProvider
             id="org.eclipse.handly.examples.basic.ui.navigator.OpenActionProvider"
-            class="org.eclipse.handly.internal.examples.basic.ui.navigator.OpenActionProvider">
+            class="org.eclipse.handly.ui.navigator.OpenActionProvider">
          <enablement></enablement>
       </actionProvider>
    </extension>
@@ -172,7 +172,7 @@
          point="org.eclipse.ui.navigator.linkHelper">
       <linkHelper
             id="org.eclipse.handly.examples.basic.ui.navigator.fooLinkHelper"
-            class="org.eclipse.handly.internal.examples.basic.ui.navigator.FooLinkHelper">
+            class="org.eclipse.handly.examples.basic.ui.FooExecutableExtensionFactory:org.eclipse.handly.internal.examples.basic.ui.navigator.FooLinkHelper">
          <editorInputEnablement>
             <or>
                <instanceof

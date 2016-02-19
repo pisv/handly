@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,19 +7,18 @@
  *
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
- *     Ondrej Ilcik (Codasip) - adaptation (adapted from
- *         o.e.handly.internal.examples.basic.ui.navigator.OpenActionProvider)
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.javamodel.ui.navigator;
+package org.eclipse.handly.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.handly.examples.javamodel.ICompilationUnit;
+import org.eclipse.handly.ui.EditorUtility;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.actions.OpenWithMenu;
+import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonActionConstants;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
@@ -27,7 +26,7 @@ import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 
 /**
- * Provides 'Open' action and 'Open with' submenu for the Java Navigator.
+ * Provides 'Open' action and 'Open with' submenu. 
  */
 public class OpenActionProvider
     extends CommonActionProvider
@@ -38,7 +37,7 @@ public class OpenActionProvider
     public void init(ICommonActionExtensionSite actionSite)
     {
         super.init(actionSite);
-        openAction = new OpenAction(getPage());
+        openAction = new OpenAction(getPage(), getEditorUtility());
     }
 
     @Override
@@ -74,6 +73,11 @@ public class OpenActionProvider
         }
     }
 
+    protected EditorUtility getEditorUtility()
+    {
+        return EditorUtility.DEFAULT;
+    }
+
     private void addOpenWithMenu(IMenuManager menu)
     {
         IStructuredSelection selection =
@@ -81,16 +85,11 @@ public class OpenActionProvider
         if (selection == null || selection.size() != 1)
             return;
 
-        Object element = selection.getFirstElement();
-
-        IFile file = null;
-        if (element instanceof ICompilationUnit)
-            file = ((ICompilationUnit)element).getFile();
-        else if (element instanceof IFile)
-            file = (IFile)element;
+        IFile file = ResourceUtil.getFile(selection.getFirstElement());
         if (file != null)
         {
-            IMenuManager submenu = new MenuManager("Open Wit&h");
+            IMenuManager submenu = new MenuManager(
+                Messages.OpenActionProvider_openWith);
             submenu.add(new OpenWithMenu(getPage(), file));
 
             menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN_WITH, submenu);
