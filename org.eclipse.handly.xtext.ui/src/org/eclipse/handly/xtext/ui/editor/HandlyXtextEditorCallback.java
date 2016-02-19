@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,10 @@
 package org.eclipse.handly.xtext.ui.editor;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,7 +34,16 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.MultiPageEditorPart;
+import org.eclipse.ui.part.MultiPageEditorSite;
 import org.eclipse.xtext.ui.editor.IXtextEditorCallback;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 
@@ -80,8 +92,12 @@ public class HandlyXtextEditorCallback
 {
     private IInputElementProvider inputElementProvider;
 
-    private Map<XtextEditor, SourceFile> workingCopies =
-        new HashMap<XtextEditor, SourceFile>();
+    private Map<XtextEditor, WorkingCopyInfo> workingCopies =
+        new HashMap<XtextEditor, WorkingCopyInfo>();
+    private Map<MultiPageEditorPart, Set<XtextEditor>> nestedEditors =
+        new HashMap<MultiPageEditorPart, Set<XtextEditor>>();
+    private Map<XtextEditor, IPartListener> partListeners =
+        new HashMap<XtextEditor, IPartListener>();
     private Map<XtextEditor, ISelectionChangedListener> selectionListeners =
         new HashMap<XtextEditor, ISelectionChangedListener>();
     private Map<XtextEditor, HighlightRangeJob> highlightRangeJobs =
@@ -96,29 +112,32 @@ public class HandlyXtextEditorCallback
     @Override
     public void afterCreatePartControl(XtextEditor editor)
     {
-        setHighlightRange(editor, editor.getSelectionProvider().getSelection());
+        registerContainer(editor);
+        registerPartListener(editor);
         registerSelectionListener(editor);
     }
 
     @Override
     public void beforeDispose(XtextEditor editor)
     {
+        deregisterPartListener(editor);
         deregisterSelectionListener(editor);
-        discardWorkingCopy(editor);
+        disconnectWorkingCopy(editor);
         disposeHighlightRangeJob(editor);
+        deregisterContainer(editor);
     }
 
     @Override
     public void beforeSetInput(XtextEditor editor)
     {
-        discardWorkingCopy(editor);
+        disconnectWorkingCopy(editor);
     }
 
     @Override
     public void afterSetInput(XtextEditor editor)
     {
-        createWorkingCopy(editor);
-        setHighlightRange(editor, editor.getSelectionProvider().getSelection());
+        if (isActive(editor))
+            connectWorkingCopy(editor);
     }
 
     protected void afterSelectionChange(XtextEditor editor,
@@ -148,7 +167,97 @@ public class HandlyXtextEditorCallback
 
     protected final SourceFile getWorkingCopy(XtextEditor editor)
     {
-        return workingCopies.get(editor);
+        WorkingCopyInfo workingCopyInfo = workingCopies.get(editor);
+        if (workingCopyInfo == null || !workingCopyInfo.success)
+            return null;
+        return workingCopyInfo.sourceFile;
+    }
+
+    private boolean isActive(XtextEditor editor)
+    {
+        IEditorSite site = editor.getEditorSite();
+        if (site == null)
+            return false;
+        IEditorPart activeEditor = site.getPage().getActiveEditor();
+        return editor == activeEditor || (activeEditor != null && getContainer(
+            editor) == activeEditor);
+    }
+
+    private MultiPageEditorPart getContainer(XtextEditor editor)
+    {
+        MultiPageEditorPart container = null;
+        IEditorSite site = editor.getEditorSite();
+        while (site instanceof MultiPageEditorSite)
+        {
+            container = ((MultiPageEditorSite)site).getMultiPageEditor();
+            site = container.getEditorSite();
+        }
+        return container;
+    }
+
+    private void registerContainer(XtextEditor editor)
+    {
+        MultiPageEditorPart container = getContainer(editor);
+        if (container == null)
+            return;
+        Set<XtextEditor> nestedSet = nestedEditors.get(container);
+        if (nestedSet == null)
+        {
+            nestedSet = new HashSet<XtextEditor>();
+            nestedEditors.put(container, nestedSet);
+        }
+        nestedSet.add(editor);
+    }
+
+    private void deregisterContainer(XtextEditor editor)
+    {
+        MultiPageEditorPart container = getContainer(editor);
+        if (container == null)
+            return;
+        Set<XtextEditor> nestedSet = nestedEditors.get(container);
+        if (nestedSet != null)
+        {
+            nestedSet.remove(editor);
+            if (nestedSet.isEmpty())
+                nestedEditors.remove(container);
+        }
+    }
+
+    private void registerPartListener(final XtextEditor editor)
+    {
+        IPartListener listener = new IPartListener()
+        {
+            public void partActivated(IWorkbenchPart part)
+            {
+                if (part == editor || part == getContainer(editor))
+                    connectWorkingCopy(editor);
+            }
+
+            public void partBroughtToTop(IWorkbenchPart part)
+            {
+                // Treat this the same as part activation.
+                partActivated(part);
+            }
+
+            // @formatter:off
+            public void partDeactivated(IWorkbenchPart part) {}
+            public void partOpened(IWorkbenchPart part) {}
+            public void partClosed(IWorkbenchPart part) {}
+            // @formatter:on
+        };
+        editor.getSite().getWorkbenchWindow().getPartService().addPartListener(
+            listener);
+        partListeners.put(editor, listener);
+    }
+
+    private void deregisterPartListener(XtextEditor editor)
+    {
+        IPartListener listener = partListeners.remove(editor);
+        if (listener != null)
+        {
+            editor.getSite().getWorkbenchWindow().getPartService().removePartListener(
+                listener);
+        }
     }
 
     private void registerSelectionListener(final XtextEditor editor)
@@ -185,55 +294,141 @@ public class HandlyXtextEditorCallback
         }
     }
 
-    private void createWorkingCopy(XtextEditor editor)
+    private void connectWorkingCopy(XtextEditor editor)
     {
         SourceFile sourceFile = getSourceFile(editor);
-        if (sourceFile != null && !sourceFile.isWorkingCopy())
-        {
-            try
-            {
-                TextEditorBuffer delegate = new TextEditorBuffer(editor);
-                try
-                {
-                    XtextWorkingCopyBuffer buffer = new XtextWorkingCopyBuffer(
-                        sourceFile, delegate); // will addRef() the delegate
-                    try
-                    {
-                        if (sourceFile.becomeWorkingCopy(buffer, // will addRef() the buffer
-                            null) != null)
-                        {
-                            sourceFile.discardWorkingCopy();
+        if (sourceFile == null)
+            return;
 
-                            throw new IllegalStateException(
-                                "Already a working copy: " //$NON-NLS-1$
-                                    + sourceFile);
-                        }
-                        workingCopies.put(editor, sourceFile);
-                    }
-                    finally
-                    {
-                        buffer.release();
-                    }
-                }
-                finally
-                {
-                    delegate.release();
-                }
-            }
-            catch (CoreException e)
-            {
-                Activator.log(e.getStatus());
-            }
+        XtextEditor workingCopyEditor = getWorkingCopyEditor(sourceFile);
+        if (editor != workingCopyEditor)
+        {
+            if (workingCopyEditor != null)
+                discardWorkingCopy(workingCopyEditor);
+
+            createWorkingCopy(sourceFile, editor);
         }
     }
 
-    private void discardWorkingCopy(XtextEditor editor)
+    private void disconnectWorkingCopy(XtextEditor editor)
     {
-        SourceFile sourceFile = workingCopies.remove(editor);
-        if (sourceFile != null)
+        SourceFile sourceFile = discardWorkingCopy(editor);
+        if (sourceFile == null)
+            return;
+
+        XtextEditor mruClone = findMruClone(editor);
+        if (mruClone != null)
         {
-            sourceFile.discardWorkingCopy();
+            createWorkingCopy(sourceFile, mruClone);
         }
+    }
+
+    private void createWorkingCopy(SourceFile sourceFile, XtextEditor editor)
+    {
+        try
+        {
+            TextEditorBuffer delegate = new TextEditorBuffer(editor);
+            try
+            {
+                XtextWorkingCopyBuffer buffer = new XtextWorkingCopyBuffer(
+                    sourceFile, delegate); // will addRef() the delegate
+                try
+                {
+                    if (sourceFile.becomeWorkingCopy(buffer, // will addRef() the buffer
+                        null) != null)
+                    {
+                        sourceFile.discardWorkingCopy();
+
+                        throw new IllegalStateException(
+                            "Already a working copy: " //$NON-NLS-1$
+                                + sourceFile);
+                    }
+
+                    workingCopies.put(editor, new WorkingCopyInfo(sourceFile,
+                        true));
+
+                    setHighlightRange(editor,
+                        editor.getSelectionProvider().getSelection());
+                }
+                finally
+                {
+                    buffer.release();
+                }
+            }
+            finally
+            {
+                delegate.release();
+            }
+        }
+        catch (CoreException e)
+        {
+            workingCopies.put(editor, new WorkingCopyInfo(sourceFile, false));
+
+            editor.resetHighlightRange();
+
+            if (!editor.getEditorInput().exists())
+                ; // this is considered normal
+            else
+                Activator.log(e.getStatus());
+        }
+    }
+
+    private SourceFile discardWorkingCopy(XtextEditor editor)
+    {
+        WorkingCopyInfo workingCopyInfo = workingCopies.remove(editor);
+        if (workingCopyInfo == null)
+            return null;
+        if (workingCopyInfo.success)
+        {
+            workingCopyInfo.sourceFile.discardWorkingCopy();
+            editor.resetHighlightRange();
+        }
+        return workingCopyInfo.sourceFile;
+    }
+
+    private XtextEditor getWorkingCopyEditor(SourceFile sourceFile)
+    {
+        Set<Entry<XtextEditor, WorkingCopyInfo>> entrySet =
+            workingCopies.entrySet();
+        for (Entry<XtextEditor, WorkingCopyInfo> entry : entrySet)
+        {
+            if (entry.getValue().sourceFile.equals(sourceFile))
+                return entry.getKey();
+        }
+        return null;
+    }
+
+    private XtextEditor findMruClone(XtextEditor editor)
+    {
+        IEditorInput editorInput = editor.getEditorInput();
+        IEditorReference[] references = editor.getSite().getPage().findEditors(
+            editorInput, null, IWorkbenchPage.MATCH_INPUT);
+        for (IEditorReference reference : references)
+        {
+            IEditorPart candidate = reference.getEditor(false);
+            if (candidate instanceof XtextEditor)
+            {
+                if (candidate != editor)
+                    return (XtextEditor)candidate;
+            }
+            else if (candidate instanceof MultiPageEditorPart)
+            {
+                // assume at most one XtextEditor with a given input is nested
+                Set<XtextEditor> nestedSet = nestedEditors.get(candidate);
+                if (nestedSet != null)
+                {
+                    for (XtextEditor nested : nestedSet)
+                    {
+                        if (nested != editor && editorInput.equals(
+                            nested.getEditorInput()))
+                        {
+                            return nested;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private void scheduleHighlightRangeJob(XtextEditor editor,
@@ -388,6 +583,34 @@ public class HandlyXtextEditorCallback
         {
             this.sourceFile = sourceFile;
             this.selection = selection;
+        }
+    }
+
+    /*
+     * Multiple XtextEditor instances may simultaneously be opened on a given
+     * source file, each with its own underlying document, but only one of them
+     * can be designated the working copy editor and connected to the source
+     * file's working copy. This class is used for tracking the source file's
+     * working copy editor. The success flag indicates whether the working copy
+     * of the source file was created successfully by the working copy editor.
+     * (A common reason for failure is that the editor input doesn't exist.)
+     *
+     * @see #getWorkingCopyEditor(SourceFile)
+     */
+    private static class WorkingCopyInfo
+    {
+        public final SourceFile sourceFile;
+        public final boolean success;
+
+        /*
+         * @param sourceFile not null
+         * @param success whether sourceFile.becomeWorkingCopy was successful,
+         *  so sourceFile.discardWorkingCopy() is to be called
+         */
+        public WorkingCopyInfo(SourceFile sourceFile, boolean success)
+        {
+            this.sourceFile = sourceFile;
+            this.success = success;
         }
     }
 }
