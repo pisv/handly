@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,6 @@ import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -262,8 +261,9 @@ class CompilatonUnitStructureBuilder
                 AstUtil.getSignature(returnType), method.getExtraDimensions()));
         }
         @SuppressWarnings("unchecked")
-        List<? extends Name> thrownExceptions = method.thrownExceptions();
-        body.set(Method.EXCEPTION_TYPES, AstUtil.toTypeSignatures(
+        List<? extends org.eclipse.jdt.core.dom.Type> thrownExceptions =
+            method.thrownExceptionTypes();
+        body.set(Method.EXCEPTION_TYPES, AstUtil.getSignatures(
             thrownExceptions));
         if (method.isConstructor())
             body.set(Method.IS_CONSTRUCTOR, Boolean.TRUE);

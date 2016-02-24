@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedType;
@@ -28,21 +27,6 @@ import org.eclipse.jdt.core.dom.WildcardType;
  */
 class AstUtil
 {
-    /**
-     * Converts the given type names to type signatures.
-     */
-    static String[] toTypeSignatures(List<? extends Name> names)
-    {
-        String[] result = new String[names.size()];
-        int i = 0;
-        for (Name name : names)
-        {
-            result[i++] = Signature.createTypeSignature(
-                name.getFullyQualifiedName(), false);
-        }
-        return result;
-    }
-
     /**
      * Returns the signature of the given type.
      * @see Signature
