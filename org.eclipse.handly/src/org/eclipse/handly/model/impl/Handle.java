@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -113,6 +113,8 @@ public abstract class Handle
     {
         if (findBody() != null)
             return true;
+        if (parent != null && !parent.exists())
+            return false;
         try
         {
             validateExistence();
@@ -389,6 +391,10 @@ public abstract class Handle
      * Validates if the element represented by the handle may be "opened",
      * i.e. begin existence in the model. For example, a necessary condition
      * for element existence might be that the underlying resource exists.
+     * <p>
+     * Note that ancestor elements may or may not exist. This method need not
+     * explicitly verify their existence.
+     * </p>
      *
      * @throws CoreException if the element may not exist
      */
