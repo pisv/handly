@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,32 +32,34 @@ public interface IHandlyXtextDocument
     extends IXtextDocument, ISnapshotProvider
 {
     /**
-     * Returns whether the document has changed since the last time it was
-     * reconciled.
+     * Returns whether the resource contents is out of sync
+     * with the document contents and needs to be reconciled.
      *
-     * @return <code>true</code> if the document has changed since it was
-     *  last reconciled or if can't tell for sure, <code>false</code> otherwise
+     * @return <code>true</code> if reconciling is needed,
+     *  <code>false</code> otherwise
      */
     boolean needsReconciling();
 
     /**
      * Re-parses the resource so it becomes reconciled with the document contents.
-     * Does nothing if already reconciled and <code>force == false</code>.
+     * Does nothing if reconciling is not needed and <code>force == false</code>.
      *
      * @param force indicates whether reconciling has to be performed
-     *  even if it is not {@link #needsReconciling() needed}
+     *  even if it is not needed
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws OperationCanceledException if this method is canceled
+     * @throws NoXtextResourceException if <code>force == true</code> and
+     *  the document has no resource (either not set or already disposed)
      */
     void reconcile(boolean force, IProgressMonitor monitor);
 
     /**
      * Returns the snapshot from which the document's resource was parsed
      * in the last {@link #reconcile(boolean, IProgressMonitor) reconcile}
-     * operation, or <code>null</code> if the document's resource is not set
-     * or already disposed. Note that the returned snapshot may turn out to be
-     * stale.
+     * operation, or <code>null</code> if the document has no resource (either
+     * not set or already disposed). Note that the returned snapshot may
+     * turn out to be stale.
      *
      * @return the last reconciled snapshot or <code>null</code>
      */

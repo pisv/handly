@@ -12,8 +12,10 @@ package org.eclipse.handly.xtext.ui.editor;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
+import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -144,7 +146,20 @@ public final class XtextWorkingCopyBuffer
     public void reconcile(boolean force, Object arg,
         final IProgressMonitor monitor) throws CoreException
     {
-        getDocument().reconcile(force, monitor);
+        HandlyXtextDocument document = getDocument();
+        try
+        {
+            document.reconcile(force, monitor);
+        }
+        catch (OperationCanceledException e)
+        {
+            throw e;
+        }
+        catch (NoXtextResourceException e)
+        {
+            throw new CoreException(Activator.createErrorStatus(e.getMessage(),
+                e));
+        }
     }
 
     @Override
