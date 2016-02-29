@@ -2,12 +2,12 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='13'>
-    <iu id='org.eclipse.sdk.ide' version='4.5.1.M20150904-0015'>
+    <iu id='org.eclipse.sdk.ide' version='4.5.2.M20160212-1500'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='4.0.3.201509231615-r'>
+    <iu id='org.eclipse.egit.feature.group' version='4.1.1.201511131810-r'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
@@ -19,12 +19,12 @@
     </iu>
     <iu id="org.eclipse.xtext.sdk.feature.group" version="2.9.1.v201512180746">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
     <iu id="org.eclipse.xtend.sdk.feature.group" version="2.9.1.v201512180746">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
     <iu id="org.eclipse.xpand.sdk.feature.group" version="2.1.0.v201505260349">
@@ -34,25 +34,25 @@
     </iu>
     <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.13.v201512160556">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
     <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.8.3.v201512160556">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
     <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.8.3.v201512160634">
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/'/>
+        <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.sdk.feature.group" version="2.11.1.v20150806-0404">
+    <iu id="org.eclipse.emf.sdk.feature.group" version="2.11.2.v20160208-0841">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.11.0.v20150806-0404">
+    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.11.0.v20160208-0841">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
@@ -62,7 +62,7 @@
         <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.1.1.v20150906-1225">
+    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.1.2.v20160201-0816">
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/mars'/>
       </repositories>
