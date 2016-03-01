@@ -5,6 +5,6 @@ Bundle-Version: 0.5.0.qualifier
 Bundle-Name: Handly Basic Example Tests (Incubation)
 Bundle-Vendor: Eclipse Handly
 Fragment-Host: org.eclipse.handly.examples.basic.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.handly.junit
 Import-Package: junit.framework

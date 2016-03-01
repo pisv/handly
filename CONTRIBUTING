@@ -36,7 +36,7 @@ Building locally:
 
 The build is based on Maven and Tycho and is easy to run on a local machine.
 
- 1. Make sure you have JDK 7 and Maven 3 installed. Both should be on the path.
+ 1. Make sure you have JDK 8 and Maven 3 installed. Both should be on the path.
  2. Clone the Handly Git repository and pick the desired branch.
  3. Open a shell to the Git workspace and execute
 
@@ -49,15 +49,13 @@ will contain a repository of build artifacts.
 Setting up a developer workspace:
 ---------------------------------
 
-Handly currently uses `JavaSE-1.6` for compilation. Please add a matching JRE.
-Perfect match (i.e. JDK 1.6) is recommended to avoid build warnings. You will
-also need to add a `JavaSE-1.7` compatible JRE to be able to run predefined
-launch configurations for Handly tests and examples.
+Handly currently uses `JavaSE-1.8` for compilation. Please add a matching JRE.
+Perfect match (i.e. JDK 1.8) is recommended to avoid build warnings.
 
 Handly employs specific Java code formatting conventions. Please import and use
 the formatter profile from `tools/formatter.xml`. Note that the current profile
 is intended to be used with the new formatter available since Eclipse Mars
-release (4.5.0), and may produce suboptimal results with previous Eclipse
+release (4.5), and may produce suboptimal results with previous Eclipse
 versions.
 
 Import all projects from the Git workspace (don't search for nested projects)
