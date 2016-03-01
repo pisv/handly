@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,13 @@ import org.eclipse.core.resources.IResourceDelta;
  * <p>
  * No assumptions should be made on which element level the delta tree is rooted.
  * Delta objects are not valid outside the dynamic scope of the notification.
+ * </p>
+ * <p>
+ * Note that despite having a dependency on {@link IResourceDelta}
+ * and {@link IMarkerDelta} this interface can safely be used even when
+ * <code>org.eclipse.core.resources</code> bundle is not available.
+ * This is based on the "outward impression" of late resolution of
+ * symbolic references a JVM must provide according to the JVMS.
  * </p>
  * <p>
  * Adapted from <code>org.eclipse.jdt.core.IJavaElementDelta</code>.
@@ -236,29 +243,35 @@ public interface IHandleDelta
 
     /**
      * Returns the changes to markers on the element's corresponding resource.
-     * Returns an empty array if none.
+     * Returns <code>null</code> if none. Note that this is an exception to the
+     * general convention of returning an empty array rather than <code>null</code>
+     * that other Handly API methods use. This makes the method safe to call even
+     * when <code>org.eclipse.core.resources</code> bundle is not available.
      * <p>
      * Note that marker deltas, like handle deltas, are generally only valid
      * for the dynamic scope of a notification. Clients <b>must not</b>
      * hang on to these objects.
      * </p>
      *
-     * @return the marker deltas (never <code>null</code>).
+     * @return the marker deltas, or <code>null</code> if none.
      *  Clients <b>must not</b> modify the returned array.
      */
     IMarkerDelta[] getMarkerDeltas();
 
     /**
      * Returns the changes to children of the element's corresponding resource
-     * that cannot be described in terms of handle deltas. Returns an empty array
-     * if none.
+     * that cannot be described in terms of handle deltas. Returns <code>null</code>
+     * if none. Note that this is an exception to the general convention of
+     * returning an empty array rather than <code>null</code> that other
+     * Handly API methods use. This makes the method safe to call even when
+     * <code>org.eclipse.core.resources</code> bundle is not available.
      * <p>
      * Note that resource deltas, like handle deltas, are generally only valid
      * for the dynamic scope of a notification. Clients <b>must not</b>
      * hang on to these objects.
      * </p>
      *
-     * @return the resource deltas (never <code>null</code>).
+     * @return the resource deltas, or <code>null</code> if none.
      *  Clients <b>must not</b> modify the returned array.
      */
     IResourceDelta[] getResourceDeltas();

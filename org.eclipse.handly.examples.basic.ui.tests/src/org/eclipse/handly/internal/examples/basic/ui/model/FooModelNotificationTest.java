@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,7 +80,7 @@ public class FooModelNotificationTest
         aFolder.delete(true, null);
         assertDelta(newDelta().insertChanged(fooProject1,
             HandleDelta.F_CONTENT), listener.delta);
-        assertEquals(0, listener.delta.getResourceDeltas().length);
+        assertNull(listener.delta.getResourceDeltas());
         HandleDelta projectDelta = listener.delta.getDeltaFor(fooProject1);
         assertEquals(1, projectDelta.getResourceDeltas().length);
         IResourceDelta resourceDelta = projectDelta.getResourceDeltas()[0];
@@ -91,7 +91,7 @@ public class FooModelNotificationTest
         bFile.touch(null);
         assertDelta(newDelta().insertChanged(fooProject1,
             HandleDelta.F_CONTENT), listener.delta);
-        assertEquals(0, listener.delta.getResourceDeltas().length);
+        assertNull(listener.delta.getResourceDeltas());
         projectDelta = listener.delta.getDeltaFor(fooProject1);
         assertEquals(1, projectDelta.getResourceDeltas().length);
         resourceDelta = projectDelta.getResourceDeltas()[0];

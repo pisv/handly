@@ -32,6 +32,12 @@ import org.eclipse.handly.util.IndentationPolicy;
 
 /**
  * The root of the handle class hierarchy.
+ * <p>
+ * Note that despite having a dependency on {@link IResource} this class can
+ * safely be used even when <code>org.eclipse.core.resources</code> bundle is
+ * not available. This is based on the "outward impression" of late resolution
+ * of symbolic references a JVM must provide according to the JVMS.
+ * </p>
  *
  * @see IHandle
  */
@@ -416,7 +422,7 @@ public abstract class Handle
      */
     protected abstract void buildStructure(Body body,
         Map<IHandle, Body> newElements, IProgressMonitor monitor)
-            throws CoreException;
+        throws CoreException;
 
     /**
      * Returns the cached body for this element. If this element is not
@@ -604,7 +610,7 @@ public abstract class Handle
      */
     protected final void generateBodies(Body body,
         Map<IHandle, Body> newElements, IProgressMonitor monitor)
-            throws CoreException
+        throws CoreException
     {
         monitor.beginTask("", 2); //$NON-NLS-1$
         try

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,9 +63,12 @@ public abstract class AbstractWorkingSetUpdater
                 processHandleDelta(event.getDelta(), workingSetDelta);
                 IResourceDelta[] resourceDeltas =
                     event.getDelta().getResourceDeltas();
-                for (IResourceDelta resourceDelta : resourceDeltas)
+                if (resourceDeltas != null)
                 {
-                    processResourceDelta(resourceDelta, workingSetDelta);
+                    for (IResourceDelta resourceDelta : resourceDeltas)
+                    {
+                        processResourceDelta(resourceDelta, workingSetDelta);
+                    }
                 }
                 workingSetDelta.process();
             }
@@ -192,9 +195,12 @@ public abstract class AbstractWorkingSetUpdater
             }
         }
         IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
-        for (IResourceDelta resourceDelta : resourceDeltas)
+        if (resourceDeltas != null)
         {
-            processResourceDelta(resourceDelta, result);
+            for (IResourceDelta resourceDelta : resourceDeltas)
+            {
+                processResourceDelta(resourceDelta, result);
+            }
         }
         IHandleDelta[] children = delta.getAffectedChildren();
         for (IHandleDelta child : children)

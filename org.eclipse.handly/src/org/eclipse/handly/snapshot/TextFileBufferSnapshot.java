@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,17 +13,25 @@ package org.eclipse.handly.snapshot;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
+import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.IFileBuffer;
 import org.eclipse.core.filebuffers.IFileBufferListener;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.handly.internal.Activator;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 
 /**
  * A snapshot of a text file buffer. Thread-safe.
+ * <p>
+ * Note that despite having a dependency on {@link IFile} this class can
+ * safely be used even when <code>org.eclipse.core.resources</code> bundle is
+ * not available. This is based on the "outward impression" of late resolution
+ * of symbolic references a JVM must provide according to the JVMS.
+ * </p>
  */
 public final class TextFileBufferSnapshot
     extends Snapshot
@@ -104,13 +112,20 @@ public final class TextFileBufferSnapshot
 
         removeListeners();
         bufferManager = null;
-        TextFileSnapshot fileSnapshot = new TextFileSnapshot(
-            ResourcesPlugin.getWorkspace().getRoot().getFile(
-                buffer.getLocation()), false);
-        if (!buffer.isDirty() && buffer.isSynchronized())
+        IPath location = buffer.getLocation();
+        if (location != null && Activator.IS_RESOURCES_BUNDLE_AVAILABLE)
         {
-            // the snapshot can be 'transcended' as file snapshot (no need to expire)
-            delegate = fileSnapshot;
+            IFile file = FileBuffers.getWorkspaceFileAtLocation(location);
+            if (file != null)
+            {
+                TextFileSnapshot fileSnapshot = new TextFileSnapshot(file,
+                    false);
+                if (!buffer.isDirty() && buffer.isSynchronized())
+                {
+                    // the snapshot can be 'transcended' as file snapshot (no need to expire)
+                    delegate = fileSnapshot;
+                }
+            }
         }
         contents = null; // if delegate == null, the snapshot expires
         buffer = null;

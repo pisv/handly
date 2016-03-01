@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,11 +24,19 @@ import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.util.IndentationPolicy;
 
 /**
- * Implements {@link IHandleDelta}. Clients can use this class as it stands or
- * subclass it as circumstances warrant. Subclasses should consider overriding
- * {@link #newDelta(IHandle)} method.
+ * Implements {@link IHandleDelta}. To create a delta tree, call
+ * <code>insertXXX</code> methods on a root delta.
  * <p>
- * To create a delta tree, call <code>insertXXX</code> methods on a root delta.
+ * Note that despite having a dependency on {@link IResourceDelta}
+ * and {@link IMarkerDelta} this class can be used even when
+ * <code>org.eclipse.core.resources</code> bundle is not available.
+ * This is based on the "outward impression" of late resolution of
+ * symbolic references a JVM must provide according to the JVMS.
+ * </p>
+ * <p>
+ * Clients can use this class as it stands or subclass it as circumstances
+ * warrant. Subclasses should consider overriding {@link #newDelta(IHandle)}
+ * method.
  * </p>
  * <p>
  * Adapted from <code>org.eclipse.jdt.internal.core.JavaElementDelta</code>.
@@ -38,10 +46,6 @@ public class HandleDelta
     implements IHandleDelta
 {
     private static final HandleDelta[] EMPTY_HANDLE_DELTAS = new HandleDelta[0];
-    private static final IMarkerDelta[] EMPTY_MARKER_DELTAS =
-        new IMarkerDelta[0];
-    private static final IResourceDelta[] EMPTY_RESOURCE_DELTAS =
-        new IResourceDelta[0];
 
     private int kind;
     private long flags;
@@ -131,17 +135,14 @@ public class HandleDelta
     @Override
     public IMarkerDelta[] getMarkerDeltas()
     {
-        if (markerDeltas == null)
-            return EMPTY_MARKER_DELTAS;
         return markerDeltas;
     }
 
     @Override
     public IResourceDelta[] getResourceDeltas()
     {
-        if (resourceDeltas == null)
-            return EMPTY_RESOURCE_DELTAS;
-        if (resourceDeltas.length != resourceDeltasCounter)
+        if (resourceDeltas != null
+            && resourceDeltas.length != resourceDeltasCounter)
         {
             System.arraycopy(resourceDeltas, 0, resourceDeltas =
                 new IResourceDelta[resourceDeltasCounter], 0,

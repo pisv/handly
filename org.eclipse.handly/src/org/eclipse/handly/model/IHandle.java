@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,12 @@ import org.eclipse.handly.util.IndentationPolicy;
  * Methods annotated as "handle-only" do not require underlying elements
  * to exist. Methods that require underlying elements to exist throw a
  * <code>CoreException</code> when the underlying element is missing.
+ * </p>
+ * <p>
+ * Note that despite having a dependency on {@link IResource} this interface
+ * can safely be used even when <code>org.eclipse.core.resources</code> bundle
+ * is not available. This is based on the "outward impression" of late resolution
+ * of symbolic references a JVM must provide according to the JVMS.
  * </p>
  * <p>
  * Handles are safe for use by multiple threads.
@@ -85,6 +91,11 @@ public interface IHandle
      * Returns the innermost resource enclosing this element, or <code>null</code>
      * if this element is not enclosed in a workspace resource.
      * This is a handle-only method.
+     * <p>
+     * Note that it is safe to call this method and test the return value
+     * for <code>null</code> even when <code>org.eclipse.core.resources</code>
+     * bundle is not available.
+     * </p>
      *
      * @return the innermost resource enclosing this element, or <code>null</code>
      *  if this element is not enclosed in a workspace resource
