@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,42 +11,42 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
  * Holds cached structure and properties for an element represented by {@link
- * IHandle}. Subclassed to carry properties for specific kinds of elements.
+ * IElement}. Subclassed to carry properties for specific kinds of elements.
  *
  * @see IBodyCache
  */
 public class Body
 {
-    public static final IHandle[] NO_CHILDREN = new IHandle[0];
+    public static final IElement[] NO_CHILDREN = new IElement[0];
 
     /*
      * Handles of immediate children of the element.
      * This is an empty array if the element has no children.
      */
-    private volatile IHandle[] children = NO_CHILDREN;
+    private volatile IElement[] children = NO_CHILDREN;
 
-    public IHandle[] getChildren()
+    public IElement[] getChildren()
     {
         return children;
     }
 
-    public void setChildren(IHandle[] children)
+    public void setChildren(IElement[] children)
     {
         if (children == null)
             throw new IllegalArgumentException();
         this.children = children;
     }
 
-    public void addChild(IHandle child)
+    public void addChild(IElement child)
     {
-        IHandle[] oldChildren = children;
+        IElement[] oldChildren = children;
         int length = oldChildren.length;
         if (length == 0)
-            children = new IHandle[] { child };
+            children = new IElement[] { child };
         else
         {
             for (int i = 0; i < length; i++)
@@ -54,16 +54,16 @@ public class Body
                 if (oldChildren[i].equals(child))
                     return; // already exists
             }
-            IHandle[] newChildren = new IHandle[length + 1];
+            IElement[] newChildren = new IElement[length + 1];
             System.arraycopy(oldChildren, 0, newChildren, 0, length);
             newChildren[length] = child;
             children = newChildren;
         }
     }
 
-    public void removeChild(IHandle child)
+    public void removeChild(IElement child)
     {
-        IHandle[] oldChildren = children;
+        IElement[] oldChildren = children;
         for (int i = 0, length = oldChildren.length; i < length; i++)
         {
             if (oldChildren[i].equals(child))
@@ -72,7 +72,7 @@ public class Body
                     children = NO_CHILDREN;
                 else
                 {
-                    IHandle[] newChildren = new IHandle[length - 1];
+                    IElement[] newChildren = new IElement[length - 1];
                     System.arraycopy(oldChildren, 0, newChildren, 0, i);
                     if (i < length - 1)
                         System.arraycopy(oldChildren, i + 1, newChildren, i,
@@ -98,8 +98,8 @@ public class Body
      * @param element the element this body corresponds to (never <code>null</code>)
      * @param delta the delta tree being built (never <code>null</code>)
      */
-    public void findContentChange(Body oldBody, IHandle element,
-        HandleDelta delta)
+    public void findContentChange(Body oldBody, IElement element,
+        ElementDelta delta)
     {
         // subclasses may override
     }

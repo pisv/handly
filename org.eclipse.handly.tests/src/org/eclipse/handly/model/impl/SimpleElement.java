@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,14 +15,14 @@ import java.util.Map;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
- * A simple handle for tests.
+ * A simple element for tests.
  * Test clients can instantiate this class directly or subclass it.
  */
-class SimpleHandle
-    extends Handle
+class SimpleElement
+    extends Element
 {
     /**
      * Constructs a handle for an element with the given parent element
@@ -32,21 +32,21 @@ class SimpleHandle
      *  or <code>null</code> if the element has no parent
      * @param name the name of the element
      */
-    public SimpleHandle(Handle parent, String name)
+    public SimpleElement(Element parent, String name)
     {
         super(parent, name);
     }
 
     /**
-     * Returns a child handle with the given name.
+     * Returns a child element with the given name.
      * This is a handle-only method.
      *
      * @param name the name of the element
-     * @return the child handle with the given name
+     * @return the child element with the given name
      */
-    public SimpleHandle getChild(String name)
+    public SimpleElement getChild(String name)
     {
-        return new SimpleHandle(this, name);
+        return new SimpleElement(this, name);
     }
 
     @Override
@@ -56,7 +56,7 @@ class SimpleHandle
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
         throw new UnsupportedOperationException();
     }
@@ -68,7 +68,7 @@ class SimpleHandle
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IHandle, Body> newElements,
+    protected void buildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         throw new UnsupportedOperationException();

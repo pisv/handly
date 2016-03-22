@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.quickoutline;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.SourceElements;
 import org.eclipse.handly.model.adapter.IContentAdapter;
@@ -64,7 +64,7 @@ public abstract class HandlyOutlinePopup
     @Override
     protected Object computeInput()
     {
-        IHandle inputElement = getInputElementProvider().getElement(
+        IElement inputElement = getInputElementProvider().getElement(
             getHost().getEditorInput());
         return getContentAdapter().getCorrespondingElement(inputElement);
     }
@@ -74,8 +74,7 @@ public abstract class HandlyOutlinePopup
     {
         if (!(hostSelection instanceof ITextSelection))
             return null;
-        IHandle input = getContentAdapter().getHandle(
-            getTreeViewer().getInput());
+        IElement input = getContentAdapter().adapt(getTreeViewer().getInput());
         if (!(input instanceof ISourceElement))
             return null;
         ISourceElement sourceElement = (ISourceElement)input;
@@ -89,7 +88,7 @@ public abstract class HandlyOutlinePopup
     @Override
     protected boolean revealInHost(Object outlineElement)
     {
-        IHandle element = getContentAdapter().getHandle(outlineElement);
+        IElement element = getContentAdapter().adapt(outlineElement);
         if (!(element instanceof ISourceElement))
             return false;
         ISourceElement sourceElement = (ISourceElement)element;
@@ -113,9 +112,9 @@ public abstract class HandlyOutlinePopup
      * @return <code>true</code> if the element is contained in the host;
      *  <code>false</code> otherwise
      */
-    protected boolean isInHost(IHandle element)
+    protected boolean isInHost(IElement element)
     {
-        IHandle inputElement = getInputElementProvider().getElement(
+        IElement inputElement = getInputElementProvider().getElement(
             getHost().getEditorInput());
         while (element != null)
         {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import java.util.Map;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementCache;
 import org.eclipse.handly.model.impl.IBodyCache;
@@ -35,85 +35,85 @@ class FooModelCache
     private final double memoryRatio = getMemoryRatio();
 
     private Body modelBody; // Foo model element's body
-    private HashMap<IHandle, Body> projectCache; // cache of open Foo projects
+    private HashMap<IElement, Body> projectCache; // cache of open Foo projects
     private ElementCache fileCache; // cache of open Foo files
-    private HashMap<IHandle, Body> childrenCache; // cache of children of open Foo files
+    private HashMap<IElement, Body> childrenCache; // cache of children of open Foo files
 
     public FooModelCache()
     {
         // set the size of the caches as a function of the maximum amount of memory available
-        projectCache = new HashMap<IHandle, Body>(DEFAULT_PROJECT_SIZE);
+        projectCache = new HashMap<IElement, Body>(DEFAULT_PROJECT_SIZE);
         fileCache = new ElementCache((int)(DEFAULT_FILE_SIZE * memoryRatio));
-        childrenCache = new HashMap<IHandle, Body>((int)(DEFAULT_CHILDREN_SIZE
+        childrenCache = new HashMap<IElement, Body>((int)(DEFAULT_CHILDREN_SIZE
             * memoryRatio));
     }
 
     @Override
-    public Body get(IHandle handle)
+    public Body get(IElement element)
     {
-        if (handle instanceof IFooModel)
+        if (element instanceof IFooModel)
             return modelBody;
-        else if (handle instanceof IFooProject)
-            return projectCache.get(handle);
-        else if (handle instanceof IFooFile)
-            return fileCache.get(handle);
+        else if (element instanceof IFooProject)
+            return projectCache.get(element);
+        else if (element instanceof IFooFile)
+            return fileCache.get(element);
         else
-            return childrenCache.get(handle);
+            return childrenCache.get(element);
     }
 
     @Override
-    public Body peek(IHandle handle)
+    public Body peek(IElement element)
     {
-        if (handle instanceof IFooModel)
+        if (element instanceof IFooModel)
             return modelBody;
-        else if (handle instanceof IFooProject)
-            return projectCache.get(handle);
-        else if (handle instanceof IFooFile)
-            return fileCache.peek(handle);
+        else if (element instanceof IFooProject)
+            return projectCache.get(element);
+        else if (element instanceof IFooFile)
+            return fileCache.peek(element);
         else
-            return childrenCache.get(handle);
+            return childrenCache.get(element);
     }
 
     @Override
-    public void put(IHandle handle, Body body)
+    public void put(IElement element, Body body)
     {
-        if (handle instanceof IFooModel)
+        if (element instanceof IFooModel)
             modelBody = body;
-        else if (handle instanceof IFooProject)
+        else if (element instanceof IFooProject)
         {
-            projectCache.put(handle, body);
-            fileCache.ensureSpaceLimit(body, handle);
+            projectCache.put(element, body);
+            fileCache.ensureSpaceLimit(body, element);
         }
-        else if (handle instanceof IFooFile)
-            fileCache.put(handle, body);
+        else if (element instanceof IFooFile)
+            fileCache.put(element, body);
         else
-            childrenCache.put(handle, body);
+            childrenCache.put(element, body);
     }
 
     @Override
-    public void putAll(Map<IHandle, Body> elements)
+    public void putAll(Map<IElement, Body> elements)
     {
-        for (Map.Entry<IHandle, Body> entry : elements.entrySet())
+        for (Map.Entry<IElement, Body> entry : elements.entrySet())
         {
             put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
-    public void remove(IHandle handle)
+    public void remove(IElement element)
     {
-        if (handle instanceof IFooModel)
+        if (element instanceof IFooModel)
             modelBody = null;
-        else if (handle instanceof IFooProject)
+        else if (element instanceof IFooProject)
         {
-            projectCache.remove(handle);
+            projectCache.remove(element);
             fileCache.resetSpaceLimit((int)(DEFAULT_FILE_SIZE * memoryRatio),
-                handle);
+                element);
         }
-        else if (handle instanceof IFooFile)
-            fileCache.remove(handle);
+        else if (element instanceof IFooFile)
+            fileCache.remove(element);
         else
-            childrenCache.remove(handle);
+            childrenCache.remove(element);
     }
 
     /*

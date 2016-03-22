@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,11 +30,11 @@ import org.eclipse.handly.examples.javamodel.IJavaElementDelta;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleDelta;
+import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.jdt.core.IClasspathEntry;
 
 /**
@@ -169,7 +169,7 @@ class DeltaProcessor
                 {
                     addToModel(javaProject);
                     currentDelta.insertChanged(javaProject,
-                        IHandleDelta.F_OPEN);
+                        IElementDelta.F_OPEN);
                     state.classpathChanged(javaProject, false);
                 }
             }
@@ -179,7 +179,7 @@ class DeltaProcessor
                 {
                     removeFromModel(javaProject);
                     currentDelta.insertChanged(javaProject,
-                        IHandleDelta.F_OPEN);
+                        IElementDelta.F_OPEN);
                     state.classpathChanged(javaProject, true);
                 }
             }
@@ -214,7 +214,7 @@ class DeltaProcessor
                 if (isJavaProject)
                 {
                     currentDelta.insertChanged(javaProject,
-                        IHandleDelta.F_DESCRIPTION);
+                        IElementDelta.F_DESCRIPTION);
                 }
             }
         }
@@ -225,10 +225,10 @@ class DeltaProcessor
                 markersChanged(javaProject, delta.getMarkerDeltas());
 
             if ((delta.getFlags() & IResourceDelta.SYNC) != 0)
-                currentDelta.insertChanged(javaProject, IHandleDelta.F_SYNC);
+                currentDelta.insertChanged(javaProject, IElementDelta.F_SYNC);
 
             Body parentBody = findBody(javaProject.getParent());
-            IHandle[] children = parentBody.getChildren();
+            IElement[] children = parentBody.getChildren();
             if (!Arrays.asList(children).contains(javaProject))
                 addToModel(javaProject); // in case the project was removed then added then changed
 
@@ -333,7 +333,7 @@ class DeltaProcessor
                 markersChanged(element, delta.getMarkerDeltas());
 
             if ((delta.getFlags() & IResourceDelta.SYNC) != 0)
-                currentDelta.insertChanged(element, IHandleDelta.F_SYNC);
+                currentDelta.insertChanged(element, IElementDelta.F_SYNC);
 
             return true;
         }
@@ -411,7 +411,7 @@ class DeltaProcessor
                 markersChanged(element, delta.getMarkerDeltas());
 
             if ((delta.getFlags() & IResourceDelta.SYNC) != 0)
-                currentDelta.insertChanged(element, IHandleDelta.F_SYNC);
+                currentDelta.insertChanged(element, IElementDelta.F_SYNC);
         }
         else
         {
@@ -446,7 +446,7 @@ class DeltaProcessor
     private void addPackageFragmentRoot(Body parentBody,
         IPackageFragmentRoot root)
     {
-        IHandle[] roots = parentBody.getChildren();
+        IElement[] roots = parentBody.getChildren();
         if (roots.length == 0)
         {
             parentBody.addChild(root);
@@ -500,7 +500,7 @@ class DeltaProcessor
         else
         {
             int newSize = roots.length + 1;
-            IHandle[] newChildren = new IHandle[newSize];
+            IElement[] newChildren = new IElement[newSize];
             if (indexToInsert > 0)
                 System.arraycopy(roots, 0, newChildren, 0, indexToInsert);
             newChildren[indexToInsert] = root;
@@ -561,19 +561,19 @@ class DeltaProcessor
         if (element instanceof ICompilationUnit
             && ((ICompilationUnit)element).isWorkingCopy())
         {
-            currentDelta.insertChanged(element, IHandleDelta.F_CONTENT
-                | IHandleDelta.F_UNDERLYING_RESOURCE);
+            currentDelta.insertChanged(element, IElementDelta.F_CONTENT
+                | IElementDelta.F_UNDERLYING_RESOURCE);
             return;
         }
 
         close(element);
-        currentDelta.insertChanged(element, IHandleDelta.F_CONTENT);
+        currentDelta.insertChanged(element, IElementDelta.F_CONTENT);
     }
 
     private void markersChanged(IJavaElement element,
         IMarkerDelta[] markerDeltas)
     {
-        HandleDelta delta = currentDelta.getDeltaFor(element);
+        ElementDelta delta = currentDelta.getDeltaFor(element);
         if (delta == null)
         {
             currentDelta.insertChanged(element, 0);
@@ -604,7 +604,7 @@ class DeltaProcessor
                 throw new AssertionError();
         }
 
-        HandleDelta delta = currentDelta.getDeltaFor(element);
+        ElementDelta delta = currentDelta.getDeltaFor(element);
         if (delta == null)
         {
             currentDelta.insertChanged(element, 0);
@@ -615,12 +615,12 @@ class DeltaProcessor
 
     private static Body findBody(IJavaElement element)
     {
-        return ((Handle)element).findBody();
+        return ((Element)element).findBody();
     }
 
     private static void close(IJavaElement element)
     {
-        ((Handle)element).close();
+        ((Element)element).close();
     }
 
     private static IResource getResource(IPath fullPath, int resourceType)

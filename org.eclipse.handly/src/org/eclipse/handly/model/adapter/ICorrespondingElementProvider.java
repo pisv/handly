@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,16 +11,17 @@
 package org.eclipse.handly.model.adapter;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
  * Defines a one-to-one mapping (mathematically speaking, injection)
  * of elements from a Handly based model to elements in some other model.
  * <p>
- * For every <code>handle</code> such that <code>getCorrespondingElement(handle)
- * != null</code>, the following invariant must hold:
+ * For every <code>IElement</code> <code>e</code> such that
+ * <code>getCorrespondingElement(e) != null</code>,
+ * the following must hold:
  * </p>
- * <pre>handle.equals(getCorrespondingElement(handle).getAdapter(IHandle.class))</pre>
+ * <pre>e.equals(getCorrespondingElement(e).getAdapter(IElement.class))</pre>
  * <p>
  * This interface may be implemented by clients.
  * </p>
@@ -28,10 +29,10 @@ import org.eclipse.handly.model.IHandle;
 public interface ICorrespondingElementProvider
 {
     /**
-     * Returns the element associated with the given handle.
+     * Returns the element that corresponds to the given {@link IElement}.
      *
-     * @param handle {@link IHandle} (may be <code>null</code>)
+     * @param element {@link IElement} (may be <code>null</code>)
      * @return the corresponding element, or <code>null</code> if none
      */
-    IAdaptable getCorrespondingElement(IHandle handle);
+    IAdaptable getCorrespondingElement(IElement element);
 }

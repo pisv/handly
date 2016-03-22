@@ -22,9 +22,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.handly.util.IndentationPolicy;
 
 /**
- * Represents an element of a handle-based model.
+ * Represents an element of a Handly-based model.
  * <p>
- * Elements of a handle-based model are exposed to clients as handles
+ * Elements of a Handly-based model are exposed to clients as handles
  * to the actual underlying element. The model may hand out any number
  * of handles for each element. Handles that refer to the same element
  * are guaranteed to be equal, but not necessarily identical.
@@ -41,12 +41,12 @@ import org.eclipse.handly.util.IndentationPolicy;
  * of symbolic references a JVM must provide according to the JVMS.
  * </p>
  * <p>
- * Handles are safe for use by multiple threads.
+ * Elements of a Handly-based model are safe for use by multiple threads.
  * </p>
  *
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IHandle
+public interface IElement
     extends IAdaptable
 {
     /**
@@ -65,7 +65,7 @@ public interface IHandle
      * @return the parent element, or <code>null</code> if this element has
      *  no parent
      */
-    IHandle getParent();
+    IElement getParent();
 
     /**
      * Returns the root element containing this element.
@@ -74,7 +74,7 @@ public interface IHandle
      *
      * @return the root element (never <code>null</code>)
      */
-    IHandle getRoot();
+    IElement getRoot();
 
     /**
      * Returns the first ancestor of this element that has the given type.
@@ -85,7 +85,7 @@ public interface IHandle
      * @return the first ancestor of this element that has the given type,
      *  or <code>null</code> if no such an ancestor can be found
      */
-    <T extends IHandle> T getAncestor(Class<T> ancestorType);
+    <T extends IElement> T getAncestor(Class<T> ancestorType);
 
     /**
      * Returns the innermost resource enclosing this element, or <code>null</code>
@@ -144,7 +144,7 @@ public interface IHandle
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    IHandle[] getChildren() throws CoreException;
+    IElement[] getChildren() throws CoreException;
 
     /**
      * Returns the immediate children of this element that have the given type.
@@ -158,12 +158,13 @@ public interface IHandle
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    <T extends IHandle> T[] getChildren(Class<T> childType)
+    <T extends IElement> T[] getChildren(Class<T> childType)
         throws CoreException;
 
     /**
-     * Returns a string representation of this element. Note that the specified
-     * style serves as a hint that implementations may or may not fully support.
+     * Debugging purposes. Returns a string representation of this element.
+     * Note that the specified style serves as a hint that implementations
+     * may or may not fully support.
      *
      * @param style style hint (not <code>null</code>)
      * @return a string representation of this element (never <code>null</code>)
@@ -171,8 +172,8 @@ public interface IHandle
     String toString(ToStringStyle style);
 
     /**
-     * Style hint for <code>IHandle.toString</code>.
-     * @see IHandle#toString(ToStringStyle)
+     * Debugging purposes. Style hint for a string representation of the element.
+     * @see IElement#toString(ToStringStyle)
      */
     final class ToStringStyle
     {

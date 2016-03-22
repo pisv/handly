@@ -23,8 +23,8 @@ import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IHandleDelta;
-import org.eclipse.handly.model.impl.HandleDelta;
+import org.eclipse.handly.model.IElementDelta;
+import org.eclipse.handly.model.impl.ElementDelta;
 
 /**
  * Foo element change notification tests.
@@ -60,7 +60,7 @@ public class FooModelNotificationTest
 
         IFooFile fooFile1 = fooProject1.getFooFile("test.foo");
         fooFile1.getFile().touch(null);
-        assertDelta(newDelta().insertChanged(fooFile1, HandleDelta.F_CONTENT),
+        assertDelta(newDelta().insertChanged(fooFile1, ElementDelta.F_CONTENT),
             listener.delta);
 
         fooFile1.getFile().copy(new Path("/Test002/test1.foo"), true, null);
@@ -79,9 +79,9 @@ public class FooModelNotificationTest
         IFolder aFolder = fooProject1.getProject().getFolder("a");
         aFolder.delete(true, null);
         assertDelta(newDelta().insertChanged(fooProject1,
-            HandleDelta.F_CONTENT), listener.delta);
+            ElementDelta.F_CONTENT), listener.delta);
         assertNull(listener.delta.getResourceDeltas());
-        HandleDelta projectDelta = listener.delta.getDeltaFor(fooProject1);
+        ElementDelta projectDelta = listener.delta.getDeltaFor(fooProject1);
         assertEquals(1, projectDelta.getResourceDeltas().length);
         IResourceDelta resourceDelta = projectDelta.getResourceDeltas()[0];
         assertEquals(IResourceDelta.REMOVED, resourceDelta.getKind());
@@ -90,7 +90,7 @@ public class FooModelNotificationTest
         IFile bFile = fooProject1.getProject().getFile("b");
         bFile.touch(null);
         assertDelta(newDelta().insertChanged(fooProject1,
-            HandleDelta.F_CONTENT), listener.delta);
+            ElementDelta.F_CONTENT), listener.delta);
         assertNull(listener.delta.getResourceDeltas());
         projectDelta = listener.delta.getDeltaFor(fooProject1);
         assertEquals(1, projectDelta.getResourceDeltas().length);
@@ -99,7 +99,7 @@ public class FooModelNotificationTest
         assertEquals(bFile, resourceDelta.getResource());
 
         IProject simpleProject = setUpProject("SimpleProject");
-        assertDelta(newDelta().insertChanged(fooModel, HandleDelta.F_CONTENT),
+        assertDelta(newDelta().insertChanged(fooModel, ElementDelta.F_CONTENT),
             listener.delta);
         assertEquals(1, listener.delta.getResourceDeltas().length);
         resourceDelta = listener.delta.getResourceDeltas()[0];
@@ -107,11 +107,11 @@ public class FooModelNotificationTest
         assertEquals(simpleProject, resourceDelta.getResource());
 
         fooProject2.getProject().close(null);
-        assertDelta(newDelta().insertRemoved(fooProject2, HandleDelta.F_OPEN),
+        assertDelta(newDelta().insertRemoved(fooProject2, ElementDelta.F_OPEN),
             listener.delta);
 
         fooProject2.getProject().open(null);
-        assertDelta(newDelta().insertAdded(fooProject2, HandleDelta.F_OPEN),
+        assertDelta(newDelta().insertAdded(fooProject2, ElementDelta.F_OPEN),
             listener.delta);
 
         fooProject2.getProject().delete(true, null);
@@ -123,12 +123,12 @@ public class FooModelNotificationTest
         description.setNatureIds(new String[0]);
         fooProject1.getProject().setDescription(description, null);
         assertDelta(newDelta().insertRemoved(fooProject1,
-            HandleDelta.F_DESCRIPTION), listener.delta);
+            ElementDelta.F_DESCRIPTION), listener.delta);
 
         description.setNatureIds(oldNatures);
         fooProject1.getProject().setDescription(description, null);
         assertDelta(newDelta().insertAdded(fooProject1,
-            HandleDelta.F_DESCRIPTION), listener.delta);
+            ElementDelta.F_DESCRIPTION), listener.delta);
 
         IFooProject movedFooProject1 = fooModel.getFooProject("Test");
         fooProject1.getProject().move(new Path("Test"), true, null);
@@ -137,12 +137,12 @@ public class FooModelNotificationTest
             listener.delta);
     }
 
-    private HandleDelta newDelta()
+    private ElementDelta newDelta()
     {
-        return new HandleDelta(fooModel);
+        return new ElementDelta(fooModel);
     }
 
-    private static void assertDelta(IHandleDelta expected, IHandleDelta actual)
+    private static void assertDelta(IElementDelta expected, IElementDelta actual)
     {
         if (expected == null)
         {
@@ -156,8 +156,8 @@ public class FooModelNotificationTest
         assertEquals(expected.getMovedToElement(), actual.getMovedToElement());
         assertEquals(expected.getMovedFromElement(),
             actual.getMovedFromElement());
-        IHandleDelta[] expectedChildren = expected.getAffectedChildren();
-        IHandleDelta[] actualChildren = actual.getAffectedChildren();
+        IElementDelta[] expectedChildren = expected.getAffectedChildren();
+        IElementDelta[] actualChildren = actual.getAffectedChildren();
         assertEquals(expectedChildren.length, actualChildren.length);
         for (int i = 0; i < expectedChildren.length; i++)
             assertDelta(expectedChildren[i], actualChildren[i]);
@@ -166,12 +166,12 @@ public class FooModelNotificationTest
     private static class FooModelListener
         implements IElementChangeListener
     {
-        public HandleDelta delta;
+        public ElementDelta delta;
 
         @Override
         public void elementChanged(IElementChangeEvent event)
         {
-            delta = (HandleDelta)event.getDelta();
+            delta = (ElementDelta)event.getDelta();
         }
     }
 }

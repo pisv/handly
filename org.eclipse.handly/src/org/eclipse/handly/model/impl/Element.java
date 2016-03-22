@@ -27,11 +27,11 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.internal.Activator;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.util.IndentationPolicy;
 
 /**
- * The root of the handle class hierarchy.
+ * The root of the element class hierarchy.
  * <p>
  * Note that despite having a dependency on {@link IResource} this class can
  * safely be used even when <code>org.eclipse.core.resources</code> bundle is
@@ -39,18 +39,18 @@ import org.eclipse.handly.util.IndentationPolicy;
  * of symbolic references a JVM must provide according to the JVMS.
  * </p>
  *
- * @see IHandle
+ * @see IElement
  */
-public abstract class Handle
+public abstract class Element
     extends PlatformObject
-    implements IHandle
+    implements IElement
 {
     protected static final Body NO_BODY = new Body();
 
     /**
      * The parent of the element.
      */
-    protected final Handle parent;
+    protected final Element parent;
     /**
      * The name of the element.
      */
@@ -65,7 +65,7 @@ public abstract class Handle
      * @param name the name of the element,
      *  or <code>null</code> if the element has no name
      */
-    public Handle(Handle parent, String name)
+    public Element(Element parent, String name)
     {
         this.parent = parent;
         this.name = name;
@@ -81,13 +81,13 @@ public abstract class Handle
      * Returns {@link #parent}. Subclasses must honor this contract.
      */
     @Override
-    public IHandle getParent()
+    public IElement getParent()
     {
         return parent;
     }
 
     @Override
-    public IHandle getRoot()
+    public IElement getRoot()
     {
         if (parent == null)
             return this;
@@ -96,7 +96,7 @@ public abstract class Handle
     }
 
     @Override
-    public <T extends IHandle> T getAncestor(Class<T> ancestorType)
+    public <T extends IElement> T getAncestor(Class<T> ancestorType)
     {
         if (parent == null)
             return null;
@@ -139,9 +139,9 @@ public abstract class Handle
             return true;
         if (obj == null)
             return false;
-        if (!(obj instanceof Handle))
+        if (!(obj instanceof Element))
             return false;
-        Handle other = (Handle)obj;
+        Element other = (Element)obj;
         if (!getElementType().equals(other.getElementType()))
             return false;
         if (parent == null)
@@ -172,18 +172,18 @@ public abstract class Handle
     }
 
     @Override
-    public IHandle[] getChildren() throws CoreException
+    public IElement[] getChildren() throws CoreException
     {
         return getBody().getChildren();
     }
 
     @Override
-    public <T extends IHandle> T[] getChildren(Class<T> childType)
+    public <T extends IElement> T[] getChildren(Class<T> childType)
         throws CoreException
     {
-        IHandle[] children = getChildren();
+        IElement[] children = getChildren();
         List<T> list = new ArrayList<T>(children.length);
-        for (IHandle child : children)
+        for (IElement child : children)
         {
             if (childType.isInstance(child))
                 list.add(childType.cast(child));
@@ -202,7 +202,7 @@ public abstract class Handle
      */
     public Body findBody()
     {
-        return getHandleManager().get(this);
+        return getElementManager().get(this);
     }
 
     /**
@@ -214,7 +214,7 @@ public abstract class Handle
      */
     public Body peekAtBody()
     {
-        return getHandleManager().peek(this);
+        return getElementManager().peek(this);
     }
 
     /**
@@ -339,7 +339,7 @@ public abstract class Handle
         if (body == null)
             return;
         ToStringStyle childStyle = null;
-        for (IHandle child : body.getChildren())
+        for (IElement child : body.getChildren())
         {
             indentationPolicy.appendLineSeparatorTo(builder);
             if (childStyle == null)
@@ -385,13 +385,13 @@ public abstract class Handle
     }
 
     /**
-     * Returns the handle manager for this element. The manager must be shared
-     * between all elements of a handle-based model. Typical implementations
+     * Returns the element manager for this element. The manager must be shared
+     * between all elements of a Handly-based model. Typical implementations
      * would answer a model-specific singleton.
      *
-     * @return the handle manager for this element (never <code>null</code>)
+     * @return the element manager for this element (never <code>null</code>)
      */
-    protected abstract HandleManager getHandleManager();
+    protected abstract ElementManager getElementManager();
 
     /**
      * Validates if the element represented by the handle may be "opened",
@@ -421,7 +421,7 @@ public abstract class Handle
      * @throws OperationCanceledException if this method is canceled
      */
     protected abstract void buildStructure(Body body,
-        Map<IHandle, Body> newElements, IProgressMonitor monitor)
+        Map<IElement, Body> newElements, IProgressMonitor monitor)
         throws CoreException;
 
     /**
@@ -493,11 +493,12 @@ public abstract class Handle
     {
         if (monitor == null)
             monitor = new NullProgressMonitor();
-        HandleManager handleManager = getHandleManager();
-        boolean hadTemporaryCache = handleManager.hasTemporaryCache();
+        ElementManager elementManager = getElementManager();
+        boolean hadTemporaryCache = elementManager.hasTemporaryCache();
         try
         {
-            Map<IHandle, Body> newElements = handleManager.getTemporaryCache();
+            Map<IElement, Body> newElements =
+                elementManager.getTemporaryCache();
             generateBodies(body, newElements, monitor);
             if (body == null)
             {
@@ -515,10 +516,10 @@ public abstract class Handle
             if (!hadTemporaryCache)
             {
                 if (force)
-                    handleManager.put(this, newElements);
+                    elementManager.put(this, newElements);
                 else
                 {
-                    Body existingBody = handleManager.putIfAbsent(this,
+                    Body existingBody = elementManager.putIfAbsent(this,
                         newElements);
                     if (existingBody != null)
                         body = existingBody;
@@ -529,7 +530,7 @@ public abstract class Handle
         {
             if (!hadTemporaryCache)
             {
-                handleManager.resetTemporaryCache();
+                elementManager.resetTemporaryCache();
             }
         }
         return body;
@@ -565,9 +566,9 @@ public abstract class Handle
      * @return the innermost openable element in the parent chain of this
      *  element, or <code>null</code> if this element has no openable parent
      */
-    protected final Handle getOpenableParent()
+    protected final Element getOpenableParent()
     {
-        Handle result = parent;
+        Element result = parent;
         while (result != null && !result.isOpenable())
             result = result.parent;
         return result;
@@ -584,10 +585,10 @@ public abstract class Handle
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected void generateAncestorBodies(Map<IHandle, Body> newElements,
+    protected void generateAncestorBodies(Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
-        Handle openableParent = getOpenableParent();
+        Element openableParent = getOpenableParent();
         if (openableParent != null && openableParent.findBody() == null)
         {
             openableParent.generateBodies(openableParent.newBody(), newElements,
@@ -609,7 +610,7 @@ public abstract class Handle
      * @throws OperationCanceledException if this method is canceled
      */
     protected final void generateBodies(Body body,
-        Map<IHandle, Body> newElements, IProgressMonitor monitor)
+        Map<IElement, Body> newElements, IProgressMonitor monitor)
         throws CoreException
     {
         monitor.beginTask("", 2); //$NON-NLS-1$
@@ -677,7 +678,7 @@ public abstract class Handle
     {
         if (external && !isOpenable())
             return false;
-        getHandleManager().remove(this);
+        getElementManager().remove(this);
         return true;
     }
 

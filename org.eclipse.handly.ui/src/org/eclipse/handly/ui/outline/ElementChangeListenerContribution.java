@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,8 +12,8 @@ package org.eclipse.handly.ui.outline;
 
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.model.adapter.NullContentAdapter;
@@ -62,7 +62,7 @@ public abstract class ElementChangeListenerContribution
      */
     protected boolean affects(IElementChangeEvent event, Object inputElement)
     {
-        IHandle element = getContentAdapter().getHandle(inputElement);
+        IElement element = getContentAdapter().adapt(inputElement);
         if (element != null)
             return affects(event.getDelta(), element);
         return false;
@@ -76,12 +76,12 @@ public abstract class ElementChangeListenerContribution
      * @return <code>true</code> if the given delta affects the given element,
      *  <code>false</code> otherwise
      */
-    protected boolean affects(IHandleDelta delta, IHandle element)
+    protected boolean affects(IElementDelta delta, IElement element)
     {
         if (delta.getElement().equals(element))
             return true;
-        IHandleDelta[] children = delta.getAffectedChildren();
-        for (IHandleDelta child : children)
+        IElementDelta[] children = delta.getAffectedChildren();
+        for (IElementDelta child : children)
         {
             if (affects(child, element))
                 return true;

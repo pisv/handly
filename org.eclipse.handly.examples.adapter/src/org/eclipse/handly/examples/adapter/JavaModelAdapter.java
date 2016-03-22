@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,9 @@
 package org.eclipse.handly.examples.adapter;
 
 import org.eclipse.handly.internal.examples.adapter.AdapterModelManager;
-import org.eclipse.handly.internal.examples.adapter.JavaHandle;
+import org.eclipse.handly.internal.examples.adapter.JavaElement;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.jdt.core.IJavaElement;
 
 /**
@@ -22,28 +22,26 @@ import org.eclipse.jdt.core.IJavaElement;
 public class JavaModelAdapter
 {
     /**
-     * Returns <code>IHandle</code> corresponding to the given Java element.
+     * Returns <code>IElement</code> that corresponds to the given JDT Java element.
      *
      * @param javaElement may be <code>null</code>
-     * @return <code>IHandle</code> corresponding to the given Java element,
-     *  or <code>null</code> if none
+     * @return the corresponding {@link IElement}, or <code>null</code> if none
      */
-    public static IHandle getHandle(IJavaElement javaElement)
+    public static IElement adapt(IJavaElement javaElement)
     {
-        return JavaHandle.create(javaElement);
+        return JavaElement.create(javaElement);
     }
 
     /**
-     * Returns the Java element corresponding to the given <code>IHandle</code>.
+     * Returns the JDT Java element corresponding to the given <code>IElement</code>.
      *
-     * @param handle may be <code>null</code>
-     * @return the Java element corresponding to the given <code>IHandle</code>,
-     *  or <code>null</code> if none
+     * @param element {@link IElement} may be <code>null</code>
+     * @return the corresponding JDT Java element, or <code>null</code> if none
      */
-    public static IJavaElement getJavaElement(IHandle handle)
+    public static IJavaElement getJavaElement(IElement element)
     {
-        if (handle instanceof JavaHandle)
-            return ((JavaHandle)handle).getJavaElement();
+        if (element instanceof JavaElement)
+            return ((JavaElement)element).getJavaElement();
         return null;
     }
 

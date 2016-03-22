@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@ package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
 
 /**
@@ -49,9 +49,9 @@ public class ImportDeclaration
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return JavaModelManager.INSTANCE.getHandleManager();
+        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override

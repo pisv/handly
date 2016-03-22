@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.handly.model.adapter;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
  * A content adapter that does nothing in terms of actual adaptation:
- * it merely defines identity transformation between all handles.
+ * it merely defines identity transformation between all {@link IElement}s.
  */
 public class NullContentAdapter
     implements IContentAdapter
@@ -25,17 +25,17 @@ public class NullContentAdapter
     public static final IContentAdapter INSTANCE = new NullContentAdapter();
 
     @Override
-    public Object getCorrespondingElement(IHandle handle)
+    public IElement adapt(Object element)
     {
-        return handle;
+        if (element instanceof IElement)
+            return (IElement)element;
+        return null;
     }
 
     @Override
-    public IHandle getHandle(Object element)
+    public Object getCorrespondingElement(IElement element)
     {
-        if (element instanceof IHandle)
-            return (IHandle)element;
-        return null;
+        return element;
     }
 
     private NullContentAdapter()

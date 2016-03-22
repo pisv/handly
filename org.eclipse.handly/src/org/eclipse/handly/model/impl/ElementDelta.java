@@ -18,13 +18,13 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.util.IndentationPolicy;
 
 /**
- * Implements {@link IHandleDelta}. To create a delta tree, call
+ * Implements {@link IElementDelta}. To create a delta tree, call
  * <code>insertXXX</code> methods on a root delta.
  * <p>
  * Note that despite having a dependency on {@link IResourceDelta}
@@ -35,24 +35,25 @@ import org.eclipse.handly.util.IndentationPolicy;
  * </p>
  * <p>
  * Clients can use this class as it stands or subclass it as circumstances
- * warrant. Subclasses should consider overriding {@link #newDelta(IHandle)}
+ * warrant. Subclasses should consider overriding {@link #newDelta(IElement)}
  * method.
  * </p>
  * <p>
  * Adapted from <code>org.eclipse.jdt.internal.core.JavaElementDelta</code>.
  * </p>
  */
-public class HandleDelta
-    implements IHandleDelta
+public class ElementDelta
+    implements IElementDelta
 {
-    private static final HandleDelta[] EMPTY_HANDLE_DELTAS = new HandleDelta[0];
+    private static final ElementDelta[] EMPTY_ELEMENT_DELTAS =
+        new ElementDelta[0];
 
     private int kind;
     private long flags;
-    private final IHandle element;
-    private IHandle movedFromElement;
-    private IHandle movedToElement;
-    private HandleDelta[] affectedChildren = EMPTY_HANDLE_DELTAS;
+    private final IElement element;
+    private IElement movedFromElement;
+    private IElement movedToElement;
+    private ElementDelta[] affectedChildren = EMPTY_ELEMENT_DELTAS;
 
     /**
      * On-demand index into <code>affectedChildren</code>
@@ -71,7 +72,7 @@ public class HandleDelta
      * @param element the element that this delta describes a change to
      *  (not <code>null</code>)
      */
-    public HandleDelta(IHandle element)
+    public ElementDelta(IElement element)
     {
         if (element == null)
             throw new IllegalArgumentException();
@@ -79,7 +80,7 @@ public class HandleDelta
     }
 
     @Override
-    public IHandle getElement()
+    public IElement getElement()
     {
         return element;
     }
@@ -97,37 +98,37 @@ public class HandleDelta
     }
 
     @Override
-    public HandleDelta[] getAffectedChildren()
+    public ElementDelta[] getAffectedChildren()
     {
         return affectedChildren;
     }
 
     @Override
-    public HandleDelta[] getAddedChildren()
+    public ElementDelta[] getAddedChildren()
     {
         return getChildrenOfType(ADDED);
     }
 
     @Override
-    public HandleDelta[] getRemovedChildren()
+    public ElementDelta[] getRemovedChildren()
     {
         return getChildrenOfType(REMOVED);
     }
 
     @Override
-    public HandleDelta[] getChangedChildren()
+    public ElementDelta[] getChangedChildren()
     {
         return getChildrenOfType(CHANGED);
     }
 
     @Override
-    public IHandle getMovedFromElement()
+    public IElement getMovedFromElement()
     {
         return movedFromElement;
     }
 
     @Override
-    public IHandle getMovedToElement()
+    public IElement getMovedToElement()
     {
         return movedToElement;
     }
@@ -166,15 +167,15 @@ public class HandleDelta
      * Convenience method. Same as <code>insertAdded(element, 0)</code>.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
      * @param element the added element (not <code>null</code>)
      * @return the receiver (i.e. this delta)
-     * @see #insertAdded(IHandle, long)
+     * @see #insertAdded(IElement, long)
      */
-    public HandleDelta insertAdded(IHandle element)
+    public ElementDelta insertAdded(IElement element)
     {
         return insertAdded(element, 0);
     }
@@ -184,7 +185,7 @@ public class HandleDelta
      * this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
@@ -192,7 +193,7 @@ public class HandleDelta
      * @param flags change flags
      * @return the receiver (i.e. this delta)
      */
-    public HandleDelta insertAdded(IHandle element, long flags)
+    public ElementDelta insertAdded(IElement element, long flags)
     {
         insert(newAdded(element, flags));
         return this;
@@ -202,15 +203,15 @@ public class HandleDelta
      * Convenience method. Same as <code>insertRemoved(element, 0)</code>.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
      * @param element the removed element (not <code>null</code>)
      * @return the receiver (i.e. this delta)
-     * @see #insertRemoved(IHandle, long)
+     * @see #insertRemoved(IElement, long)
      */
-    public HandleDelta insertRemoved(IHandle element)
+    public ElementDelta insertRemoved(IElement element)
     {
         return insertRemoved(element, 0);
     }
@@ -220,7 +221,7 @@ public class HandleDelta
      * this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
@@ -228,12 +229,12 @@ public class HandleDelta
      * @param flags change flags
      * @return the receiver (i.e. this delta)
      */
-    public HandleDelta insertRemoved(IHandle element, long flags)
+    public ElementDelta insertRemoved(IElement element, long flags)
     {
-        HandleDelta delta = newDelta(element);
+        ElementDelta delta = newDelta(element);
         delta.flags = flags;
         insert(delta);
-        HandleDelta actualDelta = getDeltaFor(element);
+        ElementDelta actualDelta = getDeltaFor(element);
         if (actualDelta != null)
         {
             actualDelta.kind = REMOVED;
@@ -248,7 +249,7 @@ public class HandleDelta
      * this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
@@ -256,7 +257,7 @@ public class HandleDelta
      * @param flags change flags
      * @return the receiver (i.e. this delta)
      */
-    public HandleDelta insertChanged(IHandle element, long flags)
+    public ElementDelta insertChanged(IElement element, long flags)
     {
         insert(newChanged(element, flags));
         return this;
@@ -267,7 +268,7 @@ public class HandleDelta
      * given element into this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
@@ -276,8 +277,8 @@ public class HandleDelta
      * @param movedToElement the element in its new location (not <code>null</code>)
      * @return the receiver (i.e. this delta)
      */
-    public HandleDelta insertMovedFrom(IHandle movedFromElement,
-        IHandle movedToElement)
+    public ElementDelta insertMovedFrom(IElement movedFromElement,
+        IElement movedToElement)
     {
         insert(newMovedFrom(movedFromElement, movedToElement));
         return this;
@@ -288,7 +289,7 @@ public class HandleDelta
      * given element into this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IHandle)}
+     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
@@ -297,8 +298,8 @@ public class HandleDelta
      *  location (not <code>null</code>)
      * @return the receiver (i.e. this delta)
      */
-    public HandleDelta insertMovedTo(IHandle movedToElement,
-        IHandle movedFromElement)
+    public ElementDelta insertMovedTo(IElement movedToElement,
+        IElement movedFromElement)
     {
         insert(newMovedTo(movedToElement, movedFromElement));
         return this;
@@ -310,9 +311,9 @@ public class HandleDelta
      *
      * @param delta the delta to insert (not <code>null</code>)
      */
-    private void insert(HandleDelta delta)
+    private void insert(ElementDelta delta)
     {
-        HandleDelta childDelta = createDeltaTree(delta);
+        ElementDelta childDelta = createDeltaTree(delta);
         if (!equalsAndSameParent(delta.getElement(), getElement()))
         {
             addAffectedChild(childDelta);
@@ -326,13 +327,13 @@ public class HandleDelta
      * @param delta the delta to create a delta tree for (not <code>null</code>)
      * @return the root of the created delta tree (never <code>null</code>)
      */
-    private HandleDelta createDeltaTree(HandleDelta delta)
+    private ElementDelta createDeltaTree(ElementDelta delta)
     {
         if (delta == null)
             throw new IllegalArgumentException();
 
-        HandleDelta childDelta = delta;
-        List<IHandle> ancestors = getAncestors(delta.getElement());
+        ElementDelta childDelta = delta;
+        List<IElement> ancestors = getAncestors(delta.getElement());
         if (ancestors == null)
         {
             if (equalsAndSameParent(delta.getElement(), getElement()))
@@ -348,8 +349,8 @@ public class HandleDelta
         {
             for (int i = 0, size = ancestors.size(); i < size; i++)
             {
-                IHandle ancestor = ancestors.get(i);
-                HandleDelta ancestorDelta = newDelta(ancestor);
+                IElement ancestor = ancestors.get(i);
+                ElementDelta ancestorDelta = newDelta(ancestor);
                 ancestorDelta.addAffectedChild(childDelta);
                 childDelta = ancestorDelta;
             }
@@ -364,7 +365,7 @@ public class HandleDelta
      *
      * @param child the child delta to add (not <code>null</code>)
      */
-    private void addAffectedChild(HandleDelta child)
+    private void addAffectedChild(ElementDelta child)
     {
         if (child == null)
             throw new IllegalArgumentException();
@@ -398,7 +399,7 @@ public class HandleDelta
         }
         else
         {
-            HandleDelta existingChild = affectedChildren[index];
+            ElementDelta existingChild = affectedChildren[index];
             switch (existingChild.getKind())
             {
             case ADDED:
@@ -432,7 +433,7 @@ public class HandleDelta
                     affectedChildren[index] = child;
                     return;
                 case CHANGED: // child was changed then changed -> it is changed
-                    for (HandleDelta childsChild : child.affectedChildren)
+                    for (ElementDelta childsChild : child.affectedChildren)
                     {
                         existingChild.addAffectedChild(childsChild);
                     }
@@ -491,7 +492,7 @@ public class HandleDelta
      */
     void clearAffectedChildren()
     {
-        affectedChildren = EMPTY_HANDLE_DELTAS;
+        affectedChildren = EMPTY_ELEMENT_DELTAS;
         childIndex = null;
     }
 
@@ -502,7 +503,7 @@ public class HandleDelta
      * @param element the element to search delta for or <code>null</code>
      * @return the delta for the given element, or <code>null</code> if none
      */
-    public HandleDelta getDeltaFor(IHandle element)
+    public ElementDelta getDeltaFor(IElement element)
     {
         if (element == null)
             return null;
@@ -580,7 +581,7 @@ public class HandleDelta
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        toStringFull(IHandle.ToStringStyle.DEFAULT_INDENTATION_POLICY, 0,
+        toStringFull(IElement.ToStringStyle.DEFAULT_INDENTATION_POLICY, 0,
             builder);
         return builder.toString();
     }
@@ -593,7 +594,7 @@ public class HandleDelta
     {
         indentationPolicy.appendIndentTo(builder, indentationLevel);
         toStringMinimal(builder);
-        for (HandleDelta child : affectedChildren)
+        for (ElementDelta child : affectedChildren)
         {
             indentationPolicy.appendLineSeparatorTo(builder);
             child.toStringFull(indentationPolicy, indentationLevel + 1,
@@ -630,7 +631,7 @@ public class HandleDelta
      */
     public void toStringMinimal(StringBuilder builder)
     {
-        builder.append(element.toString(IHandle.ToStringStyle.MINIMAL));
+        builder.append(element.toString(IElement.ToStringStyle.MINIMAL));
         builder.append('[');
         switch (kind)
         {
@@ -682,7 +683,7 @@ public class HandleDelta
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_FROM("); //$NON-NLS-1$
             builder.append(getMovedFromElement().toString(
-                IHandle.ToStringStyle.COMPACT));
+                IElement.ToStringStyle.COMPACT));
             builder.append(')');
             prev = true;
         }
@@ -692,7 +693,7 @@ public class HandleDelta
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_TO("); //$NON-NLS-1$
             builder.append(getMovedToElement().toString(
-                IHandle.ToStringStyle.COMPACT));
+                IElement.ToStringStyle.COMPACT));
             builder.append(')');
             prev = true;
         }
@@ -766,9 +767,9 @@ public class HandleDelta
      * @return a new, initially empty delta for the given element
      *  (never <code>null</code>)
      */
-    protected HandleDelta newDelta(IHandle element)
+    protected ElementDelta newDelta(IElement element)
     {
-        return new HandleDelta(element);
+        return new ElementDelta(element);
     }
 
     /**
@@ -791,9 +792,9 @@ public class HandleDelta
      * @return a new <code>ADDED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    private HandleDelta newAdded(IHandle element, long flags)
+    private ElementDelta newAdded(IElement element, long flags)
     {
-        HandleDelta delta = newDelta(element);
+        ElementDelta delta = newDelta(element);
         delta.kind = ADDED;
         delta.flags = flags;
         return delta;
@@ -808,9 +809,9 @@ public class HandleDelta
      * @return a new <code>REMOVED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    private HandleDelta newRemoved(IHandle element, long flags)
+    private ElementDelta newRemoved(IElement element, long flags)
     {
-        HandleDelta delta = newDelta(element);
+        ElementDelta delta = newDelta(element);
         delta.kind = REMOVED;
         delta.flags = flags;
         return delta;
@@ -825,9 +826,9 @@ public class HandleDelta
      * @return a new <code>CHANGED</code> delta for the given element
      *  (never <code>null</code>)
      */
-    private HandleDelta newChanged(IHandle element, long flags)
+    private ElementDelta newChanged(IElement element, long flags)
     {
-        HandleDelta delta = newDelta(element);
+        ElementDelta delta = newDelta(element);
         delta.kind = CHANGED;
         delta.flags = flags;
         return delta;
@@ -843,10 +844,10 @@ public class HandleDelta
      * @return a new "moved from" (<code>REMOVED</code>) delta
      *  (never <code>null</code>)
      */
-    private HandleDelta newMovedFrom(IHandle movedFromElement,
-        IHandle movedToElement)
+    private ElementDelta newMovedFrom(IElement movedFromElement,
+        IElement movedToElement)
     {
-        HandleDelta delta = newRemoved(movedFromElement, F_MOVED_TO);
+        ElementDelta delta = newRemoved(movedFromElement, F_MOVED_TO);
         if (movedToElement == null)
             throw new IllegalArgumentException();
         delta.movedToElement = movedToElement;
@@ -862,10 +863,10 @@ public class HandleDelta
      * @return a new "moved to" (<code>ADDED</code>) delta
      *  (never <code>null</code>)
      */
-    private HandleDelta newMovedTo(IHandle movedToElement,
-        IHandle movedFromElement)
+    private ElementDelta newMovedTo(IElement movedToElement,
+        IElement movedFromElement)
     {
-        HandleDelta delta = newAdded(movedToElement, F_MOVED_FROM);
+        ElementDelta delta = newAdded(movedToElement, F_MOVED_FROM);
         if (movedFromElement == null)
             throw new IllegalArgumentException();
         delta.movedFromElement = movedFromElement;
@@ -884,13 +885,13 @@ public class HandleDelta
      *  or <code>null</code> if the given element is not a descendant
      *  of the this delta's element
      */
-    private List<IHandle> getAncestors(IHandle child)
+    private List<IElement> getAncestors(IElement child)
     {
-        IHandle parent = child.getParent();
+        IElement parent = child.getParent();
         if (parent == null)
             return null;
 
-        ArrayList<IHandle> parents = new ArrayList<IHandle>();
+        ArrayList<IElement> parents = new ArrayList<IElement>();
         while (!parent.equals(getElement()))
         {
             parents.add(parent);
@@ -907,26 +908,26 @@ public class HandleDelta
     /**
      * Returns the deltas for the affected children of the given type.
      *
-     * @param type one of {@link IHandleDelta#ADDED ADDED},
-     *  {@link IHandleDelta#REMOVED REMOVED}, or
-     *  {@link IHandleDelta#CHANGED CHANGED}
+     * @param type one of {@link IElementDelta#ADDED ADDED},
+     *  {@link IElementDelta#REMOVED REMOVED}, or
+     *  {@link IElementDelta#CHANGED CHANGED}
      * @return the deltas for the affected children of the given type
      *  (never <code>null</code>)
      */
-    private HandleDelta[] getChildrenOfType(int type)
+    private ElementDelta[] getChildrenOfType(int type)
     {
         int length = affectedChildren.length;
         if (length == 0)
-            return EMPTY_HANDLE_DELTAS;
+            return EMPTY_ELEMENT_DELTAS;
 
-        ArrayList<HandleDelta> children = new ArrayList<HandleDelta>(length);
-        for (HandleDelta child : affectedChildren)
+        ArrayList<ElementDelta> children = new ArrayList<ElementDelta>(length);
+        for (ElementDelta child : affectedChildren)
         {
             if (child.getKind() == type)
                 children.add(child);
         }
 
-        return children.toArray(EMPTY_HANDLE_DELTAS);
+        return children.toArray(EMPTY_ELEMENT_DELTAS);
     }
 
     /**
@@ -936,16 +937,16 @@ public class HandleDelta
      * @param key the key to search delta for (not <code>null</code>)
      * @return the delta for the given key, or <code>null</code> if none
      */
-    private HandleDelta findDescendant(Key key)
+    private ElementDelta findDescendant(Key key)
     {
         if (affectedChildren.length == 0)
             return null;
         Integer index = indexOfChild(key);
         if (index != null)
             return affectedChildren[index];
-        for (HandleDelta child : affectedChildren)
+        for (ElementDelta child : affectedChildren)
         {
-            HandleDelta delta = child.findDescendant(key);
+            ElementDelta delta = child.findDescendant(key);
             if (delta != null)
                 return delta;
         }
@@ -992,7 +993,7 @@ public class HandleDelta
      *
      * @param child the child delta to add (not <code>null</code>)
      */
-    private void addNewChild(HandleDelta child)
+    private void addNewChild(ElementDelta child)
     {
         affectedChildren = growAndAddToArray(affectedChildren, child);
         if (childIndex != null)
@@ -1037,13 +1038,13 @@ public class HandleDelta
      * @return <code>true</code> if the given elements are equal and have
      *  the same parent, <code>false</code> otherwise
      */
-    private static boolean equalsAndSameParent(IHandle e1, IHandle e2)
+    private static boolean equalsAndSameParent(IElement e1, IElement e2)
     {
         if (!e1.equals(e2))
             return false;
 
-        IHandle parent1 = e1.getParent();
-        IHandle parent2 = e2.getParent();
+        IElement parent1 = e1.getParent();
+        IElement parent2 = e2.getParent();
         if (parent1 == null)
         {
             if (parent2 != null)
@@ -1065,10 +1066,10 @@ public class HandleDelta
      * @param addition the element to add
      * @return the resulting array (never <code>null</code>)
      */
-    private static HandleDelta[] growAndAddToArray(HandleDelta[] array,
-        HandleDelta addition)
+    private static ElementDelta[] growAndAddToArray(ElementDelta[] array,
+        ElementDelta addition)
     {
-        HandleDelta[] result = new HandleDelta[array.length + 1];
+        ElementDelta[] result = new ElementDelta[array.length + 1];
         System.arraycopy(array, 0, result, 0, array.length);
         result[array.length] = addition;
         return result;
@@ -1082,10 +1083,10 @@ public class HandleDelta
      * @param index a valid index which indicates the element to exclude
      * @return the resulting array (never <code>null</code>)
      */
-    private static HandleDelta[] removeAndShrinkArray(HandleDelta[] array,
+    private static ElementDelta[] removeAndShrinkArray(ElementDelta[] array,
         int index)
     {
-        HandleDelta[] result = new HandleDelta[array.length - 1];
+        ElementDelta[] result = new ElementDelta[array.length - 1];
         if (index > 0)
             System.arraycopy(array, 0, result, 0, index);
         int rest = array.length - index - 1;
@@ -1096,18 +1097,18 @@ public class HandleDelta
 
     /**
      * Represents a delta key.
-     * @see HandleDelta#childIndex
+     * @see ElementDelta#childIndex
      */
     private static class Key
     {
-        private final IHandle element;
+        private final IElement element;
 
         /**
          * Constructs a new delta key for the given element.
          *
-         * @param element an {@link IHandle} (not <code>null</code>)
+         * @param element an {@link IElement} (not <code>null</code>)
          */
-        public Key(IHandle element)
+        public Key(IElement element)
         {
             if (element == null)
                 throw new IllegalArgumentException();
@@ -1117,7 +1118,7 @@ public class HandleDelta
         /**
          * @return the element of the key (never <code>null</code>)
          */
-        public IHandle getElement()
+        public IElement getElement()
         {
             return element;
         }

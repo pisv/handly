@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,8 @@ import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IMember;
 import org.eclipse.handly.examples.javamodel.IType;
-import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
 
 /**
@@ -36,7 +36,7 @@ public abstract class Member
      * @param name the name of the element, or <code>null</code>
      *  if the element has no name
      */
-    public Member(Handle parent, String name)
+    public Member(Element parent, String name)
     {
         super(parent, name);
     }
@@ -68,8 +68,8 @@ public abstract class Member
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return JavaModelManager.INSTANCE.getHandleManager();
+        return JavaModelManager.INSTANCE.getElementManager();
     }
 }

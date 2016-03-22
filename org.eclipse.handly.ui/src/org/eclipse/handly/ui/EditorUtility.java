@@ -15,12 +15,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.internal.ui.Activator;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.SourceElements;
-import org.eclipse.handly.model.adapter.IContentAdapter;
-import org.eclipse.handly.model.adapter.NullContentAdapter;
 import org.eclipse.handly.util.AdapterUtil;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.IDocument;
@@ -59,9 +57,10 @@ public class EditorUtility
             return (IEditorInput)element;
 
         IResource resource;
-        IHandle handle = getContentAdapter().getHandle(element);
-        if (handle != null)
-            resource = handle.getResource();
+        IElement adapterElement = AdapterUtil.getAdapter(element,
+            IElement.class, true);
+        if (adapterElement != null)
+            resource = adapterElement.getResource();
         else
             resource = ResourceUtil.getResource(element);
 
@@ -102,11 +101,12 @@ public class EditorUtility
         IEditorPart editor = result.getEditor(false);
         if (editor instanceof ITextEditor)
         {
-            IHandle handle = getContentAdapter().getHandle(element);
-            if (handle instanceof ISourceElement)
+            IElement adapterElement = AdapterUtil.getAdapter(element,
+                IElement.class, true);
+            if (adapterElement instanceof ISourceElement)
             {
                 IEditorReference found = findSourceEditor(references,
-                    (ISourceElement)handle);
+                    (ISourceElement)adapterElement);
                 if (found != null)
                     result = found;
             }
@@ -127,14 +127,16 @@ public class EditorUtility
         if (element == null)
             throw new IllegalArgumentException();
 
-        IHandle handle = getContentAdapter().getHandle(element);
-        if (handle instanceof ISourceElement)
+        IElement adapterElement = AdapterUtil.getAdapter(element,
+            IElement.class, true);
+        if (adapterElement instanceof ISourceElement)
         {
             ITextEditor textEditor = AdapterUtil.getAdapter(editor,
                 ITextEditor.class, false);
             if (textEditor != null)
             {
-                if (revealSourceElement(textEditor, (ISourceElement)handle))
+                if (revealSourceElement(textEditor,
+                    (ISourceElement)adapterElement))
                     return;
             }
         }
@@ -166,17 +168,6 @@ public class EditorUtility
             }
         }
         return null;
-    }
-
-    /**
-     * Returns the installed content adapter, or a {@link NullContentAdapter}
-     * if none.
-     *
-     * @return {@link IContentAdapter} (never <code>null</code>)
-     */
-    protected IContentAdapter getContentAdapter()
-    {
-        return NullContentAdapter.INSTANCE;
     }
 
     private IEditorReference findSourceEditor(IEditorReference[] references,

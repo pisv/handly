@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.handly.examples.basic.foo.Def;
 import org.eclipse.handly.examples.basic.foo.Module;
 import org.eclipse.handly.examples.basic.foo.Var;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.StructureHelper;
@@ -43,7 +43,7 @@ class FooFileStructureBuilder
      * @param resourceServiceProvider Xtext's {@link IResourceServiceProvider}
      *  for the language (not <code>null</code>)
      */
-    FooFileStructureBuilder(Map<IHandle, Body> newElements,
+    FooFileStructureBuilder(Map<IElement, Body> newElements,
         IResourceServiceProvider resourceServiceProvider)
     {
         this.helper = new StructureHelper(newElements);

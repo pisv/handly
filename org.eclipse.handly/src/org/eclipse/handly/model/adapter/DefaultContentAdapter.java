@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.handly.model.adapter;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.util.AdapterUtil;
 
 /**
  * Implements {@link IContentAdapter} on top of a one-to-one mapping
- * of elements from a Handly based model to elements in some other model.
+ * of elements from a Handly-based model to elements in some other model.
  * The mapping is defined via the <code>IAdaptable</code> mechanism. Namely,
- * for a given {@link IHandle} the corresponding element is obtained from
- * the {@link ICorrespondingElementProvider} the handle adapts to.
+ * for a given {@link IElement} the corresponding element is obtained from
+ * the {@link ICorrespondingElementProvider} the <code>IElement</code> adapts to.
  */
 public class DefaultContentAdapter
     implements IContentAdapter
@@ -29,24 +29,24 @@ public class DefaultContentAdapter
     public static final IContentAdapter INSTANCE = new DefaultContentAdapter();
 
     @Override
-    public Object getCorrespondingElement(IHandle handle)
+    public IElement adapt(Object element)
     {
-        ICorrespondingElementProvider provider = AdapterUtil.getAdapter(handle,
-            ICorrespondingElementProvider.class, true);
-        if (provider == null)
+        IElement result = AdapterUtil.getAdapter(element, IElement.class, true);
+        if (result == null)
             return null;
-        return provider.getCorrespondingElement(handle);
+        if (!element.equals(getCorrespondingElement(result)))
+            return null;
+        return result;
     }
 
     @Override
-    public IHandle getHandle(Object element)
+    public Object getCorrespondingElement(IElement element)
     {
-        IHandle handle = AdapterUtil.getAdapter(element, IHandle.class, true);
-        if (handle == null)
+        ICorrespondingElementProvider provider = AdapterUtil.getAdapter(element,
+            ICorrespondingElementProvider.class, true);
+        if (provider == null)
             return null;
-        if (!element.equals(getCorrespondingElement(handle)))
-            return null;
-        return handle;
+        return provider.getCorrespondingElement(element);
     }
 
     private DefaultContentAdapter()

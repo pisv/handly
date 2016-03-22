@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,10 +25,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
@@ -37,7 +37,7 @@ import org.eclipse.jdt.core.JavaCore;
  * Implementation of {@link IPackageFragmentRoot}.
  */
 public class PackageFragmentRoot
-    extends Handle
+    extends Element
     implements IPackageFragmentRoot
 {
     private final IResource resource;
@@ -106,7 +106,7 @@ public class PackageFragmentRoot
     @Override
     public IPackageFragment[] getPackageFragments() throws CoreException
     {
-        IHandle[] children = getChildren();
+        IElement[] children = getChildren();
         int length = children.length;
         IPackageFragment[] result = new IPackageFragment[length];
         System.arraycopy(children, 0, result, 0, length);
@@ -120,9 +120,9 @@ public class PackageFragmentRoot
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return JavaModelManager.INSTANCE.getHandleManager();
+        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
@@ -152,7 +152,7 @@ public class PackageFragmentRoot
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IHandle, Body> newElements,
+    protected void buildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         if (resource.getType() == IResource.FOLDER
@@ -162,7 +162,7 @@ public class PackageFragmentRoot
             ArrayList<IPackageFragment> children =
                 new ArrayList<IPackageFragment>();
             computeFolderChildren(rootFolder, Path.EMPTY, children);
-            body.setChildren(children.toArray(new IHandle[children.size()]));
+            body.setChildren(children.toArray(new IElement[children.size()]));
         }
     }
 

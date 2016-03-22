@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,16 +11,16 @@
 package org.eclipse.handly.model.impl;
 
 import org.eclipse.handly.model.IElementChangeEvent;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElementDelta;
 
 /**
- * Represents a change event described by a handle delta.
+ * Represents a change event described by an element delta.
  */
 public class ElementChangeEvent
     implements IElementChangeEvent
 {
     private final int type;
-    private final IHandleDelta delta;
+    private final IElementDelta delta;
 
     /**
      * Constructs a change event with the given type and the given delta.
@@ -28,7 +28,7 @@ public class ElementChangeEvent
      * @param type the type of event being reported (model-specific)
      * @param delta the delta describing the change (not <code>null</code>)
      */
-    public ElementChangeEvent(int type, IHandleDelta delta)
+    public ElementChangeEvent(int type, IElementDelta delta)
     {
         if (delta == null)
             throw new IllegalArgumentException();
@@ -43,7 +43,7 @@ public class ElementChangeEvent
     }
 
     @Override
-    public IHandleDelta getDelta()
+    public IElementDelta getDelta()
     {
         return delta;
     }

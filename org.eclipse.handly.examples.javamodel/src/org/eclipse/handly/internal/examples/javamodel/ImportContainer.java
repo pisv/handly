@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,10 +14,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
 import org.eclipse.handly.util.IndentationPolicy;
 
@@ -59,7 +59,7 @@ public class ImportContainer
     @Override
     public IImportDeclaration[] getImports() throws CoreException
     {
-        IHandle[] children = getChildren();
+        IElement[] children = getChildren();
         int length = children.length;
         IImportDeclaration[] result = new IImportDeclaration[length];
         System.arraycopy(children, 0, result, 0, length);
@@ -67,9 +67,9 @@ public class ImportContainer
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return JavaModelManager.INSTANCE.getHandleManager();
+        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
@@ -85,12 +85,12 @@ public class ImportContainer
         Body body = peekAtBody();
         if (body == null)
             return;
-        IHandle[] children = body.getChildren();
+        IElement[] children = body.getChildren();
         for (int i = 0; i < children.length; i++)
         {
             if (i > 0)
                 indentationPolicy.appendLineSeparatorTo(builder);
-            ((Handle)children[i]).toStringBody(indentationPolicy,
+            ((Element)children[i]).toStringBody(indentationPolicy,
                 indentationLevel, builder);
         }
     }

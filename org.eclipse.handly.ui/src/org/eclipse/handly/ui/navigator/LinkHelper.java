@@ -11,9 +11,7 @@
 package org.eclipse.handly.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.adapter.IContentAdapter;
-import org.eclipse.handly.model.adapter.NullContentAdapter;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.ui.EditorUtility;
 import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.util.AdapterUtil;
@@ -55,7 +53,7 @@ public class LinkHelper
     @Override
     public IStructuredSelection findSelection(IEditorInput editorInput)
     {
-        IHandle inputElement = inputElementProvider.getElement(editorInput);
+        IElement inputElement = inputElementProvider.getElement(editorInput);
         if (inputElement != null)
         {
             IViewPart navigatorView = getNavigatorView();
@@ -65,11 +63,12 @@ public class LinkHelper
                     (IStructuredSelection)navigatorView.getSite().getSelectionProvider().getSelection();
                 if (currentSelection != null && currentSelection.size() == 1)
                 {
-                    Object element = currentSelection.getFirstElement();
-                    IHandle handle = getContentAdapter().getHandle(element);
-                    if (handle != null)
+                    IElement element = AdapterUtil.getAdapter(
+                        currentSelection.getFirstElement(), IElement.class,
+                        true);
+                    if (element != null)
                     {
-                        if (check(inputElement, handle))
+                        if (check(inputElement, element))
                             return currentSelection;
                     }
                 }
@@ -126,17 +125,12 @@ public class LinkHelper
         return inputElementProvider;
     }
 
-    protected IContentAdapter getContentAdapter()
-    {
-        return NullContentAdapter.INSTANCE;
-    }
-
     protected EditorUtility getEditorUtility()
     {
         return EditorUtility.DEFAULT;
     }
 
-    private static boolean check(IHandle ancestor, IHandle descendent)
+    private static boolean check(IElement ancestor, IElement descendent)
     {
         descendent = descendent.getParent();
         while (descendent != null)

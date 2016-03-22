@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,38 +13,38 @@ package org.eclipse.handly.model.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceFile;
 
 /**
- * Manages handle/body relationships for a handle-based model.
- * Generally, each model will have its own instance of the handle manager.
+ * Manages handle/body relationships for a Handly-based model.
+ * Generally, each model will have its own instance of the element manager.
  * <p>
  * An instance of this class is safe for use by multiple threads.
  * </p>
  *
- * @see Handle#getHandleManager()
+ * @see Element#getElementManager()
  */
-public class HandleManager
+public class ElementManager
 {
     private static final ISourceFile[] NO_WORKING_COPIES = new ISourceFile[0];
 
     private IBodyCache cache;
 
     // Temporary cache of newly opened elements
-    private ThreadLocal<Map<IHandle, Body>> temporaryCache =
-        new ThreadLocal<Map<IHandle, Body>>();
+    private ThreadLocal<Map<IElement, Body>> temporaryCache =
+        new ThreadLocal<Map<IElement, Body>>();
 
     private Map<ISourceFile, WorkingCopyInfo> workingCopyInfos =
         new HashMap<ISourceFile, WorkingCopyInfo>();
 
     /**
-     * Constructs a handle manager with the given body cache.
+     * Constructs an element manager with the given body cache.
      *
-     * @param cache the body cache to be used by the handle manager
+     * @param cache the body cache to be used by the element manager
      *  (not <code>null</code>)
      */
-    public HandleManager(IBodyCache cache)
+    public ElementManager(IBodyCache cache)
     {
         if (cache == null)
             throw new IllegalArgumentException();
@@ -67,11 +67,11 @@ public class HandleManager
      * This method is called internally; it is not intended to be called by clients.
      * </p>
      *
-     * @param handle the element to close (never <code>null</code>)
+     * @param element the element to close (never <code>null</code>)
      */
-    protected void internalClose(IHandle handle)
+    protected void internalClose(IElement element)
     {
-        ((Handle)handle).close(false);
+        ((Element)element).close(false);
     }
 
     /**
@@ -81,107 +81,107 @@ public class HandleManager
      * This method is called internally; it is not intended to be called by clients.
      * </p>
      *
-     * @param handle the handle whose body is going to be removed
+     * @param element the element whose body is going to be removed
      *  (never <code>null</code>)
      * @param body the corresponding body that is going to be removed
      *  (never <code>null</code>)
      */
-    protected void removing(IHandle handle, Body body)
+    protected void removing(IElement element, Body body)
     {
-        ((Handle)handle).removing(body);
+        ((Element)element).removing(body);
     }
 
     /**
-     * Returns the corresponding body for the given handle, or
-     * <code>null</code> if no body is registered for the handle.
+     * Returns the corresponding body for the given element, or
+     * <code>null</code> if no body is registered for the element.
      * <p>
      * Checks the temporary cache first. If the current thread has no temporary
-     * cache or it contains no body for the handle, checks the body cache
+     * cache or it contains no body for the element, checks the body cache
      * associated with this manager. Performs atomically.
      * </p>
      *
-     * @param handle the handle whose body is to be returned
-     * @return the corresponding body for the given handle, or
-     *  <code>null</code> if no body is registered for the handle
+     * @param element the element whose body is to be returned
+     * @return the corresponding body for the given element, or
+     *  <code>null</code> if no body is registered for the element
      */
-    synchronized Body get(IHandle handle)
+    synchronized Body get(IElement element)
     {
-        Map<IHandle, Body> tempCache = temporaryCache.get();
+        Map<IElement, Body> tempCache = temporaryCache.get();
         if (tempCache != null)
         {
-            Body body = tempCache.get(handle);
+            Body body = tempCache.get(element);
             if (body != null)
                 return body;
         }
-        return cache.get(handle);
+        return cache.get(element);
     }
 
     /**
-     * Returns the corresponding body for the given handle without
+     * Returns the corresponding body for the given element without
      * disturbing cache ordering, or <code>null</code> if no body
-     * is registered for the handle.
+     * is registered for the element.
      * <p>
      * Checks the temporary cache first. If the current thread has no temporary
-     * cache or it contains no body for the handle, checks the body cache
+     * cache or it contains no body for the element, checks the body cache
      * associated with this manager. Performs atomically.
      * </p>
      *
-     * @param handle the handle whose body is to be returned
-     * @return the corresponding body for the given handle, or
-     *  <code>null</code> if no body is registered for the handle
+     * @param element the element whose body is to be returned
+     * @return the corresponding body for the given element, or
+     *  <code>null</code> if no body is registered for the element
      */
-    synchronized Body peek(IHandle handle)
+    synchronized Body peek(IElement element)
     {
-        Map<IHandle, Body> tempCache = temporaryCache.get();
+        Map<IElement, Body> tempCache = temporaryCache.get();
         if (tempCache != null)
         {
-            Body body = tempCache.get(handle);
+            Body body = tempCache.get(element);
             if (body != null)
                 return body;
         }
-        return cache.peek(handle);
+        return cache.peek(element);
     }
 
     /**
      * Atomically updates the body cache associated with this manager with the
      * provided handle/body relationships.
      *
-     * @param handle the element being (re-)opened (not <code>null</code>)
+     * @param element the element being (re-)opened (not <code>null</code>)
      * @param newElements a map containing handle/body relationships
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
-     *  it must contain a body for the given handle
+     *  it must contain a body for the given element
      */
-    synchronized void put(IHandle handle, Map<IHandle, Body> newElements)
+    synchronized void put(IElement element, Map<IElement, Body> newElements)
     {
         // remove existing children as they are replaced with the new children contained in newElements
-        remove(handle);
+        remove(element);
 
         cache.putAll(newElements);
 
-        if (handle instanceof ISourceFile)
+        if (element instanceof ISourceFile)
         {
-            WorkingCopyInfo info = workingCopyInfos.get((ISourceFile)handle);
+            WorkingCopyInfo info = workingCopyInfos.get((ISourceFile)element);
             if (info != null && !info.created) // case of wc creation
                 info.created = true;
         }
     }
 
     /**
-     * If a body for the given handle is not already present in the body cache
+     * If a body for the given element is not already present in the body cache
      * associated with this manager, puts the provided handle/body relationships
      * into the body cache. Performs atomically.
      *
-     * @param handle the element being opened (not <code>null</code>)
+     * @param element the element being opened (not <code>null</code>)
      * @param newElements a map containing handle/body relationships
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
-     *  it must contain a body for the given handle
-     * @return the previous body for the given handle, or <code>null</code>
-     *  if the body cache did not previously contain a body for the handle
+     *  it must contain a body for the given element
+     * @return the previous body for the given element, or <code>null</code>
+     *  if the body cache did not previously contain a body for the element
      */
-    synchronized Body putIfAbsent(IHandle handle,
-        Map<IHandle, Body> newElements)
+    synchronized Body putIfAbsent(IElement element,
+        Map<IElement, Body> newElements)
     {
-        Body existingBody = cache.peek(handle);
+        Body existingBody = cache.peek(element);
         if (existingBody != null)
             return existingBody;
 
@@ -191,24 +191,24 @@ public class HandleManager
 
     /**
      * Removes from the body cache associated with this manager the cached body
-     * for the given handle after closing its children. Does nothing if the cache
-     * contained no body for the handle. Performs atomically.
+     * for the given element after closing its children. Does nothing if the cache
+     * contained no body for the element. Performs atomically.
      *
-     * @param handle the handle whose body is to be removed from the body cache
-     * @see #internalClose(IHandle)
-     * @see #removing(IHandle, Body)
+     * @param element the element whose body is to be removed from the body cache
+     * @see #internalClose(IElement)
+     * @see #removing(IElement, Body)
      */
-    synchronized void remove(IHandle handle)
+    synchronized void remove(IElement element)
     {
-        Body body = cache.peek(handle);
+        Body body = cache.peek(element);
         if (body != null)
         {
-            removing(handle, body);
-            for (IHandle child : body.getChildren())
+            removing(element, body);
+            for (IElement child : body.getChildren())
             {
                 internalClose(child);
             }
-            cache.remove(handle);
+            cache.remove(element);
         }
     }
 
@@ -219,12 +219,12 @@ public class HandleManager
      * @return the temporary cache of handle/body relationships
      *  for the current thread (never <code>null</code>)
      */
-    Map<IHandle, Body> getTemporaryCache()
+    Map<IElement, Body> getTemporaryCache()
     {
-        Map<IHandle, Body> result = temporaryCache.get();
+        Map<IElement, Body> result = temporaryCache.get();
         if (result == null)
         {
-            result = new HashMap<IHandle, Body>();
+            result = new HashMap<IElement, Body>();
             temporaryCache.set(result);
         }
         return result;
@@ -265,7 +265,7 @@ public class HandleManager
      * by exactly one call to <code>discardWorkingCopyInfo</code>.
      * </p>
      *
-     * @param handle the source file with which a working copy info
+     * @param sourceFile the source file with which a working copy info
      *  is to be associated (not <code>null</code>)
      * @param buffer the working copy buffer (not <code>null</code>)
      * @param factory the working copy info factory, or <code>null</code>
@@ -275,10 +275,10 @@ public class HandleManager
      *  for the source file
      * @see #discardWorkingCopyInfo(ISourceFile)
      */
-    WorkingCopyInfo putWorkingCopyInfoIfAbsent(ISourceFile handle,
+    WorkingCopyInfo putWorkingCopyInfoIfAbsent(ISourceFile sourceFile,
         IWorkingCopyBuffer buffer, IWorkingCopyInfoFactory factory)
     {
-        if (handle == null)
+        if (sourceFile == null)
             throw new IllegalArgumentException();
         if (buffer == null)
             throw new IllegalArgumentException();
@@ -301,12 +301,12 @@ public class HandleManager
             {
                 synchronized (this)
                 {
-                    WorkingCopyInfo oldInfo = workingCopyInfos.get(handle);
+                    WorkingCopyInfo oldInfo = workingCopyInfos.get(sourceFile);
                     if (oldInfo != null)
                         oldInfo.refCount++;
                     else
                     {
-                        workingCopyInfos.put(handle, info);
+                        workingCopyInfos.put(sourceFile, info);
                         info.refCount = 1;
                         releaseBuffer = disposeInfo = false;
                     }
@@ -336,14 +336,14 @@ public class HandleManager
      * one call to <code>discardWorkingCopyInfo</code>.
      * </p>
      *
-     * @param handle the source file whose working copy info is to be returned
+     * @param sourceFile the source file whose working copy info is to be returned
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file has no working copy info
      * @see #discardWorkingCopyInfo(ISourceFile)
      */
-    synchronized WorkingCopyInfo getWorkingCopyInfo(ISourceFile handle)
+    synchronized WorkingCopyInfo getWorkingCopyInfo(ISourceFile sourceFile)
     {
-        WorkingCopyInfo info = workingCopyInfos.get(handle);
+        WorkingCopyInfo info = workingCopyInfos.get(sourceFile);
         if (info != null)
             info.refCount++;
         return info;
@@ -353,13 +353,13 @@ public class HandleManager
      * Returns the working copy info for the given source file without
      * incrementing the reference count for the info.
      *
-     * @param handle the source file whose working copy info is to be returned
+     * @param sourceFile the source file whose working copy info is to be returned
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file has no working copy info
      */
-    synchronized WorkingCopyInfo peekAtWorkingCopyInfo(ISourceFile handle)
+    synchronized WorkingCopyInfo peekAtWorkingCopyInfo(ISourceFile sourceFile)
     {
-        return workingCopyInfos.get(handle);
+        return workingCopyInfos.get(sourceFile);
     }
 
     /**
@@ -368,24 +368,24 @@ public class HandleManager
      * working copy info and releases the working copy buffer. Has no effect if
      * there was no working copy info for the source file. Performs atomically.
      *
-     * @param handle the source file whose working copy info is to be discarded
+     * @param sourceFile the source file whose working copy info is to be discarded
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file had no working copy info
      */
-    WorkingCopyInfo discardWorkingCopyInfo(ISourceFile handle)
+    WorkingCopyInfo discardWorkingCopyInfo(ISourceFile sourceFile)
     {
         WorkingCopyInfo infoToDispose = null;
         try
         {
             synchronized (this)
             {
-                WorkingCopyInfo info = workingCopyInfos.get(handle);
+                WorkingCopyInfo info = workingCopyInfos.get(sourceFile);
                 if (info != null && --info.refCount == 0)
                 {
                     infoToDispose = info;
 
-                    workingCopyInfos.remove(handle);
-                    remove(handle);
+                    workingCopyInfos.remove(sourceFile);
+                    remove(sourceFile);
                 }
                 return info;
             }

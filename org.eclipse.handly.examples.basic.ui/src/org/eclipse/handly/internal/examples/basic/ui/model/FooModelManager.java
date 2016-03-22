@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.ElementManager;
 
 /**
  * The manager for the Foo Model.
@@ -45,7 +45,7 @@ public class FooModelManager
     public static final FooModelManager INSTANCE = new FooModelManager();
 
     private FooModel fooModel;
-    private HandleManager handleManager;
+    private ElementManager elementManager;
     private ListenerList listenerList;
 
     public void startup() throws Exception
@@ -55,7 +55,7 @@ public class FooModelManager
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
             fooModel = new FooModel(workspace);
-            handleManager = new HandleManager(new FooModelCache());
+            elementManager = new ElementManager(new FooModelCache());
             listenerList = new ListenerList();
 
             workspace.addResourceChangeListener(this,
@@ -74,7 +74,7 @@ public class FooModelManager
     {
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
         listenerList = null;
-        handleManager = null;
+        elementManager = null;
         fooModel = null;
     }
 
@@ -106,11 +106,11 @@ public class FooModelManager
         return fooModel;
     }
 
-    public HandleManager getHandleManager()
+    public ElementManager getElementManager()
     {
-        if (handleManager == null)
+        if (elementManager == null)
             throw new IllegalStateException();
-        return handleManager;
+        return elementManager;
     }
 
     public void addElementChangeListener(IElementChangeListener listener)

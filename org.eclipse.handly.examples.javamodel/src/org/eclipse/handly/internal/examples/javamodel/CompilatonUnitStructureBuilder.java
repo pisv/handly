@@ -13,9 +13,9 @@ package org.eclipse.handly.internal.examples.javamodel;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
+import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.StructureHelper;
 import org.eclipse.handly.util.TextRange;
@@ -47,7 +47,7 @@ class CompilatonUnitStructureBuilder
      * @param newElements the map to populate with structure elements
      *  (not <code>null</code>)
      */
-    CompilatonUnitStructureBuilder(Map<IHandle, Body> newElements)
+    CompilatonUnitStructureBuilder(Map<IElement, Body> newElements)
     {
         helper = new StructureHelper(newElements);
     }
@@ -122,7 +122,7 @@ class CompilatonUnitStructureBuilder
         helper.addChild(parentBody, handle, body);
     }
 
-    private void buildStructure(Handle parent, Body parentBody,
+    private void buildStructure(Element parent, Body parentBody,
         AbstractTypeDeclaration type)
     {
         Type handle = new Type(parent, type.getName().getIdentifier());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 
 /**
  * Builds a delta tree between the version of an element at the time the
@@ -31,11 +31,11 @@ import org.eclipse.handly.model.IHandleDelta;
  * Adapted from <code>org.eclipse.jdt.internal.core.JavaElementDeltaBuilder</code>.
  * </p>
  *
- * @see HandleDelta
+ * @see ElementDelta
  */
-public class HandleDeltaBuilder
+public class ElementDeltaBuilder
 {
-    private final IHandle element;
+    private final IElement element;
 
     /*
      * The maximum depth in the element children we should look into
@@ -45,14 +45,14 @@ public class HandleDeltaBuilder
     /*
      * The old handle to body relationships
      */
-    private Map<IHandle, Body> oldBodies;
+    private Map<IElement, Body> oldBodies;
 
-    private Map<IHandle, ListItem> oldPositions;
-    private Map<IHandle, ListItem> newPositions;
-    private Set<IHandle> added;
-    private Set<IHandle> removed;
+    private Map<IElement, ListItem> oldPositions;
+    private Map<IElement, ListItem> newPositions;
+    private Set<IElement> added;
+    private Set<IElement> removed;
 
-    private HandleDelta delta;
+    private ElementDelta delta;
 
     /**
      * Constructs a delta builder on the given element
@@ -60,7 +60,7 @@ public class HandleDeltaBuilder
      *
      * @param element the tracked element (not <code>null</code>)
      */
-    public HandleDeltaBuilder(IHandle element)
+    public ElementDeltaBuilder(IElement element)
     {
         this(element, Integer.MAX_VALUE);
     }
@@ -72,7 +72,7 @@ public class HandleDeltaBuilder
      * @param element the tracked element (not <code>null</code>)
      * @param maxDepth the maximum depth in the element children we should look into
      */
-    public HandleDeltaBuilder(IHandle element, int maxDepth)
+    public ElementDeltaBuilder(IElement element, int maxDepth)
     {
         if (element == null)
             throw new IllegalArgumentException();
@@ -103,7 +103,7 @@ public class HandleDeltaBuilder
      *
      * @return the built delta, or <code>null</code> if the delta has not been built
      */
-    public HandleDelta getDelta()
+    public ElementDelta getDelta()
     {
         return delta;
     }
@@ -125,9 +125,9 @@ public class HandleDeltaBuilder
      * @return a new, initially empty delta for the given element
      *  (never <code>null</code>)
      */
-    protected HandleDelta newDelta(IHandle element)
+    protected ElementDelta newDelta(IElement element)
     {
-        return new HandleDelta(element);
+        return new ElementDelta(element);
     }
 
     /**
@@ -145,26 +145,26 @@ public class HandleDeltaBuilder
      * @param element the element whose bodies are to be compared (never <code>null</code>)
      */
     protected void findContentChange(Body newBody, Body oldBody,
-        IHandle element)
+        IElement element)
     {
         newBody.findContentChange(oldBody, element, delta);
     }
 
     private void initialize()
     {
-        oldBodies = new HashMap<IHandle, Body>(20);
-        oldPositions = new HashMap<IHandle, ListItem>(20);
-        newPositions = new HashMap<IHandle, ListItem>(20);
+        oldBodies = new HashMap<IElement, Body>(20);
+        oldPositions = new HashMap<IElement, ListItem>(20);
+        newPositions = new HashMap<IElement, ListItem>(20);
         oldPositions.put(element, new ListItem(null, null));
         newPositions.put(element, new ListItem(null, null));
-        added = new HashSet<IHandle>(5);
-        removed = new HashSet<IHandle>(5);
+        added = new HashSet<IElement>(5);
+        removed = new HashSet<IElement>(5);
     }
 
     /*
      * Records the given element's body and the bodies for its children.
      */
-    private void recordBody(IHandle element, int depth)
+    private void recordBody(IElement element, int depth)
     {
         if (depth >= maxDepth)
             return;
@@ -172,7 +172,7 @@ public class HandleDeltaBuilder
         Body body;
         try
         {
-            body = ((Handle)element).getBody();
+            body = ((Element)element).getBody();
         }
         catch (CoreException e)
         {
@@ -181,9 +181,9 @@ public class HandleDeltaBuilder
 
         oldBodies.put(element, body);
 
-        IHandle[] children = body.getChildren();
+        IElement[] children = body.getChildren();
         insertPositions(children, false);
-        for (IHandle child : children)
+        for (IElement child : children)
         {
             recordBody(child, depth + 1);
         }
@@ -192,7 +192,7 @@ public class HandleDeltaBuilder
     /*
      * Fills the newPositions map with the new position information.
      */
-    private void recordNewPositions(IHandle newElement, int depth)
+    private void recordNewPositions(IElement newElement, int depth)
     {
         if (depth >= maxDepth)
             return;
@@ -200,16 +200,16 @@ public class HandleDeltaBuilder
         Body body;
         try
         {
-            body = ((Handle)newElement).getBody();
+            body = ((Element)newElement).getBody();
         }
         catch (CoreException e)
         {
             return;
         }
 
-        IHandle[] children = body.getChildren();
+        IElement[] children = body.getChildren();
         insertPositions(children, true);
-        for (IHandle child : children)
+        for (IElement child : children)
         {
             recordNewPositions(child, depth + 1);
         }
@@ -219,10 +219,10 @@ public class HandleDeltaBuilder
      * Inserts position information for the elements
      * into the new or old positions map.
      */
-    private void insertPositions(IHandle[] elements, boolean isNew)
+    private void insertPositions(IElement[] elements, boolean isNew)
     {
         int length = elements.length;
-        IHandle previous = null, current = null, next = (length > 0)
+        IElement previous = null, current = null, next = (length > 0)
             ? elements[0] : null;
         for (int i = 0; i < length; i++)
         {
@@ -239,7 +239,7 @@ public class HandleDeltaBuilder
     /*
      * Finds elements which have been added or changed.
      */
-    private void findAdditions(IHandle newElement, int depth)
+    private void findAdditions(IElement newElement, int depth)
     {
         Body oldBody = getOldBody(newElement);
         if (oldBody == null && depth < maxDepth)
@@ -255,7 +255,7 @@ public class HandleDeltaBuilder
         if (depth >= maxDepth)
         {
             // mark element as changed
-            delta.insertChanged(newElement, IHandleDelta.F_CONTENT);
+            delta.insertChanged(newElement, IElementDelta.F_CONTENT);
             return;
         }
 
@@ -264,7 +264,7 @@ public class HandleDeltaBuilder
             Body newBody;
             try
             {
-                newBody = ((Handle)newElement).getBody();
+                newBody = ((Element)newElement).getBody();
             }
             catch (CoreException e)
             {
@@ -273,7 +273,7 @@ public class HandleDeltaBuilder
 
             findContentChange(newBody, oldBody, newElement);
 
-            for (IHandle child : newBody.getChildren())
+            for (IElement child : newBody.getChildren())
             {
                 findAdditions(child, depth + 1);
             }
@@ -285,10 +285,10 @@ public class HandleDeltaBuilder
      */
     private void findDeletions()
     {
-        Iterator<IHandle> iter = oldBodies.keySet().iterator();
+        Iterator<IElement> iter = oldBodies.keySet().iterator();
         while (iter.hasNext())
         {
-            IHandle element = iter.next();
+            IElement element = iter.next();
             delta.insertRemoved(element);
             removed(element);
         }
@@ -297,7 +297,7 @@ public class HandleDeltaBuilder
     /*
      * Looks for changed positioning of elements.
      */
-    private void findChangesInPositioning(IHandle element, int depth)
+    private void findChangesInPositioning(IElement element, int depth)
     {
         if (depth >= maxDepth || added.contains(element) || removed.contains(
             element))
@@ -305,20 +305,20 @@ public class HandleDeltaBuilder
 
         if (!isPositionedCorrectly(element))
         {
-            delta.insertChanged(element, IHandleDelta.F_REORDER);
+            delta.insertChanged(element, IElementDelta.F_REORDER);
         }
 
         Body body;
         try
         {
-            body = ((Handle)element).getBody();
+            body = ((Element)element).getBody();
         }
         catch (CoreException e)
         {
             return;
         }
 
-        for (IHandle child : body.getChildren())
+        for (IElement child : body.getChildren())
         {
             findChangesInPositioning(child, depth + 1);
         }
@@ -327,15 +327,15 @@ public class HandleDeltaBuilder
     /*
      * Trims deletion deltas to only report the highest level of deletion.
      */
-    private static void trimDelta(HandleDelta delta)
+    private static void trimDelta(ElementDelta delta)
     {
-        if (delta.getKind() == IHandleDelta.REMOVED)
+        if (delta.getKind() == IElementDelta.REMOVED)
         {
             delta.clearAffectedChildren();
         }
         else
         {
-            for (HandleDelta child : delta.getAffectedChildren())
+            for (ElementDelta child : delta.getAffectedChildren())
             {
                 trimDelta(child);
             }
@@ -345,7 +345,7 @@ public class HandleDeltaBuilder
     /*
      * Repairs the positioning information after an element has been added.
      */
-    private void added(IHandle element)
+    private void added(IElement element)
     {
         added.add(element);
         ListItem current = getNewPosition(element);
@@ -363,7 +363,7 @@ public class HandleDeltaBuilder
     /*
      * Repairs the positioning information after an element has been removed.
      */
-    private void removed(IHandle element)
+    private void removed(IElement element)
     {
         removed.add(element);
         ListItem current = getOldPosition(element);
@@ -382,7 +382,7 @@ public class HandleDeltaBuilder
     /*
      * Returns whether the element's position has not changed.
      */
-    private boolean isPositionedCorrectly(IHandle element)
+    private boolean isPositionedCorrectly(IElement element)
     {
         ListItem oldListItem = getOldPosition(element);
         if (oldListItem == null)
@@ -392,30 +392,30 @@ public class HandleDeltaBuilder
         if (newListItem == null)
             return false;
 
-        IHandle oldPrevious = oldListItem.previous;
-        IHandle newPrevious = newListItem.previous;
+        IElement oldPrevious = oldListItem.previous;
+        IElement newPrevious = newListItem.previous;
         if (oldPrevious == null)
             return (newPrevious == null);
         else
             return oldPrevious.equals(newPrevious);
     }
 
-    private Body getOldBody(IHandle element)
+    private Body getOldBody(IElement element)
     {
         return oldBodies.get(element);
     }
 
-    private void removeOldBody(IHandle element)
+    private void removeOldBody(IElement element)
     {
         oldBodies.remove(element);
     }
 
-    private ListItem getOldPosition(IHandle element)
+    private ListItem getOldPosition(IElement element)
     {
         return oldPositions.get(element);
     }
 
-    private ListItem getNewPosition(IHandle element)
+    private ListItem getNewPosition(IElement element)
     {
         return newPositions.get(element);
     }
@@ -425,10 +425,10 @@ public class HandleDeltaBuilder
      */
     private static class ListItem
     {
-        public IHandle previous;
-        public IHandle next;
+        public IElement previous;
+        public IElement next;
 
-        public ListItem(IHandle previous, IHandle next)
+        public ListItem(IElement previous, IElement next)
         {
             this.previous = previous;
             this.next = next;

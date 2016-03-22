@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.ElementManager;
 
 /**
  * The manager for the Java model.
@@ -49,7 +49,7 @@ public class JavaModelManager
     public static final JavaModelManager INSTANCE = new JavaModelManager();
 
     private JavaModel javaModel;
-    private HandleManager handleManager;
+    private ElementManager elementManager;
     private ListenerList listenerList;
     private DeltaProcessingState deltaState;
     private Map<IProject, PerProjectInfo> perProjectInfo =
@@ -62,7 +62,7 @@ public class JavaModelManager
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
             javaModel = new JavaModel(workspace);
-            handleManager = new HandleManager(new JavaModelCache());
+            elementManager = new ElementManager(new JavaModelCache());
             listenerList = new ListenerList();
             deltaState = new DeltaProcessingState();
             deltaState.initialize();
@@ -84,7 +84,7 @@ public class JavaModelManager
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
         deltaState = null;
         listenerList = null;
-        handleManager = null;
+        elementManager = null;
         javaModel = null;
     }
 
@@ -121,11 +121,11 @@ public class JavaModelManager
         return javaModel;
     }
 
-    public HandleManager getHandleManager()
+    public ElementManager getElementManager()
     {
-        if (handleManager == null)
+        if (elementManager == null)
             throw new IllegalStateException();
-        return handleManager;
+        return elementManager;
     }
 
     public void addElementChangeListener(IElementChangeListener listener)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.basic.ui.model;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
  * Common protocol for all elements provided by the Foo Model.
  * The Foo Model represents the workspace from the Foo-centric view.
- * It is a handle-based model - its elements are {@link IHandle}s.
+ * It is a Handly-based model - its elements are {@link IElement}s.
  */
 public interface IFooElement
-    extends IHandle
+    extends IElement
 {
     @Override
     IFooElement getParent();

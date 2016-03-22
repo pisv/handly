@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,16 +11,16 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.handly.examples.javamodel.IJavaElement;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.impl.HandleDelta;
-import org.eclipse.handly.model.impl.HandleDeltaBuilder;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.impl.ElementDelta;
+import org.eclipse.handly.model.impl.ElementDeltaBuilder;
 
 /**
- * Specialization of {@link HandleDeltaBuilder}
+ * Specialization of {@link ElementDeltaBuilder}
  * that builds a {@link JavaElementDelta}.
  */
 public class JavaElementDeltaBuilder
-    extends HandleDeltaBuilder
+    extends ElementDeltaBuilder
 {
     /**
      * Constructs a delta builder on the given element
@@ -40,7 +40,7 @@ public class JavaElementDeltaBuilder
     }
 
     @Override
-    protected HandleDelta newDelta(IHandle element)
+    protected ElementDelta newDelta(IElement element)
     {
         return new JavaElementDelta((IJavaElement)element);
     }

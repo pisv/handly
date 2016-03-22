@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.SourceElements;
 import org.eclipse.handly.model.adapter.IContentAdapter;
@@ -92,7 +92,7 @@ public class SourceElementLinkingHelper
      * if the first element is not an {@link ISourceElement} contained
      * in the given editor or if the identifying range is not set.
      * If the {@link #getContentAdapter() content adapter} is installed,
-     * the element is first adapted to {@link IHandle}.
+     * the element is first adapted to {@link IElement}.
      * </p>
      *
      * @param editor the text editor (never <code>null</code>)
@@ -102,7 +102,7 @@ public class SourceElementLinkingHelper
     protected void linkToEditor(ITextEditor editor,
         IStructuredSelection selection)
     {
-        IHandle element = getContentAdapter().getHandle(
+        IElement element = getContentAdapter().adapt(
             selection.getFirstElement());
         if (!(element instanceof ISourceElement))
             return;
@@ -159,7 +159,7 @@ public class SourceElementLinkingHelper
     protected IStructuredSelection getLinkedSelection(ITextSelection selection,
         IProgressMonitor monitor)
     {
-        IHandle input = getContentAdapter().getHandle(
+        IElement input = getContentAdapter().adapt(
             getOutlinePage().getTreeViewer().getInput());
         if (!(input instanceof ISourceElement))
             return null;
@@ -209,9 +209,9 @@ public class SourceElementLinkingHelper
      * @return <code>true</code> if the element is contained in the editor;
      *  <code>false</code> otherwise
      */
-    protected boolean isInEditor(IHandle element, IEditorPart editor)
+    protected boolean isInEditor(IElement element, IEditorPart editor)
     {
-        IHandle inputElement = inputElementProvider.getElement(
+        IElement inputElement = inputElementProvider.getElement(
             editor.getEditorInput());
         while (element != null)
         {
@@ -272,7 +272,7 @@ public class SourceElementLinkingHelper
             if (baseSelection == null || baseSelection.isEmpty())
                 return Status.OK_STATUS;
 
-            IHandle input = getContentAdapter().getHandle(
+            IElement input = getContentAdapter().adapt(
                 getOutlinePage().getTreeViewer().getInput());
             if (!(input instanceof ISourceElement))
                 return Status.OK_STATUS;

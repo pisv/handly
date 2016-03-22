@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IElementChangedListener;
@@ -34,7 +34,8 @@ public class AdapterModelManager
     /**
      * The sole instance of the manager.
      */
-    public static final AdapterModelManager INSTANCE = new AdapterModelManager();
+    public static final AdapterModelManager INSTANCE =
+        new AdapterModelManager();
 
     private ListenerList listenerList;
 
@@ -108,7 +109,7 @@ public class AdapterModelManager
             convertedType |= IElementChangeEvent.POST_CHANGE;
         if ((type & ElementChangedEvent.POST_RECONCILE) != 0)
             convertedType |= IElementChangeEvent.POST_RECONCILE;
-        IHandleDelta convertedDelta = new JavaHandleDelta(event.getDelta());
+        IElementDelta convertedDelta = new JavaElementDelta(event.getDelta());
         return new ElementChangeEvent(convertedType, convertedDelta);
     }
 

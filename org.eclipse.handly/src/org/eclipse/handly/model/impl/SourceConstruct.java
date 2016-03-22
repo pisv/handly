@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceConstruct;
 
 /**
@@ -35,7 +35,7 @@ public abstract class SourceConstruct
      * @param name the name of the element, or <code>null</code>
      *  if the element has no name
      */
-    public SourceConstruct(Handle parent, String name)
+    public SourceConstruct(Element parent, String name)
     {
         super(parent, name);
         if (parent == null)
@@ -121,7 +121,7 @@ public abstract class SourceConstruct
 
     @Override
     protected final void buildStructure(Body body,
-        Map<IHandle, Body> newElements, IProgressMonitor monitor)
+        Map<IElement, Body> newElements, IProgressMonitor monitor)
             throws CoreException
     {
         // The openable parent builds the whole structure

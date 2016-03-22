@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,17 +23,17 @@ import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.ElementManager;
 
 /**
  * Implementation of {@link IJavaModel}. The Java model maintains a cache of
  * {@link IJavaProject}s in a workspace. A Java model is specific to a workspace.
  */
 public class JavaModel
-    extends Handle
+    extends Element
     implements IJavaModel
 {
     private final IWorkspace workspace;
@@ -85,7 +85,7 @@ public class JavaModel
     @Override
     public IJavaProject[] getJavaProjects() throws CoreException
     {
-        IHandle[] children = getChildren();
+        IElement[] children = getChildren();
         int length = children.length;
         IJavaProject[] result = new IJavaProject[length];
         System.arraycopy(children, 0, result, 0, length);
@@ -138,9 +138,9 @@ public class JavaModel
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return JavaModelManager.INSTANCE.getHandleManager();
+        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
@@ -150,7 +150,7 @@ public class JavaModel
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IHandle, Body> newElements,
+    protected void buildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
@@ -164,7 +164,7 @@ public class JavaModel
             }
         }
         body.setChildren(javaProjects.toArray(
-            new IHandle[javaProjects.size()]));
+            new IElement[javaProjects.size()]));
     }
 
     @Override

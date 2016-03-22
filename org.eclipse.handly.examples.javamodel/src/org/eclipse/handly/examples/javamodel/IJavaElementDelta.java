@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.javamodel;
 
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElementDelta;
 
 /**
  * A Java element delta describes changes in Java element between two discrete
  * points in time.  Given a delta, clients can access the element that has
  * changed, and any children that have changed.
  *
- * @see IHandleDelta
+ * @see IElementDelta
  */
 public interface IJavaElementDelta
-    extends IHandleDelta
+    extends IElementDelta
 {
     /**
      * Change flag indicating that the raw classpath (or the output folder)

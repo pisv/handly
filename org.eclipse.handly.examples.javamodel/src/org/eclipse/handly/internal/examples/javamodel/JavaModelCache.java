@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementCache;
 import org.eclipse.handly.model.impl.IBodyCache;
@@ -39,119 +39,119 @@ class JavaModelCache
     private final double memoryRatio = getMemoryRatio();
 
     private Body modelBody; // Java model element's body
-    private HashMap<IHandle, Body> projectCache; // cache of open Java projects
+    private HashMap<IElement, Body> projectCache; // cache of open Java projects
     private ElementCache rootCache; // cache of open package fragment roots
     private ElementCache pkgCache; // cache of open package fragments
     private ElementCache fileCache; // cache of open Java files
-    private HashMap<IHandle, Body> childrenCache; // cache of children of open Foo files
+    private HashMap<IElement, Body> childrenCache; // cache of children of open Foo files
 
     public JavaModelCache()
     {
         // set the size of the caches as a function of the maximum amount of memory available
-        projectCache = new HashMap<IHandle, Body>(DEFAULT_PROJECT_SIZE);
+        projectCache = new HashMap<IElement, Body>(DEFAULT_PROJECT_SIZE);
         rootCache = new ElementCache((int)(DEFAULT_ROOT_SIZE * memoryRatio));
         pkgCache = new ElementCache((int)(DEFAULT_PKG_SIZE * memoryRatio));
         fileCache = new ElementCache((int)(DEFAULT_FILE_SIZE * memoryRatio));
-        childrenCache = new HashMap<IHandle, Body>((int)(DEFAULT_CHILDREN_SIZE
+        childrenCache = new HashMap<IElement, Body>((int)(DEFAULT_CHILDREN_SIZE
             * memoryRatio));
     }
 
     @Override
-    public Body get(IHandle handle)
+    public Body get(IElement element)
     {
-        if (handle instanceof IJavaModel)
+        if (element instanceof IJavaModel)
             return modelBody;
-        else if (handle instanceof IJavaProject)
-            return projectCache.get(handle);
-        else if (handle instanceof IPackageFragmentRoot)
-            return rootCache.get(handle);
-        else if (handle instanceof IPackageFragment)
-            return pkgCache.get(handle);
-        else if (handle instanceof ICompilationUnit)
-            return fileCache.get(handle);
+        else if (element instanceof IJavaProject)
+            return projectCache.get(element);
+        else if (element instanceof IPackageFragmentRoot)
+            return rootCache.get(element);
+        else if (element instanceof IPackageFragment)
+            return pkgCache.get(element);
+        else if (element instanceof ICompilationUnit)
+            return fileCache.get(element);
         else
-            return childrenCache.get(handle);
+            return childrenCache.get(element);
     }
 
     @Override
-    public Body peek(IHandle handle)
+    public Body peek(IElement element)
     {
-        if (handle instanceof IJavaModel)
+        if (element instanceof IJavaModel)
             return modelBody;
-        else if (handle instanceof IJavaProject)
-            return projectCache.get(handle);
-        else if (handle instanceof IPackageFragmentRoot)
-            return rootCache.peek(handle);
-        else if (handle instanceof IPackageFragment)
-            return pkgCache.peek(handle);
-        else if (handle instanceof ICompilationUnit)
-            return fileCache.peek(handle);
+        else if (element instanceof IJavaProject)
+            return projectCache.get(element);
+        else if (element instanceof IPackageFragmentRoot)
+            return rootCache.peek(element);
+        else if (element instanceof IPackageFragment)
+            return pkgCache.peek(element);
+        else if (element instanceof ICompilationUnit)
+            return fileCache.peek(element);
         else
-            return childrenCache.get(handle);
+            return childrenCache.get(element);
     }
 
     @Override
-    public void put(IHandle handle, Body body)
+    public void put(IElement element, Body body)
     {
-        if (handle instanceof IJavaModel)
+        if (element instanceof IJavaModel)
             modelBody = body;
-        else if (handle instanceof IJavaProject)
+        else if (element instanceof IJavaProject)
         {
-            projectCache.put(handle, body);
-            rootCache.ensureSpaceLimit(body, handle);
+            projectCache.put(element, body);
+            rootCache.ensureSpaceLimit(body, element);
         }
-        else if (handle instanceof IPackageFragmentRoot)
+        else if (element instanceof IPackageFragmentRoot)
         {
-            rootCache.put(handle, body);
-            pkgCache.ensureSpaceLimit(body, handle);
+            rootCache.put(element, body);
+            pkgCache.ensureSpaceLimit(body, element);
         }
-        else if (handle instanceof IPackageFragment)
+        else if (element instanceof IPackageFragment)
         {
-            pkgCache.put(handle, body);
-            fileCache.ensureSpaceLimit(body, handle);
+            pkgCache.put(element, body);
+            fileCache.ensureSpaceLimit(body, element);
         }
-        else if (handle instanceof ICompilationUnit)
-            fileCache.put(handle, body);
+        else if (element instanceof ICompilationUnit)
+            fileCache.put(element, body);
         else
-            childrenCache.put(handle, body);
+            childrenCache.put(element, body);
     }
 
     @Override
-    public void putAll(Map<IHandle, Body> elements)
+    public void putAll(Map<IElement, Body> elements)
     {
-        for (Map.Entry<IHandle, Body> entry : elements.entrySet())
+        for (Map.Entry<IElement, Body> entry : elements.entrySet())
         {
             put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
-    public void remove(IHandle handle)
+    public void remove(IElement element)
     {
-        if (handle instanceof IJavaModel)
+        if (element instanceof IJavaModel)
             modelBody = null;
-        else if (handle instanceof IJavaProject)
+        else if (element instanceof IJavaProject)
         {
-            projectCache.remove(handle);
+            projectCache.remove(element);
             rootCache.resetSpaceLimit((int)(DEFAULT_ROOT_SIZE * memoryRatio),
-                handle);
+                element);
         }
-        else if (handle instanceof IPackageFragmentRoot)
+        else if (element instanceof IPackageFragmentRoot)
         {
-            rootCache.remove(handle);
+            rootCache.remove(element);
             pkgCache.resetSpaceLimit((int)(DEFAULT_PKG_SIZE * memoryRatio),
-                handle);
+                element);
         }
-        else if (handle instanceof IPackageFragment)
+        else if (element instanceof IPackageFragment)
         {
-            pkgCache.remove(handle);
+            pkgCache.remove(element);
             fileCache.resetSpaceLimit((int)(DEFAULT_FILE_SIZE * memoryRatio),
-                handle);
+                element);
         }
-        else if (handle instanceof ICompilationUnit)
-            fileCache.remove(handle);
+        else if (element instanceof ICompilationUnit)
+            fileCache.remove(element);
         else
-            childrenCache.remove(handle);
+            childrenCache.remove(element);
     }
 
     private double getMemoryRatio()

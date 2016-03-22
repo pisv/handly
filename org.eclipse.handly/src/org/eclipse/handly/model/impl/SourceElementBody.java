@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
@@ -41,7 +41,7 @@ public class SourceElementBody
     @Override
     public ISourceConstruct[] getChildren()
     {
-        IHandle[] children = super.getChildren();
+        IElement[] children = super.getChildren();
         int length = children.length;
         ISourceConstruct[] result = new ISourceConstruct[length];
         System.arraycopy(children, 0, result, 0, length);
@@ -133,8 +133,8 @@ public class SourceElementBody
     }
 
     @Override
-    public void findContentChange(Body oldBody, IHandle element,
-        HandleDelta delta)
+    public void findContentChange(Body oldBody, IElement element,
+        ElementDelta delta)
     {
         Set<String> newPropertyNames = getPropertyNames();
         Set<String> oldPropertyNames =
@@ -150,7 +150,7 @@ public class SourceElementBody
                 propertyName);
             if (isPropertyChanged(propertyName, newValue, oldValue))
             {
-                delta.insertChanged(element, HandleDelta.F_CONTENT);
+                delta.insertChanged(element, ElementDelta.F_CONTENT);
                 return;
             }
         }

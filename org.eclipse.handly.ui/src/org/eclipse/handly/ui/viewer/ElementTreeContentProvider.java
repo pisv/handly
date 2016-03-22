@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,15 +12,15 @@ package org.eclipse.handly.ui.viewer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.internal.ui.Activator;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
- * A basic content provider for <code>IHandle</code>s.
+ * A basic content provider for <code>IElement</code>s.
  * Uses the existing structure of the elements.
  */
-public class HandleTreeContentProvider
+public class ElementTreeContentProvider
     implements ITreeContentProvider
 {
     protected static final Object[] NO_CHILDREN = new Object[0];
@@ -44,11 +44,11 @@ public class HandleTreeContentProvider
     @Override
     public Object[] getChildren(Object parentElement)
     {
-        if (parentElement instanceof IHandle)
+        if (parentElement instanceof IElement)
         {
             try
             {
-                return ((IHandle)parentElement).getChildren();
+                return ((IElement)parentElement).getChildren();
             }
             catch (CoreException e)
             {
@@ -62,8 +62,8 @@ public class HandleTreeContentProvider
     @Override
     public Object getParent(Object element)
     {
-        if (element instanceof IHandle)
-            return ((IHandle)element).getParent();
+        if (element instanceof IElement)
+            return ((IElement)element).getParent();
         return null;
     }
 

@@ -22,10 +22,10 @@ import org.eclipse.handly.examples.javamodel.IImportDeclaration;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
@@ -158,9 +158,9 @@ public class CompilationUnit
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return JavaModelManager.INSTANCE.getHandleManager();
+        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
@@ -215,7 +215,7 @@ public class CompilationUnit
 
     @Override
     protected void buildStructure(SourceElementBody body,
-        Map<IHandle, Body> newElements, Object ast, String source,
+        Map<IElement, Body> newElements, Object ast, String source,
         IProgressMonitor monitor)
     {
         CompilatonUnitStructureBuilder builder =

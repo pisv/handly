@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.xtext.ui.Activator;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.ui.IInputElementProvider;
@@ -158,7 +158,7 @@ public class HandlyXtextEditorCallback
 
     protected SourceFile getSourceFile(XtextEditor editor)
     {
-        IHandle inputElement = inputElementProvider.getElement(
+        IElement inputElement = inputElementProvider.getElement(
             editor.getEditorInput());
         if (!(inputElement instanceof SourceFile))
             return null;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
 package org.eclipse.handly.internal.examples.adapter;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
@@ -26,14 +26,14 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.SourceRange;
 
 /**
- * Adapts a Java element to <code>ISourceElement</code>.
+ * Adapts a JDT Java element to <code>ISourceElement</code>.
  */
 class JavaSourceElement
-    extends JavaHandle
+    extends JavaElement
     implements ISourceElement
 {
     /**
-     * Constructs a <code>JavaSourceElement</code> for the given Java element.
+     * Constructs a <code>JavaSourceElement</code> for the given JDT Java element.
      * The Java element has to implement <code>ISourceReference</code>.
      *
      * @param javaElement not <code>null</code>
@@ -92,10 +92,10 @@ class JavaSourceElement
                 Activator.log(e.getStatus());
             return null;
         }
-        IHandle handle = create(result);
-        if (!(handle instanceof ISourceElement))
+        IElement element = create(result);
+        if (!(element instanceof ISourceElement))
             return null;
-        return (ISourceElement)handle;
+        return (ISourceElement)element;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,21 +10,22 @@
  *******************************************************************************/
 package org.eclipse.handly.model.adapter;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
  * Defines a one-to-one correspondence (bijection) between
- * elements of a Handly based model and elements of some other model.
+ * elements of a Handly-based model and elements of some other model.
  * <p>
- * For every <code>handle</code> such that <code>getCorrespondingElement(handle)
- * != null</code>, the following invariant must hold:
+ * For every <code>Object</code> <code>o</code> such that
+ * <code>adapt(o) != null</code>, the following must hold:
  * </p>
- * <pre>handle.equals(getHandle(getCorrespondingElement(handle))</pre>
+ * <pre>o.equals(getCorrespondingElement(adapt(o))</pre>
  * <p>
- * Likewise, for every <code>element</code> such that <code>getHandle(element)
- * != null</code>, the following invariant must hold:
+ * Likewise, for every <code>IElement</code> <code>e</code>
+ * such that <code>getCorrespondingElement(e) != null</code>,
+ * the following must hold:
  * </p>
- * <pre>element.equals(getCorrespondingElement(getHandle(element))</pre>
+ * <pre>e.equals(adapt(getCorrespondingElement(e))</pre>
  * <p>
  * This interface may be implemented by clients.
  * </p>
@@ -32,18 +33,18 @@ import org.eclipse.handly.model.IHandle;
 public interface IContentAdapter
 {
     /**
-     * Returns the element associated with the given handle.
-     *
-     * @param handle {@link IHandle} (may be <code>null</code>)
-     * @return the corresponding element, or <code>null</code> if none
-     */
-    Object getCorrespondingElement(IHandle handle);
-
-    /**
-     * Returns {@link IHandle} associated with the given element.
+     * Returns {@link IElement} that corresponds to the given element.
      *
      * @param element may be <code>null</code>
-     * @return the corresponding handle, or <code>null</code> if none
+     * @return the corresponding {@link IElement}, or <code>null</code> if none
      */
-    IHandle getHandle(Object element);
+    IElement adapt(Object element);
+
+    /**
+     * Returns the element that corresponds to the given {@link IElement}.
+     *
+     * @param element {@link IElement} (may be <code>null</code>)
+     * @return the corresponding element, or <code>null</code> if none
+     */
+    Object getCorrespondingElement(IElement element);
 }

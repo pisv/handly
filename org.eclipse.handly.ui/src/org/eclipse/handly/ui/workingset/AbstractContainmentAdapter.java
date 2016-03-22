@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC and others.
+ * Copyright (c) 2015, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
 package org.eclipse.handly.ui.workingset;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.NullContentAdapter;
 import org.eclipse.ui.IContainmentAdapter;
@@ -35,24 +35,24 @@ public abstract class AbstractContainmentAdapter
     @Override
     public boolean contains(Object workingSetElement, Object element, int flags)
     {
-        IHandle workingSetElementHandle = getContentAdapter().getHandle(
+        IElement hWorkingSetElement = getContentAdapter().adapt(
             workingSetElement);
-        if (workingSetElementHandle == null || element == null)
+        if (hWorkingSetElement == null || element == null)
             return false;
 
         IResource resource = null;
-        IHandle elementHandle = getContentAdapter().getHandle(element);
-        if (elementHandle == null)
+        IElement hElement = getContentAdapter().adapt(element);
+        if (hElement == null)
         {
             resource = ResourceUtil.getResource(element);
             if (resource != null)
-                elementHandle = getElementFor(resource);
+                hElement = getElementFor(resource);
         }
 
-        if (elementHandle != null)
-            return contains(workingSetElementHandle, elementHandle, flags);
+        if (hElement != null)
+            return contains(hWorkingSetElement, hElement, flags);
         else if (resource != null)
-            return contains(workingSetElementHandle, resource, flags);
+            return contains(hWorkingSetElement, resource, flags);
         else
             return false;
     }
@@ -65,7 +65,7 @@ public abstract class AbstractContainmentAdapter
      * @return the model element corresponding to the given resource,
      *  or <code>null</code> if no such element can be found
      */
-    protected abstract IHandle getElementFor(IResource resource);
+    protected abstract IElement getElementFor(IResource resource);
 
     /**
      * Returns the content adapter that defines a mapping between elements
@@ -82,7 +82,7 @@ public abstract class AbstractContainmentAdapter
         return NullContentAdapter.INSTANCE;
     }
 
-    protected boolean contains(IHandle workingSetElement, IHandle element,
+    protected boolean contains(IElement workingSetElement, IElement element,
         int flags)
     {
         if (checkContext(flags) && workingSetElement.equals(element))
@@ -105,7 +105,7 @@ public abstract class AbstractContainmentAdapter
         return false;
     }
 
-    protected boolean check(IHandle ancestor, IHandle descendent)
+    protected boolean check(IElement ancestor, IElement descendent)
     {
         descendent = descendent.getParent();
         while (descendent != null)
@@ -117,7 +117,7 @@ public abstract class AbstractContainmentAdapter
         return false;
     }
 
-    protected boolean contains(IHandle workingSetElement, IResource resource,
+    protected boolean contains(IElement workingSetElement, IResource resource,
         int flags)
     {
         IResource workingSetResource = workingSetElement.getResource();

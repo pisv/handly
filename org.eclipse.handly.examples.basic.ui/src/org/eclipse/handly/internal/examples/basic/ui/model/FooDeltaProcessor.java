@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,11 +28,11 @@ import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooElement;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleDelta;
+import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.ElementDelta;
 
 /**
  * This class is used by the <code>FooModelManager</code> to convert
@@ -42,7 +42,7 @@ import org.eclipse.handly.model.impl.HandleDelta;
 class FooDeltaProcessor
     implements IResourceDeltaVisitor
 {
-    private HandleDelta currentDelta = new HandleDelta(
+    private ElementDelta currentDelta = new ElementDelta(
         FooModelCore.getFooModel());
     private Set<String> oldFooProjectNames = new HashSet<String>();
 
@@ -53,7 +53,7 @@ class FooDeltaProcessor
      *
      * @return Foo element delta (never <code>null</code>)
      */
-    public HandleDelta getDelta()
+    public ElementDelta getDelta()
     {
         return currentDelta;
     }
@@ -155,7 +155,7 @@ class FooDeltaProcessor
                 if (project.hasNature(IFooProject.NATURE_ID))
                 {
                     addToModel(fooProject);
-                    currentDelta.insertAdded(fooProject, IHandleDelta.F_OPEN);
+                    currentDelta.insertAdded(fooProject, IElementDelta.F_OPEN);
                 }
                 else
                 {
@@ -167,7 +167,7 @@ class FooDeltaProcessor
                 if (wasFooProject(project))
                 {
                     removeFromModel(fooProject);
-                    currentDelta.insertRemoved(fooProject, IHandleDelta.F_OPEN);
+                    currentDelta.insertRemoved(fooProject, IElementDelta.F_OPEN);
                 }
                 else
                 {
@@ -188,13 +188,13 @@ class FooDeltaProcessor
                 {
                     addToModel(fooProject);
                     currentDelta.insertAdded(fooProject,
-                        IHandleDelta.F_DESCRIPTION);
+                        IElementDelta.F_DESCRIPTION);
                 }
                 else
                 {
                     removeFromModel(fooProject);
                     currentDelta.insertRemoved(fooProject,
-                        IHandleDelta.F_DESCRIPTION);
+                        IElementDelta.F_DESCRIPTION);
                 }
                 return false; // when Foo nature is added/removed don't process children
             }
@@ -203,7 +203,7 @@ class FooDeltaProcessor
                 if (isFooProject)
                 {
                     currentDelta.insertChanged(fooProject,
-                        IHandleDelta.F_DESCRIPTION);
+                        IElementDelta.F_DESCRIPTION);
                 }
             }
         }
@@ -214,7 +214,7 @@ class FooDeltaProcessor
                 markersChanged(fooProject, delta.getMarkerDeltas());
 
             Body parentBody = findBody(fooProject.getParent());
-            IHandle[] children = parentBody.getChildren();
+            IElement[] children = parentBody.getChildren();
             if (!Arrays.asList(children).contains(fooProject))
                 addToModel(fooProject); // in case the project was removed then added then changed
 
@@ -297,7 +297,7 @@ class FooDeltaProcessor
                 markersChanged(fooFile, delta.getMarkerDeltas());
 
             if ((delta.getFlags() & IResourceDelta.SYNC) != 0)
-                currentDelta.insertChanged(fooFile, IHandleDelta.F_SYNC);
+                currentDelta.insertChanged(fooFile, IElementDelta.F_SYNC);
         }
         else
         {
@@ -375,19 +375,19 @@ class FooDeltaProcessor
     {
         if (fooFile.isWorkingCopy())
         {
-            currentDelta.insertChanged(fooFile, IHandleDelta.F_CONTENT
-                | IHandleDelta.F_UNDERLYING_RESOURCE);
+            currentDelta.insertChanged(fooFile, IElementDelta.F_CONTENT
+                | IElementDelta.F_UNDERLYING_RESOURCE);
             return;
         }
 
         close(fooFile);
-        currentDelta.insertChanged(fooFile, IHandleDelta.F_CONTENT);
+        currentDelta.insertChanged(fooFile, IElementDelta.F_CONTENT);
     }
 
     private void markersChanged(IFooElement fooElement,
         IMarkerDelta[] markerDeltas)
     {
-        HandleDelta delta = currentDelta.getDeltaFor(fooElement);
+        ElementDelta delta = currentDelta.getDeltaFor(fooElement);
         if (delta == null)
         {
             currentDelta.insertChanged(fooElement, 0);
@@ -398,7 +398,7 @@ class FooDeltaProcessor
 
     private void addResourceDelta(IResourceDelta resourceDelta)
     {
-        HandleDelta delta;
+        ElementDelta delta;
         IResource parent = resourceDelta.getResource().getParent();
         if (parent instanceof IWorkspaceRoot)
             delta = currentDelta;
@@ -427,12 +427,12 @@ class FooDeltaProcessor
 
     private static Body findBody(IFooElement element)
     {
-        return ((Handle)element).findBody();
+        return ((Element)element).findBody();
     }
 
     private static void close(IFooElement element)
     {
-        ((Handle)element).close();
+        ((Element)element).close();
     }
 
     private static IResource getResource(IPath fullPath, int resourceType)

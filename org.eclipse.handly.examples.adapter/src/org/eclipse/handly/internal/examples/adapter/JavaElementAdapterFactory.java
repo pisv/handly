@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,26 +10,30 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.adapter;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.adapter.ICorrespondingElementProvider;
 import org.eclipse.jdt.core.IJavaElement;
 
 /**
- * Adapts Java elements to <code>IHandle</code>s.
+ * Adapts Java elements.
  */
 public class JavaElementAdapterFactory
-    implements IAdapterFactory
+    implements IAdapterFactory, ICorrespondingElementProvider
 {
     private static final Class<?>[] ADAPTER_LIST = new Class<?>[] {
-        IHandle.class };
+        IElement.class, ICorrespondingElementProvider.class };
 
     @Override
     public Object getAdapter(Object adaptableObject,
         @SuppressWarnings("rawtypes") Class adapterType)
     {
-        IJavaElement javaElement = (IJavaElement)adaptableObject;
-        if (adapterType == IHandle.class)
-            return JavaHandle.create(javaElement);
+        if (adapterType == ICorrespondingElementProvider.class)
+            return this;
+        if (adaptableObject instanceof IJavaElement
+            && adapterType == IElement.class)
+            return JavaElement.create((IJavaElement)adaptableObject);
         return null;
     }
 
@@ -37,5 +41,13 @@ public class JavaElementAdapterFactory
     public Class<?>[] getAdapterList()
     {
         return ADAPTER_LIST;
+    }
+
+    @Override
+    public IAdaptable getCorrespondingElement(IElement element)
+    {
+        if (element instanceof JavaElement)
+            return ((JavaElement)element).getJavaElement();
+        return null;
     }
 }

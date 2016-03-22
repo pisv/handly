@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC and others.
+ * Copyright (c) 2015, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,10 +26,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.util.IndentationPolicy;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
@@ -39,7 +39,7 @@ import org.eclipse.jdt.core.Signature;
  * Implementation of {@link IPackageFragment}
  */
 public class PackageFragment
-    extends Handle
+    extends Element
     implements IPackageFragment
 {
     private final String[] simpleNames;
@@ -104,7 +104,7 @@ public class PackageFragment
     @Override
     public ICompilationUnit[] getCompilationUnits() throws CoreException
     {
-        IHandle[] children = getChildren();
+        IElement[] children = getChildren();
         int length = children.length;
         ICompilationUnit[] result = new ICompilationUnit[length];
         System.arraycopy(children, 0, result, 0, length);
@@ -150,9 +150,9 @@ public class PackageFragment
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return JavaModelManager.INSTANCE.getHandleManager();
+        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
@@ -195,7 +195,7 @@ public class PackageFragment
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IHandle, Body> newElements,
+    protected void buildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         HashSet<ICompilationUnit> children = new HashSet<ICompilationUnit>();
@@ -221,7 +221,7 @@ public class PackageFragment
                 }
             }
         }
-        body.setChildren(children.toArray(new IHandle[children.size()]));
+        body.setChildren(children.toArray(new IElement[children.size()]));
     }
 
     @Override

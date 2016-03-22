@@ -21,10 +21,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.NullContentAdapter;
 import org.eclipse.ui.IWorkingSet;
@@ -60,7 +60,7 @@ public abstract class AbstractWorkingSetUpdater
             {
                 WorkingSetDelta workingSetDelta = new WorkingSetDelta(
                     workingSet);
-                processHandleDelta(event.getDelta(), workingSetDelta);
+                processElementDelta(event.getDelta(), workingSetDelta);
                 IResourceDelta[] resourceDeltas =
                     event.getDelta().getResourceDeltas();
                 if (resourceDeltas != null)
@@ -154,16 +154,17 @@ public abstract class AbstractWorkingSetUpdater
         return NullContentAdapter.INSTANCE;
     }
 
-    protected void processHandleDelta(IHandleDelta delta,
+    protected void processElementDelta(IElementDelta delta,
         WorkingSetDelta result)
     {
-        IHandle element = delta.getElement();
+        IElement element = delta.getElement();
         IAdaptable wsElement =
             (IAdaptable)getContentAdapter().getCorrespondingElement(element);
         int index = result.indexOf(wsElement);
         int kind = delta.getKind();
         long flags = delta.getFlags();
-        if (kind == IHandleDelta.CHANGED && (flags & IHandleDelta.F_OPEN) != 0)
+        if (kind == IElementDelta.CHANGED && (flags
+            & IElementDelta.F_OPEN) != 0)
         {
             IResource project = element.getResource();
             if (index != -1)
@@ -179,9 +180,9 @@ public abstract class AbstractWorkingSetUpdater
         }
         if (index != -1)
         {
-            if (kind == IHandleDelta.REMOVED)
+            if (kind == IElementDelta.REMOVED)
             {
-                if ((flags & IHandleDelta.F_MOVED_TO) != 0)
+                if ((flags & IElementDelta.F_MOVED_TO) != 0)
                 {
                     IAdaptable wsMovedToElement =
                         (IAdaptable)getContentAdapter().getCorrespondingElement(
@@ -202,10 +203,10 @@ public abstract class AbstractWorkingSetUpdater
                 processResourceDelta(resourceDelta, result);
             }
         }
-        IHandleDelta[] children = delta.getAffectedChildren();
-        for (IHandleDelta child : children)
+        IElementDelta[] children = delta.getAffectedChildren();
+        for (IElementDelta child : children)
         {
-            processHandleDelta(child, result);
+            processElementDelta(child, result);
         }
     }
 
@@ -257,25 +258,25 @@ public abstract class AbstractWorkingSetUpdater
     {
         // Remove elements that don't exist anymore,
         // but retain elements under closed projects.
-        List<IAdaptable> elements = new ArrayList<IAdaptable>(Arrays.asList(
+        List<IAdaptable> wsElements = new ArrayList<IAdaptable>(Arrays.asList(
             workingSet.getElements()));
         boolean changed = false;
-        for (Iterator<IAdaptable> iter = elements.iterator(); iter.hasNext();)
+        for (Iterator<IAdaptable> iter = wsElements.iterator(); iter.hasNext();)
         {
-            IAdaptable element = iter.next();
+            IAdaptable wsElement = iter.next();
             boolean remove = false;
-            if (element instanceof IResource)
+            if (wsElement instanceof IResource)
             {
-                IResource resource = (IResource)element;
+                IResource resource = (IResource)wsElement;
                 remove = !isInClosedProject(resource) && !resource.exists();
             }
             else
             {
-                IHandle handle = getContentAdapter().getHandle(element);
-                if (handle != null)
+                IElement element = getContentAdapter().adapt(wsElement);
+                if (element != null)
                 {
-                    IResource resource = handle.getResource();
-                    remove = !isInClosedProject(resource) && !handle.exists();
+                    IResource resource = element.getResource();
+                    remove = !isInClosedProject(resource) && !element.exists();
                 }
             }
             if (remove)
@@ -286,8 +287,8 @@ public abstract class AbstractWorkingSetUpdater
         }
         if (changed)
         {
-            workingSet.setElements(elements.toArray(
-                new IAdaptable[elements.size()]));
+            workingSet.setElements(wsElements.toArray(
+                new IAdaptable[wsElements.size()]));
         }
     }
 

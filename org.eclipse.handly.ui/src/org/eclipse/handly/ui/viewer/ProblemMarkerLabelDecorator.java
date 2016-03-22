@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.internal.ui.Activator;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
@@ -70,19 +70,19 @@ public class ProblemMarkerLabelDecorator
         IDecorationContext context) throws CoreException
     {
         IResource resource = null;
-        IHandle handle = getContentAdapter(context).getHandle(element);
+        IElement elementAdapter = getContentAdapter(context).adapt(element);
         if (element instanceof IResource)
             resource = (IResource)element;
-        else if (handle != null)
-            resource = handle.getResource();
+        else if (elementAdapter != null)
+            resource = elementAdapter.getResource();
         else
             resource = ResourceUtil.getResource(element);
         if (resource == null || !resource.isAccessible())
             return null;
         TextRange textRange = null;
-        if (handle instanceof ISourceConstruct)
+        if (elementAdapter instanceof ISourceConstruct)
         {
-            ISourceConstruct sourceConstruct = (ISourceConstruct)handle;
+            ISourceConstruct sourceConstruct = (ISourceConstruct)elementAdapter;
             if (!sourceConstruct.exists())
                 return null;
             textRange = sourceConstruct.getSourceElementInfo().getFullRange();

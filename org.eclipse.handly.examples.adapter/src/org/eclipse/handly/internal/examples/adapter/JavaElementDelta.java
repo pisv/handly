@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,15 +12,15 @@ package org.eclipse.handly.internal.examples.adapter;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.jdt.core.IJavaElementDelta;
 
 /**
- * Adapts a Java element delta to <code>IHandleDelta</code>.
+ * Adapts a JDT Java element delta to <code>IElementDelta</code>.
  */
-class JavaHandleDelta
-    implements IHandleDelta
+class JavaElementDelta
+    implements IElementDelta
 {
     private static final IMarkerDelta[] EMPTY_MARKER_DELTAS =
         new IMarkerDelta[0];
@@ -30,11 +30,12 @@ class JavaHandleDelta
     private final long flags;
 
     /**
-     * Constructs a <code>JavaHandleDelta</code> for the given Java element delta.
+     * Constructs a <code>JavaElementDelta</code> for the given
+     * JDT Java element delta.
      *
      * @param delta not <code>null</code>
      */
-    public JavaHandleDelta(IJavaElementDelta delta)
+    public JavaElementDelta(IJavaElementDelta delta)
     {
         if (delta == null)
             throw new IllegalArgumentException();
@@ -44,9 +45,9 @@ class JavaHandleDelta
     }
 
     @Override
-    public IHandle getElement()
+    public IElement getElement()
     {
-        return JavaHandle.create(delta.getElement());
+        return JavaElement.create(delta.getElement());
     }
 
     @Override
@@ -62,39 +63,39 @@ class JavaHandleDelta
     }
 
     @Override
-    public IHandleDelta[] getAffectedChildren()
+    public IElementDelta[] getAffectedChildren()
     {
-        return toHandleDeltas(delta.getAffectedChildren());
+        return toElementDeltas(delta.getAffectedChildren());
     }
 
     @Override
-    public IHandleDelta[] getAddedChildren()
+    public IElementDelta[] getAddedChildren()
     {
-        return toHandleDeltas(delta.getAddedChildren());
+        return toElementDeltas(delta.getAddedChildren());
     }
 
     @Override
-    public IHandleDelta[] getRemovedChildren()
+    public IElementDelta[] getRemovedChildren()
     {
-        return toHandleDeltas(delta.getRemovedChildren());
+        return toElementDeltas(delta.getRemovedChildren());
     }
 
     @Override
-    public IHandleDelta[] getChangedChildren()
+    public IElementDelta[] getChangedChildren()
     {
-        return toHandleDeltas(delta.getChangedChildren());
+        return toElementDeltas(delta.getChangedChildren());
     }
 
     @Override
-    public IHandle getMovedFromElement()
+    public IElement getMovedFromElement()
     {
-        return JavaHandle.create(delta.getMovedFromElement());
+        return JavaElement.create(delta.getMovedFromElement());
     }
 
     @Override
-    public IHandle getMovedToElement()
+    public IElement getMovedToElement()
     {
-        return JavaHandle.create(delta.getMovedToElement());
+        return JavaElement.create(delta.getMovedToElement());
     }
 
     @Override
@@ -152,12 +153,12 @@ class JavaHandleDelta
         return result;
     }
 
-    private static IHandleDelta[] toHandleDeltas(IJavaElementDelta[] array)
+    private static IElementDelta[] toElementDeltas(IJavaElementDelta[] array)
     {
         int length = array.length;
-        IHandleDelta[] result = new IHandleDelta[length];
+        IElementDelta[] result = new IElementDelta[length];
         for (int i = 0; i < length; i++)
-            result[i] = new JavaHandleDelta(array[i]);
+            result[i] = new JavaElementDelta(array[i]);
         return result;
     }
 }

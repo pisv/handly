@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.internal.ui.Activator;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyInfoFactory;
@@ -177,7 +177,7 @@ public class SourceFileDocumentProvider
     {
         if (!(element instanceof IEditorInput))
             return null;
-        IHandle inputElement = inputElementProvider.getElement(
+        IElement inputElement = inputElementProvider.getElement(
             (IEditorInput)element);
         if (!(inputElement instanceof SourceFile))
             return null;

@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.internal.Activator;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
@@ -58,7 +58,7 @@ public abstract class SourceFile
      *  or <code>null</code> if the element has no parent
      * @param file the workspace file underlying the element (not <code>null</code>)
      */
-    public SourceFile(Handle parent, IFile file)
+    public SourceFile(Element parent, IFile file)
     {
         super(parent, file.getName());
         this.file = file;
@@ -277,7 +277,7 @@ public abstract class SourceFile
      */
     public final boolean discardWorkingCopy()
     {
-        WorkingCopyInfo info = getHandleManager().discardWorkingCopyInfo(this);
+        WorkingCopyInfo info = getElementManager().discardWorkingCopyInfo(this);
         if (info == null)
             throw new IllegalStateException("Not a working copy: " + getPath()); //$NON-NLS-1$
         if (info.isDisposed() && info.created)
@@ -394,7 +394,7 @@ public abstract class SourceFile
      */
     protected final WorkingCopyInfo peekAtWorkingCopyInfo()
     {
-        return getHandleManager().peekAtWorkingCopyInfo(this);
+        return getElementManager().peekAtWorkingCopyInfo(this);
     }
 
     /**
@@ -428,7 +428,7 @@ public abstract class SourceFile
 
     @Override
     protected final void buildStructure(Body body,
-        Map<IHandle, Body> newElements, IProgressMonitor monitor)
+        Map<IElement, Body> newElements, IProgressMonitor monitor)
             throws CoreException
     {
         int ticks = 2;
@@ -533,7 +533,7 @@ public abstract class SourceFile
      * @throws OperationCanceledException if this method is canceled
      */
     protected abstract void buildStructure(SourceElementBody body,
-        Map<IHandle, Body> newElements, Object ast, String source,
+        Map<IElement, Body> newElements, Object ast, String source,
         IProgressMonitor monitor);
 
     @Override
@@ -545,7 +545,7 @@ public abstract class SourceFile
     }
 
     @Override
-    protected void generateAncestorBodies(Map<IHandle, Body> newElements,
+    protected void generateAncestorBodies(Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         if (isWorkingCopy())
@@ -562,10 +562,10 @@ public abstract class SourceFile
     }
 
     private static void setSnapshot(SourceElementBody body, ISnapshot snapshot,
-        Map<IHandle, Body> newElements)
+        Map<IElement, Body> newElements)
     {
         body.setSnapshot(snapshot);
-        for (IHandle child : body.getChildren())
+        for (IElement child : body.getChildren())
         {
             setSnapshot((SourceElementBody)newElements.get(child), snapshot,
                 newElements);
@@ -575,13 +575,13 @@ public abstract class SourceFile
     private WorkingCopyInfo putWorkingCopyInfoIfAbsent(
         IWorkingCopyBuffer buffer, IWorkingCopyInfoFactory factory)
     {
-        return getHandleManager().putWorkingCopyInfoIfAbsent(this, buffer,
+        return getElementManager().putWorkingCopyInfoIfAbsent(this, buffer,
             factory);
     }
 
     private WorkingCopyInfo getWorkingCopyInfo()
     {
-        return getHandleManager().getWorkingCopyInfo(this);
+        return getElementManager().getWorkingCopyInfo(this);
     }
 
     /**

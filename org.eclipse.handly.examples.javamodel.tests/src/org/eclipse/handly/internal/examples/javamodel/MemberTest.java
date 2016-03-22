@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.jdt.core.Flags;
 
@@ -59,7 +59,7 @@ public class MemberTest
         assertEquals(2, superInterfaceTypes.length);
         assertEquals("QY;", superInterfaceTypes[0]);
         assertEquals("Qjava.io.Serializable;", superInterfaceTypes[1]);
-        IHandle[] children = typeA.getChildren();
+        IElement[] children = typeA.getChildren();
         assertEquals(0, children.length);
     }
 
@@ -134,7 +134,7 @@ public class MemberTest
 
         IType typeA = typeX.getType("A");
 
-        IHandle[] children = typeX.getChildren();
+        IElement[] children = typeX.getChildren();
         assertEquals(10, children.length);
         assertEquals(fieldCapX, children[0]);
         assertEquals(fieldX, children[1]);
@@ -192,7 +192,7 @@ public class MemberTest
 
         IType typeE = typeA.getType("E");
 
-        IHandle[] children = typeA.getChildren();
+        IElement[] children = typeA.getChildren();
         assertEquals(3, children.length);
         assertEquals(fieldA, children[0]);
         assertEquals(methodV, children[1]);
@@ -255,7 +255,7 @@ public class MemberTest
         assertEquals(Flags.AccPrivate | Flags.AccInterface, typeI.getFlags());
         assertEquals(0, typeI.getChildren().length);
 
-        IHandle[] children = typeE.getChildren();
+        IElement[] children = typeE.getChildren();
         assertEquals(6, children.length);
         assertEquals(fieldE1, children[0]);
         assertEquals(fieldE2, children[1]);

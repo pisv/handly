@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
  * <code>CompilationUnit</code> tests.
@@ -62,7 +62,7 @@ public class CompilationUnitTest
         IType typeY = cu.getType("Y");
         assertTrue(typeY.exists());
 
-        IHandle[] children = cu.getChildren();
+        IElement[] children = cu.getChildren();
         assertEquals(4, children.length);
         assertEquals(pkgDecl, children[0]);
         assertEquals(importContainer, children[1]);
@@ -104,7 +104,7 @@ public class CompilationUnitTest
         IType typeY = cu.getType("Y");
         assertFalse(typeY.exists());
 
-        IHandle[] children = cu.getChildren();
+        IElement[] children = cu.getChildren();
         assertEquals(1, children.length);
         assertEquals(typeX, children[0]);
 
@@ -124,7 +124,7 @@ public class CompilationUnitTest
         IType typeY = cu.getType("Y");
         assertTrue(typeY.exists());
 
-        IHandle[] children = cu.getChildren();
+        IElement[] children = cu.getChildren();
         assertEquals(2, children.length);
         assertEquals(pkgDecl, children[0]);
         assertEquals(typeY, children[1]);

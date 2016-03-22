@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
+import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.IndentationPolicy;
@@ -38,7 +38,7 @@ public class Type
      * @param parent the parent of the element (not <code>null</code>)
      * @param name the name of the element (not <code>null</code>)
      */
-    public Type(Handle parent, String name)
+    public Type(Element parent, String name)
     {
         super(parent, name);
         if (name == null)

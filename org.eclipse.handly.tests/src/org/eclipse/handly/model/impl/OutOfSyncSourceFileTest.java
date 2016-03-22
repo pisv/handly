@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.handly.junit.WorkspaceTestCase;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
  * Regression test for bug 470336 -
@@ -70,13 +70,13 @@ public class OutOfSyncSourceFileTest
     public void testInSync() throws Exception
     {
         sourceFile.buildStructure(new SourceElementBody(),
-            new HashMap<IHandle, Body>(), new NullProgressMonitor());
+            new HashMap<IElement, Body>(), new NullProgressMonitor());
     }
 
     public void testOutOfSync() throws Exception
     {
         assertTrue(localFile.setLastModified(localFile.lastModified() + 1000));
         sourceFile.buildStructure(new SourceElementBody(),
-            new HashMap<IHandle, Body>(), new NullProgressMonitor());
+            new HashMap<IElement, Body>(), new NullProgressMonitor());
     }
 }

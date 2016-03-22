@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,12 +27,12 @@ import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
-import org.eclipse.handly.model.impl.HandleDelta;
-import org.eclipse.handly.model.impl.HandleDeltaBuilder;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.ElementDelta;
+import org.eclipse.handly.model.impl.ElementDeltaBuilder;
+import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
@@ -110,7 +110,7 @@ public class FooFile
 
     @Override
     protected void buildStructure(SourceElementBody body,
-        Map<IHandle, Body> newElements, Object ast, String source,
+        Map<IElement, Body> newElements, Object ast, String source,
         IProgressMonitor monitor)
     {
         XtextResource resource = (XtextResource)ast;
@@ -209,9 +209,9 @@ public class FooFile
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return FooModelManager.INSTANCE.getHandleManager();
+        return FooModelManager.INSTANCE.getElementManager();
     }
 
     @Override
@@ -219,13 +219,13 @@ public class FooFile
     {
         super.workingCopyModeChanged();
 
-        HandleDelta delta = new HandleDelta(getRoot());
+        ElementDelta delta = new ElementDelta(getRoot());
         if (file.exists())
-            delta.insertChanged(this, HandleDelta.F_WORKING_COPY);
+            delta.insertChanged(this, ElementDelta.F_WORKING_COPY);
         else if (isWorkingCopy())
-            delta.insertAdded(this, HandleDelta.F_WORKING_COPY);
+            delta.insertAdded(this, ElementDelta.F_WORKING_COPY);
         else
-            delta.insertRemoved(this, HandleDelta.F_WORKING_COPY);
+            delta.insertRemoved(this, ElementDelta.F_WORKING_COPY);
         FooModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
             ElementChangeEvent.POST_CHANGE, delta));
     }
@@ -237,7 +237,7 @@ public class FooFile
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
             boolean forced, IProgressMonitor monitor) throws CoreException
         {
-            HandleDeltaBuilder deltaBuilder = new HandleDeltaBuilder(
+            ElementDeltaBuilder deltaBuilder = new ElementDeltaBuilder(
                 FooFile.this);
 
             super.reconcile(ast, snapshot, forced, monitor);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,10 +24,10 @@ import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Handle;
-import org.eclipse.handly.model.impl.HandleManager;
+import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 
@@ -35,7 +35,7 @@ import org.eclipse.jdt.core.JavaCore;
  * Implementation of {@link IJavaProject}.
  */
 public class JavaProject
-    extends Handle
+    extends Element
     implements IJavaProject
 {
     private final IProject project;
@@ -96,7 +96,7 @@ public class JavaProject
     @Override
     public IPackageFragmentRoot[] getPackageFragmentRoots() throws CoreException
     {
-        IHandle[] children = getChildren();
+        IElement[] children = getChildren();
         int length = children.length;
         IPackageFragmentRoot[] result = new IPackageFragmentRoot[length];
         System.arraycopy(children, 0, result, 0, length);
@@ -176,9 +176,9 @@ public class JavaProject
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
-        return JavaModelManager.INSTANCE.getHandleManager();
+        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
@@ -203,7 +203,7 @@ public class JavaProject
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IHandle, Body> newElements,
+    protected void buildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         IClasspathEntry[] rawClasspath = getRawClasspath();
@@ -235,7 +235,7 @@ public class JavaProject
             if (root != null)
                 roots.add(root);
         }
-        body.setChildren(roots.toArray(new IHandle[roots.size()]));
+        body.setChildren(roots.toArray(new IElement[roots.size()]));
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -27,22 +27,21 @@ import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.ISourceReference;
 
 /**
- * Adapts a Java element to <code>IHandle</code>.
+ * Adapts a JDT Java element to <code>IElement</code>.
  */
-public class JavaHandle
+public class JavaElement
     extends PlatformObject
-    implements IHandle
+    implements IElement
 {
     private final IJavaElement javaElement;
 
     /**
-     * Returns <code>IHandle</code> corresponding to the given Java element.
+     * Returns <code>IElement</code> corresponding to the given JDT Java element.
      *
      * @param javaElement may be <code>null</code>
-     * @return <code>IHandle</code> corresponding to the given Java element,
-     *  or <code>null</code> if none
+     * @return the corresponding {@link IElement}, or <code>null</code> if none
      */
-    public static IHandle create(IJavaElement javaElement)
+    public static IElement create(IJavaElement javaElement)
     {
         if (javaElement == null)
             return null;
@@ -52,15 +51,15 @@ public class JavaHandle
             return new JavaSourceElement(javaElement);
         if (javaElement instanceof ISourceReference)
             return new JavaSourceConstruct(javaElement);
-        return new JavaHandle(javaElement);
+        return new JavaElement(javaElement);
     }
 
     /**
-     * Constructs a <code>JavaHandle</code> for the given Java element.
+     * Constructs a <code>JavaElement</code> for the given JDT Java element.
      *
      * @param javaElement not <code>null</code>
      */
-    JavaHandle(IJavaElement javaElement)
+    JavaElement(IJavaElement javaElement)
     {
         if (javaElement == null)
             throw new IllegalArgumentException();
@@ -68,9 +67,9 @@ public class JavaHandle
     }
 
     /**
-     * Returns the underlying Java element.
+     * Returns the underlying JDT Java element.
      *
-     * @return the underlying Java element (never <code>null</code>)
+     * @return the underlying JDT Java element (never <code>null</code>)
      */
     public IJavaElement getJavaElement()
     {
@@ -84,21 +83,21 @@ public class JavaHandle
     }
 
     @Override
-    public IHandle getParent()
+    public IElement getParent()
     {
         return create(javaElement.getParent());
     }
 
     @Override
-    public IHandle getRoot()
+    public IElement getRoot()
     {
         return create(javaElement.getJavaModel());
     }
 
     @Override
-    public <T extends IHandle> T getAncestor(Class<T> ancestorType)
+    public <T extends IElement> T getAncestor(Class<T> ancestorType)
     {
-        IHandle parent = getParent();
+        IElement parent = getParent();
         if (parent == null)
             return null;
         if (ancestorType.isInstance(parent))
@@ -133,7 +132,7 @@ public class JavaHandle
             return false;
         if (getClass() != obj.getClass())
             return false;
-        JavaHandle other = (JavaHandle)obj;
+        JavaElement other = (JavaElement)obj;
         return javaElement.equals(other.javaElement);
     }
 
@@ -156,28 +155,28 @@ public class JavaHandle
     }
 
     @Override
-    public IHandle[] getChildren() throws CoreException
+    public IElement[] getChildren() throws CoreException
     {
         if (!(javaElement instanceof IParent))
             return Body.NO_CHILDREN;
         IJavaElement[] children = ((IParent)javaElement).getChildren();
-        ArrayList<IHandle> result = new ArrayList<IHandle>(children.length);
+        ArrayList<IElement> result = new ArrayList<IElement>(children.length);
         for (IJavaElement child : children)
         {
-            IHandle handle = create(child);
-            if (handle != null)
-                result.add(handle);
+            IElement element = create(child);
+            if (element != null)
+                result.add(element);
         }
         return result.toArray(Body.NO_CHILDREN);
     }
 
     @Override
-    public <T extends IHandle> T[] getChildren(Class<T> childType)
+    public <T extends IElement> T[] getChildren(Class<T> childType)
         throws CoreException
     {
-        IHandle[] children = getChildren();
+        IElement[] children = getChildren();
         List<T> list = new ArrayList<T>(children.length);
-        for (IHandle child : children)
+        for (IElement child : children)
         {
             if (childType.isInstance(child))
                 list.add(childType.cast(child));

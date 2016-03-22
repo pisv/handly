@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,8 @@ import org.eclipse.handly.internal.examples.basic.ui.FooContentProvider;
 import org.eclipse.handly.internal.examples.basic.ui.FooLabelProvider;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.SourceElements;
 import org.eclipse.handly.util.TextRange;
@@ -116,7 +116,7 @@ public final class FooOutlinePage
     @Override
     public void elementChanged(IElementChangeEvent event)
     {
-        if (affects(event.getDelta(), (IHandle)getTreeViewer().getInput()))
+        if (affects(event.getDelta(), (IElement)getTreeViewer().getInput()))
         {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
             {
@@ -132,12 +132,12 @@ public final class FooOutlinePage
         }
     }
 
-    private boolean affects(IHandleDelta delta, IHandle element)
+    private boolean affects(IElementDelta delta, IElement element)
     {
         if (delta.getElement().equals(element))
             return true;
-        IHandleDelta[] children = delta.getAffectedChildren();
-        for (IHandleDelta child : children)
+        IElementDelta[] children = delta.getAffectedChildren();
+        for (IElementDelta child : children)
         {
             if (affects(child, element))
                 return true;

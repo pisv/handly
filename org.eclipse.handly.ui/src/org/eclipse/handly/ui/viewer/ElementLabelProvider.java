@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,21 +10,21 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.viewer;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.jface.viewers.LabelProvider;
 
 /**
- * A basic label provider for <code>IHandle</code>s.
+ * A basic label provider for <code>IElement</code>s.
  * Uses the name of the element as its text. No images.
  */
-public class HandleLabelProvider
+public class ElementLabelProvider
     extends LabelProvider
 {
     @Override
     public String getText(Object element)
     {
-        if (element instanceof IHandle)
-            return ((IHandle)element).getName();
+        if (element instanceof IElement)
+            return ((IElement)element).getName();
         return super.getText(element);
     };
 }

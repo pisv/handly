@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,8 @@ import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IHandle;
-import org.eclipse.handly.model.IHandleDelta;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.ui.IWorkingCopyProvider;
 import org.eclipse.jface.text.IDocument;
@@ -243,17 +243,17 @@ public abstract class BaseReconciler
      * @return <code>true</code> if the reconciler is affected
      *  by the given delta, <code>false</code> otherwise
      */
-    protected boolean isAffectedBy(IHandleDelta delta, ISourceFile workingCopy)
+    protected boolean isAffectedBy(IElementDelta delta, ISourceFile workingCopy)
     {
         long flags = delta.getFlags();
-        if (flags == IHandleDelta.F_SYNC
-            || flags == IHandleDelta.F_WORKING_COPY)
+        if (flags == IElementDelta.F_SYNC
+            || flags == IElementDelta.F_WORKING_COPY)
             return false;
-        IHandle element = delta.getElement();
-        if (flags == IHandleDelta.F_UNDERLYING_RESOURCE && element.equals(
+        IElement element = delta.getElement();
+        if (flags == IElementDelta.F_UNDERLYING_RESOURCE && element.equals(
             workingCopy))
             return false; // saving this reconciler's working copy
-        if (flags == IHandleDelta.F_MARKERS)
+        if (flags == IElementDelta.F_MARKERS)
         {
             if (element.equals(workingCopy))
             {
@@ -265,9 +265,9 @@ public abstract class BaseReconciler
             }
             return false;
         }
-        if (flags != IHandleDelta.F_CHILDREN)
+        if (flags != IElementDelta.F_CHILDREN)
             return true;
-        for (IHandleDelta child : delta.getAffectedChildren())
+        for (IElementDelta child : delta.getAffectedChildren())
         {
             if (isAffectedBy(child, workingCopy))
                 return true;

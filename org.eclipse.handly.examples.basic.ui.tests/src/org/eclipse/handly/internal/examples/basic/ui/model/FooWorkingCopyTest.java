@@ -24,7 +24,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.Handle;
+import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.model.impl.WorkingCopyReconciler;
@@ -261,8 +261,8 @@ public class FooWorkingCopyTest
                 IFooDef def = workingCopy.getDef("f", 0);
                 assertTrue(def.exists());
                 assertFalse("non-openable elements cannot be closed",
-                    ((Handle)def).close());
-                assertNotNull(((Handle)def).peekAtBody());
+                    ((Element)def).close());
+                assertNotNull(((Element)def).peekAtBody());
             }
         };
         // non-openable elements cannot be closed, in working copy or not

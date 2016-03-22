@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.model.adapter.NullContentAdapter;
@@ -50,9 +50,9 @@ public class ProblemMarkerListenerContribution
     protected boolean affects(IResourceChangeEvent event, Object inputElement)
     {
         IResource resource = null;
-        IHandle handle = getContentAdapter().getHandle(inputElement);
-        if (handle != null)
-            resource = handle.getResource();
+        IElement element = getContentAdapter().adapt(inputElement);
+        if (element != null)
+            resource = element.getResource();
         else
             resource = ResourceUtil.getResource(inputElement);
         if (resource == null)

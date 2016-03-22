@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
 package org.eclipse.handly.internal.examples.adapter.ui;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.util.AdapterUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.IEditorInput;
 
 /**
- * Returns <code>IHandle</code> corresponding to the compilation unit
+ * Returns <code>IElement</code> corresponding to the compilation unit
  * underlying the given editor input.
  */
 public class JavaInputElementProvider
@@ -32,13 +32,13 @@ public class JavaInputElementProvider
         new JavaInputElementProvider();
 
     @Override
-    public IHandle getElement(IEditorInput input)
+    public IElement getElement(IEditorInput input)
     {
         if (input == null)
             return null;
         IFile file = (IFile)input.getAdapter(IFile.class);
         ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-        return AdapterUtil.getAdapter(cu, IHandle.class, true);
+        return AdapterUtil.getAdapter(cu, IElement.class, true);
     }
 
     private JavaInputElementProvider()

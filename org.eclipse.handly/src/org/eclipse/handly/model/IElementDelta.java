@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
 
 /**
- * A handle delta describes changes in the corresponding element between
+ * An element delta describes changes in the corresponding element between
  * two discrete points in time. Given a delta, clients can access the element
  * that has changed, and any children that have changed.
  * <p>
@@ -60,7 +60,7 @@ import org.eclipse.core.resources.IResourceDelta;
  *
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IHandleDelta
+public interface IElementDelta
 {
     /**
      * Status constant indicating that the element has been added. Note that
@@ -171,7 +171,7 @@ public interface IHandleDelta
      * @return the element that this delta describes a change to
      *  (never <code>null</code>)
      */
-    IHandle getElement();
+    IElement getElement();
 
     /**
      * Returns the kind of this delta - one of {@link #ADDED}, {@link #REMOVED},
@@ -185,7 +185,7 @@ public interface IHandleDelta
      * Such flags should be tested using the <code>&amp;</code> operator.
      * For example:
      * <pre>
-     * if ((delta.getFlags() &amp; IHandleDelta.F_CONTENT) != 0)
+     * if ((delta.getFlags() &amp; IElementDelta.F_CONTENT) != 0)
      * {
      *     // the delta indicates a content change
      * }</pre>
@@ -205,41 +205,41 @@ public interface IHandleDelta
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
-    IHandleDelta[] getAffectedChildren();
+    IElementDelta[] getAffectedChildren();
 
     /**
      * @return deltas for the children that have been added
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
-    IHandleDelta[] getAddedChildren();
+    IElementDelta[] getAddedChildren();
 
     /**
      * @return deltas for the children that have been removed
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
-    IHandleDelta[] getRemovedChildren();
+    IElementDelta[] getRemovedChildren();
 
     /**
      * @return deltas for the children that have been changed
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
-    IHandleDelta[] getChangedChildren();
+    IElementDelta[] getChangedChildren();
 
     /**
      * @return an element describing this element before it was moved
      * to its current location, or <code>null</code> if the {@link #F_MOVED_FROM}
      * change flag is not set
      */
-    IHandle getMovedFromElement();
+    IElement getMovedFromElement();
 
     /**
      * @return an element describing this element in its new location,
      * or <code>null</code> if the {@link #F_MOVED_TO} change flag is not set
      */
-    IHandle getMovedToElement();
+    IElement getMovedToElement();
 
     /**
      * Returns the changes to markers on the element's corresponding resource.
@@ -248,7 +248,7 @@ public interface IHandleDelta
      * that other Handly API methods use. This makes the method safe to call even
      * when <code>org.eclipse.core.resources</code> bundle is not available.
      * <p>
-     * Note that marker deltas, like handle deltas, are generally only valid
+     * Note that marker deltas, like element deltas, are generally only valid
      * for the dynamic scope of a notification. Clients <b>must not</b>
      * hang on to these objects.
      * </p>
@@ -260,13 +260,13 @@ public interface IHandleDelta
 
     /**
      * Returns the changes to children of the element's corresponding resource
-     * that cannot be described in terms of handle deltas. Returns <code>null</code>
+     * that cannot be described in terms of element deltas. Returns <code>null</code>
      * if none. Note that this is an exception to the general convention of
      * returning an empty array rather than <code>null</code> that other
      * Handly API methods use. This makes the method safe to call even when
      * <code>org.eclipse.core.resources</code> bundle is not available.
      * <p>
-     * Note that resource deltas, like handle deltas, are generally only valid
+     * Note that resource deltas, like element deltas, are generally only valid
      * for the dynamic scope of a notification. Clients <b>must not</b>
      * hang on to these objects.
      * </p>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 
 /**
  * A simple source file for tests.
@@ -32,7 +32,7 @@ class SimpleSourceFile
      *  or <code>null</code> if the element has no parent
      * @param file the workspace file underlying the element (not <code>null</code>)
      */
-    public SimpleSourceFile(Handle parent, IFile file)
+    public SimpleSourceFile(Element parent, IFile file)
     {
         super(parent, file);
     }
@@ -46,13 +46,13 @@ class SimpleSourceFile
 
     @Override
     protected void buildStructure(SourceElementBody body,
-        Map<IHandle, Body> newElements, Object ast, String source,
+        Map<IElement, Body> newElements, Object ast, String source,
         IProgressMonitor monitor)
     {
     }
 
     @Override
-    protected HandleManager getHandleManager()
+    protected ElementManager getElementManager()
     {
         throw new UnsupportedOperationException();
     }

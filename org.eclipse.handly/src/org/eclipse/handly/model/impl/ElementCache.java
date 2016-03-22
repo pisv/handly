@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import org.eclipse.handly.model.IHandle;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.util.OverflowingLruCache;
 
 /**
@@ -27,9 +27,9 @@ import org.eclipse.handly.util.OverflowingLruCache;
  * @see OverflowingLruCache
  */
 public class ElementCache
-    extends OverflowingLruCache<IHandle, Body>
+    extends OverflowingLruCache<IElement, Body>
 {
-    private IHandle spaceLimitParent = null;
+    private IElement spaceLimitParent = null;
 
     /**
      * Constructs a new cache with the given space limit.
@@ -57,7 +57,7 @@ public class ElementCache
      * body. If the space limit must be increased, record the parent that
      * needed this space limit.
      */
-    public void ensureSpaceLimit(Body body, IHandle parent)
+    public void ensureSpaceLimit(Body body, IElement parent)
     {
         // ensure the children can be put without closing other elements
         int numberOfChildren = body.getChildren().length;
@@ -76,7 +76,7 @@ public class ElementCache
      * If the given parent was the one that increased the space limit, reset
      * the space limit to the given default value.
      */
-    public void resetSpaceLimit(int defaultLimit, IHandle parent)
+    public void resetSpaceLimit(int defaultLimit, IElement parent)
     {
         if (parent.equals(spaceLimitParent))
         {
@@ -86,13 +86,13 @@ public class ElementCache
     }
 
     @Override
-    protected boolean close(LruCacheEntry<IHandle, Body> entry)
+    protected boolean close(LruCacheEntry<IElement, Body> entry)
     {
-        return ((Handle)entry.key).close();
+        return ((Element)entry.key).close();
     }
 
     @Override
-    protected OverflowingLruCache<IHandle, Body> newInstance(int spaceLimit,
+    protected OverflowingLruCache<IElement, Body> newInstance(int spaceLimit,
         int overflow)
     {
         return new ElementCache(spaceLimit, overflow);
@@ -102,10 +102,10 @@ public class ElementCache
     protected String toStringContents()
     {
         StringBuilder result = new StringBuilder();
-        for (LruCacheEntry<IHandle, Body> entry =
+        for (LruCacheEntry<IElement, Body> entry =
             entryQueue; entry != null; entry = entry.next)
         {
-            result.append(entry.key.toString(IHandle.ToStringStyle.COMPACT));
+            result.append(entry.key.toString(IElement.ToStringStyle.COMPACT));
             result.append('\n');
         }
         return result.toString();
