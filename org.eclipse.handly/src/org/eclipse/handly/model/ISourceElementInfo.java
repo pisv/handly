@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,7 +46,7 @@ public interface ISourceElementInfo
      *  value even if mutation is technically possible (e.g. for a non-empty
      *  array).
      */
-    <T> T get(ISourceElement.Property<T> property);
+    <T> T get(Property<T> property);
 
     /**
      * Returns the cached children of the source element. The children appear

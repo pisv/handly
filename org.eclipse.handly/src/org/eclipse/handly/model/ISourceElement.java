@@ -54,43 +54,4 @@ public interface ISourceElement
      * @see ISourceElementInfo
      */
     ISourceElementInfo getSourceElementInfo() throws CoreException;
-
-    /**
-     * Represents a named property of the source element.
-     *
-     * @param <T> the type of property values
-     * @see ISourceElementInfo#get(ISourceElement.Property)
-     */
-    final class Property<T>
-    {
-        private final String name;
-
-        /**
-         * Constructs a new property with the given name.
-         *
-         * @param name the name of the property (not <code>null</code>)
-         */
-        public Property(String name)
-        {
-            if (name == null)
-                throw new IllegalArgumentException();
-            this.name = name;
-        }
-
-        /**
-         * Returns the name of the property.
-         *
-         * @return the property name (never <code>null</code>)
-         */
-        public String getName()
-        {
-            return name;
-        }
-
-        @Override
-        public String toString()
-        {
-            return name;
-        }
-    }
 }

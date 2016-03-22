@@ -16,8 +16,8 @@ import java.util.Set;
 
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceConstruct;
-import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
+import org.eclipse.handly.model.Property;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.TextRange;
 
@@ -31,10 +31,11 @@ public class SourceElementBody
     extends Body
     implements ISourceElementInfo
 {
-    private static final Property[] NO_PROPERTIES = new Property[0];
+    private static final InternalProperty[] NO_PROPERTIES =
+        new InternalProperty[0];
 
     private ISnapshot snapshot;
-    private Property[] properties = NO_PROPERTIES;
+    private InternalProperty[] properties = NO_PROPERTIES;
     private TextRange fullRange;
     private TextRange identifyingRange;
 
@@ -50,7 +51,7 @@ public class SourceElementBody
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T get(ISourceElement.Property<T> p)
+    public <T> T get(Property<T> p)
     {
         return (T)getPropertyValue(p.getName());
     }
@@ -79,12 +80,13 @@ public class SourceElementBody
      * @param p a source element's property (not <code>null</code>)
      * @param value the value of the given property (may be <code>null</code>)
      */
-    public <T> void set(ISourceElement.Property<T> p, T value)
+    public <T> void set(Property<T> p, T value)
     {
         String name = p.getName();
         int len = properties.length;
         if (len == 0)
-            properties = new Property[] { new Property(name, value) };
+            properties = new InternalProperty[] { new InternalProperty(name,
+                value) };
         else
         {
             for (int i = 0; i < len; i++)
@@ -95,9 +97,9 @@ public class SourceElementBody
                     return;
                 }
             }
-            Property[] newProperties = new Property[len + 1];
+            InternalProperty[] newProperties = new InternalProperty[len + 1];
             System.arraycopy(properties, 0, newProperties, 0, len);
-            newProperties[len] = new Property(name, value);
+            newProperties[len] = new InternalProperty(name, value);
             properties = newProperties;
         }
     }
@@ -213,7 +215,7 @@ public class SourceElementBody
         int length = properties.length;
         for (int i = 0; i < length; i++)
         {
-            Property property = properties[i];
+            InternalProperty property = properties[i];
             if (property.name.equals(propertyName))
                 return property.value;
         }
@@ -229,12 +231,12 @@ public class SourceElementBody
         return names;
     }
 
-    private static class Property
+    private static class InternalProperty
     {
         public final String name;
         public Object value;
 
-        public Property(String name, Object value)
+        public InternalProperty(String name, Object value)
         {
             this.name = name;
             this.value = value;

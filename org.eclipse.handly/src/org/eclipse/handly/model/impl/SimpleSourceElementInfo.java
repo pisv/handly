@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,8 @@
 package org.eclipse.handly.model.impl;
 
 import org.eclipse.handly.model.ISourceConstruct;
-import org.eclipse.handly.model.ISourceElement.Property;
 import org.eclipse.handly.model.ISourceElementInfo;
+import org.eclipse.handly.model.Property;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.TextRange;
 
