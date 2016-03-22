@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
+import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.jdt.core.IJavaElementDelta;
 
 /**
@@ -109,6 +110,18 @@ class JavaElementDelta
     public IResourceDelta[] getResourceDeltas()
     {
         return delta.getResourceDeltas();
+    }
+
+    @Override
+    public String toString()
+    {
+        return delta.toString();
+    }
+
+    @Override
+    public String toString(ToStringStyle style)
+    {
+        return toString();
     }
 
     private static int convertKind(IJavaElementDelta delta)

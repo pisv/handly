@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.handly.util.IndentationPolicy;
 
 /**
@@ -581,19 +582,34 @@ public class ElementDelta
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        toStringFull(IElement.ToStringStyle.DEFAULT_INDENTATION_POLICY, 0,
-            builder);
+        toStringFull(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder);
+        return builder.toString();
+    }
+
+    @Override
+    public String toString(ToStringStyle style)
+    {
+        StringBuilder builder = new StringBuilder();
+        if (style.getOptions().contains(ToStringStyle.Option.CHILDREN))
+        {
+            toStringFull(style.getIndentationPolicy(),
+                style.getIndentationLevel(), builder);
+        }
+        else
+        {
+            toStringMinimal(style.getIndentationPolicy(),
+                style.getIndentationLevel(), builder);
+        }
         return builder.toString();
     }
 
     /**
      * Debugging purposes
      */
-    public void toStringFull(IndentationPolicy indentationPolicy,
+    protected void toStringFull(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
-        indentationPolicy.appendIndentTo(builder, indentationLevel);
-        toStringMinimal(builder);
+        toStringMinimal(indentationPolicy, indentationLevel, builder);
         for (ElementDelta child : affectedChildren)
         {
             indentationPolicy.appendLineSeparatorTo(builder);
@@ -629,9 +645,11 @@ public class ElementDelta
     /**
      * Debugging purposes
      */
-    public void toStringMinimal(StringBuilder builder)
+    protected void toStringMinimal(IndentationPolicy indentationPolicy,
+        int indentationLevel, StringBuilder builder)
     {
-        builder.append(element.toString(IElement.ToStringStyle.MINIMAL));
+        indentationPolicy.appendIndentTo(builder, indentationLevel);
+        builder.append(element.toString(ToStringStyle.MINIMAL));
         builder.append('[');
         switch (kind)
         {
@@ -683,7 +701,7 @@ public class ElementDelta
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_FROM("); //$NON-NLS-1$
             builder.append(getMovedFromElement().toString(
-                IElement.ToStringStyle.COMPACT));
+                ToStringStyle.COMPACT));
             builder.append(')');
             prev = true;
         }
@@ -692,8 +710,7 @@ public class ElementDelta
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_TO("); //$NON-NLS-1$
-            builder.append(getMovedToElement().toString(
-                IElement.ToStringStyle.COMPACT));
+            builder.append(getMovedToElement().toString(ToStringStyle.COMPACT));
             builder.append(')');
             prev = true;
         }

@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.handly.util.IndentationPolicy;
 
 /**

@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.ToStringStyle;
 
 /**
  * A helper class for building the entire structure of innermost "openables"
@@ -82,7 +83,7 @@ public class StructureHelper
         if (newElements.containsKey(child))
             throw new AssertionError(
                 "Attempt to add an already present element: " //$NON-NLS-1$
-                    + child.toString(IElement.ToStringStyle.COMPACT));
+                    + child.toString(ToStringStyle.COMPACT));
         newElements.put(child, childBody);
         List<IElement> childrenList = children.get(parentBody);
         if (childrenList == null)

@@ -275,4 +275,14 @@ public interface IElementDelta
      *  Clients <b>must not</b> modify the returned array.
      */
     IResourceDelta[] getResourceDeltas();
+
+    /**
+     * Debugging purposes. Returns a string representation of this delta.
+     * Note that the specified style serves as a hint that implementations
+     * may or may not fully support.
+     *
+     * @param style style hint (not <code>null</code>)
+     * @return a string representation of this element (never <code>null</code>)
+     */
+    String toString(ToStringStyle style);
 }
