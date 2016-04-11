@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,11 @@
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.handly.refactoring;
+
+import static org.eclipse.handly.model.Elements.exists;
+import static org.eclipse.handly.model.Elements.getPath;
+import static org.eclipse.handly.model.Elements.getBuffer;
+import static org.eclipse.handly.model.Elements.getFile;
 
 import java.text.MessageFormat;
 
@@ -53,7 +58,7 @@ class UndoSourceFileChange
     @Override
     public void initializeValidationData(IProgressMonitor pm)
     {
-        existed = sourceFile.exists();
+        existed = exists(sourceFile);
     }
 
     @Override
@@ -64,33 +69,33 @@ class UndoSourceFileChange
 
         if (!existed) // got deleted/moved during refactoring
         {
-            if (sourceFile.exists())
+            if (exists(sourceFile))
             {
                 result.addFatalError(MessageFormat.format(
-                    Messages.UndoSourceFileChange_Should_not_exist__0,
-                    sourceFile.getPath().makeRelative()));
+                    Messages.UndoSourceFileChange_Should_not_exist__0, getPath(
+                        sourceFile).makeRelative()));
             }
             return result; // let the delete/move undo change handle the rest
         }
-        else if (!sourceFile.exists())
+        else if (!exists(sourceFile))
         {
             result.addFatalError(MessageFormat.format(
-                Messages.UndoSourceFileChange_Should_exist__0,
-                sourceFile.getPath().makeRelative()));
+                Messages.UndoSourceFileChange_Should_exist__0, getPath(
+                    sourceFile).makeRelative()));
             return result;
         }
 
         if (undoChange.getBase() == null)
             return result; // OK
 
-        IBuffer buffer = sourceFile.getBuffer(true, pm);
+        IBuffer buffer = getBuffer(sourceFile, true, pm);
         try
         {
             if (!undoChange.getBase().isEqualTo(buffer.getSnapshot()))
             {
                 result.addFatalError(MessageFormat.format(
                     Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
-                    sourceFile.getPath().makeRelative()));
+                    getPath(sourceFile).makeRelative()));
             }
             return result;
         }
@@ -106,7 +111,7 @@ class UndoSourceFileChange
         pm.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            IBuffer buffer = sourceFile.getBuffer(true, new SubProgressMonitor(
+            IBuffer buffer = getBuffer(sourceFile, true, new SubProgressMonitor(
                 pm, 1));
             try
             {
@@ -122,7 +127,7 @@ class UndoSourceFileChange
                     throw new CoreException(Activator.createErrorStatus(
                         MessageFormat.format(
                             Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
-                            sourceFile.getPath().makeRelative()), e));
+                            getPath(sourceFile).makeRelative()), e));
                 }
 
                 return new UndoSourceFileChange(getName(), sourceFile,
@@ -148,7 +153,7 @@ class UndoSourceFileChange
     @Override
     public Object[] getAffectedObjects()
     {
-        IFile file = sourceFile.getFile();
+        IFile file = getFile(sourceFile);
         if (file == null)
             return null;
         return new Object[] { file };

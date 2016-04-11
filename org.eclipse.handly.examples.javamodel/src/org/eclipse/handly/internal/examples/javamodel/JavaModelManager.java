@@ -107,7 +107,7 @@ public class JavaModelManager
             deltaState.reset();
         }
         JavaElementDelta delta = deltaProcessor.getDelta();
-        if (!delta.isEmpty())
+        if (!delta.hIsEmpty())
         {
             fireElementChangeEvent(new ElementChangeEvent(
                 ElementChangeEvent.POST_CHANGE, delta));
@@ -205,7 +205,7 @@ public class JavaModelManager
         PerProjectInfo info = getPerProjectInfo(project, false);
         if (info == null)
         {
-            new JavaProject(javaModel, project).validateExistence();
+            new JavaProject(javaModel, project).hValidateExistence();
             info = getPerProjectInfo(project, true);
         }
         return info;

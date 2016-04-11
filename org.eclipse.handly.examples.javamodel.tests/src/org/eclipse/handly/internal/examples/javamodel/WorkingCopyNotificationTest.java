@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -258,14 +258,14 @@ public class WorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.becomeWorkingCopy(buffer, null);
+        workingCopy.hBecomeWorkingCopy(buffer, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.discardWorkingCopy();
+            workingCopy.hDiscardWorkingCopy();
         }
     }
 }

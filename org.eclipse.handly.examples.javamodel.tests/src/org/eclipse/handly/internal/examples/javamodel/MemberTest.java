@@ -317,10 +317,10 @@ public class MemberTest
         ISourceElementInfo fieldYInfo = fieldY.getSourceElementInfo();
         assertNotNull(fieldXInfo.getFullRange());
         assertEquals(fieldXInfo.getFullRange(), fieldYInfo.getFullRange()); // multi-declaration
-        assertEquals(fieldX, typeX.getElementAt(
+        assertEquals(fieldX, typeX.getSourceElementAt(
             fieldXInfo.getIdentifyingRange().getOffset(),
             fieldXInfo.getSnapshot()));
-        assertEquals(fieldY, typeX.getElementAt(
+        assertEquals(fieldY, typeX.getSourceElementAt(
             fieldYInfo.getIdentifyingRange().getOffset(),
             fieldYInfo.getSnapshot()));
     }

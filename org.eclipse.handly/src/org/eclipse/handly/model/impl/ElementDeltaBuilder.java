@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_REORDER;
+import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,7 +23,6 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.IElementDelta;
 
 /**
  * Builds a delta tree between the version of an element at the time the
@@ -27,6 +30,10 @@ import org.eclipse.handly.model.IElementDelta;
  * this operation by locally caching the contents of the element when the
  * builder is created. When the method <code>buildDeltas()</code> is called,
  * it creates a delta over the cached contents and the new contents.
+ * <p>
+ * Clients that subclass {@link ElementDelta} should consider overriding
+ * {@link #newDelta(IElement)} method.
+ * </p>
  * <p>
  * Adapted from <code>org.eclipse.jdt.internal.core.JavaElementDeltaBuilder</code>.
  * </p>
@@ -172,7 +179,7 @@ public class ElementDeltaBuilder
         Body body;
         try
         {
-            body = ((Element)element).getBody();
+            body = ((Element)element).hBody();
         }
         catch (CoreException e)
         {
@@ -200,7 +207,7 @@ public class ElementDeltaBuilder
         Body body;
         try
         {
-            body = ((Element)newElement).getBody();
+            body = ((Element)newElement).hBody();
         }
         catch (CoreException e)
         {
@@ -244,7 +251,7 @@ public class ElementDeltaBuilder
         Body oldBody = getOldBody(newElement);
         if (oldBody == null && depth < maxDepth)
         {
-            delta.insertAdded(newElement);
+            delta.hInsertAdded(newElement);
             added(newElement);
         }
         else
@@ -255,7 +262,7 @@ public class ElementDeltaBuilder
         if (depth >= maxDepth)
         {
             // mark element as changed
-            delta.insertChanged(newElement, IElementDelta.F_CONTENT);
+            delta.hInsertChanged(newElement, F_CONTENT);
             return;
         }
 
@@ -264,7 +271,7 @@ public class ElementDeltaBuilder
             Body newBody;
             try
             {
-                newBody = ((Element)newElement).getBody();
+                newBody = ((Element)newElement).hBody();
             }
             catch (CoreException e)
             {
@@ -289,7 +296,7 @@ public class ElementDeltaBuilder
         while (iter.hasNext())
         {
             IElement element = iter.next();
-            delta.insertRemoved(element);
+            delta.hInsertRemoved(element);
             removed(element);
         }
     }
@@ -305,13 +312,13 @@ public class ElementDeltaBuilder
 
         if (!isPositionedCorrectly(element))
         {
-            delta.insertChanged(element, IElementDelta.F_REORDER);
+            delta.hInsertChanged(element, F_REORDER);
         }
 
         Body body;
         try
         {
-            body = ((Element)element).getBody();
+            body = ((Element)element).hBody();
         }
         catch (CoreException e)
         {
@@ -329,13 +336,13 @@ public class ElementDeltaBuilder
      */
     private static void trimDelta(ElementDelta delta)
     {
-        if (delta.getKind() == IElementDelta.REMOVED)
+        if (delta.hKind() == REMOVED)
         {
-            delta.clearAffectedChildren();
+            delta.hClearAffectedChildren();
         }
         else
         {
-            for (ElementDelta child : delta.getAffectedChildren())
+            for (ElementDelta child : delta.hAffectedChildren())
             {
                 trimDelta(child);
             }

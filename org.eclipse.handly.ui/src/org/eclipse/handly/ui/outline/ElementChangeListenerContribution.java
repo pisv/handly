@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.outline;
 
+import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
@@ -78,9 +79,9 @@ public abstract class ElementChangeListenerContribution
      */
     protected boolean affects(IElementDelta delta, IElement element)
     {
-        if (delta.getElement().equals(element))
+        if (ElementDeltas.getElement(delta).equals(element))
             return true;
-        IElementDelta[] children = delta.getAffectedChildren();
+        IElementDelta[] children = ElementDeltas.getAffectedChildren(delta);
         for (IElementDelta child : children)
         {
             if (affects(child, element))

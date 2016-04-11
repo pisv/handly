@@ -11,6 +11,7 @@
 package org.eclipse.handly.examples.basic.ui.model;
 
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementExtension;
 
 /**
  * Common protocol for all elements provided by the Foo Model.
@@ -18,11 +19,17 @@ import org.eclipse.handly.model.IElement;
  * It is a Handly-based model - its elements are {@link IElement}s.
  */
 public interface IFooElement
-    extends IElement
+    extends IElementExtension
 {
     @Override
-    IFooElement getParent();
+    default IFooElement getParent()
+    {
+        return (IFooElement)IElementExtension.super.getParent();
+    }
 
     @Override
-    IFooModel getRoot();
+    default IFooModel getRoot()
+    {
+        return (IFooModel)IElementExtension.super.getRoot();
+    }
 }

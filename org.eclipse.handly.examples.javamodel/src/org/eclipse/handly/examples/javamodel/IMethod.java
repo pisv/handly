@@ -42,7 +42,11 @@ public interface IMethod
      */
     Property<Boolean> IS_CONSTRUCTOR = new Property<Boolean>("isConstructor"); //$NON-NLS-1$
 
-    IType getParent();
+    @Override
+    default IType getParent()
+    {
+        return (IType)IMember.super.getParent();
+    }
 
     /**
      * Returns the type signatures for the parameters of this method.

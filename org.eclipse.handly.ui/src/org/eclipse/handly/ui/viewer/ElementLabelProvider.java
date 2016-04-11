@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.viewer;
 
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.jface.viewers.LabelProvider;
 
@@ -24,7 +25,7 @@ public class ElementLabelProvider
     public String getText(Object element)
     {
         if (element instanceof IElement)
-            return ((IElement)element).getName();
+            return Elements.getName((IElement)element);
         return super.getText(element);
     };
 }

@@ -11,8 +11,6 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.examples.javamodel.IJavaElement;
-import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IMember;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.impl.Element;
@@ -42,22 +40,10 @@ public abstract class Member
     }
 
     @Override
-    public IJavaElement getParent()
-    {
-        return (IJavaElement)parent;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return (IJavaModel)super.getRoot();
-    }
-
-    @Override
     public IType getDeclaringType()
     {
-        if (parent instanceof IType)
-            return (IType)parent;
+        if (getParent() instanceof IType)
+            return (IType)getParent();
         return null;
     }
 
@@ -68,7 +54,7 @@ public abstract class Member
     }
 
     @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return JavaModelManager.INSTANCE.getElementManager();
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,31 +45,6 @@ public class Method
         if (parameterTypes == null)
             throw new IllegalArgumentException();
         this.parameterTypes = parameterTypes;
-    }
-
-    @Override
-    public Type getParent()
-    {
-        return (Type)parent;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (!(obj instanceof Method))
-            return false;
-        return super.equals(obj) && Arrays.equals(parameterTypes,
-            ((Method)obj).parameterTypes);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = super.hashCode();
-        for (String parameterType : parameterTypes)
-            result = prime * result + parameterType.hashCode();
-        return result;
     }
 
     @Override
@@ -121,7 +96,26 @@ public class Method
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof Method))
+            return false;
+        return super.equals(obj) && Arrays.equals(parameterTypes,
+            ((Method)obj).parameterTypes);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        for (String parameterType : parameterTypes)
+            result = prime * result + parameterType.hashCode();
+        return result;
+    }
+
+    @Override
+    protected void hToStringName(StringBuilder builder)
     {
         builder.append(getName());
         builder.append('(');
@@ -144,7 +138,7 @@ public class Method
                 builder.append(", "); //$NON-NLS-1$
         }
         builder.append(')');
-        int occurenceCount = getOccurrenceCount();
+        int occurenceCount = hOccurrenceCount();
         if (occurenceCount > 1)
         {
             builder.append('#');
@@ -153,7 +147,7 @@ public class Method
     }
 
     @Override
-    protected void toStringBody(IndentationPolicy indentationPolicy,
+    protected void hToStringBody(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder, Body body,
         boolean showResolvedInfo)
     {
@@ -168,7 +162,7 @@ public class Method
                 builder.append(' ');
             }
         }
-        toStringName(builder);
+        hToStringName(builder);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

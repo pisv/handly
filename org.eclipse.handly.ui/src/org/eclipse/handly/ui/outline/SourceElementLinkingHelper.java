@@ -15,9 +15,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
-import org.eclipse.handly.model.SourceElements;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.model.adapter.NullContentAdapter;
@@ -109,7 +109,7 @@ public class SourceElementLinkingHelper
         ISourceElement sourceElement = (ISourceElement)element;
         if (!isInEditor(sourceElement, editor))
             return;
-        TextRange identifyingRange = SourceElements.getSourceElementInfo(
+        TextRange identifyingRange = Elements.getSourceElementInfo2(
             sourceElement).getIdentifyingRange();
         if (identifyingRange == null)
             return;
@@ -164,10 +164,10 @@ public class SourceElementLinkingHelper
         if (!(input instanceof ISourceElement))
             return null;
         ISourceElement sourceElement = (ISourceElement)input;
-        if (!SourceElements.ensureReconciled(sourceElement, monitor))
+        if (!Elements.ensureReconciled(sourceElement, monitor))
             return null;
         Object element = getContentAdapter().getCorrespondingElement(
-            SourceElements.getElementAt(sourceElement, selection.getOffset(),
+            Elements.getSourceElementAt2(sourceElement, selection.getOffset(),
                 null));
         if (element == null)
             return null;
@@ -217,7 +217,7 @@ public class SourceElementLinkingHelper
         {
             if (element.equals(inputElement))
                 return true;
-            element = element.getParent();
+            element = Elements.getParent(element);
         }
         return false;
     }

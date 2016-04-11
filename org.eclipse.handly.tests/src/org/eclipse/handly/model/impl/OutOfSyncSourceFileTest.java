@@ -69,14 +69,14 @@ public class OutOfSyncSourceFileTest
 
     public void testInSync() throws Exception
     {
-        sourceFile.buildStructure(new SourceElementBody(),
+        sourceFile.hBuildStructure(new SourceElementBody(),
             new HashMap<IElement, Body>(), new NullProgressMonitor());
     }
 
     public void testOutOfSync() throws Exception
     {
         assertTrue(localFile.setLastModified(localFile.lastModified() + 1000));
-        sourceFile.buildStructure(new SourceElementBody(),
+        sourceFile.hBuildStructure(new SourceElementBody(),
             new HashMap<IElement, Body>(), new NullProgressMonitor());
     }
 }

@@ -12,6 +12,7 @@ package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.ISourceConstruct;
+import org.eclipse.handly.model.ISourceElementExtension;
 import org.eclipse.handly.model.Property;
 
 /**
@@ -21,7 +22,7 @@ import org.eclipse.handly.model.Property;
  * </p>
  */
 public interface IMember
-    extends IJavaElement, ISourceConstruct
+    extends IJavaElement, ISourceConstruct, ISourceElementExtension
 {
     /**
      * Flags property.

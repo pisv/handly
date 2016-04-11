@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDeltaConstants;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.Property;
@@ -152,7 +153,7 @@ public class SourceElementBody
                 propertyName);
             if (isPropertyChanged(propertyName, newValue, oldValue))
             {
-                delta.insertChanged(element, ElementDelta.F_CONTENT);
+                delta.hInsertChanged(element, IElementDeltaConstants.F_CONTENT);
                 return;
             }
         }

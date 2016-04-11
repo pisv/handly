@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.quickoutline;
 
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
-import org.eclipse.handly.model.SourceElements;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
 import org.eclipse.handly.model.adapter.NullContentAdapter;
@@ -78,10 +78,10 @@ public abstract class HandlyOutlinePopup
         if (!(input instanceof ISourceElement))
             return null;
         ISourceElement sourceElement = (ISourceElement)input;
-        if (!SourceElements.ensureReconciled(sourceElement, null))
+        if (!Elements.ensureReconciled(sourceElement, null))
             return null;
         return getContentAdapter().getCorrespondingElement(
-            SourceElements.getElementAt(sourceElement,
+            Elements.getSourceElementAt2(sourceElement,
                 ((ITextSelection)hostSelection).getOffset(), null));
     }
 
@@ -94,7 +94,7 @@ public abstract class HandlyOutlinePopup
         ISourceElement sourceElement = (ISourceElement)element;
         if (!isInHost(sourceElement))
             return false;
-        TextRange identifyingRange = SourceElements.getSourceElementInfo(
+        TextRange identifyingRange = Elements.getSourceElementInfo2(
             sourceElement).getIdentifyingRange();
         if (identifyingRange == null)
             return false;
@@ -120,7 +120,7 @@ public abstract class HandlyOutlinePopup
         {
             if (element.equals(inputElement))
                 return true;
-            element = element.getParent();
+            element = Elements.getParent(element);
         }
         return false;
     }

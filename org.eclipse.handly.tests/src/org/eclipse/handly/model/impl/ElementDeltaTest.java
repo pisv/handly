@@ -25,11 +25,11 @@ public class ElementDeltaTest
     {
         SimpleElement root = new SimpleElement(null, "root");
         ElementDelta delta = new ElementDelta(root);
-        delta.insertAdded(root.getChild("A"));
-        delta.insertAdded(root.getChild("B"));
-        delta.insertAdded(root.getChild("C"));
-        delta.insertAdded(root.getChild("D"));
-        delta.insertMovedFrom(root.getChild("C"), root.getChild("X"));
-        delta.insertMovedFrom(root.getChild("D"), root.getChild("Y"));
+        delta.hInsertAdded(root.getChild("A"));
+        delta.hInsertAdded(root.getChild("B"));
+        delta.hInsertAdded(root.getChild("C"));
+        delta.hInsertAdded(root.getChild("D"));
+        delta.hInsertMovedFrom(root.getChild("C"), root.getChild("X"));
+        delta.hInsertMovedFrom(root.getChild("D"), root.getChild("Y"));
     }
 }

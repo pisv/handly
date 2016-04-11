@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
+import static org.eclipse.handly.model.Elements.exists;
+import static org.eclipse.handly.model.Elements.getSourceElementAt;
+import static org.eclipse.handly.model.Elements.getSourceElementInfo;
+import static org.eclipse.handly.model.Elements.reconcile;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -334,10 +339,10 @@ public class HandlyXtextEditorCallback
                     sourceFile, delegate); // will addRef() the delegate
                 try
                 {
-                    if (sourceFile.becomeWorkingCopy(buffer, // will addRef() the buffer
+                    if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
                         null) != null)
                     {
-                        sourceFile.discardWorkingCopy();
+                        sourceFile.hDiscardWorkingCopy();
 
                         throw new IllegalStateException(
                             "Already a working copy: " //$NON-NLS-1$
@@ -380,7 +385,7 @@ public class HandlyXtextEditorCallback
             return null;
         if (workingCopyInfo.success)
         {
-            workingCopyInfo.sourceFile.discardWorkingCopy();
+            workingCopyInfo.sourceFile.hDiscardWorkingCopy();
             editor.resetHighlightRange();
         }
         return workingCopyInfo.sourceFile;
@@ -489,7 +494,7 @@ public class HandlyXtextEditorCallback
                 {
                     try
                     {
-                        sourceFile.reconcile(false, monitor);
+                        reconcile(sourceFile, false, monitor);
                     }
                     catch (CoreException e)
                     {
@@ -501,8 +506,8 @@ public class HandlyXtextEditorCallback
                         return Status.CANCEL_STATUS;
                     try
                     {
-                        selectedElement = sourceFile.getElementAt(position,
-                            null);
+                        selectedElement = getSourceElementAt(sourceFile,
+                            position, null);
                         if (sourceFile.equals(selectedElement))
                             selectedElement = null;
                     }
@@ -514,7 +519,7 @@ public class HandlyXtextEditorCallback
             }
             if (monitor.isCanceled())
                 return Status.CANCEL_STATUS;
-            if (selectedElement == null || !selectedElement.exists())
+            if (selectedElement == null || !exists(selectedElement))
             {
                 resetEditorHighlightRange(args);
             }
@@ -523,7 +528,7 @@ public class HandlyXtextEditorCallback
                 TextRange r;
                 try
                 {
-                    r = selectedElement.getSourceElementInfo().getFullRange();
+                    r = getSourceElementInfo(selectedElement).getFullRange();
                 }
                 catch (CoreException e)
                 {

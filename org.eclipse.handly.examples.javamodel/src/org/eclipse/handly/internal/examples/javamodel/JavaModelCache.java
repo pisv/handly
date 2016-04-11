@@ -11,7 +11,6 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
@@ -114,15 +113,6 @@ class JavaModelCache
             fileCache.put(element, body);
         else
             childrenCache.put(element, body);
-    }
-
-    @Override
-    public void putAll(Map<IElement, Body> elements)
-    {
-        for (Map.Entry<IElement, Body> entry : elements.entrySet())
-        {
-            put(entry.getKey(), entry.getValue());
-        }
     }
 
     @Override

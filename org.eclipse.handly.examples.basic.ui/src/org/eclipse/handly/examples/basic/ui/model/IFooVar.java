@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,13 +11,17 @@
 package org.eclipse.handly.examples.basic.ui.model;
 
 import org.eclipse.handly.model.ISourceConstruct;
+import org.eclipse.handly.model.ISourceElementExtension;
 
 /**
  * Represents a variable declared in a Foo file.
  */
 public interface IFooVar
-    extends IFooElement, ISourceConstruct
+    extends IFooElement, ISourceConstruct, ISourceElementExtension
 {
     @Override
-    IFooFile getParent();
+    default IFooFile getParent()
+    {
+        return (IFooFile)IFooElement.super.getParent();
+    }
 }

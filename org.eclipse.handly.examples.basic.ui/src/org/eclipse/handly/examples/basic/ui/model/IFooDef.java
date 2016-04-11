@@ -12,13 +12,14 @@ package org.eclipse.handly.examples.basic.ui.model;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.ISourceConstruct;
+import org.eclipse.handly.model.ISourceElementExtension;
 import org.eclipse.handly.model.Property;
 
 /**
  * Represents a function defined in a Foo file.
  */
 public interface IFooDef
-    extends IFooElement, ISourceConstruct
+    extends IFooElement, ISourceConstruct, ISourceElementExtension
 {
     /**
      * Parameter names property.
@@ -28,7 +29,10 @@ public interface IFooDef
         "parameterNames");
 
     @Override
-    IFooFile getParent();
+    default IFooFile getParent()
+    {
+        return (IFooFile)IFooElement.super.getParent();
+    }
 
     /**
      * Returns the number of parameters of this function.

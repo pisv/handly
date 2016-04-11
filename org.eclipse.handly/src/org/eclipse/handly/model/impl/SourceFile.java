@@ -28,7 +28,6 @@ import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
@@ -36,19 +35,16 @@ import org.eclipse.handly.snapshot.TextFileSnapshot;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * Common superclass of {@link ISourceFile} implementations.
+ * Common superclass for source files.
  */
 public abstract class SourceFile
     extends SourceElement
-    implements ISourceFile
+    implements ISourceFileImpl
 {
     private static final ThreadLocal<AstHolder> AST_HOLDER =
         new ThreadLocal<AstHolder>();
 
-    /**
-     * The underlying workspace file.
-     */
-    protected final IFile file;
+    private final IFile file;
 
     /**
      * Constructs a handle for a source file with the given parent element and
@@ -65,7 +61,7 @@ public abstract class SourceFile
     }
 
     @Override
-    public final IResource getResource()
+    public final IResource hResource()
     {
         return file;
     }
@@ -76,22 +72,16 @@ public abstract class SourceFile
      * @return the underlying <code>IFile</code> (never <code>null</code>)
      */
     @Override
-    public final IFile getFile()
+    public final IFile hFile()
     {
         return file;
     }
 
     @Override
-    public final IBuffer getBuffer() throws CoreException
-    {
-        return getBuffer(true, null);
-    }
-
-    @Override
-    public final IBuffer getBuffer(boolean create, IProgressMonitor monitor)
+    public final IBuffer hBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException
     {
-        WorkingCopyInfo info = acquireWorkingCopy();
+        WorkingCopyInfo info = hAcquireWorkingCopy();
         if (info == null)
         {
             if (!create && ITextFileBufferManager.DEFAULT.getTextFileBuffer(
@@ -111,7 +101,7 @@ public abstract class SourceFile
             }
             finally
             {
-                discardWorkingCopy();
+                hDiscardWorkingCopy();
             }
         }
     }
@@ -125,7 +115,7 @@ public abstract class SourceFile
      * Switching to working copy means that the source file's structure and
      * properties will no longer correspond to the underlying resource contents
      * and will no longer be updated by a resource delta processor. Instead,
-     * those structure and properties can be explicitly {@link #reconcile(
+     * those structure and properties can be explicitly {@link #hReconcile(
      * boolean, IProgressMonitor) reconciled} with the current contents of
      * the working copy buffer.
      * </p>
@@ -148,12 +138,12 @@ public abstract class SourceFile
      *  working copy info for this source file
      * @throws CoreException if the working copy cannot be created
      * @throws OperationCanceledException if this method is canceled
-     * @see #discardWorkingCopy()
+     * @see #hDiscardWorkingCopy()
      */
-    public final WorkingCopyInfo becomeWorkingCopy(IWorkingCopyBuffer buffer,
+    public final WorkingCopyInfo hBecomeWorkingCopy(IWorkingCopyBuffer buffer,
         IProgressMonitor monitor) throws CoreException
     {
-        return becomeWorkingCopy(buffer, null, monitor);
+        return hBecomeWorkingCopy(buffer, null, monitor);
     }
 
     /**
@@ -166,7 +156,7 @@ public abstract class SourceFile
      * Switching to working copy means that the source file's structure and
      * properties will no longer correspond to the underlying resource contents
      * and will no longer be updated by a resource delta processor. Instead,
-     * those structure and properties can be explicitly {@link #reconcile(
+     * those structure and properties can be explicitly {@link #hReconcile(
      * boolean, IProgressMonitor) reconciled} with the current contents of
      * the working copy buffer.
      * </p>
@@ -191,9 +181,9 @@ public abstract class SourceFile
      *  working copy info for this source file
      * @throws CoreException if the working copy cannot be created
      * @throws OperationCanceledException if this method is canceled
-     * @see #discardWorkingCopy()
+     * @see #hDiscardWorkingCopy()
      */
-    public final WorkingCopyInfo becomeWorkingCopy(
+    public final WorkingCopyInfo hBecomeWorkingCopy(
         final IWorkingCopyBuffer buffer, final IWorkingCopyInfoFactory factory,
         final IProgressMonitor monitor) throws CoreException
     {
@@ -219,14 +209,14 @@ public abstract class SourceFile
             boolean success = false;
             try
             {
-                WorkingCopyInfo newInfo = peekAtWorkingCopyInfo();
+                WorkingCopyInfo newInfo = hPeekAtWorkingCopyInfo();
                 newInfo.initTask.execute(monitor);
                 success = true;
             }
             finally
             {
                 if (!success)
-                    discardWorkingCopy();
+                    hDiscardWorkingCopy();
             }
         }
         return oldInfo;
@@ -244,9 +234,9 @@ public abstract class SourceFile
      *
      * @return the working copy info for this source file,
      *  or <code>null</code> if this source file is not a working copy
-     * @see #discardWorkingCopy()
+     * @see #hDiscardWorkingCopy()
      */
-    public final WorkingCopyInfo acquireWorkingCopy()
+    public final WorkingCopyInfo hAcquireWorkingCopy()
     {
         WorkingCopyProvider provider = new WorkingCopyProvider()
         {
@@ -275,23 +265,23 @@ public abstract class SourceFile
      *  working copy mode back to its original mode, <code>false</code>
      *  otherwise
      */
-    public final boolean discardWorkingCopy()
+    public final boolean hDiscardWorkingCopy()
     {
-        WorkingCopyInfo info = getElementManager().discardWorkingCopyInfo(this);
+        WorkingCopyInfo info = hElementManager().discardWorkingCopyInfo(this);
         if (info == null)
-            throw new IllegalStateException("Not a working copy: " + getPath()); //$NON-NLS-1$
+            throw new IllegalStateException("Not a working copy: " + hPath()); //$NON-NLS-1$
         if (info.isDisposed() && info.created)
         {
-            workingCopyModeChanged();
+            hWorkingCopyModeChanged();
             return true;
         }
         return false;
     }
 
     @Override
-    public final boolean isWorkingCopy()
+    public final boolean hIsWorkingCopy()
     {
-        WorkingCopyInfo info = peekAtWorkingCopyInfo();
+        WorkingCopyInfo info = hPeekAtWorkingCopyInfo();
         if (info == null)
             return false;
         if (info.created)
@@ -304,9 +294,9 @@ public abstract class SourceFile
     }
 
     @Override
-    public final boolean needsReconciling()
+    public final boolean hNeedsReconciling()
     {
-        WorkingCopyInfo info = acquireWorkingCopy();
+        WorkingCopyInfo info = hAcquireWorkingCopy();
         if (info == null)
             return false;
         else
@@ -317,36 +307,16 @@ public abstract class SourceFile
             }
             finally
             {
-                discardWorkingCopy();
+                hDiscardWorkingCopy();
             }
         }
     }
 
     @Override
-    public final void reconcile(boolean force, IProgressMonitor monitor)
-        throws CoreException
-    {
-        reconcile(force, null, monitor);
-    }
-
-    /**
-     * This overload of the <code>reconcile</code> method takes an additional
-     * <code>Object</code> argument reserved for model-specific use.
-     *
-     * @param force indicates whether reconciling has to be performed
-     *  even if the working copy's contents have not changed since it was last
-     *  reconciled
-     * @param arg reserved for model-specific use (may be <code>null</code>)
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @throws CoreException if this working copy cannot be reconciled
-     * @throws OperationCanceledException if this method is canceled
-     * @see #reconcile(boolean, IProgressMonitor)
-     */
-    public final void reconcile(boolean force, Object arg,
+    public final void hReconcile(boolean force, Object arg,
         IProgressMonitor monitor) throws CoreException
     {
-        WorkingCopyInfo info = acquireWorkingCopy();
+        WorkingCopyInfo info = hAcquireWorkingCopy();
         if (info == null)
             return; // not a working copy
         else
@@ -360,7 +330,7 @@ public abstract class SourceFile
             }
             finally
             {
-                discardWorkingCopy();
+                hDiscardWorkingCopy();
             }
         }
     }
@@ -378,7 +348,7 @@ public abstract class SourceFile
      *
      * @return a reconcile operation for this source file (not <code>null</code>)
      */
-    public ReconcileOperation getReconcileOperation()
+    public ReconcileOperation hReconcileOperation()
     {
         return new ReconcileOperation();
     }
@@ -390,11 +360,11 @@ public abstract class SourceFile
      *
      * @return the working copy info for this source file,
      *  or <code>null</code> if this source file is not a working copy
-     * @see #acquireWorkingCopy()
+     * @see #hAcquireWorkingCopy()
      */
-    protected final WorkingCopyInfo peekAtWorkingCopyInfo()
+    protected final WorkingCopyInfo hPeekAtWorkingCopyInfo()
     {
-        return getElementManager().peekAtWorkingCopyInfo(this);
+        return hElementManager().peekAtWorkingCopyInfo(this);
     }
 
     /**
@@ -402,21 +372,21 @@ public abstract class SourceFile
      * became a working copy or reverted back from the working copy mode.
      * Clients are not supposed to call this method, but may override it.
      */
-    protected void workingCopyModeChanged()
+    protected void hWorkingCopyModeChanged()
     {
         // subclasses might fire an appropriate event, etc.
     }
 
     @Override
-    protected SourceElementBody newBody()
+    protected SourceElementBody hNewBody()
     {
         return new SourceElementBody();
     }
 
     @Override
-    protected void validateExistence() throws CoreException
+    protected void hValidateExistence() throws CoreException
     {
-        if (!isWorkingCopy())
+        if (!hIsWorkingCopy())
         {
             if (!file.exists())
                 throw new CoreException(Activator.createErrorStatus(
@@ -427,9 +397,9 @@ public abstract class SourceFile
     }
 
     @Override
-    protected final void buildStructure(Body body,
+    protected final void hBuildStructure(Body body,
         Map<IElement, Body> newElements, IProgressMonitor monitor)
-            throws CoreException
+        throws CoreException
     {
         int ticks = 2;
         monitor.beginTask("", ticks); //$NON-NLS-1$
@@ -450,8 +420,8 @@ public abstract class SourceFile
                         @Override
                         public ISnapshot getSnapshot()
                         {
-                            TextFileSnapshot result = new TextFileSnapshot(
-                                getFile(), true);
+                            TextFileSnapshot result = new TextFileSnapshot(file,
+                                true);
                             if (result.getContents() == null
                                 && !result.getStatus().isOK())
                             {
@@ -469,7 +439,7 @@ public abstract class SourceFile
                         throw (CoreException)cause;
                     throw new AssertionError(e); // should never happen
                 }
-                Object ast = createStructuralAst(snapshot.getContents(),
+                Object ast = hCreateStructuralAst(snapshot.getContents(),
                     new SubProgressMonitor(monitor, 1));
                 astHolder = new AstHolder(ast, snapshot);
                 --ticks;
@@ -482,7 +452,7 @@ public abstract class SourceFile
             String source = astHolder.snapshot.getContents();
             ISnapshot snapshot = astHolder.snapshot.getWrappedSnapshot();
 
-            buildStructure(thisBody, newElements, astHolder.ast, source,
+            hBuildStructure(thisBody, newElements, astHolder.ast, source,
                 new SubProgressMonitor(monitor, ticks));
 
             thisBody.setFullRange(new TextRange(0, source.length()));
@@ -504,9 +474,9 @@ public abstract class SourceFile
      * @return the AST created from the given source string (not <code>null</code>)
      * @throws CoreException if the AST could not be created
      * @throws OperationCanceledException if this method is canceled
-     * @see #buildStructure(SourceElementBody, Map, Object, String, IProgressMonitor)
+     * @see #hBuildStructure(SourceElementBody, Map, Object, String, IProgressMonitor)
      */
-    protected abstract Object createStructuralAst(String source,
+    protected abstract Object hCreateStructuralAst(String source,
         IProgressMonitor monitor) throws CoreException;
 
     /**
@@ -532,33 +502,33 @@ public abstract class SourceFile
      * @param monitor a progress monitor (never <code>null</code>)
      * @throws OperationCanceledException if this method is canceled
      */
-    protected abstract void buildStructure(SourceElementBody body,
+    protected abstract void hBuildStructure(SourceElementBody body,
         Map<IElement, Body> newElements, Object ast, String source,
         IProgressMonitor monitor);
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
-        if (isWorkingCopy())
+        if (hIsWorkingCopy())
             builder.append("[Working copy] "); //$NON-NLS-1$
-        super.toStringName(builder);
+        super.hToStringName(builder);
     }
 
     @Override
-    protected void generateAncestorBodies(Map<IElement, Body> newElements,
+    protected void hGenerateAncestorBodies(Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
-        if (isWorkingCopy())
+        if (hIsWorkingCopy())
             return; // don't open ancestors for a working copy
-        super.generateAncestorBodies(newElements, monitor);
+        super.hGenerateAncestorBodies(newElements, monitor);
     }
 
     @Override
-    protected boolean close(boolean external)
+    protected boolean hClose(boolean external)
     {
-        if (isWorkingCopy())
+        if (hIsWorkingCopy())
             return false; // a working copy cannot be removed
-        return super.close(external);
+        return super.hClose(external);
     }
 
     private static void setSnapshot(SourceElementBody body, ISnapshot snapshot,
@@ -575,13 +545,13 @@ public abstract class SourceFile
     private WorkingCopyInfo putWorkingCopyInfoIfAbsent(
         IWorkingCopyBuffer buffer, IWorkingCopyInfoFactory factory)
     {
-        return getElementManager().putWorkingCopyInfoIfAbsent(this, buffer,
+        return hElementManager().putWorkingCopyInfoIfAbsent(this, buffer,
             factory);
     }
 
     private WorkingCopyInfo getWorkingCopyInfo()
     {
-        return getElementManager().getWorkingCopyInfo(this);
+        return hElementManager().getWorkingCopyInfo(this);
     }
 
     /**
@@ -592,7 +562,7 @@ public abstract class SourceFile
      * to send out a delta notification indicating the nature of the change
      * of the working copy since the last time it was reconciled.
      * </p>
-     * @see SourceFile#getReconcileOperation()
+     * @see SourceFile#hReconcileOperation()
      */
     public class ReconcileOperation
     {
@@ -627,7 +597,7 @@ public abstract class SourceFile
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
             boolean forced, IProgressMonitor monitor) throws CoreException
         {
-            WorkingCopyInfo info = peekAtWorkingCopyInfo();
+            WorkingCopyInfo info = hPeekAtWorkingCopyInfo();
             boolean create = !info.created; // case of wc creation
             if (create || !forced || shouldRebuildStructureIfForced())
             {
@@ -636,7 +606,7 @@ public abstract class SourceFile
                 AST_HOLDER.set(new AstHolder(ast, snapshot));
                 try
                 {
-                    open(newBody(), true, monitor);
+                    hOpen(hNewBody(), true, monitor);
                 }
                 finally
                 {
@@ -647,7 +617,7 @@ public abstract class SourceFile
             {
                 if (!info.created)
                     throw new AssertionError(); // should never happen
-                workingCopyModeChanged(); // notify about wc creation
+                hWorkingCopyModeChanged(); // notify about wc creation
             }
         }
 
@@ -686,7 +656,7 @@ public abstract class SourceFile
                 finally
                 {
                     if (!success)
-                        discardWorkingCopy();
+                        hDiscardWorkingCopy();
                 }
                 if (success)
                     return info;

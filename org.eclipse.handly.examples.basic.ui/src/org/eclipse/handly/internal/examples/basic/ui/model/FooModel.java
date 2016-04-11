@@ -19,11 +19,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.examples.basic.ui.model.IFooElement;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementManager;
@@ -50,18 +49,6 @@ public class FooModel
         if (workspace == null)
             throw new IllegalArgumentException();
         this.workspace = workspace;
-    }
-
-    @Override
-    public IFooElement getParent()
-    {
-        return null;
-    }
-
-    @Override
-    public IFooModel getRoot()
-    {
-        return this;
     }
 
     @Override
@@ -99,18 +86,6 @@ public class FooModel
     }
 
     @Override
-    public IResource getResource()
-    {
-        return workspace.getRoot();
-    }
-
-    @Override
-    public boolean exists()
-    {
-        return true; // always exists
-    }
-
-    @Override
     public boolean equals(Object obj)
     {
         if (this == obj)
@@ -132,25 +107,37 @@ public class FooModel
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    public IResource hResource()
+    {
+        return workspace.getRoot();
+    }
+
+    @Override
+    public boolean hExists()
+    {
+        return true; // always exists
+    }
+
+    @Override
+    protected void hToStringName(StringBuilder builder)
     {
         builder.append("FooModel"); //$NON-NLS-1$
     }
 
     @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return FooModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void validateExistence()
+    protected void hValidateExistence()
     {
         // always exists
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IElement, Body> newElements,
+    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
@@ -163,6 +150,6 @@ public class FooModel
                 fooProjects.add(new FooProject(this, project));
             }
         }
-        body.setChildren(fooProjects.toArray(new IElement[fooProjects.size()]));
+        body.setChildren(fooProjects.toArray(Body.NO_CHILDREN));
     }
 }

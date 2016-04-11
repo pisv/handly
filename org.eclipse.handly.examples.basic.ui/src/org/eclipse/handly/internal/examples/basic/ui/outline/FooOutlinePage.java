@@ -18,12 +18,13 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.internal.examples.basic.ui.FooContentProvider;
 import org.eclipse.handly.internal.examples.basic.ui.FooLabelProvider;
+import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.Elements;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceElement;
-import org.eclipse.handly.model.SourceElements;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.IPostSelectionProvider;
@@ -134,9 +135,9 @@ public final class FooOutlinePage
 
     private boolean affects(IElementDelta delta, IElement element)
     {
-        if (delta.getElement().equals(element))
+        if (ElementDeltas.getElement(delta).equals(element))
             return true;
-        IElementDelta[] children = delta.getAffectedChildren();
+        IElementDelta[] children = ElementDeltas.getAffectedChildren(delta);
         for (IElementDelta child : children)
         {
             if (affects(child, element))
@@ -247,7 +248,7 @@ public final class FooOutlinePage
                 ((IStructuredSelection)selection).getFirstElement();
             if (!(element instanceof ISourceElement))
                 return;
-            TextRange identifyingRange = SourceElements.getSourceElementInfo(
+            TextRange identifyingRange = Elements.getSourceElementInfo2(
                 (ISourceElement)element).getIdentifyingRange();
             if (identifyingRange == null)
                 return;
@@ -302,10 +303,9 @@ public final class FooOutlinePage
                 Object input = treeViewer.getInput();
                 if (!(input instanceof ISourceElement))
                     return Status.OK_STATUS;
-                if (!SourceElements.ensureReconciled((ISourceElement)input,
-                    monitor))
+                if (!Elements.ensureReconciled((ISourceElement)input, monitor))
                     return Status.OK_STATUS;
-                final ISourceElement element = SourceElements.getElementAt(
+                final ISourceElement element = Elements.getSourceElementAt2(
                     (ISourceElement)input, baseSelection.getOffset(), null);
                 if (element == null)
                     return Status.OK_STATUS;

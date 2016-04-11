@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,12 @@ public interface IFooProject
      * Foo project nature id.
      */
     String NATURE_ID = FooProjectNature.ID;
+
+    @Override
+    default IFooModel getParent()
+    {
+        return (IFooModel)IFooElement.super.getParent();
+    }
 
     /**
      * Creates a new Foo project in the workspace with files in the default

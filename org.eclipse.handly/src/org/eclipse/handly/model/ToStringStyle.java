@@ -17,14 +17,17 @@ import java.util.Set;
 import org.eclipse.handly.util.IndentationPolicy;
 
 /**
- * Debugging purposes. Style hint for a string representation of
+ * Debugging purposes. Style hint for string representation of
  * <code>IElement</code> or <code>IElementDelta</cod>.
  *
- * @see IElement#toString(ToStringStyle)
- * @see IElementDelta#toString(ToStringStyle)
+ * @see Elements#toString(IElement, ToStringStyle)
+ * @see ElementDeltas#toString(IElementDelta, ToStringStyle)
  */
 public final class ToStringStyle
 {
+    /**
+     * An indentation policy used by default.
+     */
     public static final IndentationPolicy DEFAULT_INDENTATION_POLICY =
         new IndentationPolicy();
 
@@ -36,21 +39,21 @@ public final class ToStringStyle
     /**
      * A compact representation that lists ancestors but not children.
      */
-    public static final ToStringStyle COMPACT = new ToStringStyle(
-        EnumSet.of(Option.ANCESTORS));
+    public static final ToStringStyle COMPACT = new ToStringStyle(EnumSet.of(
+        Option.ANCESTORS));
     /**
      * A full representation that lists ancestors and children.
      */
-    public static final ToStringStyle FULL = new ToStringStyle(
-        EnumSet.allOf(Option.class));
+    public static final ToStringStyle FULL = new ToStringStyle(EnumSet.allOf(
+        Option.class));
 
     private final Set<Option> options;
     private final IndentationPolicy indentationPolicy;
     private final int indentationLevel;
 
     /**
-     * Creates a new style with the given options, default indentation policy,
-     * and indentation level of zero.
+     * Creates a new style with the given options, a default indentation policy,
+     * and the indentation level of zero.
      *
      * @param options style options (not <code>null</code>)
      */

@@ -11,22 +11,18 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.internal.Activator;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.handly.util.IndentationPolicy;
@@ -44,18 +40,18 @@ import org.eclipse.handly.util.IndentationPolicy;
  */
 public abstract class Element
     extends PlatformObject
-    implements IElement
+    implements IElementImpl
 {
+    /**
+     * Special-purpose value for the <code>body</code> argument of the
+     * {@link #hToStringBody(IndentationPolicy, int, StringBuilder, Body,
+     * boolean) hToStringBody} method. Indicates that body information
+     * should not be included in the output string.
+     */
     protected static final Body NO_BODY = new Body();
 
-    /**
-     * The parent of the element.
-     */
-    protected final Element parent;
-    /**
-     * The name of the element.
-     */
-    protected final String name;
+    private final Element parent;
+    private final String name;
 
     /**
      * Constructs a handle for an element with the given parent element
@@ -73,67 +69,6 @@ public abstract class Element
     }
 
     @Override
-    public final String getName()
-    {
-        return name;
-    }
-
-    /**
-     * Returns {@link #parent}. Subclasses must honor this contract.
-     */
-    @Override
-    public IElement getParent()
-    {
-        return parent;
-    }
-
-    @Override
-    public IElement getRoot()
-    {
-        if (parent == null)
-            return this;
-        else
-            return parent.getRoot();
-    }
-
-    @Override
-    public <T extends IElement> T getAncestor(Class<T> ancestorType)
-    {
-        if (parent == null)
-            return null;
-        if (ancestorType.isInstance(parent))
-            return ancestorType.cast(parent);
-        return parent.getAncestor(ancestorType);
-    }
-
-    @Override
-    public IPath getPath()
-    {
-        IResource resource = getResource();
-        if (resource != null)
-            return resource.getFullPath();
-        return Path.EMPTY;
-    }
-
-    @Override
-    public boolean exists()
-    {
-        if (findBody() != null)
-            return true;
-        if (parent != null && !parent.exists())
-            return false;
-        try
-        {
-            validateExistence();
-            return true;
-        }
-        catch (CoreException e)
-        {
-            return false;
-        }
-    }
-
-    @Override
     public boolean equals(Object obj)
     {
         if (this == obj)
@@ -143,7 +78,7 @@ public abstract class Element
         if (!(obj instanceof Element))
             return false;
         Element other = (Element)obj;
-        if (!getElementType().equals(other.getElementType()))
+        if (!hElementType().equals(other.hElementType()))
             return false;
         if (parent == null)
         {
@@ -173,25 +108,47 @@ public abstract class Element
     }
 
     @Override
-    public IElement[] getChildren() throws CoreException
+    public String toString()
     {
-        return getBody().getChildren();
+        StringBuilder builder = new StringBuilder();
+        hToString(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder);
+        return builder.toString();
     }
 
     @Override
-    public <T extends IElement> T[] getChildren(Class<T> childType)
-        throws CoreException
+    public final String hName()
     {
-        IElement[] children = getChildren();
-        List<T> list = new ArrayList<T>(children.length);
-        for (IElement child : children)
+        return name;
+    }
+
+    @Override
+    public final Element hParent()
+    {
+        return parent;
+    }
+
+    @Override
+    public boolean hExists()
+    {
+        if (hFindBody() != null)
+            return true;
+        if (parent != null && !parent.hExists())
+            return false;
+        try
         {
-            if (childType.isInstance(child))
-                list.add(childType.cast(child));
+            hValidateExistence();
+            return true;
         }
-        @SuppressWarnings("unchecked")
-        T[] result = (T[])Array.newInstance(childType, list.size());
-        return list.toArray(result);
+        catch (CoreException e)
+        {
+            return false;
+        }
+    }
+
+    @Override
+    public IElement[] hChildren() throws CoreException
+    {
+        return hBody().getChildren();
     }
 
     /**
@@ -201,9 +158,9 @@ public abstract class Element
      * @return the cached body for this element, or <code>null</code>
      *  if none
      */
-    public Body findBody()
+    public Body hFindBody()
     {
-        return getElementManager().get(this);
+        return hElementManager().get(this);
     }
 
     /**
@@ -213,9 +170,9 @@ public abstract class Element
      * @return the cached body for this element, or <code>null</code>
      *  if none
      */
-    public Body peekAtBody()
+    public Body hPeekAtBody()
     {
-        return getElementManager().peek(this);
+        return hElementManager().peek(this);
     }
 
     /**
@@ -226,115 +183,107 @@ public abstract class Element
      *  <code>false</code> if the current state of this element does not
      *  permit closing (e.g., a working copy)
      */
-    public final boolean close()
+    public final boolean hClose()
     {
-        return close(true);
+        return hClose(true);
     }
 
     @Override
-    public String toString()
-    {
-        StringBuilder builder = new StringBuilder();
-        toString(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder);
-        return builder.toString();
-    }
-
-    @Override
-    public String toString(ToStringStyle style)
+    public String hToString(ToStringStyle style)
     {
         StringBuilder builder = new StringBuilder();
         if (style.getOptions().contains(ToStringStyle.Option.CHILDREN))
         {
-            toString(style.getIndentationPolicy(), style.getIndentationLevel(),
+            hToString(style.getIndentationPolicy(), style.getIndentationLevel(),
                 builder);
         }
         else
         {
-            toStringBody(style.getIndentationPolicy(),
+            hToStringBody(style.getIndentationPolicy(),
                 style.getIndentationLevel(), builder, NO_BODY,
                 true/*show resolved info*/);
             if (style.getOptions().contains(ToStringStyle.Option.ANCESTORS))
-                toStringAncestors(builder);
+                hToStringAncestors(builder);
         }
         return builder.toString();
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    public String toDebugString()
+    public String hToDebugString()
     {
         StringBuilder builder = new StringBuilder();
-        toStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder,
+        hToStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder,
             NO_BODY, true/*show resolved info*/);
         return builder.toString();
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    public String toStringWithAncestors()
+    public String hToStringWithAncestors()
     {
-        return toStringWithAncestors(true/*show resolved info*/);
+        return hToStringWithAncestors(true/*show resolved info*/);
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    public String toStringWithAncestors(boolean showResolvedInfo)
+    public String hToStringWithAncestors(boolean showResolvedInfo)
     {
         StringBuilder builder = new StringBuilder();
-        toStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder,
+        hToStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder,
             NO_BODY, showResolvedInfo);
-        toStringAncestors(builder);
+        hToStringAncestors(builder);
         return builder.toString();
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    public Body toStringBody(IndentationPolicy indentationPolicy,
+    public Body hToStringBody(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
-        Body body = peekAtBody();
-        toStringBody(indentationPolicy, indentationLevel, builder, body,
+        Body body = hPeekAtBody();
+        hToStringBody(indentationPolicy, indentationLevel, builder, body,
             true/*show resolved info*/);
         return body;
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    protected void toStringAncestors(StringBuilder builder)
+    protected void hToStringAncestors(StringBuilder builder)
     {
-        if (parent != null && parent.getParent() != null)
+        if (parent != null && parent.hParent() != null)
         {
             builder.append(" [in "); //$NON-NLS-1$
-            parent.toStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0,
+            parent.hToStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0,
                 builder, NO_BODY, false/*don't show resolved info*/);
-            parent.toStringAncestors(builder);
+            parent.hToStringAncestors(builder);
             builder.append(']');
         }
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    protected void toString(IndentationPolicy indentationPolicy,
+    protected void hToString(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
-        Body body = toStringBody(indentationPolicy, indentationLevel, builder);
+        Body body = hToStringBody(indentationPolicy, indentationLevel, builder);
         if (indentationLevel == 0)
         {
-            toStringAncestors(builder);
+            hToStringAncestors(builder);
         }
-        toStringChildren(indentationPolicy, indentationLevel, builder, body);
+        hToStringChildren(indentationPolicy, indentationLevel, builder, body);
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    protected void toStringChildren(IndentationPolicy indentationPolicy,
+    protected void hToStringChildren(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder, Body body)
     {
         if (body == null)
@@ -347,19 +296,19 @@ public abstract class Element
                 childStyle = new ToStringStyle(EnumSet.of(
                     ToStringStyle.Option.CHILDREN), indentationPolicy,
                     indentationLevel + 1);
-            builder.append(child.toString(childStyle));
+            builder.append(Elements.toString(child, childStyle));
         }
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    protected void toStringBody(IndentationPolicy indentationPolicy,
+    protected void hToStringBody(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder, Body body,
         boolean showResolvedInfo)
     {
         indentationPolicy.appendIndentTo(builder, indentationLevel);
-        toStringName(builder);
+        hToStringName(builder);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$
@@ -367,11 +316,11 @@ public abstract class Element
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
-        builder.append(getName());
+        builder.append(name);
     }
 
     /**
@@ -380,7 +329,7 @@ public abstract class Element
      *
      * @return the type of this element (never <code>null</code>)
      */
-    protected Object getElementType()
+    protected Object hElementType()
     {
         return getClass();
     }
@@ -392,7 +341,7 @@ public abstract class Element
      *
      * @return the element manager for this element (never <code>null</code>)
      */
-    protected abstract ElementManager getElementManager();
+    protected abstract ElementManager hElementManager();
 
     /**
      * Validates if the element represented by the handle may be "opened",
@@ -403,13 +352,13 @@ public abstract class Element
      * explicitly verify their existence.
      * </p>
      *
-     * @throws CoreException if the element may not exist
+     * @throws CoreException if this element shall not exist
      */
-    protected abstract void validateExistence() throws CoreException;
+    protected abstract void hValidateExistence() throws CoreException;
 
     /**
      * Initializes the given body based on this element's current contents.
-     * Also, creates and initializes bodies for all non-{@link #isOpenable()
+     * Also, creates and initializes bodies for all non-{@link #hIsOpenable()
      * openable} descendants and puts them into the given map.
      *
      * @param body a new, uninitialized body for this element
@@ -421,7 +370,7 @@ public abstract class Element
      *  the element's corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected abstract void buildStructure(Body body,
+    protected abstract void hBuildStructure(Body body,
         Map<IElement, Body> newElements, IProgressMonitor monitor)
         throws CoreException;
 
@@ -434,9 +383,9 @@ public abstract class Element
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    protected final Body getBody() throws CoreException
+    protected final Body hBody() throws CoreException
     {
-        return getBody(null);
+        return hBody(null);
     }
 
     /**
@@ -451,12 +400,12 @@ public abstract class Element
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected final Body getBody(IProgressMonitor monitor) throws CoreException
+    protected final Body hBody(IProgressMonitor monitor) throws CoreException
     {
-        Body body = findBody();
+        Body body = hFindBody();
         if (body != null)
             return body;
-        return open(newBody(), false, monitor);
+        return hOpen(hNewBody(), false, monitor);
     }
 
     /**
@@ -466,9 +415,9 @@ public abstract class Element
      * @return a new body for this element, or <code>null</code> if the body
      *  for the element is to be created by the openable parent
      */
-    protected Body newBody()
+    protected Body hNewBody()
     {
-        if (!isOpenable())
+        if (!hIsOpenable())
             return null;
         return new Body();
     }
@@ -489,18 +438,18 @@ public abstract class Element
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    final Body open(Body body, boolean force, IProgressMonitor monitor)
+    final Body hOpen(Body body, boolean force, IProgressMonitor monitor)
         throws CoreException
     {
         if (monitor == null)
             monitor = new NullProgressMonitor();
-        ElementManager elementManager = getElementManager();
+        ElementManager elementManager = hElementManager();
         boolean hadTemporaryCache = elementManager.hasTemporaryCache();
         try
         {
             Map<IElement, Body> newElements =
                 elementManager.getTemporaryCache();
-            generateBodies(body, newElements, monitor);
+            hGenerateBodies(body, newElements, monitor);
             if (body == null)
             {
                 // a body for this element was to be created by the openable parent
@@ -554,23 +503,23 @@ public abstract class Element
      * @return <code>true</code> if this element is openable,
      *  <code>false</code> otherwise
      */
-    protected boolean isOpenable()
+    protected boolean hIsOpenable()
     {
         return true;
     }
 
     /**
-     * Returns the innermost {@link #isOpenable() openable} element
+     * Returns the innermost {@link #hIsOpenable() openable} element
      * in the parent chain of this element, or <code>null</code>
      * if this element has no openable parent.
      *
      * @return the innermost openable element in the parent chain of this
      *  element, or <code>null</code> if this element has no openable parent
      */
-    protected final Element getOpenableParent()
+    protected final Element hOpenableParent()
     {
         Element result = parent;
-        while (result != null && !result.isOpenable())
+        while (result != null && !result.hIsOpenable())
             result = result.parent;
         return result;
     }
@@ -586,14 +535,14 @@ public abstract class Element
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected void generateAncestorBodies(Map<IElement, Body> newElements,
+    protected void hGenerateAncestorBodies(Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
-        Element openableParent = getOpenableParent();
-        if (openableParent != null && openableParent.findBody() == null)
+        Element openableParent = hOpenableParent();
+        if (openableParent != null && openableParent.hFindBody() == null)
         {
-            openableParent.generateBodies(openableParent.newBody(), newElements,
-                monitor);
+            openableParent.hGenerateBodies(openableParent.hNewBody(),
+                newElements, monitor);
         }
     }
 
@@ -610,14 +559,14 @@ public abstract class Element
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected final void generateBodies(Body body,
+    protected final void hGenerateBodies(Body body,
         Map<IElement, Body> newElements, IProgressMonitor monitor)
         throws CoreException
     {
         monitor.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            if (isOpenable())
+            if (hIsOpenable())
             {
                 if (body == null)
                     throw new IllegalArgumentException();
@@ -628,12 +577,12 @@ public abstract class Element
                     throw new IllegalArgumentException();
             }
 
-            generateAncestorBodies(newElements, new SubProgressMonitor(monitor,
+            hGenerateAncestorBodies(newElements, new SubProgressMonitor(monitor,
                 1));
 
             if (body != null)
             {
-                validateExistence();
+                hValidateExistence();
 
                 if (monitor.isCanceled())
                     throw new OperationCanceledException();
@@ -644,7 +593,7 @@ public abstract class Element
 
                 try
                 {
-                    buildStructure(body, newElements, new SubProgressMonitor(
+                    hBuildStructure(body, newElements, new SubProgressMonitor(
                         monitor, 1));
                 }
                 catch (CoreException e)
@@ -675,11 +624,11 @@ public abstract class Element
      *  <code>false</code> if the current state of this element does not
      *  permit closing (e.g., a working copy)
      */
-    protected boolean close(boolean external)
+    protected boolean hClose(boolean external)
     {
-        if (external && !isOpenable())
+        if (external && !hIsOpenable())
             return false;
-        getElementManager().remove(this);
+        hElementManager().remove(this);
         return true;
     }
 
@@ -689,7 +638,7 @@ public abstract class Element
      *
      * @param body the cached body for this element (never <code>null</code>)
      */
-    protected void removing(Body body)
+    protected void hRemoving(Body body)
     {
         // Does nothing. Subclasses may override
     }

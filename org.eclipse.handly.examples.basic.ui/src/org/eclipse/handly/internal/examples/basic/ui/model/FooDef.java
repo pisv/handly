@@ -12,7 +12,6 @@ package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
-import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
 
@@ -39,18 +38,6 @@ public class FooDef
         if (name == null)
             throw new IllegalArgumentException();
         this.arity = arity;
-    }
-
-    @Override
-    public FooFile getParent()
-    {
-        return (FooFile)super.getParent();
-    }
-
-    @Override
-    public IFooModel getRoot()
-    {
-        return (IFooModel)super.getRoot();
     }
 
     @Override
@@ -83,15 +70,15 @@ public class FooDef
     }
 
     @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return FooModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
-        super.toStringName(builder);
+        super.hToStringName(builder);
         builder.append('/');
         builder.append(arity);
     }

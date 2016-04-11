@@ -11,7 +11,6 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
-import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
 
@@ -37,27 +36,15 @@ public class ImportDeclaration
     }
 
     @Override
-    public ImportContainer getParent()
-    {
-        return (ImportContainer)parent;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return (IJavaModel)super.getRoot();
-    }
-
-    @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
         builder.append("import "); //$NON-NLS-1$
-        super.toStringName(builder);
+        super.hToStringName(builder);
     }
 }

@@ -13,7 +13,6 @@ package org.eclipse.handly.internal.examples.javamodel;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
-import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
@@ -39,18 +38,6 @@ public class ImportContainer
     }
 
     @Override
-    public CompilationUnit getParent()
-    {
-        return (CompilationUnit)parent;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return (IJavaModel)super.getRoot();
-    }
-
-    @Override
     public IImportDeclaration getImport(String name)
     {
         return new ImportDeclaration(this, name);
@@ -67,22 +54,22 @@ public class ImportContainer
     }
 
     @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
         builder.append("<import container>"); //$NON-NLS-1$
     }
 
     @Override
-    protected void toString(IndentationPolicy indentationPolicy,
+    protected void hToString(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
-        Body body = peekAtBody();
+        Body body = hPeekAtBody();
         if (body == null)
             return;
         IElement[] children = body.getChildren();
@@ -90,7 +77,7 @@ public class ImportContainer
         {
             if (i > 0)
                 indentationPolicy.appendLineSeparatorTo(builder);
-            ((Element)children[i]).toStringBody(indentationPolicy,
+            ((Element)children[i]).hToStringBody(indentationPolicy,
                 indentationLevel, builder);
         }
     }

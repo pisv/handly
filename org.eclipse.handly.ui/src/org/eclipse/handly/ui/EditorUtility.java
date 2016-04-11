@@ -15,10 +15,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.internal.ui.Activator;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.SourceElements;
 import org.eclipse.handly.util.AdapterUtil;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.IDocument;
@@ -60,7 +60,7 @@ public class EditorUtility
         IElement adapterElement = AdapterUtil.getAdapter(element,
             IElement.class, true);
         if (adapterElement != null)
-            resource = adapterElement.getResource();
+            resource = Elements.getResource(adapterElement);
         else
             resource = ResourceUtil.getResource(element);
 
@@ -154,16 +154,16 @@ public class EditorUtility
      */
     protected IBuffer getBuffer(ISourceElement element)
     {
-        ISourceFile sourceFile = SourceElements.getSourceFile(element);
+        ISourceFile sourceFile = Elements.getSourceFile(element);
         if (sourceFile != null)
         {
             try
             {
-                return sourceFile.getBuffer();
+                return Elements.getBuffer(sourceFile);
             }
             catch (CoreException e)
             {
-                if (element.exists())
+                if (Elements.exists(element))
                     Activator.log(e.getStatus());
             }
         }
@@ -218,11 +218,10 @@ public class EditorUtility
                     editor.getEditorInput());
                 if (document != null && document.equals(buffer.getDocument()))
                 {
-                    SourceElements.ensureReconciled(element, null);
+                    Elements.ensureReconciled(element, null);
 
-                    TextRange identifyingRange =
-                        SourceElements.getSourceElementInfo(
-                            element).getIdentifyingRange();
+                    TextRange identifyingRange = Elements.getSourceElementInfo2(
+                        element).getIdentifyingRange();
                     if (identifyingRange != null)
                     {
                         editor.selectAndReveal(identifyingRange.getOffset(),

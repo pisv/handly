@@ -11,6 +11,22 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.ADDED;
+import static org.eclipse.handly.model.IElementDeltaConstants.CHANGED;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CHILDREN;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_DESCRIPTION;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_FINE_GRAINED;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_MARKERS;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_MOVED_FROM;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_MOVED_TO;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_OPEN;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_REORDER;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_SYNC;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
+import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,15 +34,15 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.handly.util.IndentationPolicy;
 
 /**
- * Implements {@link IElementDelta}. To create a delta tree, call
- * <code>insertXXX</code> methods on a root delta.
+ * Implementation of element delta. To create a delta tree, call
+ * <code>hInsertXXX</code> methods on a root delta.
  * <p>
  * Note that despite having a dependency on {@link IResourceDelta}
  * and {@link IMarkerDelta} this class can be used even when
@@ -36,7 +52,7 @@ import org.eclipse.handly.util.IndentationPolicy;
  * </p>
  * <p>
  * Clients can use this class as it stands or subclass it as circumstances
- * warrant. Subclasses should consider overriding {@link #newDelta(IElement)}
+ * warrant. Subclasses should consider overriding {@link #hNewDelta(IElement)}
  * method.
  * </p>
  * <p>
@@ -44,21 +60,20 @@ import org.eclipse.handly.util.IndentationPolicy;
  * </p>
  */
 public class ElementDelta
-    implements IElementDelta
+    implements IElementDeltaImpl
 {
-    private static final ElementDelta[] EMPTY_ELEMENT_DELTAS =
-        new ElementDelta[0];
+    private static final ElementDelta[] NO_CHILDREN = new ElementDelta[0];
 
+    private final IElement element;
     private int kind;
     private long flags;
-    private final IElement element;
     private IElement movedFromElement;
     private IElement movedToElement;
-    private ElementDelta[] affectedChildren = EMPTY_ELEMENT_DELTAS;
+    private ElementDelta[] affectedChildren = NO_CHILDREN;
 
     /**
-     * On-demand index into <code>affectedChildren</code>
-     * @see #needsChildIndex()
+     * On-demand index into <code>affectedChildren</code>.
+     * @see #hNeedsChildIndex()
      * @see #indexOfChild(Key)
      */
     private Map<Key, Integer> childIndex;
@@ -81,67 +96,67 @@ public class ElementDelta
     }
 
     @Override
-    public IElement getElement()
+    public final IElement hElement()
     {
         return element;
     }
 
     @Override
-    public final int getKind()
+    public final int hKind()
     {
         return kind;
     }
 
     @Override
-    public final long getFlags()
+    public final long hFlags()
     {
         return flags;
     }
 
     @Override
-    public ElementDelta[] getAffectedChildren()
+    public final ElementDelta[] hAffectedChildren()
     {
         return affectedChildren;
     }
 
     @Override
-    public ElementDelta[] getAddedChildren()
+    public final ElementDelta[] hAddedChildren()
     {
         return getChildrenOfType(ADDED);
     }
 
     @Override
-    public ElementDelta[] getRemovedChildren()
+    public final ElementDelta[] hRemovedChildren()
     {
         return getChildrenOfType(REMOVED);
     }
 
     @Override
-    public ElementDelta[] getChangedChildren()
+    public final ElementDelta[] hChangedChildren()
     {
         return getChildrenOfType(CHANGED);
     }
 
     @Override
-    public IElement getMovedFromElement()
+    public final IElement hMovedFromElement()
     {
         return movedFromElement;
     }
 
     @Override
-    public IElement getMovedToElement()
+    public final IElement hMovedToElement()
     {
         return movedToElement;
     }
 
     @Override
-    public IMarkerDelta[] getMarkerDeltas()
+    public final IMarkerDelta[] hMarkerDeltas()
     {
         return markerDeltas;
     }
 
     @Override
-    public IResourceDelta[] getResourceDeltas()
+    public final IResourceDelta[] hResourceDeltas()
     {
         if (resourceDeltas != null
             && resourceDeltas.length != resourceDeltasCounter)
@@ -159,7 +174,7 @@ public class ElementDelta
      * @return <code>true</code> if the delta is empty,
      *  <code>false</code> otherwise
      */
-    public boolean isEmpty()
+    public final boolean hIsEmpty()
     {
         return kind == 0;
     }
@@ -168,17 +183,17 @@ public class ElementDelta
      * Convenience method. Same as <code>insertAdded(element, 0)</code>.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
+     * rather than the inserted delta. Use {@link #hDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
      * @param element the added element (not <code>null</code>)
      * @return the receiver (i.e. this delta)
-     * @see #insertAdded(IElement, long)
+     * @see #hInsertAdded(IElement, long)
      */
-    public ElementDelta insertAdded(IElement element)
+    public ElementDelta hInsertAdded(IElement element)
     {
-        return insertAdded(element, 0);
+        return hInsertAdded(element, 0);
     }
 
     /**
@@ -186,15 +201,15 @@ public class ElementDelta
      * this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
+     * rather than the inserted delta. Use {@link #hDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
      * @param element the added element (not <code>null</code>)
-     * @param flags change flags
+     * @param flags delta flags
      * @return the receiver (i.e. this delta)
      */
-    public ElementDelta insertAdded(IElement element, long flags)
+    public ElementDelta hInsertAdded(IElement element, long flags)
     {
         insert(newAdded(element, flags));
         return this;
@@ -204,17 +219,17 @@ public class ElementDelta
      * Convenience method. Same as <code>insertRemoved(element, 0)</code>.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
+     * rather than the inserted delta. Use {@link #hDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
      * @param element the removed element (not <code>null</code>)
      * @return the receiver (i.e. this delta)
-     * @see #insertRemoved(IElement, long)
+     * @see #hInsertRemoved(IElement, long)
      */
-    public ElementDelta insertRemoved(IElement element)
+    public ElementDelta hInsertRemoved(IElement element)
     {
-        return insertRemoved(element, 0);
+        return hInsertRemoved(element, 0);
     }
 
     /**
@@ -222,25 +237,25 @@ public class ElementDelta
      * this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
+     * rather than the inserted delta. Use {@link #hDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
      * @param element the removed element (not <code>null</code>)
-     * @param flags change flags
+     * @param flags delta flags
      * @return the receiver (i.e. this delta)
      */
-    public ElementDelta insertRemoved(IElement element, long flags)
+    public ElementDelta hInsertRemoved(IElement element, long flags)
     {
-        ElementDelta delta = newDelta(element);
+        ElementDelta delta = hNewDelta(element);
         delta.flags = flags;
         insert(delta);
-        ElementDelta actualDelta = getDeltaFor(element);
+        ElementDelta actualDelta = hDeltaFor(element);
         if (actualDelta != null)
         {
             actualDelta.kind = REMOVED;
             actualDelta.flags = flags;
-            actualDelta.clearAffectedChildren();
+            actualDelta.hClearAffectedChildren();
         }
         return this;
     }
@@ -250,15 +265,15 @@ public class ElementDelta
      * this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
+     * rather than the inserted delta. Use {@link #hDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
      * @param element the changed element (not <code>null</code>)
-     * @param flags change flags
+     * @param flags delta flags
      * @return the receiver (i.e. this delta)
      */
-    public ElementDelta insertChanged(IElement element, long flags)
+    public ElementDelta hInsertChanged(IElement element, long flags)
     {
         insert(newChanged(element, flags));
         return this;
@@ -269,7 +284,7 @@ public class ElementDelta
      * given element into this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
+     * rather than the inserted delta. Use {@link #hDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
@@ -278,7 +293,7 @@ public class ElementDelta
      * @param movedToElement the element in its new location (not <code>null</code>)
      * @return the receiver (i.e. this delta)
      */
-    public ElementDelta insertMovedFrom(IElement movedFromElement,
+    public ElementDelta hInsertMovedFrom(IElement movedFromElement,
         IElement movedToElement)
     {
         insert(newMovedFrom(movedFromElement, movedToElement));
@@ -290,7 +305,7 @@ public class ElementDelta
      * given element into this delta subtree.
      * <p>
      * Note that this method returns the receiver (i.e. this delta)
-     * rather than the inserted delta. Use {@link #getDeltaFor(IElement)}
+     * rather than the inserted delta. Use {@link #hDeltaFor(IElement)}
      * to get the inserted delta.
      * </p>
      *
@@ -299,7 +314,7 @@ public class ElementDelta
      *  location (not <code>null</code>)
      * @return the receiver (i.e. this delta)
      */
-    public ElementDelta insertMovedTo(IElement movedToElement,
+    public ElementDelta hInsertMovedTo(IElement movedToElement,
         IElement movedFromElement)
     {
         insert(newMovedTo(movedToElement, movedFromElement));
@@ -315,7 +330,7 @@ public class ElementDelta
     private void insert(ElementDelta delta)
     {
         ElementDelta childDelta = createDeltaTree(delta);
-        if (!equalsAndSameParent(delta.getElement(), getElement()))
+        if (!equalsAndSameParent(delta.element, element))
         {
             addAffectedChild(childDelta);
         }
@@ -334,10 +349,10 @@ public class ElementDelta
             throw new IllegalArgumentException();
 
         ElementDelta childDelta = delta;
-        List<IElement> ancestors = getAncestors(delta.getElement());
+        List<IElement> ancestors = getAncestors(delta.element);
         if (ancestors == null)
         {
-            if (equalsAndSameParent(delta.getElement(), getElement()))
+            if (equalsAndSameParent(delta.element, element))
             {
                 // the element being changed is the root element
                 kind = delta.kind;
@@ -351,7 +366,7 @@ public class ElementDelta
             for (int i = 0, size = ancestors.size(); i < size; i++)
             {
                 IElement ancestor = ancestors.get(i);
-                ElementDelta ancestorDelta = newDelta(ancestor);
+                ElementDelta ancestorDelta = hNewDelta(ancestor);
                 ancestorDelta.addAffectedChild(childDelta);
                 childDelta = ancestorDelta;
             }
@@ -392,7 +407,7 @@ public class ElementDelta
             flags |= F_FINE_GRAINED;
         }
 
-        Key key = new Key(child.getElement());
+        Key key = new Key(child.element);
         Integer index = indexOfChild(key);
         if (index == null) // new affected child
         {
@@ -401,10 +416,10 @@ public class ElementDelta
         else
         {
             ElementDelta existingChild = affectedChildren[index];
-            switch (existingChild.getKind())
+            switch (existingChild.kind)
             {
             case ADDED:
-                switch (child.getKind())
+                switch (child.kind)
                 {
                 case ADDED: // child was added then added -> it is added
                 case CHANGED: // child was added then changed -> it is added
@@ -415,7 +430,7 @@ public class ElementDelta
                 }
                 break;
             case REMOVED:
-                switch (child.getKind())
+                switch (child.kind)
                 {
                 case ADDED: // child was removed then added -> it is changed
                     child.kind = CHANGED;
@@ -427,7 +442,7 @@ public class ElementDelta
                 }
                 break;
             case CHANGED:
-                switch (child.getKind())
+                switch (child.kind)
                 {
                 case ADDED: // child was changed then added -> it is added
                 case REMOVED: // child was changed then removed -> it is removed
@@ -481,9 +496,8 @@ public class ElementDelta
                 break;
             default:
                 // unknown -> existing child becomes the child with the existing child's flags
-                long flags = existingChild.getFlags();
                 affectedChildren[index] = child;
-                child.flags |= flags;
+                child.flags |= existingChild.flags;
             }
         }
     }
@@ -491,9 +505,9 @@ public class ElementDelta
     /**
      * Clears the collection of affected children.
      */
-    void clearAffectedChildren()
+    void hClearAffectedChildren()
     {
-        affectedChildren = EMPTY_ELEMENT_DELTAS;
+        affectedChildren = NO_CHILDREN;
         childIndex = null;
     }
 
@@ -504,11 +518,11 @@ public class ElementDelta
      * @param element the element to search delta for or <code>null</code>
      * @return the delta for the given element, or <code>null</code> if none
      */
-    public ElementDelta getDeltaFor(IElement element)
+    public ElementDelta hDeltaFor(IElement element)
     {
         if (element == null)
             return null;
-        if (equalsAndSameParent(getElement(), element))
+        if (equalsAndSameParent(this.element, element))
             return this;
         return findDescendant(new Key(element));
     }
@@ -519,7 +533,7 @@ public class ElementDelta
      * @param markerDeltas the marker deltas to set (not <code>null</code>,
      *  not empty)
      */
-    public void setMarkerDeltas(IMarkerDelta[] markerDeltas)
+    public void hSetMarkerDeltas(IMarkerDelta[] markerDeltas)
     {
         if (markerDeltas == null || markerDeltas.length == 0)
             throw new IllegalArgumentException();
@@ -544,7 +558,7 @@ public class ElementDelta
      *
      * @param child the resource delta to add (not <code>null</code>)
      */
-    public void addResourceDelta(IResourceDelta child)
+    public void hAddResourceDelta(IResourceDelta child)
     {
         if (child == null)
             throw new IllegalArgumentException();
@@ -582,38 +596,38 @@ public class ElementDelta
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        toStringFull(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder);
+        hToStringFull(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder);
         return builder.toString();
     }
 
     @Override
-    public String toString(ToStringStyle style)
+    public String hToString(ToStringStyle style)
     {
         StringBuilder builder = new StringBuilder();
         if (style.getOptions().contains(ToStringStyle.Option.CHILDREN))
         {
-            toStringFull(style.getIndentationPolicy(),
+            hToStringFull(style.getIndentationPolicy(),
                 style.getIndentationLevel(), builder);
         }
         else
         {
-            toStringMinimal(style.getIndentationPolicy(),
+            hToStringMinimal(style.getIndentationPolicy(),
                 style.getIndentationLevel(), builder);
         }
         return builder.toString();
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    protected void toStringFull(IndentationPolicy indentationPolicy,
+    protected void hToStringFull(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
-        toStringMinimal(indentationPolicy, indentationLevel, builder);
+        hToStringMinimal(indentationPolicy, indentationLevel, builder);
         for (ElementDelta child : affectedChildren)
         {
             indentationPolicy.appendLineSeparatorTo(builder);
-            child.toStringFull(indentationPolicy, indentationLevel + 1,
+            child.hToStringFull(indentationPolicy, indentationLevel + 1,
                 builder);
         }
         for (int i = 0; i < resourceDeltasCounter; i++)
@@ -643,13 +657,13 @@ public class ElementDelta
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      */
-    protected void toStringMinimal(IndentationPolicy indentationPolicy,
+    protected void hToStringMinimal(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
         indentationPolicy.appendIndentTo(builder, indentationLevel);
-        builder.append(element.toString(ToStringStyle.MINIMAL));
+        builder.append(Elements.toString(element, ToStringStyle.MINIMAL));
         builder.append('[');
         switch (kind)
         {
@@ -667,18 +681,18 @@ public class ElementDelta
             break;
         }
         builder.append("]: {"); //$NON-NLS-1$
-        toStringFlags(builder);
+        hToStringFlags(builder);
         builder.append('}');
     }
 
     /**
-     * Debugging purposes
+     * Debugging purposes.
      *
      * @param builder a string builder to append the delta flags to
      * @return <code>true</code> if a flag was appended to the builder,
      *  <code>false</code> if the builder was not modified by this method
      */
-    protected boolean toStringFlags(StringBuilder builder)
+    protected boolean hToStringFlags(StringBuilder builder)
     {
         boolean prev = false;
         if ((flags & F_CHILDREN) != 0)
@@ -700,7 +714,7 @@ public class ElementDelta
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_FROM("); //$NON-NLS-1$
-            builder.append(getMovedFromElement().toString(
+            builder.append(Elements.toString(movedFromElement,
                 ToStringStyle.COMPACT));
             builder.append(')');
             prev = true;
@@ -710,7 +724,8 @@ public class ElementDelta
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_TO("); //$NON-NLS-1$
-            builder.append(getMovedToElement().toString(ToStringStyle.COMPACT));
+            builder.append(Elements.toString(movedToElement,
+                ToStringStyle.COMPACT));
             builder.append(')');
             prev = true;
         }
@@ -784,7 +799,7 @@ public class ElementDelta
      * @return a new, initially empty delta for the given element
      *  (never <code>null</code>)
      */
-    protected ElementDelta newDelta(IElement element)
+    protected ElementDelta hNewDelta(IElement element)
     {
         return new ElementDelta(element);
     }
@@ -795,7 +810,7 @@ public class ElementDelta
      * @return <code>true</code> if the child index needs to be used,
      *  <code>false</code> otherwise
      */
-    protected boolean needsChildIndex()
+    protected boolean hNeedsChildIndex()
     {
         return affectedChildren.length >= 3;
     }
@@ -805,13 +820,13 @@ public class ElementDelta
      *
      * @param element the element that this delta describes a change to
      *  (not <code>null</code>)
-     * @param flags the change flags
+     * @param flags delta flags
      * @return a new <code>ADDED</code> delta for the given element
      *  (never <code>null</code>)
      */
     private ElementDelta newAdded(IElement element, long flags)
     {
-        ElementDelta delta = newDelta(element);
+        ElementDelta delta = hNewDelta(element);
         delta.kind = ADDED;
         delta.flags = flags;
         return delta;
@@ -822,13 +837,13 @@ public class ElementDelta
      *
      * @param element the element that this delta describes a change to
      *  (not <code>null</code>)
-     * @param flags the change flags
+     * @param flags delta flags
      * @return a new <code>REMOVED</code> delta for the given element
      *  (never <code>null</code>)
      */
     private ElementDelta newRemoved(IElement element, long flags)
     {
-        ElementDelta delta = newDelta(element);
+        ElementDelta delta = hNewDelta(element);
         delta.kind = REMOVED;
         delta.flags = flags;
         return delta;
@@ -839,13 +854,13 @@ public class ElementDelta
      *
      * @param element the element that this delta describes a change to
      *  (not <code>null</code>)
-     * @param flags the change flags
+     * @param flags delta flags
      * @return a new <code>CHANGED</code> delta for the given element
      *  (never <code>null</code>)
      */
     private ElementDelta newChanged(IElement element, long flags)
     {
-        ElementDelta delta = newDelta(element);
+        ElementDelta delta = hNewDelta(element);
         delta.kind = CHANGED;
         delta.flags = flags;
         return delta;
@@ -904,15 +919,15 @@ public class ElementDelta
      */
     private List<IElement> getAncestors(IElement child)
     {
-        IElement parent = child.getParent();
+        IElement parent = Elements.getParent(child);
         if (parent == null)
             return null;
 
         ArrayList<IElement> parents = new ArrayList<IElement>();
-        while (!parent.equals(getElement()))
+        while (!parent.equals(element))
         {
             parents.add(parent);
-            parent = parent.getParent();
+            parent = Elements.getParent(parent);
             if (parent == null)
             {
                 return null;
@@ -925,26 +940,25 @@ public class ElementDelta
     /**
      * Returns the deltas for the affected children of the given type.
      *
-     * @param type one of {@link IElementDelta#ADDED ADDED},
-     *  {@link IElementDelta#REMOVED REMOVED}, or
-     *  {@link IElementDelta#CHANGED CHANGED}
+     * @param kind one of <code>ADDED</code>, <code>REMOVED</code>, or
+     *  <code>CHANGED</code>
      * @return the deltas for the affected children of the given type
      *  (never <code>null</code>)
      */
-    private ElementDelta[] getChildrenOfType(int type)
+    private ElementDelta[] getChildrenOfType(int kind)
     {
         int length = affectedChildren.length;
         if (length == 0)
-            return EMPTY_ELEMENT_DELTAS;
+            return NO_CHILDREN;
 
         ArrayList<ElementDelta> children = new ArrayList<ElementDelta>(length);
         for (ElementDelta child : affectedChildren)
         {
-            if (child.getKind() == type)
+            if (child.kind == kind)
                 children.add(child);
         }
 
-        return children.toArray(EMPTY_ELEMENT_DELTAS);
+        return children.toArray(NO_CHILDREN);
     }
 
     /**
@@ -982,12 +996,12 @@ public class ElementDelta
     private Integer indexOfChild(Key key)
     {
         int length = affectedChildren.length;
-        if (!needsChildIndex())
+        if (!hNeedsChildIndex())
         {
             for (int i = 0; i < length; i++)
             {
-                if (equalsAndSameParent(key.getElement(),
-                    affectedChildren[i].getElement()))
+                if (equalsAndSameParent(key.element,
+                    affectedChildren[i].element))
                 {
                     return i;
                 }
@@ -999,7 +1013,7 @@ public class ElementDelta
             childIndex = new HashMap<Key, Integer>();
             for (int i = 0; i < length; i++)
             {
-                childIndex.put(new Key(affectedChildren[i].getElement()), i);
+                childIndex.put(new Key(affectedChildren[i].element), i);
             }
         }
         return childIndex.get(key);
@@ -1015,8 +1029,7 @@ public class ElementDelta
         affectedChildren = growAndAddToArray(affectedChildren, child);
         if (childIndex != null)
         {
-            childIndex.put(new Key(child.getElement()), affectedChildren.length
-                - 1);
+            childIndex.put(new Key(child.element), affectedChildren.length - 1);
         }
     }
 
@@ -1033,15 +1046,14 @@ public class ElementDelta
         affectedChildren = removeAndShrinkArray(affectedChildren, index);
         if (childIndex != null)
         {
-            if (!needsChildIndex())
+            if (!hNeedsChildIndex())
                 childIndex = null;
             else
             {
                 childIndex.remove(key);
                 for (int i = index; i < affectedChildren.length; i++)
                 {
-                    childIndex.put(new Key(affectedChildren[i].getElement()),
-                        i);
+                    childIndex.put(new Key(affectedChildren[i].element), i);
                 }
             }
         }
@@ -1060,8 +1072,8 @@ public class ElementDelta
         if (!e1.equals(e2))
             return false;
 
-        IElement parent1 = e1.getParent();
-        IElement parent2 = e2.getParent();
+        IElement parent1 = Elements.getParent(e1);
+        IElement parent2 = Elements.getParent(e2);
         if (parent1 == null)
         {
             if (parent2 != null)
@@ -1118,26 +1130,18 @@ public class ElementDelta
      */
     private static class Key
     {
-        private final IElement element;
+        public final IElement element;
 
         /**
          * Constructs a new delta key for the given element.
          *
-         * @param element an {@link IElement} (not <code>null</code>)
+         * @param element not <code>null</code>
          */
         public Key(IElement element)
         {
             if (element == null)
                 throw new IllegalArgumentException();
             this.element = element;
-        }
-
-        /**
-         * @return the element of the key (never <code>null</code>)
-         */
-        public IElement getElement()
-        {
-            return element;
         }
 
         @Override

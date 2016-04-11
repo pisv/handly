@@ -92,7 +92,7 @@ public class FooModelManager
         {
             Activator.log(e.getStatus());
         }
-        if (!deltaProcessor.getDelta().isEmpty())
+        if (!deltaProcessor.getDelta().hIsEmpty())
         {
             fireElementChangeEvent(new ElementChangeEvent(
                 ElementChangeEvent.POST_CHANGE, deltaProcessor.getDelta()));

@@ -10,12 +10,19 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.text.reconciler;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CHILDREN;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_MARKERS;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_SYNC;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.ui.IWorkingCopyProvider;
@@ -245,19 +252,18 @@ public abstract class BaseReconciler
      */
     protected boolean isAffectedBy(IElementDelta delta, ISourceFile workingCopy)
     {
-        long flags = delta.getFlags();
-        if (flags == IElementDelta.F_SYNC
-            || flags == IElementDelta.F_WORKING_COPY)
+        long flags = ElementDeltas.getFlags(delta);
+        if (flags == F_SYNC || flags == F_WORKING_COPY)
             return false;
-        IElement element = delta.getElement();
-        if (flags == IElementDelta.F_UNDERLYING_RESOURCE && element.equals(
-            workingCopy))
+        IElement element = ElementDeltas.getElement(delta);
+        if (flags == F_UNDERLYING_RESOURCE && element.equals(workingCopy))
             return false; // saving this reconciler's working copy
-        if (flags == IElementDelta.F_MARKERS)
+        if (flags == F_MARKERS)
         {
             if (element.equals(workingCopy))
             {
-                for (IMarkerDelta markerDelta : delta.getMarkerDeltas())
+                for (IMarkerDelta markerDelta : ElementDeltas.getMarkerDeltas(
+                    delta))
                 {
                     if (markerDelta.isSubtypeOf(IMarker.PROBLEM))
                         return true;
@@ -265,9 +271,9 @@ public abstract class BaseReconciler
             }
             return false;
         }
-        if (flags != IElementDelta.F_CHILDREN)
+        if (flags != F_CHILDREN)
             return true;
-        for (IElementDelta child : delta.getAffectedChildren())
+        for (IElementDelta child : ElementDeltas.getAffectedChildren(delta))
         {
             if (isAffectedBy(child, workingCopy))
                 return true;

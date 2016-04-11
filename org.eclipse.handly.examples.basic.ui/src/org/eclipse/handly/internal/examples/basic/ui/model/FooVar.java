@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
-import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
@@ -37,19 +36,7 @@ public class FooVar
     }
 
     @Override
-    public FooFile getParent()
-    {
-        return (FooFile)super.getParent();
-    }
-
-    @Override
-    public IFooModel getRoot()
-    {
-        return (IFooModel)super.getRoot();
-    }
-
-    @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return FooModelManager.INSTANCE.getElementManager();
     }

@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
+
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
@@ -25,7 +29,6 @@ import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.ElementDelta;
@@ -83,20 +86,20 @@ public class FooWorkingCopyNotificationTest
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                assertDelta(new ElementDelta(fooModel).insertChanged(workingCopy,
-                    ElementDelta.F_WORKING_COPY), listener.delta);
+                assertDelta(new ElementDelta(fooModel).hInsertChanged(
+                    workingCopy, F_WORKING_COPY), listener.delta);
 
                 workingCopy.getFile().touch(null);
 
-                assertDelta(new ElementDelta(fooModel).insertChanged(workingCopy,
-                    ElementDelta.F_CONTENT | ElementDelta.F_UNDERLYING_RESOURCE),
+                assertDelta(new ElementDelta(fooModel).hInsertChanged(
+                    workingCopy, F_CONTENT | F_UNDERLYING_RESOURCE),
                     listener.delta);
 
                 listener.delta = null;
             }
         });
-        assertDelta(new ElementDelta(fooModel).insertChanged(workingCopy,
-            ElementDelta.F_WORKING_COPY), listener.delta);
+        assertDelta(new ElementDelta(fooModel).hInsertChanged(workingCopy,
+            F_WORKING_COPY), listener.delta);
     }
 
     public void test2() throws Exception
@@ -126,8 +129,8 @@ public class FooWorkingCopyNotificationTest
 
                 assertFalse(def.exists());
 
-                assertDelta(new ElementDelta(workingCopy).insertAdded(
-                    workingCopy.getDef("g", 0)).insertRemoved(def),
+                assertDelta(new ElementDelta(workingCopy).hInsertAdded(
+                    workingCopy.getDef("g", 0)).hInsertRemoved(def),
                     listener.delta);
             }
         });
@@ -163,7 +166,7 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new ElementDelta(workingCopy).insertRemoved(varY),
+                assertDelta(new ElementDelta(workingCopy).hInsertRemoved(varY),
                     listener.delta);
 
                 listener.delta = null;
@@ -180,7 +183,7 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new ElementDelta(workingCopy).insertAdded(varY),
+                assertDelta(new ElementDelta(workingCopy).hInsertAdded(varY),
                     listener.delta);
             }
         });
@@ -212,8 +215,8 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new ElementDelta(workingCopy).insertChanged(def,
-                    ElementDelta.F_CONTENT), listener.delta); // 'parameterNames' property changed
+                assertDelta(new ElementDelta(workingCopy).hInsertChanged(def,
+                    F_CONTENT), listener.delta); // 'parameterNames' property changed
             }
         });
     }
@@ -221,18 +224,18 @@ public class FooWorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.becomeWorkingCopy(buffer, null);
+        workingCopy.hBecomeWorkingCopy(buffer, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.discardWorkingCopy();
+            workingCopy.hDiscardWorkingCopy();
         }
     }
 
-    private static void assertDelta(IElementDelta expected, IElementDelta actual)
+    private static void assertDelta(ElementDelta expected, ElementDelta actual)
     {
         if (expected == null)
         {
@@ -240,14 +243,13 @@ public class FooWorkingCopyNotificationTest
             return;
         }
         assertNotNull(actual);
-        assertEquals(expected.getElement(), actual.getElement());
-        assertEquals(expected.getKind(), actual.getKind());
-        assertEquals(expected.getFlags(), actual.getFlags());
-        assertEquals(expected.getMovedToElement(), actual.getMovedToElement());
-        assertEquals(expected.getMovedFromElement(),
-            actual.getMovedFromElement());
-        IElementDelta[] expectedChildren = expected.getAffectedChildren();
-        IElementDelta[] actualChildren = actual.getAffectedChildren();
+        assertEquals(expected.hElement(), actual.hElement());
+        assertEquals(expected.hKind(), actual.hKind());
+        assertEquals(expected.hFlags(), actual.hFlags());
+        assertEquals(expected.hMovedToElement(), actual.hMovedToElement());
+        assertEquals(expected.hMovedFromElement(), actual.hMovedFromElement());
+        ElementDelta[] expectedChildren = expected.hAffectedChildren();
+        ElementDelta[] actualChildren = actual.hAffectedChildren();
         assertEquals(expectedChildren.length, actualChildren.length);
         for (int i = 0; i < expectedChildren.length; i++)
             assertDelta(expectedChildren[i], actualChildren[i]);
@@ -256,12 +258,12 @@ public class FooWorkingCopyNotificationTest
     private static class FooModelListener
         implements IElementChangeListener
     {
-        public IElementDelta delta;
+        public ElementDelta delta;
 
         @Override
         public void elementChanged(IElementChangeEvent event)
         {
-            delta = event.getDelta();
+            delta = (ElementDelta)event.getDelta();
         }
     }
 }

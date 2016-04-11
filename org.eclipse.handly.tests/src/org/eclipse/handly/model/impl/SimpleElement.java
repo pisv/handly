@@ -50,25 +50,25 @@ class SimpleElement
     }
 
     @Override
-    public IResource getResource()
+    public IResource hResource()
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected void validateExistence() throws CoreException
+    protected void hValidateExistence() throws CoreException
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IElement, Body> newElements,
+    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         throw new UnsupportedOperationException();

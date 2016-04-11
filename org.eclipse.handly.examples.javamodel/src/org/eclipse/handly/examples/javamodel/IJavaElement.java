@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.javamodel;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementExtension;
 
 /**
  * Common protocol for all elements provided by the Java model.
@@ -18,11 +20,17 @@ import org.eclipse.handly.model.IElement;
  * It is a Handly-based model - its elements are {@link IElement}s.
  */
 public interface IJavaElement
-    extends IElement
+    extends IElementExtension, IAdaptable
 {
     @Override
-    IJavaElement getParent();
+    default IJavaElement getParent()
+    {
+        return (IJavaElement)IElementExtension.super.getParent();
+    }
 
     @Override
-    IJavaModel getRoot();
+    default IJavaModel getRoot()
+    {
+        return (IJavaModel)IElementExtension.super.getRoot();
+    }
 }

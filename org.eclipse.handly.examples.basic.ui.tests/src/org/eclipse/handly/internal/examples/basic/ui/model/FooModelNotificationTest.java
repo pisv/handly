@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_DESCRIPTION;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_OPEN;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -23,7 +27,6 @@ import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.ElementDelta;
 
 /**
@@ -56,84 +59,84 @@ public class FooModelNotificationTest
         IFooProject fooProject2 = fooModel.getFooProject("Test002");
 
         setUpProject("Test002");
-        assertDelta(newDelta().insertAdded(fooProject2), listener.delta);
+        assertDelta(newDelta().hInsertAdded(fooProject2), listener.delta);
 
         IFooFile fooFile1 = fooProject1.getFooFile("test.foo");
         fooFile1.getFile().touch(null);
-        assertDelta(newDelta().insertChanged(fooFile1, ElementDelta.F_CONTENT),
+        assertDelta(newDelta().hInsertChanged(fooFile1, F_CONTENT),
             listener.delta);
 
         fooFile1.getFile().copy(new Path("/Test002/test1.foo"), true, null);
-        assertDelta(newDelta().insertAdded(fooProject2.getFooFile("test1.foo")),
+        assertDelta(newDelta().hInsertAdded(fooProject2.getFooFile("test1.foo")),
             listener.delta);
 
         fooFile1.getFile().delete(true, null);
-        assertDelta(newDelta().insertRemoved(fooFile1), listener.delta);
+        assertDelta(newDelta().hInsertRemoved(fooFile1), listener.delta);
 
         IFooFile fooFile2 = fooProject2.getFooFile("test.foo");
         IFooFile movedFooFile2 = fooProject1.getFooFile("test1.foo");
         fooFile2.getFile().move(new Path("/Test001/test1.foo"), true, null);
-        assertDelta(newDelta().insertMovedTo(movedFooFile2,
-            fooFile2).insertMovedFrom(fooFile2, movedFooFile2), listener.delta);
+        assertDelta(newDelta().hInsertMovedTo(movedFooFile2,
+            fooFile2).hInsertMovedFrom(fooFile2, movedFooFile2), listener.delta);
 
         IFolder aFolder = fooProject1.getProject().getFolder("a");
         aFolder.delete(true, null);
-        assertDelta(newDelta().insertChanged(fooProject1,
-            ElementDelta.F_CONTENT), listener.delta);
-        assertNull(listener.delta.getResourceDeltas());
-        ElementDelta projectDelta = listener.delta.getDeltaFor(fooProject1);
-        assertEquals(1, projectDelta.getResourceDeltas().length);
-        IResourceDelta resourceDelta = projectDelta.getResourceDeltas()[0];
+        assertDelta(newDelta().hInsertChanged(fooProject1, F_CONTENT),
+            listener.delta);
+        assertNull(listener.delta.hResourceDeltas());
+        ElementDelta projectDelta = listener.delta.hDeltaFor(fooProject1);
+        assertEquals(1, projectDelta.hResourceDeltas().length);
+        IResourceDelta resourceDelta = projectDelta.hResourceDeltas()[0];
         assertEquals(IResourceDelta.REMOVED, resourceDelta.getKind());
         assertEquals(aFolder, resourceDelta.getResource());
 
         IFile bFile = fooProject1.getProject().getFile("b");
         bFile.touch(null);
-        assertDelta(newDelta().insertChanged(fooProject1,
-            ElementDelta.F_CONTENT), listener.delta);
-        assertNull(listener.delta.getResourceDeltas());
-        projectDelta = listener.delta.getDeltaFor(fooProject1);
-        assertEquals(1, projectDelta.getResourceDeltas().length);
-        resourceDelta = projectDelta.getResourceDeltas()[0];
+        assertDelta(newDelta().hInsertChanged(fooProject1, F_CONTENT),
+            listener.delta);
+        assertNull(listener.delta.hResourceDeltas());
+        projectDelta = listener.delta.hDeltaFor(fooProject1);
+        assertEquals(1, projectDelta.hResourceDeltas().length);
+        resourceDelta = projectDelta.hResourceDeltas()[0];
         assertEquals(IResourceDelta.CHANGED, resourceDelta.getKind());
         assertEquals(bFile, resourceDelta.getResource());
 
         IProject simpleProject = setUpProject("SimpleProject");
-        assertDelta(newDelta().insertChanged(fooModel, ElementDelta.F_CONTENT),
+        assertDelta(newDelta().hInsertChanged(fooModel, F_CONTENT),
             listener.delta);
-        assertEquals(1, listener.delta.getResourceDeltas().length);
-        resourceDelta = listener.delta.getResourceDeltas()[0];
+        assertEquals(1, listener.delta.hResourceDeltas().length);
+        resourceDelta = listener.delta.hResourceDeltas()[0];
         assertEquals(IResourceDelta.ADDED, resourceDelta.getKind());
         assertEquals(simpleProject, resourceDelta.getResource());
 
         fooProject2.getProject().close(null);
-        assertDelta(newDelta().insertRemoved(fooProject2, ElementDelta.F_OPEN),
+        assertDelta(newDelta().hInsertRemoved(fooProject2, F_OPEN),
             listener.delta);
 
         fooProject2.getProject().open(null);
-        assertDelta(newDelta().insertAdded(fooProject2, ElementDelta.F_OPEN),
+        assertDelta(newDelta().hInsertAdded(fooProject2, F_OPEN),
             listener.delta);
 
         fooProject2.getProject().delete(true, null);
-        assertDelta(newDelta().insertRemoved(fooProject2), listener.delta);
+        assertDelta(newDelta().hInsertRemoved(fooProject2), listener.delta);
 
         IProjectDescription description =
             fooProject1.getProject().getDescription();
         String[] oldNatures = description.getNatureIds();
         description.setNatureIds(new String[0]);
         fooProject1.getProject().setDescription(description, null);
-        assertDelta(newDelta().insertRemoved(fooProject1,
-            ElementDelta.F_DESCRIPTION), listener.delta);
+        assertDelta(newDelta().hInsertRemoved(fooProject1, F_DESCRIPTION),
+            listener.delta);
 
         description.setNatureIds(oldNatures);
         fooProject1.getProject().setDescription(description, null);
-        assertDelta(newDelta().insertAdded(fooProject1,
-            ElementDelta.F_DESCRIPTION), listener.delta);
+        assertDelta(newDelta().hInsertAdded(fooProject1, F_DESCRIPTION),
+            listener.delta);
 
         IFooProject movedFooProject1 = fooModel.getFooProject("Test");
         fooProject1.getProject().move(new Path("Test"), true, null);
-        assertDelta(newDelta().insertMovedTo(movedFooProject1,
-            fooProject1).insertMovedFrom(fooProject1, movedFooProject1),
+        assertDelta(newDelta().hInsertMovedTo(movedFooProject1,
+            fooProject1).hInsertMovedFrom(fooProject1, movedFooProject1),
             listener.delta);
     }
 
@@ -142,7 +145,7 @@ public class FooModelNotificationTest
         return new ElementDelta(fooModel);
     }
 
-    private static void assertDelta(IElementDelta expected, IElementDelta actual)
+    private static void assertDelta(ElementDelta expected, ElementDelta actual)
     {
         if (expected == null)
         {
@@ -150,14 +153,13 @@ public class FooModelNotificationTest
             return;
         }
         assertNotNull(actual);
-        assertEquals(expected.getElement(), actual.getElement());
-        assertEquals(expected.getKind(), actual.getKind());
-        assertEquals(expected.getFlags(), actual.getFlags());
-        assertEquals(expected.getMovedToElement(), actual.getMovedToElement());
-        assertEquals(expected.getMovedFromElement(),
-            actual.getMovedFromElement());
-        IElementDelta[] expectedChildren = expected.getAffectedChildren();
-        IElementDelta[] actualChildren = actual.getAffectedChildren();
+        assertEquals(expected.hElement(), actual.hElement());
+        assertEquals(expected.hKind(), actual.hKind());
+        assertEquals(expected.hFlags(), actual.hFlags());
+        assertEquals(expected.hMovedToElement(), actual.hMovedToElement());
+        assertEquals(expected.hMovedFromElement(), actual.hMovedFromElement());
+        ElementDelta[] expectedChildren = expected.hAffectedChildren();
+        ElementDelta[] actualChildren = actual.hAffectedChildren();
         assertEquals(expectedChildren.length, actualChildren.length);
         for (int i = 0; i < expectedChildren.length; i++)
             assertDelta(expectedChildren[i], actualChildren[i]);

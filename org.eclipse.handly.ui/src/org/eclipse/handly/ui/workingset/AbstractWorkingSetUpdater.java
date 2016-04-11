@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.workingset;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.CHANGED;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_MOVED_TO;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_OPEN;
+import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -21,6 +26,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
@@ -62,7 +69,7 @@ public abstract class AbstractWorkingSetUpdater
                     workingSet);
                 processElementDelta(event.getDelta(), workingSetDelta);
                 IResourceDelta[] resourceDeltas =
-                    event.getDelta().getResourceDeltas();
+                    ElementDeltas.getResourceDeltas(event.getDelta());
                 if (resourceDeltas != null)
                 {
                     for (IResourceDelta resourceDelta : resourceDeltas)
@@ -157,16 +164,15 @@ public abstract class AbstractWorkingSetUpdater
     protected void processElementDelta(IElementDelta delta,
         WorkingSetDelta result)
     {
-        IElement element = delta.getElement();
+        IElement element = ElementDeltas.getElement(delta);
         IAdaptable wsElement =
             (IAdaptable)getContentAdapter().getCorrespondingElement(element);
         int index = result.indexOf(wsElement);
-        int kind = delta.getKind();
-        long flags = delta.getFlags();
-        if (kind == IElementDelta.CHANGED && (flags
-            & IElementDelta.F_OPEN) != 0)
+        int kind = ElementDeltas.getKind(delta);
+        long flags = ElementDeltas.getFlags(delta);
+        if (kind == CHANGED && (flags & F_OPEN) != 0)
         {
-            IResource project = element.getResource();
+            IResource project = Elements.getResource(element);
             if (index != -1)
             {
                 result.set(index, project);
@@ -180,13 +186,13 @@ public abstract class AbstractWorkingSetUpdater
         }
         if (index != -1)
         {
-            if (kind == IElementDelta.REMOVED)
+            if (kind == REMOVED)
             {
-                if ((flags & IElementDelta.F_MOVED_TO) != 0)
+                if ((flags & F_MOVED_TO) != 0)
                 {
                     IAdaptable wsMovedToElement =
                         (IAdaptable)getContentAdapter().getCorrespondingElement(
-                            delta.getMovedToElement());
+                            ElementDeltas.getMovedToElement(delta));
                     result.set(index, wsMovedToElement);
                 }
                 else
@@ -195,7 +201,8 @@ public abstract class AbstractWorkingSetUpdater
                 }
             }
         }
-        IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
+        IResourceDelta[] resourceDeltas = ElementDeltas.getResourceDeltas(
+            delta);
         if (resourceDeltas != null)
         {
             for (IResourceDelta resourceDelta : resourceDeltas)
@@ -203,7 +210,7 @@ public abstract class AbstractWorkingSetUpdater
                 processResourceDelta(resourceDelta, result);
             }
         }
-        IElementDelta[] children = delta.getAffectedChildren();
+        IElementDelta[] children = ElementDeltas.getAffectedChildren(delta);
         for (IElementDelta child : children)
         {
             processElementDelta(child, result);
@@ -275,8 +282,9 @@ public abstract class AbstractWorkingSetUpdater
                 IElement element = getContentAdapter().adapt(wsElement);
                 if (element != null)
                 {
-                    IResource resource = element.getResource();
-                    remove = !isInClosedProject(resource) && !element.exists();
+                    IResource resource = Elements.getResource(element);
+                    remove = !isInClosedProject(resource) && !Elements.exists(
+                        element);
                 }
             }
             if (remove)

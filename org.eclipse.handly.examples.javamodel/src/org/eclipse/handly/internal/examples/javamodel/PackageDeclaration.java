@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
-import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
@@ -37,27 +36,15 @@ public class PackageDeclaration
     }
 
     @Override
-    public CompilationUnit getParent()
-    {
-        return (CompilationUnit)parent;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return (IJavaModel)super.getRoot();
-    }
-
-    @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
         builder.append("package "); //$NON-NLS-1$
-        super.toStringName(builder);
+        super.hToStringName(builder);
     }
 }

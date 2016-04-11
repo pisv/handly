@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.model.IElement;
@@ -60,36 +59,7 @@ public class PackageFragmentRoot
     @Override
     public JavaProject getParent()
     {
-        return (JavaProject)parent;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return (IJavaModel)super.getRoot();
-    }
-
-    @Override
-    public IResource getResource()
-    {
-        return resource;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (!(o instanceof PackageFragmentRoot))
-            return false;
-        PackageFragmentRoot other = (PackageFragmentRoot)o;
-        return resource.equals(other.resource) && parent.equals(other.parent);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return resource.hashCode();
+        return (JavaProject)hParent();
     }
 
     @Override
@@ -116,17 +86,41 @@ public class PackageFragmentRoot
     @Override
     public Object[] getNonJavaResources() throws CoreException
     {
-        return ((PackageFragmentRootBody)getBody()).getNonJavaResources(this);
+        return ((PackageFragmentRootBody)hBody()).getNonJavaResources(this);
     }
 
     @Override
-    protected ElementManager getElementManager()
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (!(o instanceof PackageFragmentRoot))
+            return false;
+        PackageFragmentRoot other = (PackageFragmentRoot)o;
+        return resource.equals(other.resource) && getParent().equals(
+            other.getParent());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return resource.hashCode();
+    }
+
+    @Override
+    public IResource hResource()
+    {
+        return resource;
+    }
+
+    @Override
+    protected ElementManager hElementManager()
     {
         return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void validateExistence() throws CoreException
+    protected void hValidateExistence() throws CoreException
     {
         validateOnClasspath();
 
@@ -146,13 +140,13 @@ public class PackageFragmentRoot
     }
 
     @Override
-    protected Body newBody()
+    protected Body hNewBody()
     {
         return new PackageFragmentRootBody();
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IElement, Body> newElements,
+    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         if (resource.getType() == IResource.FOLDER
@@ -162,7 +156,7 @@ public class PackageFragmentRoot
             ArrayList<IPackageFragment> children =
                 new ArrayList<IPackageFragment>();
             computeFolderChildren(rootFolder, Path.EMPTY, children);
-            body.setChildren(children.toArray(new IElement[children.size()]));
+            body.setChildren(children.toArray(Body.NO_CHILDREN));
         }
     }
 

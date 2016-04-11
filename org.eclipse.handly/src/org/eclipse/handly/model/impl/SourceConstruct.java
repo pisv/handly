@@ -16,14 +16,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.ISourceConstruct;
 
 /**
- * Common superclass of {@link ISourceConstruct} implementations.
+ * Common superclass for source constructs.
  */
 public abstract class SourceConstruct
     extends SourceElement
-    implements ISourceConstruct
+    implements ISourceConstructImpl
 {
     private int occurrenceCount = 1;
 
@@ -42,6 +41,15 @@ public abstract class SourceConstruct
             throw new IllegalArgumentException();
     }
 
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof SourceConstruct))
+            return false;
+        return super.equals(obj)
+            && occurrenceCount == ((SourceConstruct)obj).occurrenceCount;
+    }
+
     /**
      * Returns the count used to uniquely identify this element in the case
      * that a duplicate named element exists. The occurrence count starts at 1
@@ -49,7 +57,7 @@ public abstract class SourceConstruct
      *
      * @return the occurrence count for this element
      */
-    public final int getOccurrenceCount()
+    public final int hOccurrenceCount()
     {
         return occurrenceCount;
     }
@@ -61,26 +69,26 @@ public abstract class SourceConstruct
      * a source file to distinguish source constructs with duplicate names.
      * </p>
      *
-     * @see #getOccurrenceCount()
+     * @see #hOccurrenceCount()
      * @see StructureHelper
      */
-    public final void incrementOccurrenceCount()
+    public final void hIncrementOccurrenceCount()
     {
         occurrenceCount++;
     }
 
     @Override
-    public final IResource getResource()
+    public final IResource hResource()
     {
-        return parent.getResource();
+        return hParent().hResource();
     }
 
     @Override
-    public final boolean exists()
+    public final boolean hExists()
     {
         try
         {
-            getBody();
+            hBody();
             return true;
         }
         catch (CoreException e)
@@ -90,48 +98,39 @@ public abstract class SourceConstruct
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
-        if (!(obj instanceof SourceConstruct))
-            return false;
-        return super.equals(obj)
-            && occurrenceCount == ((SourceConstruct)obj).occurrenceCount;
-    }
-
-    @Override
-    protected final void validateExistence() throws CoreException
+    protected final void hValidateExistence() throws CoreException
     {
         // The openable parent builds the whole structure and determines child existence
         throw new AssertionError("This method should not be called"); //$NON-NLS-1$
     }
 
     @Override
-    protected final Body newBody()
+    protected final Body hNewBody()
     {
         // The openable parent builds the whole structure and knows how to create child bodies
         return null;
     }
 
     @Override
-    protected final boolean isOpenable()
+    protected final boolean hIsOpenable()
     {
         // Source constructs are never openable
         return false;
     }
 
     @Override
-    protected final void buildStructure(Body body,
+    protected final void hBuildStructure(Body body,
         Map<IElement, Body> newElements, IProgressMonitor monitor)
-            throws CoreException
+        throws CoreException
     {
         // The openable parent builds the whole structure
         throw new AssertionError("This method should not be called"); //$NON-NLS-1$
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
-        super.toStringName(builder);
+        super.hToStringName(builder);
         if (occurrenceCount > 1)
         {
             builder.append('#');

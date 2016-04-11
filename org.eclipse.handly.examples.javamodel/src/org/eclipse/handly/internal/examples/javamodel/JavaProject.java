@@ -20,7 +20,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
@@ -57,25 +56,7 @@ public class JavaProject
     }
 
     @Override
-    public JavaModel getParent()
-    {
-        return (JavaModel)parent;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return (IJavaModel)super.getRoot();
-    }
-
-    @Override
     public IProject getProject()
-    {
-        return project;
-    }
-
-    @Override
-    public IResource getResource()
     {
         return project;
     }
@@ -106,7 +87,7 @@ public class JavaProject
     @Override
     public IResource[] getNonJavaResources() throws CoreException
     {
-        return ((JavaProjectBody)getBody()).getNonJavaResources(this);
+        return ((JavaProjectBody)hBody()).getNonJavaResources(this);
     }
 
     @Override
@@ -173,75 +154,6 @@ public class JavaProject
             }
         }
         return null;
-    }
-
-    @Override
-    protected ElementManager getElementManager()
-    {
-        return JavaModelManager.INSTANCE.getElementManager();
-    }
-
-    @Override
-    protected void validateExistence() throws CoreException
-    {
-        if (!project.exists())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format(
-                    "Project ''{0}'' does not exist in workspace", name),
-                null));
-
-        if (!project.isOpen())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Project ''{0}'' is not open", name),
-                null));
-
-        if (!project.hasNature(NATURE_ID))
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format(
-                    "Project ''{0}'' does not have the Java nature", name),
-                null));
-    }
-
-    @Override
-    protected void buildStructure(Body body, Map<IElement, Body> newElements,
-        IProgressMonitor monitor) throws CoreException
-    {
-        IClasspathEntry[] rawClasspath = getRawClasspath();
-        List<IPackageFragmentRoot> roots =
-            new ArrayList<IPackageFragmentRoot>();
-        IPath projectPath = getPath();
-        for (IClasspathEntry entry : rawClasspath)
-        {
-            IPackageFragmentRoot root = null;
-            IPath entryPath = entry.getPath();
-            int entryKind = entry.getEntryKind();
-            // In this example model, only source folders that are
-            // direct children of the project resource are represented
-            // as package fragment roots
-            if (entryKind == IClasspathEntry.CPE_SOURCE)
-            {
-                if (projectPath.isPrefixOf(entryPath)
-                    && entryPath.segmentCount() == 2)
-                {
-                    IResource resource = project.getParent().findMember(
-                        entryPath);
-                    if (resource != null
-                        && resource.getType() == IResource.FOLDER)
-                    {
-                        root = new PackageFragmentRoot(this, resource);
-                    }
-                }
-            }
-            if (root != null)
-                roots.add(root);
-        }
-        body.setChildren(roots.toArray(new IElement[roots.size()]));
-    }
-
-    @Override
-    protected Body newBody()
-    {
-        return new JavaProjectBody();
     }
 
     PerProjectInfo getPerProjectInfo() throws CoreException
@@ -324,5 +236,80 @@ public class JavaProject
     {
         // Cheat and delegate directly to JDT
         return JavaCore.create(project).getOptions(inheritJavaCoreOptions);
+    }
+
+    @Override
+    public IResource hResource()
+    {
+        return project;
+    }
+
+    @Override
+    protected ElementManager hElementManager()
+    {
+        return JavaModelManager.INSTANCE.getElementManager();
+    }
+
+    @Override
+    protected void hValidateExistence() throws CoreException
+    {
+        if (!project.exists())
+            throw new CoreException(Activator.createErrorStatus(
+                MessageFormat.format(
+                    "Project ''{0}'' does not exist in workspace", getName()),
+                null));
+
+        if (!project.isOpen())
+            throw new CoreException(Activator.createErrorStatus(
+                MessageFormat.format("Project ''{0}'' is not open", getName()),
+                null));
+
+        if (!project.hasNature(NATURE_ID))
+            throw new CoreException(Activator.createErrorStatus(
+                MessageFormat.format(
+                    "Project ''{0}'' does not have the Java nature", getName()),
+                null));
+    }
+
+    @Override
+    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
+        IProgressMonitor monitor) throws CoreException
+    {
+        IClasspathEntry[] rawClasspath = getRawClasspath();
+        List<IPackageFragmentRoot> roots =
+            new ArrayList<IPackageFragmentRoot>();
+        IPath projectPath = getPath();
+        for (IClasspathEntry entry : rawClasspath)
+        {
+            IPackageFragmentRoot root = null;
+            IPath entryPath = entry.getPath();
+            int entryKind = entry.getEntryKind();
+            // In this example model, only source folders that are
+            // direct children of the project resource are represented
+            // as package fragment roots
+            if (entryKind == IClasspathEntry.CPE_SOURCE)
+            {
+                if (projectPath.isPrefixOf(entryPath)
+                    && entryPath.segmentCount() == 2)
+                {
+                    IResource resource = project.getParent().findMember(
+                        entryPath);
+                    if (resource != null
+                        && resource.getType() == IResource.FOLDER)
+                    {
+                        root = new PackageFragmentRoot(this, resource);
+                    }
+                }
+            }
+            if (root != null)
+                roots.add(root);
+        }
+        body.setChildren(roots.toArray(Body.NO_CHILDREN));
+    }
+
+    @Override
+    protected Body hNewBody()
+    {
+        return new JavaProjectBody();
     }
 }

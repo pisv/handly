@@ -104,7 +104,7 @@ public class SourceFileDocumentProvider
         SourceFile sourceFile = getSourceFile(element);
         if (sourceFile == null)
             return null;
-        TextFileBuffer delegate = new TextFileBuffer(sourceFile.getFile(),
+        TextFileBuffer delegate = new TextFileBuffer(sourceFile.hFile(),
             ITextFileBufferManager.DEFAULT);
         try
         {
@@ -113,11 +113,11 @@ public class SourceFileDocumentProvider
                     createWorkingCopyReconciler(sourceFile, element, info));
             try
             {
-                if (sourceFile.becomeWorkingCopy(buffer, // will addRef() the buffer
+                if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
                     getWorkingCopyInfoFactory(sourceFile, element, info),
                     getProgressMonitor()) != null)
                 {
-                    sourceFile.discardWorkingCopy();
+                    sourceFile.hDiscardWorkingCopy();
 
                     throw new CoreException(Activator.createErrorStatus(
                         MessageFormat.format(
@@ -146,7 +146,7 @@ public class SourceFileDocumentProvider
     {
         if (info instanceof SourceFileInfo)
         {
-            ((SourceFileInfo)info).workingCopy.discardWorkingCopy();
+            ((SourceFileInfo)info).workingCopy.hDiscardWorkingCopy();
         }
         super.disposeFileInfo(element, info);
     }

@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.internal.ui.Activator;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.adapter.IContentAdapter;
@@ -74,7 +75,7 @@ public class ProblemMarkerLabelDecorator
         if (element instanceof IResource)
             resource = (IResource)element;
         else if (elementAdapter != null)
-            resource = elementAdapter.getResource();
+            resource = Elements.getResource(elementAdapter);
         else
             resource = ResourceUtil.getResource(element);
         if (resource == null || !resource.isAccessible())
@@ -83,9 +84,10 @@ public class ProblemMarkerLabelDecorator
         if (elementAdapter instanceof ISourceConstruct)
         {
             ISourceConstruct sourceConstruct = (ISourceConstruct)elementAdapter;
-            if (!sourceConstruct.exists())
+            if (!Elements.exists(sourceConstruct))
                 return null;
-            textRange = sourceConstruct.getSourceElementInfo().getFullRange();
+            textRange = Elements.getSourceElementInfo(
+                sourceConstruct).getFullRange();
             if (textRange == null)
                 return null;
         }

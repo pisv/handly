@@ -63,7 +63,13 @@ public interface IBodyCache
      * @param elementBodies handle/body relationships to be stored in the cache
      *  (not <code>null</code>)
      */
-    void putAll(Map<IElement, Body> elementBodies);
+    default void putAll(Map<IElement, Body> elementBodies)
+    {
+        for (Map.Entry<IElement, Body> entry : elementBodies.entrySet())
+        {
+            put(entry.getKey(), entry.getValue());
+        }
+    }
 
     /**
      * Removes the corresponding body for the given element from this cache.

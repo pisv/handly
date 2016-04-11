@@ -383,7 +383,7 @@ public class WorkingCopyTest
         IWorkingCopyBuffer buffer, final IProblemRequestor problemRequestor,
         IWorkspaceRunnable runnable) throws CoreException
     {
-        workingCopy.becomeWorkingCopy(buffer, new IWorkingCopyInfoFactory()
+        workingCopy.hBecomeWorkingCopy(buffer, new IWorkingCopyInfoFactory()
         {
             @Override
             public WorkingCopyInfo createWorkingCopyInfo(
@@ -398,7 +398,7 @@ public class WorkingCopyTest
         }
         finally
         {
-            workingCopy.discardWorkingCopy();
+            workingCopy.hDiscardWorkingCopy();
         }
     }
 

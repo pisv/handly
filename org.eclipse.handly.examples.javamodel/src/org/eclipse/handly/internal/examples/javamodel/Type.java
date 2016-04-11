@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.Body;
@@ -130,8 +131,8 @@ public class Type
     }
 
     @Override
-    protected ISourceElement getElementAt(int position, ISourceElementInfo info)
-        throws CoreException
+    protected ISourceElement hSourceElementAt(int position,
+        ISourceElementInfo info) throws CoreException
     {
         ISnapshot snapshot = info.getSnapshot();
         ISourceElement[] children = info.getChildren();
@@ -140,7 +141,8 @@ public class Type
             ISourceElement child = children[i];
             if (child instanceof IField)
             {
-                ISourceElementInfo childInfo = child.getSourceElementInfo();
+                ISourceElementInfo childInfo = Elements.getSourceElementInfo(
+                    child);
                 if (checkInRange(position, snapshot, childInfo))
                 {
                     // check multi-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=465410)
@@ -160,7 +162,7 @@ public class Type
                         else
                         {
                             child = children[i];
-                            childInfo = child.getSourceElementInfo();
+                            childInfo = Elements.getSourceElementInfo(child);
                         }
                     }
                     while (child != null && checkInRange(position, snapshot,
@@ -171,7 +173,8 @@ public class Type
             }
             else
             {
-                ISourceElement found = child.getElementAt(position, snapshot);
+                ISourceElement found = Elements.getSourceElementAt(child,
+                    position, snapshot);
                 if (found != null)
                     return found;
             }
@@ -180,7 +183,7 @@ public class Type
     }
 
     @Override
-    protected void toStringBody(IndentationPolicy indentationPolicy,
+    protected void hToStringBody(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder, Body body,
         boolean showResolvedInfo)
     {
@@ -198,7 +201,7 @@ public class Type
             else
                 builder.append("class "); //$NON-NLS-1$
         }
-        toStringName(builder);
+        hToStringName(builder);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

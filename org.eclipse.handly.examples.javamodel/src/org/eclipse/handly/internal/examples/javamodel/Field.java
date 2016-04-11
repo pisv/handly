@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,12 +40,6 @@ public class Field
     }
 
     @Override
-    public Type getParent()
-    {
-        return (Type)parent;
-    }
-
-    @Override
     public String getType() throws CoreException
     {
         return getSourceElementInfo().get(TYPE);
@@ -58,7 +52,7 @@ public class Field
     }
 
     @Override
-    protected void toStringBody(IndentationPolicy indentationPolicy,
+    protected void hToStringBody(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder, Body body,
         boolean showResolvedInfo)
     {
@@ -70,7 +64,7 @@ public class Field
             builder.append(Signature.toString(type));
             builder.append(' ');
         }
-        toStringName(builder);
+        hToStringName(builder);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

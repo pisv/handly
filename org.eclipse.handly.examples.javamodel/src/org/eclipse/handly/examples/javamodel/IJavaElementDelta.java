@@ -11,6 +11,8 @@
 package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.handly.model.IElementDelta;
+import org.eclipse.handly.model.IElementDeltaConstants;
+import org.eclipse.handly.model.IElementDeltaExtension;
 
 /**
  * A Java element delta describes changes in Java element between two discrete
@@ -20,7 +22,7 @@ import org.eclipse.handly.model.IElementDelta;
  * @see IElementDelta
  */
 public interface IJavaElementDelta
-    extends IElementDelta
+    extends IElementDeltaExtension, IElementDeltaConstants
 {
     /**
      * Change flag indicating that the raw classpath (or the output folder)

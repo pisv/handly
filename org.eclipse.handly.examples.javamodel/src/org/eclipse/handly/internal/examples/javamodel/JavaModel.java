@@ -19,11 +19,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
-import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementManager;
@@ -50,18 +49,6 @@ public class JavaModel
         if (workspace == null)
             throw new IllegalArgumentException();
         this.workspace = workspace;
-    }
-
-    @Override
-    public IJavaElement getParent()
-    {
-        return null;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return this;
     }
 
     @Override
@@ -95,25 +82,13 @@ public class JavaModel
     @Override
     public IProject[] getNonJavaProjects() throws CoreException
     {
-        return ((JavaModelBody)getBody()).getNonJavaProjects(this);
+        return ((JavaModelBody)hBody()).getNonJavaProjects(this);
     }
 
     @Override
     public IWorkspace getWorkspace()
     {
         return workspace;
-    }
-
-    @Override
-    public IResource getResource()
-    {
-        return workspace.getRoot();
-    }
-
-    @Override
-    public boolean exists()
-    {
-        return true; // always exists
     }
 
     @Override
@@ -138,19 +113,31 @@ public class JavaModel
     }
 
     @Override
-    protected ElementManager getElementManager()
+    public IResource hResource()
+    {
+        return workspace.getRoot();
+    }
+
+    @Override
+    public boolean hExists()
+    {
+        return true; // always exists
+    }
+
+    @Override
+    protected ElementManager hElementManager()
     {
         return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void validateExistence() throws CoreException
+    protected void hValidateExistence() throws CoreException
     {
         // always exists
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IElement, Body> newElements,
+    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
@@ -163,18 +150,17 @@ public class JavaModel
                 javaProjects.add(new JavaProject(this, project));
             }
         }
-        body.setChildren(javaProjects.toArray(
-            new IElement[javaProjects.size()]));
+        body.setChildren(javaProjects.toArray(Body.NO_CHILDREN));
     }
 
     @Override
-    protected Body newBody()
+    protected Body hNewBody()
     {
         return new JavaModelBody();
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
         builder.append("Java Model"); //$NON-NLS-1$
     }

@@ -25,7 +25,11 @@ public interface IField
      */
     Property<String> TYPE = new Property<String>("type"); //$NON-NLS-1$
 
-    IType getParent();
+    @Override
+    default IType getParent()
+    {
+        return (IType)IMember.super.getParent();
+    }
 
     /**
      * Returns the type signature of this field. For enum constants,

@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
-import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.IElement;
@@ -78,13 +77,7 @@ public class CompilationUnit
     @Override
     public PackageFragment getParent()
     {
-        return (PackageFragment)parent;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return (IJavaModel)super.getRoot();
+        return (PackageFragment)hParent();
     }
 
     @Override
@@ -138,14 +131,8 @@ public class CompilationUnit
     {
         boolean force = (reconcileFlags & FORCE_PROBLEM_DETECTION) != 0;
         ReconcileInfo info = new ReconcileInfo(astLevel, reconcileFlags);
-        reconcile(force, info, monitor);
+        hReconcile(force, info, monitor);
         return info.getAst();
-    }
-
-    @Override
-    public ReconcileOperation getReconcileOperation()
-    {
-        return new NotifyingReconcileOperation();
     }
 
     @Override
@@ -158,15 +145,21 @@ public class CompilationUnit
     }
 
     @Override
-    protected ElementManager getElementManager()
+    public ReconcileOperation hReconcileOperation()
+    {
+        return new NotifyingReconcileOperation();
+    }
+
+    @Override
+    protected ElementManager hElementManager()
     {
         return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void validateExistence() throws CoreException
+    protected void hValidateExistence() throws CoreException
     {
-        super.validateExistence();
+        super.hValidateExistence();
 
         IStatus status = validateCompilationUnitName();
         if (status.getSeverity() == IStatus.ERROR)
@@ -180,12 +173,12 @@ public class CompilationUnit
             true);
         String complianceLevel = javaProject.getOption(
             JavaCore.COMPILER_COMPLIANCE, true);
-        return JavaConventions.validateCompilationUnitName(name, sourceLevel,
-            complianceLevel);
+        return JavaConventions.validateCompilationUnitName(getName(),
+            sourceLevel, complianceLevel);
     }
 
     @Override
-    protected Object createStructuralAst(String source,
+    protected Object hCreateStructuralAst(String source,
         IProgressMonitor monitor) throws CoreException
     {
         ASTParser parser = ASTParser.newParser(AST.JLS8);
@@ -214,7 +207,7 @@ public class CompilationUnit
     }
 
     @Override
-    protected void buildStructure(SourceElementBody body,
+    protected void hBuildStructure(SourceElementBody body,
         Map<IElement, Body> newElements, Object ast, String source,
         IProgressMonitor monitor)
     {
@@ -225,17 +218,17 @@ public class CompilationUnit
     }
 
     @Override
-    protected void workingCopyModeChanged()
+    protected void hWorkingCopyModeChanged()
     {
-        super.workingCopyModeChanged();
+        super.hWorkingCopyModeChanged();
 
         JavaElementDelta delta = new JavaElementDelta(getRoot());
-        if (file.exists())
-            delta.insertChanged(this, JavaElementDelta.F_WORKING_COPY);
+        if (getFile().exists())
+            delta.hInsertChanged(this, JavaElementDelta.F_WORKING_COPY);
         else if (isWorkingCopy())
-            delta.insertAdded(this, JavaElementDelta.F_WORKING_COPY);
+            delta.hInsertAdded(this, JavaElementDelta.F_WORKING_COPY);
         else
-            delta.insertRemoved(this, JavaElementDelta.F_WORKING_COPY);
+            delta.hInsertRemoved(this, JavaElementDelta.F_WORKING_COPY);
         JavaModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
             ElementChangeEvent.POST_CHANGE, delta));
     }
@@ -258,7 +251,7 @@ public class CompilationUnit
             deltaBuilder.buildDelta();
 
             JavaElementDelta delta = deltaBuilder.getDelta();
-            if (!delta.isEmpty())
+            if (!delta.hIsEmpty())
             {
                 JavaModelManager.INSTANCE.fireElementChangeEvent(
                     new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,
@@ -270,7 +263,7 @@ public class CompilationUnit
         {
             if (problems == null || problems.length == 0)
                 return;
-            WorkingCopyInfo info = peekAtWorkingCopyInfo();
+            WorkingCopyInfo info = hPeekAtWorkingCopyInfo();
             if (info instanceof JavaWorkingCopyInfo)
             {
                 reportProblems(((JavaWorkingCopyInfo)info).problemRequestor,

@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.adapter;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -20,7 +18,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ToStringStyle;
-import org.eclipse.handly.model.impl.Body;
+import org.eclipse.handly.model.impl.IElementImpl;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -32,8 +30,10 @@ import org.eclipse.jdt.core.ISourceReference;
  */
 public class JavaElement
     extends PlatformObject
-    implements IElement
+    implements IElementImpl
 {
+    private static final IElement[] NO_CHILDREN = new IElement[0];
+
     private final IJavaElement javaElement;
 
     /**
@@ -78,48 +78,37 @@ public class JavaElement
     }
 
     @Override
-    public String getName()
+    public String hName()
     {
         return javaElement.getElementName();
     }
 
     @Override
-    public IElement getParent()
+    public IElement hParent()
     {
         return create(javaElement.getParent());
     }
 
     @Override
-    public IElement getRoot()
+    public IElement hRoot()
     {
         return create(javaElement.getJavaModel());
     }
 
     @Override
-    public <T extends IElement> T getAncestor(Class<T> ancestorType)
-    {
-        IElement parent = getParent();
-        if (parent == null)
-            return null;
-        if (ancestorType.isInstance(parent))
-            return ancestorType.cast(parent);
-        return parent.getAncestor(ancestorType);
-    }
-
-    @Override
-    public IResource getResource()
+    public IResource hResource()
     {
         return javaElement.getResource();
     }
 
     @Override
-    public IPath getPath()
+    public IPath hPath()
     {
         return javaElement.getPath();
     }
 
     @Override
-    public boolean exists()
+    public boolean hExists()
     {
         return javaElement.exists();
     }
@@ -150,16 +139,16 @@ public class JavaElement
     }
 
     @Override
-    public String toString(ToStringStyle style)
+    public String hToString(ToStringStyle style)
     {
         return toString();
     }
 
     @Override
-    public IElement[] getChildren() throws CoreException
+    public IElement[] hChildren() throws CoreException
     {
         if (!(javaElement instanceof IParent))
-            return Body.NO_CHILDREN;
+            return NO_CHILDREN;
         IJavaElement[] children = ((IParent)javaElement).getChildren();
         ArrayList<IElement> result = new ArrayList<IElement>(children.length);
         for (IJavaElement child : children)
@@ -168,22 +157,6 @@ public class JavaElement
             if (element != null)
                 result.add(element);
         }
-        return result.toArray(Body.NO_CHILDREN);
-    }
-
-    @Override
-    public <T extends IElement> T[] getChildren(Class<T> childType)
-        throws CoreException
-    {
-        IElement[] children = getChildren();
-        List<T> list = new ArrayList<T>(children.length);
-        for (IElement child : children)
-        {
-            if (childType.isInstance(child))
-                list.add(childType.cast(child));
-        }
-        @SuppressWarnings("unchecked")
-        T[] result = (T[])Array.newInstance(childType, list.size());
-        return list.toArray(result);
+        return result.toArray(NO_CHILDREN);
     }
 }

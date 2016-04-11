@@ -38,21 +38,21 @@ class SimpleSourceFile
     }
 
     @Override
-    protected Object createStructuralAst(String source,
+    protected Object hCreateStructuralAst(String source,
         IProgressMonitor monitor) throws CoreException
     {
         return null;
     }
 
     @Override
-    protected void buildStructure(SourceElementBody body,
+    protected void hBuildStructure(SourceElementBody body,
         Map<IElement, Body> newElements, Object ast, String source,
         IProgressMonitor monitor)
     {
     }
 
     @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         throw new UnsupportedOperationException();
     }

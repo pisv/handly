@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
-import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
@@ -72,24 +71,7 @@ public class PackageFragment
     @Override
     public PackageFragmentRoot getParent()
     {
-        return (PackageFragmentRoot)parent;
-    }
-
-    @Override
-    public IJavaModel getRoot()
-    {
-        return (IJavaModel)super.getRoot();
-    }
-
-    @Override
-    public IResource getResource()
-    {
-        if (simpleNames.length == 0)
-            return parent.getResource();
-        IPath path = Path.EMPTY;
-        for (String simpleName : simpleNames)
-            path = path.append(simpleName);
-        return ((IContainer)parent.getResource()).getFolder(path);
+        return (PackageFragmentRoot)hParent();
     }
 
     @Override
@@ -119,13 +101,13 @@ public class PackageFragment
         if (isDefaultPackage())
             return PackageFragmentBody.NO_NON_JAVA_RESOURCES;
         else
-            return ((PackageFragmentBody)getBody()).getNonJavaResources(this);
+            return ((PackageFragmentBody)hBody()).getNonJavaResources(this);
     }
 
     @Override
     public boolean isDefaultPackage()
     {
-        return name.isEmpty();
+        return getName().isEmpty();
     }
 
     @Override
@@ -149,27 +131,6 @@ public class PackageFragment
         return false;
     }
 
-    @Override
-    protected ElementManager getElementManager()
-    {
-        return JavaModelManager.INSTANCE.getElementManager();
-    }
-
-    @Override
-    protected void validateExistence() throws CoreException
-    {
-        if (!isValidPackageName())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Invalid Java package name: {0}", name),
-                null));
-
-        IResource resource = getResource();
-        if (resource != null && !resource.isAccessible())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Resource ''{0}'' is not accessible",
-                    resource.getFullPath()), null));
-    }
-
     boolean isValidPackageName()
     {
         JavaProject javaProject = getParent().getParent();
@@ -189,13 +150,45 @@ public class PackageFragment
     }
 
     @Override
-    protected Body newBody()
+    public IResource hResource()
+    {
+        if (simpleNames.length == 0)
+            return getParent().getResource();
+        IPath path = Path.EMPTY;
+        for (String simpleName : simpleNames)
+            path = path.append(simpleName);
+        return ((IContainer)getParent().getResource()).getFolder(path);
+    }
+
+    @Override
+    protected ElementManager hElementManager()
+    {
+        return JavaModelManager.INSTANCE.getElementManager();
+    }
+
+    @Override
+    protected void hValidateExistence() throws CoreException
+    {
+        if (!isValidPackageName())
+            throw new CoreException(Activator.createErrorStatus(
+                MessageFormat.format("Invalid Java package name: {0}",
+                    getName()), null));
+
+        IResource resource = getResource();
+        if (resource != null && !resource.isAccessible())
+            throw new CoreException(Activator.createErrorStatus(
+                MessageFormat.format("Resource ''{0}'' is not accessible",
+                    resource.getFullPath()), null));
+    }
+
+    @Override
+    protected Body hNewBody()
     {
         return new PackageFragmentBody();
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IElement, Body> newElements,
+    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         HashSet<ICompilationUnit> children = new HashSet<ICompilationUnit>();
@@ -221,35 +214,35 @@ public class PackageFragment
                 }
             }
         }
-        body.setChildren(children.toArray(new IElement[children.size()]));
+        body.setChildren(children.toArray(Body.NO_CHILDREN));
     }
 
     @Override
-    protected void toStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder)
     {
         if (isDefaultPackage())
             builder.append("<default>"); //$NON-NLS-1$
         else
-            super.toStringName(builder);
+            super.hToStringName(builder);
     }
 
     @Override
-    protected void toStringBody(IndentationPolicy indentationPolicy,
+    protected void hToStringBody(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder, Body body,
         boolean showResolvedInfo)
     {
-        super.toStringBody(indentationPolicy, indentationLevel, builder, body,
+        super.hToStringBody(indentationPolicy, indentationLevel, builder, body,
             showResolvedInfo);
         if (body != null && indentationLevel > 0)
             builder.append(" (...)"); //$NON-NLS-1$
     }
 
     @Override
-    protected void toStringChildren(IndentationPolicy indentationPolicy,
+    protected void hToStringChildren(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder, Body body)
     {
         if (indentationLevel == 0)
-            super.toStringChildren(indentationPolicy, indentationLevel, builder,
-                body);
+            super.hToStringChildren(indentationPolicy, indentationLevel,
+                builder, body);
     }
 }

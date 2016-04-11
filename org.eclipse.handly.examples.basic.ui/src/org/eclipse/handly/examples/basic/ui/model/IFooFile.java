@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,13 +12,14 @@ package org.eclipse.handly.examples.basic.ui.model;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.handly.model.ISourceElementExtension;
+import org.eclipse.handly.model.ISourceFileExtension;
 
 /**
  * Represents a Foo source file.
  */
 public interface IFooFile
-    extends IFooElement, ISourceFile
+    extends IFooElement, ISourceFileExtension, ISourceElementExtension
 {
     /**
      * Foo file extension.
@@ -30,7 +31,10 @@ public interface IFooFile
      *
      * @return the underlying <code>IFile</code> (never <code>null</code>)
      */
-    IFile getFile();
+    default IFile getFile()
+    {
+        return ISourceFileExtension.super.getFile();
+    }
 
     /**
      * Returns the variable with the given name declared in this Foo file.

@@ -192,7 +192,7 @@ public class FooWorkingCopyTest
             {
                 while (!stop[0])
                 {
-                    WorkingCopyInfo info = workingCopy.acquireWorkingCopy();
+                    WorkingCopyInfo info = workingCopy.hAcquireWorkingCopy();
                     if (info != null)
                     {
                         try
@@ -205,7 +205,7 @@ public class FooWorkingCopyTest
                         }
                         finally
                         {
-                            workingCopy.discardWorkingCopy();
+                            workingCopy.hDiscardWorkingCopy();
                         }
                     }
                 }
@@ -239,13 +239,13 @@ public class FooWorkingCopyTest
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                workingCopy.close();
+                workingCopy.hClose();
                 assertNotNull("working copy must remain in the cache",
-                    workingCopy.peekAtBody());
+                    workingCopy.hPeekAtBody());
 
-                workingCopy.getParent().close();
+                workingCopy.getParent().hClose();
                 assertNotNull("working copy must remain in the cache",
-                    workingCopy.peekAtBody());
+                    workingCopy.hPeekAtBody());
             }
         });
     }
@@ -261,8 +261,8 @@ public class FooWorkingCopyTest
                 IFooDef def = workingCopy.getDef("f", 0);
                 assertTrue(def.exists());
                 assertFalse("non-openable elements cannot be closed",
-                    ((Element)def).close());
-                assertNotNull(((Element)def).peekAtBody());
+                    ((Element)def).hClose());
+                assertNotNull(((Element)def).hPeekAtBody());
             }
         };
         // non-openable elements cannot be closed, in working copy or not
@@ -273,14 +273,14 @@ public class FooWorkingCopyTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.becomeWorkingCopy(buffer, null);
+        workingCopy.hBecomeWorkingCopy(buffer, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.discardWorkingCopy();
+            workingCopy.hDiscardWorkingCopy();
         }
     }
 }

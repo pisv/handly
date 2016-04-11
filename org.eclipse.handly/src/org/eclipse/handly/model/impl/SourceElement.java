@@ -11,6 +11,7 @@
 package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -18,14 +19,14 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * Common superclass of {@link ISourceElement} implementations.
+ * Common superclass for source elements.
  *
  * @see SourceFile
  * @see SourceConstruct
  */
 public abstract class SourceElement
     extends Element
-    implements ISourceElement
+    implements ISourceElementImpl
 {
     /**
      * Constructs a handle for a source element with the given parent element
@@ -42,19 +43,47 @@ public abstract class SourceElement
     }
 
     @Override
-    public ISourceElementInfo getSourceElementInfo() throws CoreException
+    public ISourceElementInfo hSourceElementInfo() throws CoreException
     {
-        return (ISourceElementInfo)getBody();
+        return (ISourceElementInfo)hBody();
     }
 
     @Override
-    public ISourceElement getElementAt(int position, ISnapshot base)
+    public ISourceElement hSourceElementAt(int position, ISnapshot base)
         throws CoreException
     {
-        ISourceElementInfo info = getSourceElementInfo();
+        ISourceElementInfo info = hSourceElementInfo();
         if (!checkInRange(position, base, info))
             return null;
-        return getElementAt(position, info);
+        return hSourceElementAt(position, info);
+    }
+
+    /**
+     * Returns the element that is located at the given source position
+     * in this element. The position given is known to be within this element's
+     * source range already, and if no finer grained element is found at the
+     * position, this element is returned.
+     *
+     * @param position a source position (0-based)
+     * @param info the info object for this element (never <code>null</code>)
+     * @return the innermost element enclosing the given source position
+     *  (not <code>null</code>)
+     * @throws CoreException if an exception occurs while accessing
+     *  the element's corresponding resource
+     */
+    protected ISourceElement hSourceElementAt(int position,
+        ISourceElementInfo info) throws CoreException
+    {
+        ISnapshot snapshot = info.getSnapshot();
+        ISourceElement[] children = info.getChildren();
+        for (ISourceElement child : children)
+        {
+            ISourceElement found = Elements.getSourceElementAt(child, position,
+                snapshot);
+            if (found != null)
+                return found;
+        }
+        return this;
     }
 
     /**
@@ -81,32 +110,5 @@ public abstract class SourceElement
         }
         TextRange textRange = info.getFullRange();
         return textRange != null && textRange.covers(position);
-    }
-
-    /**
-     * Returns the element that is located at the given source position
-     * in this element. The position given is known to be within this element's
-     * source range already, and if no finer grained element is found at the
-     * position, this element is returned.
-     *
-     * @param position a source position (0-based)
-     * @param info the info object for this element (never <code>null</code>)
-     * @return the innermost element enclosing the given source position
-     *  (not <code>null</code>)
-     * @throws CoreException if an exception occurs while accessing
-     *  the element's corresponding resource
-     */
-    protected ISourceElement getElementAt(int position, ISourceElementInfo info)
-        throws CoreException
-    {
-        ISnapshot snapshot = info.getSnapshot();
-        ISourceElement[] children = info.getChildren();
-        for (ISourceElement child : children)
-        {
-            ISourceElement found = child.getElementAt(position, snapshot);
-            if (found != null)
-                return found;
-        }
-        return this;
     }
 }

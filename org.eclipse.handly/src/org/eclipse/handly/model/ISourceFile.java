@@ -10,114 +10,15 @@
  *******************************************************************************/
 package org.eclipse.handly.model;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.handly.buffer.IBuffer;
-
 /**
  * Represents a source file.
  *
- * @noimplement This interface is not intended to be implemented by clients.
+ * @see ISourceElement
  */
 public interface ISourceFile
     extends ISourceElement
 {
-    /**
-     * Returns the underlying {@link IFile}, or <code>null</code>
-     * if this source file has no underlying file in the workspace.
-     * This is a handle-only method.
-     * <p>
-     * This method returns the same value as {@link #getResource()},
-     * but saves a downcast.
-     * </p>
-     *
-     * @return the underlying <code>IFile</code>, or <code>null</code>
-     *  if this source file has no underlying file in the workspace
+    /*
+     * Implementors of this interface must also implement ISourceFileImpl.
      */
-    IFile getFile();
-
-    /**
-     * Returns whether this source file is a working copy.
-     *
-     * @return <code>true</code> if this source file is a working copy,
-     *  <code>false</code> otherwise
-     */
-    boolean isWorkingCopy();
-
-    /**
-     * Returns whether this source file needs reconciling.
-     * The source file needs reconciling if it is a working copy and
-     * its buffer has been modified since the last time it was reconciled.
-     *
-     * @return <code>true</code> if this source file needs reconciling,
-     *  <code>false</code> otherwise
-     */
-    boolean needsReconciling();
-
-    /**
-     * Makes this working copy consistent with its buffer by updating
-     * the element's structure and properties as necessary. Does nothing
-     * if the source file is not in working copy mode. The boolean argument
-     * allows to force problem detection even if the working copy is already
-     * consistent with its buffer.
-     *
-     * @param forceProblemDetection indicates whether problems should be
-     *  recomputed even if the source hasn't changed
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @throws CoreException if this working copy cannot be reconciled
-     * @throws OperationCanceledException if this method is canceled
-     */
-    void reconcile(boolean forceProblemDetection, IProgressMonitor monitor)
-        throws CoreException;
-
-    /**
-     * Returns the buffer opened for this source file. Note that buffers may
-     * be shared by multiple clients, so the returned buffer may have unsaved
-     * changes if it has been modified by another client.
-     * <p>
-     * The client takes (potentially shared) ownership of the returned buffer
-     * and is responsible for disposing it when finished. The buffer will be
-     * closed only after it is disposed by every owner. The buffer must not
-     * be accessed by clients which don't own it.
-     * </p>
-     *
-     * @return the buffer opened for this source file (never <code>null</code>)
-     * @throws CoreException if this source file does not exist
-     *  or if its contents cannot be accessed
-     * @see IBuffer
-     */
-    IBuffer getBuffer() throws CoreException;
-
-    /**
-     * Returns the buffer opened for this source file. Note that buffers may
-     * be shared by multiple clients, so the returned buffer may have unsaved
-     * changes if it has been modified by another client.
-     * <p>
-     * The client takes (potentially shared) ownership of the returned buffer
-     * and is responsible for disposing it when finished. The buffer will be
-     * closed only after it is disposed by every owner. The buffer must not
-     * be accessed by clients which don't own it.
-     * </p>
-     * <p>
-     * If <code>create == false</code> and there is no buffer currently
-     * opened for this source file, <code>null</code> is returned.
-     * </p>
-     *
-     * @param create indicates whether a new buffer should be created
-     *  if none already exists for this source file
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @return the buffer opened for this source file, or <code>null</code>
-     *  if <code>create == false</code> and there is no buffer currently opened
-     *  for this source file
-     * @throws CoreException if this source file does not exist
-     *  or if its contents cannot be accessed
-     * @throws OperationCanceledException if this method is canceled
-     * @see IBuffer
-     */
-    IBuffer getBuffer(boolean create, IProgressMonitor monitor)
-        throws CoreException;
 }

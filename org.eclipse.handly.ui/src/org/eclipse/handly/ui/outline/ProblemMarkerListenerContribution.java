@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
@@ -52,7 +53,7 @@ public class ProblemMarkerListenerContribution
         IResource resource = null;
         IElement element = getContentAdapter().adapt(inputElement);
         if (element != null)
-            resource = element.getResource();
+            resource = Elements.getResource(element);
         else
             resource = ResourceUtil.getResource(inputElement);
         if (resource == null)

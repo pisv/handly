@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.TextFileBuffer;
-import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.handly.model.impl.ISourceFileImpl;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 class JavaSourceFile
     extends JavaSourceElement
-    implements ISourceFile
+    implements ISourceFileImpl
 {
     /**
      * Constructs a <code>JavaSourceFile</code> for the given compilation unit.
@@ -49,19 +49,19 @@ class JavaSourceFile
     }
 
     @Override
-    public IFile getFile()
+    public IFile hFile()
     {
         return (IFile)getCompilationUnit().getResource();
     }
 
     @Override
-    public boolean isWorkingCopy()
+    public boolean hIsWorkingCopy()
     {
         return getCompilationUnit().isWorkingCopy();
     }
 
     @Override
-    public boolean needsReconciling()
+    public boolean hNeedsReconciling()
     {
         try
         {
@@ -75,7 +75,7 @@ class JavaSourceFile
     }
 
     @Override
-    public void reconcile(boolean forceProblemDetection,
+    public void hReconcile(boolean forceProblemDetection, Object arg,
         IProgressMonitor monitor) throws CoreException
     {
         getCompilationUnit().reconcile(ICompilationUnit.NO_AST,
@@ -83,16 +83,10 @@ class JavaSourceFile
     }
 
     @Override
-    public IBuffer getBuffer() throws CoreException
-    {
-        return getBuffer(true, null);
-    }
-
-    @Override
-    public IBuffer getBuffer(boolean create, IProgressMonitor monitor)
+    public IBuffer hBuffer(boolean create, IProgressMonitor monitor)
         throws CoreException
     {
-        IFile file = getFile();
+        IFile file = hFile();
         if (file == null)
             throw new AssertionError("No underlying IFile for " + toString());
         if (!create && ITextFileBufferManager.DEFAULT.getTextFileBuffer(

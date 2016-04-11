@@ -23,7 +23,7 @@ import org.eclipse.handly.model.ISourceFile;
  * An instance of this class is safe for use by multiple threads.
  * </p>
  *
- * @see Element#getElementManager()
+ * @see Element#hElementManager()
  */
 public class ElementManager
 {
@@ -53,7 +53,7 @@ public class ElementManager
     }
 
     /**
-     * Returns the source files that have a corresponding working copy info.
+     * Returns the source files that have corresponding working copy info.
      */
     public final synchronized ISourceFile[] getWorkingCopies()
     {
@@ -71,7 +71,7 @@ public class ElementManager
      */
     protected void internalClose(IElement element)
     {
-        ((Element)element).close(false);
+        ((Element)element).hClose(false);
     }
 
     /**
@@ -88,7 +88,7 @@ public class ElementManager
      */
     protected void removing(IElement element, Body body)
     {
-        ((Element)element).removing(body);
+        ((Element)element).hRemoving(body);
     }
 
     /**

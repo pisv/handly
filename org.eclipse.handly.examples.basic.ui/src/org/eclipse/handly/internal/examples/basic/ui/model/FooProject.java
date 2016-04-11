@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
-import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElement;
@@ -61,18 +60,6 @@ public class FooProject
     }
 
     @Override
-    public FooModel getParent()
-    {
-        return (FooModel)parent;
-    }
-
-    @Override
-    public IFooModel getRoot()
-    {
-        return (IFooModel)super.getRoot();
-    }
-
-    @Override
     public void create(IProgressMonitor monitor) throws CoreException
     {
         create(null, monitor);
@@ -95,7 +82,7 @@ public class FooProject
                     monitor.beginTask("", 4); //$NON-NLS-1$
 
                     IProjectDescription description =
-                        workspace.newProjectDescription(name);
+                        workspace.newProjectDescription(getName());
                     description.setLocationURI(location);
                     project.create(description, new SubProgressMonitor(monitor,
                         1));
@@ -143,7 +130,7 @@ public class FooProject
     @Override
     public IResource[] getNonFooResources() throws CoreException
     {
-        return ((FooProjectBody)getBody()).getNonFooResources(this);
+        return ((FooProjectBody)hBody()).getNonFooResources(this);
     }
 
     @Override
@@ -153,40 +140,40 @@ public class FooProject
     }
 
     @Override
-    public IResource getResource()
+    public IResource hResource()
     {
         return project;
     }
 
     @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return FooModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void validateExistence() throws CoreException
+    protected void hValidateExistence() throws CoreException
     {
         if (!project.exists())
             throw new CoreException(Activator.createErrorStatus(
                 MessageFormat.format(
-                    "Project ''{0}'' does not exist in workspace", name),
+                    "Project ''{0}'' does not exist in workspace", getName()),
                 null));
 
         if (!project.isOpen())
             throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Project ''{0}'' is not open", name),
+                MessageFormat.format("Project ''{0}'' is not open", getName()),
                 null));
 
         if (!project.hasNature(NATURE_ID))
             throw new CoreException(Activator.createErrorStatus(
                 MessageFormat.format(
-                    "Project ''{0}'' does not have the Foo nature", name),
+                    "Project ''{0}'' does not have the Foo nature", getName()),
                 null));
     }
 
     @Override
-    protected void buildStructure(Body body, Map<IElement, Body> newElements,
+    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         IResource[] members = project.members();
@@ -198,17 +185,17 @@ public class FooProject
                 IFile file = (IFile)member;
                 if (IFooFile.EXT.equals(file.getFileExtension()))
                 {
-                    IFooFile fooFile = new FooFile(this, file);
+                    FooFile fooFile = new FooFile(this, file);
                     if (fooFile != null)
                         fooFiles.add(fooFile);
                 }
             }
         }
-        body.setChildren(fooFiles.toArray(new IElement[fooFiles.size()]));
+        body.setChildren(fooFiles.toArray(Body.NO_CHILDREN));
     }
 
     @Override
-    protected Body newBody()
+    protected Body hNewBody()
     {
         return new FooProjectBody();
     }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collections;
@@ -24,7 +26,6 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.handly.examples.basic.foo.Module;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
-import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElement;
@@ -69,13 +70,7 @@ public class FooFile
     @Override
     public FooProject getParent()
     {
-        return (FooProject)parent;
-    }
-
-    @Override
-    public IFooModel getRoot()
-    {
-        return (IFooModel)super.getRoot();
+        return (FooProject)hParent();
     }
 
     @Override
@@ -103,13 +98,13 @@ public class FooFile
     }
 
     @Override
-    public ReconcileOperation getReconcileOperation()
+    public ReconcileOperation hReconcileOperation()
     {
         return new NotifyingReconcileOperation();
     }
 
     @Override
-    protected void buildStructure(SourceElementBody body,
+    protected void hBuildStructure(SourceElementBody body,
         Map<IElement, Body> newElements, Object ast, String source,
         IProgressMonitor monitor)
     {
@@ -138,7 +133,7 @@ public class FooFile
      * @throws CoreException if resource loading failed
      */
     @Override
-    protected XtextResource createStructuralAst(String source,
+    protected XtextResource hCreateStructuralAst(String source,
         IProgressMonitor monitor) throws CoreException
     {
         try
@@ -209,23 +204,23 @@ public class FooFile
     }
 
     @Override
-    protected ElementManager getElementManager()
+    protected ElementManager hElementManager()
     {
         return FooModelManager.INSTANCE.getElementManager();
     }
 
     @Override
-    protected void workingCopyModeChanged()
+    protected void hWorkingCopyModeChanged()
     {
-        super.workingCopyModeChanged();
+        super.hWorkingCopyModeChanged();
 
         ElementDelta delta = new ElementDelta(getRoot());
-        if (file.exists())
-            delta.insertChanged(this, ElementDelta.F_WORKING_COPY);
+        if (getFile().exists())
+            delta.hInsertChanged(this, F_WORKING_COPY);
         else if (isWorkingCopy())
-            delta.insertAdded(this, ElementDelta.F_WORKING_COPY);
+            delta.hInsertAdded(this, F_WORKING_COPY);
         else
-            delta.insertRemoved(this, ElementDelta.F_WORKING_COPY);
+            delta.hInsertRemoved(this, F_WORKING_COPY);
         FooModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
             ElementChangeEvent.POST_CHANGE, delta));
     }
@@ -243,7 +238,7 @@ public class FooFile
             super.reconcile(ast, snapshot, forced, monitor);
 
             deltaBuilder.buildDelta();
-            if (!deltaBuilder.getDelta().isEmpty())
+            if (!deltaBuilder.getDelta().hIsEmpty())
             {
                 FooModelManager.INSTANCE.fireElementChangeEvent(
                     new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,

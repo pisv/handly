@@ -11,6 +11,7 @@
 package org.eclipse.handly.ui.workingset;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.adapter.IContentAdapter;
 import org.eclipse.handly.model.adapter.NullContentAdapter;
@@ -89,8 +90,8 @@ public abstract class AbstractContainmentAdapter
         {
             return true;
         }
-        if (checkIfChild(flags) && workingSetElement.equals(
-            element.getParent()))
+        if (checkIfChild(flags) && workingSetElement.equals(Elements.getParent(
+            element)))
         {
             return true;
         }
@@ -107,12 +108,12 @@ public abstract class AbstractContainmentAdapter
 
     protected boolean check(IElement ancestor, IElement descendent)
     {
-        descendent = descendent.getParent();
+        descendent = Elements.getParent(descendent);
         while (descendent != null)
         {
             if (ancestor.equals(descendent))
                 return true;
-            descendent = descendent.getParent();
+            descendent = Elements.getParent(descendent);
         }
         return false;
     }
@@ -120,7 +121,7 @@ public abstract class AbstractContainmentAdapter
     protected boolean contains(IElement workingSetElement, IResource resource,
         int flags)
     {
-        IResource workingSetResource = workingSetElement.getResource();
+        IResource workingSetResource = Elements.getResource(workingSetElement);
         if (workingSetResource == null)
             return false;
         if (checkContext(flags) && workingSetResource.equals(resource))

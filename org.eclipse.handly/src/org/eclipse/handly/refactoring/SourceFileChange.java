@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,10 @@
  *     (inspired by Eclipse LTK work)
  *******************************************************************************/
 package org.eclipse.handly.refactoring;
+
+import static org.eclipse.handly.model.Elements.getPath;
+import static org.eclipse.handly.model.Elements.getBuffer;
+import static org.eclipse.handly.model.Elements.getFile;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -95,7 +99,7 @@ public class SourceFileChange
             throw new IllegalArgumentException();
         if ((this.edit = edit) == null)
             throw new IllegalArgumentException();
-        setTextType(sourceFile.getPath().getFileExtension());
+        setTextType(getPath(sourceFile).getFileExtension());
     }
 
     /**
@@ -223,14 +227,14 @@ public class SourceFileChange
         if (base == null)
             return result; // OK
 
-        IBuffer buffer = sourceFile.getBuffer(true, pm);
+        IBuffer buffer = getBuffer(sourceFile, true, pm);
         try
         {
             if (!base.isEqualTo(buffer.getSnapshot()))
             {
                 result.addFatalError(MessageFormat.format(
                     Messages.SourceFileChange_Cannot_apply_stale_change__0,
-                    sourceFile.getPath().makeRelative()));
+                    getPath(sourceFile).makeRelative()));
             }
             return result;
         }
@@ -246,7 +250,7 @@ public class SourceFileChange
         pm.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            IBuffer buffer = sourceFile.getBuffer(true, new SubProgressMonitor(
+            IBuffer buffer = getBuffer(sourceFile, true, new SubProgressMonitor(
                 pm, 1));
             try
             {
@@ -270,7 +274,7 @@ public class SourceFileChange
                     throw new CoreException(Activator.createErrorStatus(
                         MessageFormat.format(
                             Messages.SourceFileChange_Cannot_apply_stale_change__0,
-                            sourceFile.getPath().makeRelative()), e));
+                            getPath(sourceFile).makeRelative()), e));
                 }
 
                 return new UndoSourceFileChange(getName(), sourceFile,
@@ -296,7 +300,7 @@ public class SourceFileChange
     @Override
     public Object[] getAffectedObjects()
     {
-        IFile file = sourceFile.getFile();
+        IFile file = getFile(sourceFile);
         if (file == null)
             return null;
         return new Object[] { file };
@@ -305,7 +309,7 @@ public class SourceFileChange
     @Override
     public String getCurrentContent(IProgressMonitor pm) throws CoreException
     {
-        IBuffer buffer = sourceFile.getBuffer(true, pm);
+        IBuffer buffer = getBuffer(sourceFile, true, pm);
         try
         {
             NonExpiringSnapshot snapshot = new NonExpiringSnapshot(buffer);
@@ -510,7 +514,7 @@ public class SourceFileChange
      */
     private String getDocumentContent(IDocument document, IRegion region,
         boolean expandRegionToFullLine, int surroundingLines)
-            throws CoreException
+        throws CoreException
     {
         try
         {

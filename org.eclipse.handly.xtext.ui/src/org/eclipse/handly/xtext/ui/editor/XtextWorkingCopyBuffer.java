@@ -77,7 +77,7 @@ public final class XtextWorkingCopyBuffer
                     NonExpiringSnapshot snapshot, boolean forced,
                     IProgressMonitor monitor) throws Exception
                 {
-                    workingCopy.getReconcileOperation().reconcile(resource,
+                    workingCopy.hReconcileOperation().reconcile(resource,
                         snapshot, forced, monitor);
                 }
             };

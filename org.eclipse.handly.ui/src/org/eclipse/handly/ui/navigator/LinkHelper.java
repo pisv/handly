@@ -11,6 +11,7 @@
 package org.eclipse.handly.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.ui.EditorUtility;
 import org.eclipse.handly.ui.IInputElementProvider;
@@ -132,12 +133,12 @@ public class LinkHelper
 
     private static boolean check(IElement ancestor, IElement descendent)
     {
-        descendent = descendent.getParent();
+        descendent = Elements.getParent(descendent);
         while (descendent != null)
         {
             if (ancestor.equals(descendent))
                 return true;
-            descendent = descendent.getParent();
+            descendent = Elements.getParent(descendent);
         }
         return false;
     }

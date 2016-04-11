@@ -12,6 +12,7 @@ package org.eclipse.handly.ui.viewer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.internal.ui.Activator;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -48,7 +49,7 @@ public class ElementTreeContentProvider
         {
             try
             {
-                return ((IElement)parentElement).getChildren();
+                return Elements.getChildren((IElement)parentElement);
             }
             catch (CoreException e)
             {
@@ -63,7 +64,7 @@ public class ElementTreeContentProvider
     public Object getParent(Object element)
     {
         if (element instanceof IElement)
-            return ((IElement)element).getParent();
+            return Elements.getParent((IElement)element);
         return null;
     }
 

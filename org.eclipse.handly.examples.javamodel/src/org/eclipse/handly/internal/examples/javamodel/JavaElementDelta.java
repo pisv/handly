@@ -38,55 +38,55 @@ public class JavaElementDelta
     @Override
     public IJavaElement getElement()
     {
-        return (IJavaElement)super.getElement();
+        return (IJavaElement)hElement();
     }
 
     @Override
     public JavaElementDelta[] getAffectedChildren()
     {
-        return convert(super.getAffectedChildren());
+        return convert(hAffectedChildren());
     }
 
     @Override
     public JavaElementDelta[] getAddedChildren()
     {
-        return convert(super.getAddedChildren());
+        return convert(hAddedChildren());
     }
 
     @Override
     public JavaElementDelta[] getRemovedChildren()
     {
-        return convert(super.getRemovedChildren());
+        return convert(hRemovedChildren());
     }
 
     @Override
     public JavaElementDelta[] getChangedChildren()
     {
-        return convert(super.getChangedChildren());
+        return convert(hChangedChildren());
     }
 
     @Override
     public IJavaElement getMovedFromElement()
     {
-        return (IJavaElement)super.getMovedFromElement();
+        return (IJavaElement)hMovedFromElement();
     }
 
     @Override
     public IJavaElement getMovedToElement()
     {
-        return (IJavaElement)super.getMovedToElement();
+        return (IJavaElement)hMovedToElement();
     }
 
     @Override
-    protected ElementDelta newDelta(IElement element)
+    protected ElementDelta hNewDelta(IElement element)
     {
         return new JavaElementDelta((IJavaElement)element);
     }
 
     @Override
-    protected boolean toStringFlags(StringBuilder builder)
+    protected boolean hToStringFlags(StringBuilder builder)
     {
-        boolean prev = super.toStringFlags(builder);
+        boolean prev = super.hToStringFlags(builder);
         if ((getFlags() & F_CLASSPATH_CHANGED) != 0)
         {
             if (prev)

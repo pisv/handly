@@ -10,18 +10,32 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.adapter;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.ADDED;
+import static org.eclipse.handly.model.IElementDeltaConstants.CHANGED;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CHILDREN;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_FINE_GRAINED;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_MOVED_FROM;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_MOVED_TO;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_OPEN;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_REORDER;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
+import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
+
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ToStringStyle;
+import org.eclipse.handly.model.impl.IElementDeltaImpl;
 import org.eclipse.jdt.core.IJavaElementDelta;
 
 /**
  * Adapts a JDT Java element delta to <code>IElementDelta</code>.
  */
 class JavaElementDelta
-    implements IElementDelta
+    implements IElementDeltaImpl
 {
     private static final IMarkerDelta[] EMPTY_MARKER_DELTAS =
         new IMarkerDelta[0];
@@ -46,68 +60,68 @@ class JavaElementDelta
     }
 
     @Override
-    public IElement getElement()
+    public IElement hElement()
     {
         return JavaElement.create(delta.getElement());
     }
 
     @Override
-    public int getKind()
+    public int hKind()
     {
         return kind;
     }
 
     @Override
-    public long getFlags()
+    public long hFlags()
     {
         return flags;
     }
 
     @Override
-    public IElementDelta[] getAffectedChildren()
+    public IElementDelta[] hAffectedChildren()
     {
         return toElementDeltas(delta.getAffectedChildren());
     }
 
     @Override
-    public IElementDelta[] getAddedChildren()
+    public IElementDelta[] hAddedChildren()
     {
         return toElementDeltas(delta.getAddedChildren());
     }
 
     @Override
-    public IElementDelta[] getRemovedChildren()
+    public IElementDelta[] hRemovedChildren()
     {
         return toElementDeltas(delta.getRemovedChildren());
     }
 
     @Override
-    public IElementDelta[] getChangedChildren()
+    public IElementDelta[] hChangedChildren()
     {
         return toElementDeltas(delta.getChangedChildren());
     }
 
     @Override
-    public IElement getMovedFromElement()
+    public IElement hMovedFromElement()
     {
         return JavaElement.create(delta.getMovedFromElement());
     }
 
     @Override
-    public IElement getMovedToElement()
+    public IElement hMovedToElement()
     {
         return JavaElement.create(delta.getMovedToElement());
     }
 
     @Override
-    public IMarkerDelta[] getMarkerDeltas()
+    public IMarkerDelta[] hMarkerDeltas()
     {
         // JDT JavaElementDelta does not provide marker deltas
         return EMPTY_MARKER_DELTAS;
     }
 
     @Override
-    public IResourceDelta[] getResourceDeltas()
+    public IResourceDelta[] hResourceDeltas()
     {
         return delta.getResourceDeltas();
     }
@@ -119,7 +133,7 @@ class JavaElementDelta
     }
 
     @Override
-    public String toString(ToStringStyle style)
+    public String hToString(ToStringStyle style)
     {
         return toString();
     }

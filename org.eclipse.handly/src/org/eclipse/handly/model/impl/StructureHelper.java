@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ToStringStyle;
 
@@ -33,7 +34,7 @@ import org.eclipse.handly.model.ToStringStyle;
  * as circumstances warrant.
  * </p>
  *
- * @see Element#buildStructure(Body, Map, IProgressMonitor)
+ * @see Element#hBuildStructure(Body, Map, IProgressMonitor)
  */
 public class StructureHelper
 {
@@ -83,7 +84,7 @@ public class StructureHelper
         if (newElements.containsKey(child))
             throw new AssertionError(
                 "Attempt to add an already present element: " //$NON-NLS-1$
-                    + child.toString(ToStringStyle.COMPACT));
+                    + Elements.toString(child, ToStringStyle.COMPACT));
         newElements.put(child, childBody);
         List<IElement> childrenList = children.get(parentBody);
         if (childrenList == null)
@@ -113,7 +114,7 @@ public class StructureHelper
      * <p>
      * If the given element is a <code>SourceConstruct</code> already present
      * in the <code>newElements</code> map, this implementation increments its
-     * {@link SourceConstruct#getOccurrenceCount() occurrence count} until
+     * {@link SourceConstruct#hOccurrenceCount() occurrence count} until
      * it becomes a unique key in the map.
      * </p>
      *
@@ -125,6 +126,6 @@ public class StructureHelper
             return;
         SourceConstruct sc = (SourceConstruct)element;
         while (newElements.containsKey(sc))
-            sc.incrementOccurrenceCount();
+            sc.hIncrementOccurrenceCount();
     }
 }

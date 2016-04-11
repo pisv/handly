@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,8 @@ package org.eclipse.handly.examples.javamodel;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.handly.model.ISourceElementExtension;
+import org.eclipse.handly.model.ISourceFileExtension;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
@@ -26,7 +27,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  * </p>
  */
 public interface ICompilationUnit
-    extends IJavaElement, ISourceFile
+    extends IJavaElement, ISourceFileExtension, ISourceElementExtension
 {
     /**
      * Constant indicating that a reconcile operation should not return an AST.
@@ -62,14 +63,22 @@ public interface ICompilationUnit
     public static final int IGNORE_METHOD_BODIES =
         org.eclipse.jdt.core.ICompilationUnit.IGNORE_METHOD_BODIES;
 
-    IPackageFragment getParent();
+    @Override
+    default IPackageFragment getParent()
+    {
+        return (IPackageFragment)IJavaElement.super.getParent();
+    }
 
     /**
      * Returns the underlying {@link IFile}. This is a handle-only method.
      *
      * @return the underlying <code>IFile</code> (never <code>null</code>)
      */
-    IFile getFile();
+    @Override
+    default IFile getFile()
+    {
+        return ISourceFileExtension.super.getFile();
+    }
 
     /**
      * Returns the import declaration in this compilation unit

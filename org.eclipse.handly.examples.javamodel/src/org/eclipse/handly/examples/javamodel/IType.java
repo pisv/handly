@@ -43,7 +43,11 @@ public interface IType
      *
      * @return the simple name of this type (never <code>null</code>)
      */
-    String getName();
+    @Override
+    default String getName()
+    {
+        return IMember.super.getName();
+    }
 
     /**
      * Returns the field with the specified name in this type.

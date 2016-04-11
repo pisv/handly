@@ -18,7 +18,6 @@ import org.eclipse.handly.util.TextRange;
  * structure and properties correlate with a source snapshot.
  *
  * @see ISourceElement
- * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ISourceElementInfo
 {

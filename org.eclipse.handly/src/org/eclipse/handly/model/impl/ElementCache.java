@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.handly.util.OverflowingLruCache;
@@ -89,7 +90,7 @@ public class ElementCache
     @Override
     protected boolean close(LruCacheEntry<IElement, Body> entry)
     {
-        return ((Element)entry.key).close();
+        return ((Element)entry.key).hClose();
     }
 
     @Override
@@ -106,7 +107,7 @@ public class ElementCache
         for (LruCacheEntry<IElement, Body> entry =
             entryQueue; entry != null; entry = entry.next)
         {
-            result.append(entry.key.toString(ToStringStyle.COMPACT));
+            result.append(Elements.toString(entry.key, ToStringStyle.COMPACT));
             result.append('\n');
         }
         return result.toString();
