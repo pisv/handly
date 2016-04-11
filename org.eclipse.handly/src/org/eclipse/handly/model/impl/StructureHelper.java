@@ -25,26 +25,25 @@ import org.eclipse.handly.model.ToStringStyle;
  * such as source files.
  * <p>
  * The structure is represented by a given map of handle/body relationships
- * that will be populated as calls to {@link #addChild(Body, IElement, Body)}
+ * that will be populated as calls to {@link #addChild(Body, IElement, Object)}
  * are made on the helper. Make sure to complete initialization of each
- * <code>Body</code> with a call to {@link #complete(Body)}.
+ * body with a call to {@link #complete(Body)}.
  * </p>
  * <p>
  * Clients can use this class as it stands or subclass it
  * as circumstances warrant.
  * </p>
  *
- * @see Element#hBuildStructure(Body, Map, IProgressMonitor)
+ * @see Element#hBuildStructure(Object, Map, IProgressMonitor)
  */
 public class StructureHelper
 {
-    private final Map<IElement, Body> newElements;
+    private final Map<IElement, Object> newElements;
 
     /*
-     * Map from body to list of child elements of the given body
+     * Map from body to list of child elements.
      */
-    private final Map<Body, List<IElement>> children =
-        new HashMap<Body, List<IElement>>();
+    private final Map<Body, List<IElement>> children = new HashMap<>();
 
     /**
      * Constructs a new structure helper with the given <code>newElements</code>
@@ -53,7 +52,7 @@ public class StructureHelper
      * @param newElements the map to populate with structure elements
      *  (not <code>null</code>)
      */
-    public StructureHelper(Map<IElement, Body> newElements)
+    public StructureHelper(Map<IElement, Object> newElements)
     {
         if (newElements == null)
             throw new IllegalArgumentException();
@@ -71,7 +70,7 @@ public class StructureHelper
      * @param child the handle of the child element (not <code>null</code>)
      * @param childBody the body of the child element (not <code>null</code>)
      */
-    public void addChild(Body parentBody, IElement child, Body childBody)
+    public void addChild(Body parentBody, IElement child, Object childBody)
     {
         if (parentBody == null)
             throw new IllegalArgumentException();
@@ -94,7 +93,7 @@ public class StructureHelper
 
     /**
      * Completes initialization of the given body. In particular, initializes it
-     * with a list of elements previously {@link #addChild(Body, IElement, Body)
+     * with a list of elements previously {@link #addChild(Body, IElement, Object)
      * remembered} as children of the body.
      *
      * @param body the given body (not <code>null</code>)

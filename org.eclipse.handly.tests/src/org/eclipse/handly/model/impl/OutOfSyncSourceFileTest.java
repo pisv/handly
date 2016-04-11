@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.handly.junit.WorkspaceTestCase;
-import org.eclipse.handly.model.IElement;
 
 /**
  * Regression test for bug 470336 -
@@ -69,14 +68,14 @@ public class OutOfSyncSourceFileTest
 
     public void testInSync() throws Exception
     {
-        sourceFile.hBuildStructure(new SourceElementBody(),
-            new HashMap<IElement, Body>(), new NullProgressMonitor());
+        sourceFile.hBuildStructure(new SourceElementBody(), new HashMap<>(),
+            new NullProgressMonitor());
     }
 
     public void testOutOfSync() throws Exception
     {
         assertTrue(localFile.setLastModified(localFile.lastModified() + 1000));
-        sourceFile.hBuildStructure(new SourceElementBody(),
-            new HashMap<IElement, Body>(), new NullProgressMonitor());
+        sourceFile.hBuildStructure(new SourceElementBody(), new HashMap<>(),
+            new NullProgressMonitor());
     }
 }

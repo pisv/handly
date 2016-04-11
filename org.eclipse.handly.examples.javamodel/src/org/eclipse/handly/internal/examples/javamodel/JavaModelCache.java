@@ -18,7 +18,6 @@ import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementCache;
 import org.eclipse.handly.model.impl.IBodyCache;
 
@@ -37,26 +36,26 @@ class JavaModelCache
     // The memory ratio that should be applied to the above constants.
     private final double memoryRatio = getMemoryRatio();
 
-    private Body modelBody; // Java model element's body
-    private HashMap<IElement, Body> projectCache; // cache of open Java projects
+    private Object modelBody; // Java model element's body
+    private HashMap<IElement, Object> projectCache; // cache of open Java projects
     private ElementCache rootCache; // cache of open package fragment roots
     private ElementCache pkgCache; // cache of open package fragments
     private ElementCache fileCache; // cache of open Java files
-    private HashMap<IElement, Body> childrenCache; // cache of children of open Foo files
+    private HashMap<IElement, Object> childrenCache; // cache of children of open Foo files
 
     public JavaModelCache()
     {
         // set the size of the caches as a function of the maximum amount of memory available
-        projectCache = new HashMap<IElement, Body>(DEFAULT_PROJECT_SIZE);
+        projectCache = new HashMap<>(DEFAULT_PROJECT_SIZE);
         rootCache = new ElementCache((int)(DEFAULT_ROOT_SIZE * memoryRatio));
         pkgCache = new ElementCache((int)(DEFAULT_PKG_SIZE * memoryRatio));
         fileCache = new ElementCache((int)(DEFAULT_FILE_SIZE * memoryRatio));
-        childrenCache = new HashMap<IElement, Body>((int)(DEFAULT_CHILDREN_SIZE
+        childrenCache = new HashMap<>((int)(DEFAULT_CHILDREN_SIZE
             * memoryRatio));
     }
 
     @Override
-    public Body get(IElement element)
+    public Object get(IElement element)
     {
         if (element instanceof IJavaModel)
             return modelBody;
@@ -73,7 +72,7 @@ class JavaModelCache
     }
 
     @Override
-    public Body peek(IElement element)
+    public Object peek(IElement element)
     {
         if (element instanceof IJavaModel)
             return modelBody;
@@ -90,7 +89,7 @@ class JavaModelCache
     }
 
     @Override
-    public void put(IElement element, Body body)
+    public void put(IElement element, Object body)
     {
         if (element instanceof IJavaModel)
             modelBody = body;

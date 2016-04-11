@@ -32,7 +32,7 @@ public interface IBodyCache
      * @return the corresponding body for the given element, or
      *  <code>null</code> if the cache contains no body for the element
      */
-    Body get(IElement element);
+    Object get(IElement element);
 
     /**
      * Returns the corresponding body for the given element without
@@ -43,7 +43,7 @@ public interface IBodyCache
      * @return the corresponding body for the given element, or
      *  <code>null</code> if the cache contains no body for the element
      */
-    Body peek(IElement element);
+    Object peek(IElement element);
 
     /**
      * Remembers the given body for the given element in this cache.
@@ -55,7 +55,7 @@ public interface IBodyCache
      * @param body the body to be associated with the given element
      *  (not <code>null</code>)
      */
-    void put(IElement element, Body body);
+    void put(IElement element, Object body);
 
     /**
      * Remembers the given handle/body relationships in this cache.
@@ -63,9 +63,9 @@ public interface IBodyCache
      * @param elementBodies handle/body relationships to be stored in the cache
      *  (not <code>null</code>)
      */
-    default void putAll(Map<IElement, Body> elementBodies)
+    default void putAll(Map<IElement, Object> elementBodies)
     {
-        for (Map.Entry<IElement, Body> entry : elementBodies.entrySet())
+        for (Map.Entry<IElement, Object> entry : elementBodies.entrySet())
         {
             put(entry.getKey(), entry.getValue());
         }

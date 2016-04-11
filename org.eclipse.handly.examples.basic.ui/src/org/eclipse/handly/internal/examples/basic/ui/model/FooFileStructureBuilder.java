@@ -43,7 +43,7 @@ class FooFileStructureBuilder
      * @param resourceServiceProvider Xtext's {@link IResourceServiceProvider}
      *  for the language (not <code>null</code>)
      */
-    FooFileStructureBuilder(Map<IElement, Body> newElements,
+    FooFileStructureBuilder(Map<IElement, Object> newElements,
         IResourceServiceProvider resourceServiceProvider)
     {
         this.helper = new StructureHelper(newElements);

@@ -137,12 +137,12 @@ public class JavaModel
     }
 
     @Override
-    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
-        IProgressMonitor monitor) throws CoreException
+    protected void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
+        throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
-        List<IJavaProject> javaProjects = new ArrayList<IJavaProject>(
-            projects.length);
+        List<IJavaProject> javaProjects = new ArrayList<>(projects.length);
         for (IProject project : projects)
         {
             if (project.isOpen() && project.hasNature(IJavaProject.NATURE_ID))
@@ -150,11 +150,11 @@ public class JavaModel
                 javaProjects.add(new JavaProject(this, project));
             }
         }
-        body.setChildren(javaProjects.toArray(Body.NO_CHILDREN));
+        ((Body)body).setChildren(javaProjects.toArray(Body.NO_CHILDREN));
     }
 
     @Override
-    protected Body hNewBody()
+    protected Object hNewBody()
     {
         return new JavaModelBody();
     }

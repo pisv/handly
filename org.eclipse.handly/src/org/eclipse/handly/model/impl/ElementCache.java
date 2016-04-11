@@ -29,7 +29,7 @@ import org.eclipse.handly.util.OverflowingLruCache;
  * @see OverflowingLruCache
  */
 public class ElementCache
-    extends OverflowingLruCache<IElement, Body>
+    extends OverflowingLruCache<IElement, Object>
 {
     private IElement spaceLimitParent = null;
 
@@ -59,12 +59,11 @@ public class ElementCache
      * body. If the space limit must be increased, record the parent that
      * needed this space limit.
      */
-    public void ensureSpaceLimit(Body body, IElement parent)
+    public void ensureSpaceLimit(Object body, IElement parent)
     {
         // ensure the children can be put without closing other elements
-        int numberOfChildren = body.getChildren().length;
-        int spaceNeeded = 1 + (int)((1 + loadFactor) * (numberOfChildren
-            + overflow));
+        int childCount = getChildCount(parent, body);
+        int spaceNeeded = 1 + (int)((1 + loadFactor) * (childCount + overflow));
         if (spaceLimit < spaceNeeded)
         {
             // parent is being opened with more children than the space limit
@@ -87,14 +86,22 @@ public class ElementCache
         }
     }
 
+    /**
+     * Given a body, returns the number of children of the given element.
+     */
+    protected int getChildCount(IElement element, Object body)
+    {
+        return ((Element)element).hChildren(body).length;
+    }
+
     @Override
-    protected boolean close(LruCacheEntry<IElement, Body> entry)
+    protected boolean close(LruCacheEntry<IElement, Object> entry)
     {
         return ((Element)entry.key).hClose();
     }
 
     @Override
-    protected OverflowingLruCache<IElement, Body> newInstance(int spaceLimit,
+    protected OverflowingLruCache<IElement, Object> newInstance(int spaceLimit,
         int overflow)
     {
         return new ElementCache(spaceLimit, overflow);
@@ -104,7 +111,7 @@ public class ElementCache
     protected String toStringContents()
     {
         StringBuilder result = new StringBuilder();
-        for (LruCacheEntry<IElement, Body> entry =
+        for (LruCacheEntry<IElement, Object> entry =
             entryQueue; entry != null; entry = entry.next)
         {
             result.append(Elements.toString(entry.key, ToStringStyle.COMPACT));

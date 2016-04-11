@@ -14,7 +14,6 @@ import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.examples.javamodel.IMethod;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.util.IndentationPolicy;
 import org.eclipse.jdt.core.Signature;
@@ -148,7 +147,7 @@ public class Method
 
     @Override
     protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Body body,
+        int indentationLevel, StringBuilder builder, Object body,
         boolean showResolvedInfo)
     {
         indentationPolicy.appendIndentTo(builder, indentationLevel);

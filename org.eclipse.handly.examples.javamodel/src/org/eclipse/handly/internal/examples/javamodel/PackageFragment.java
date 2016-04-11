@@ -182,16 +182,17 @@ public class PackageFragment
     }
 
     @Override
-    protected Body hNewBody()
+    protected Object hNewBody()
     {
         return new PackageFragmentBody();
     }
 
     @Override
-    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
-        IProgressMonitor monitor) throws CoreException
+    protected void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
+        throws CoreException
     {
-        HashSet<ICompilationUnit> children = new HashSet<ICompilationUnit>();
+        HashSet<ICompilationUnit> children = new HashSet<>();
         IResource[] members = ((IContainer)getResource()).members();
         if (members.length > 0)
         {
@@ -214,7 +215,7 @@ public class PackageFragment
                 }
             }
         }
-        body.setChildren(children.toArray(Body.NO_CHILDREN));
+        ((Body)body).setChildren(children.toArray(Body.NO_CHILDREN));
     }
 
     @Override
@@ -228,7 +229,7 @@ public class PackageFragment
 
     @Override
     protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Body body,
+        int indentationLevel, StringBuilder builder, Object body,
         boolean showResolvedInfo)
     {
         super.hToStringBody(indentationPolicy, indentationLevel, builder, body,
@@ -239,7 +240,7 @@ public class PackageFragment
 
     @Override
     protected void hToStringChildren(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Body body)
+        int indentationLevel, StringBuilder builder, Object body)
     {
         if (indentationLevel == 0)
             super.hToStringChildren(indentationPolicy, indentationLevel,

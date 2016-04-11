@@ -22,7 +22,6 @@ import org.eclipse.handly.examples.javamodel.IImportDeclaration;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
@@ -208,7 +207,7 @@ public class CompilationUnit
 
     @Override
     protected void hBuildStructure(SourceElementBody body,
-        Map<IElement, Body> newElements, Object ast, String source,
+        Map<IElement, Object> newElements, Object ast, String source,
         IProgressMonitor monitor)
     {
         CompilatonUnitStructureBuilder builder =

@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
@@ -69,10 +68,10 @@ public class ImportContainer
     protected void hToString(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
-        Body body = hPeekAtBody();
+        Object body = hPeekAtBody();
         if (body == null)
             return;
-        IElement[] children = body.getChildren();
+        IElement[] children = hChildren(body);
         for (int i = 0; i < children.length; i++)
         {
             if (i > 0)

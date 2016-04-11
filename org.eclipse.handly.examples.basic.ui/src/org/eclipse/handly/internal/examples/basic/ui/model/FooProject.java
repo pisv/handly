@@ -173,11 +173,12 @@ public class FooProject
     }
 
     @Override
-    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
-        IProgressMonitor monitor) throws CoreException
+    protected void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
+        throws CoreException
     {
         IResource[] members = project.members();
-        List<IFooFile> fooFiles = new ArrayList<IFooFile>(members.length);
+        List<IFooFile> fooFiles = new ArrayList<>(members.length);
         for (IResource member : members)
         {
             if (member instanceof IFile)
@@ -191,11 +192,11 @@ public class FooProject
                 }
             }
         }
-        body.setChildren(fooFiles.toArray(Body.NO_CHILDREN));
+        ((Body)body).setChildren(fooFiles.toArray(Body.NO_CHILDREN));
     }
 
     @Override
-    protected Body hNewBody()
+    protected Object hNewBody()
     {
         return new FooProjectBody();
     }

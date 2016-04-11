@@ -29,7 +29,6 @@ import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.handly.model.impl.ElementDeltaBuilder;
@@ -105,7 +104,7 @@ public class FooFile
 
     @Override
     protected void hBuildStructure(SourceElementBody body,
-        Map<IElement, Body> newElements, Object ast, String source,
+        Map<IElement, Object> newElements, Object ast, String source,
         IProgressMonitor monitor)
     {
         XtextResource resource = (XtextResource)ast;

@@ -68,8 +68,9 @@ class SimpleElement
     }
 
     @Override
-    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
-        IProgressMonitor monitor) throws CoreException
+    protected void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
+        throws CoreException
     {
         throw new UnsupportedOperationException();
     }

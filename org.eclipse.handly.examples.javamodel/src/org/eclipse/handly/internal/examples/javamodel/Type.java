@@ -17,7 +17,6 @@ import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -184,7 +183,7 @@ public class Type
 
     @Override
     protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Body body,
+        int indentationLevel, StringBuilder builder, Object body,
         boolean showResolvedInfo)
     {
         indentationPolicy.appendIndentTo(builder, indentationLevel);

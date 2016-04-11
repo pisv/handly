@@ -397,8 +397,8 @@ public abstract class SourceFile
     }
 
     @Override
-    protected final void hBuildStructure(Body body,
-        Map<IElement, Body> newElements, IProgressMonitor monitor)
+    protected final void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
         throws CoreException
     {
         int ticks = 2;
@@ -503,7 +503,7 @@ public abstract class SourceFile
      * @throws OperationCanceledException if this method is canceled
      */
     protected abstract void hBuildStructure(SourceElementBody body,
-        Map<IElement, Body> newElements, Object ast, String source,
+        Map<IElement, Object> newElements, Object ast, String source,
         IProgressMonitor monitor);
 
     @Override
@@ -515,7 +515,7 @@ public abstract class SourceFile
     }
 
     @Override
-    protected void hGenerateAncestorBodies(Map<IElement, Body> newElements,
+    protected void hGenerateAncestorBodies(Map<IElement, Object> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         if (hIsWorkingCopy())
@@ -532,7 +532,7 @@ public abstract class SourceFile
     }
 
     private static void setSnapshot(SourceElementBody body, ISnapshot snapshot,
-        Map<IElement, Body> newElements)
+        Map<IElement, Object> newElements)
     {
         body.setSnapshot(snapshot);
         for (IElement child : body.getChildren())

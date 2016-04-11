@@ -272,12 +272,12 @@ public class JavaProject
     }
 
     @Override
-    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
-        IProgressMonitor monitor) throws CoreException
+    protected void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
+        throws CoreException
     {
         IClasspathEntry[] rawClasspath = getRawClasspath();
-        List<IPackageFragmentRoot> roots =
-            new ArrayList<IPackageFragmentRoot>();
+        List<IPackageFragmentRoot> roots = new ArrayList<>();
         IPath projectPath = getPath();
         for (IClasspathEntry entry : rawClasspath)
         {
@@ -304,11 +304,11 @@ public class JavaProject
             if (root != null)
                 roots.add(root);
         }
-        body.setChildren(roots.toArray(Body.NO_CHILDREN));
+        ((Body)body).setChildren(roots.toArray(Body.NO_CHILDREN));
     }
 
     @Override
-    protected Body hNewBody()
+    protected Object hNewBody()
     {
         return new JavaProjectBody();
     }

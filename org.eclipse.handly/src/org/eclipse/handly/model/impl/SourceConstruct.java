@@ -105,7 +105,7 @@ public abstract class SourceConstruct
     }
 
     @Override
-    protected final Body hNewBody()
+    protected final Object hNewBody()
     {
         // The openable parent builds the whole structure and knows how to create child bodies
         return null;
@@ -119,8 +119,8 @@ public abstract class SourceConstruct
     }
 
     @Override
-    protected final void hBuildStructure(Body body,
-        Map<IElement, Body> newElements, IProgressMonitor monitor)
+    protected final void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
         throws CoreException
     {
         // The openable parent builds the whole structure

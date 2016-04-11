@@ -137,12 +137,12 @@ public class FooModel
     }
 
     @Override
-    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
-        IProgressMonitor monitor) throws CoreException
+    protected void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
+        throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
-        List<IFooProject> fooProjects = new ArrayList<IFooProject>(
-            projects.length);
+        List<IFooProject> fooProjects = new ArrayList<>(projects.length);
         for (IProject project : projects)
         {
             if (project.isOpen() && project.hasNature(IFooProject.NATURE_ID))
@@ -150,6 +150,6 @@ public class FooModel
                 fooProjects.add(new FooProject(this, project));
             }
         }
-        body.setChildren(fooProjects.toArray(Body.NO_CHILDREN));
+        ((Body)body).setChildren(fooProjects.toArray(Body.NO_CHILDREN));
     }
 }

@@ -429,7 +429,7 @@ class FooDeltaProcessor
 
     private static Body findBody(IFooElement element)
     {
-        return ((Element)element).hFindBody();
+        return (Body)((Element)element).hFindBody();
     }
 
     private static void close(IFooElement element)

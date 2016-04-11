@@ -140,23 +140,23 @@ public class PackageFragmentRoot
     }
 
     @Override
-    protected Body hNewBody()
+    protected Object hNewBody()
     {
         return new PackageFragmentRootBody();
     }
 
     @Override
-    protected void hBuildStructure(Body body, Map<IElement, Body> newElements,
-        IProgressMonitor monitor) throws CoreException
+    protected void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
+        throws CoreException
     {
         if (resource.getType() == IResource.FOLDER
             || resource.getType() == IResource.PROJECT)
         {
             IContainer rootFolder = (IContainer)resource;
-            ArrayList<IPackageFragment> children =
-                new ArrayList<IPackageFragment>();
+            ArrayList<IPackageFragment> children = new ArrayList<>();
             computeFolderChildren(rootFolder, Path.EMPTY, children);
-            body.setChildren(children.toArray(Body.NO_CHILDREN));
+            ((Body)body).setChildren(children.toArray(Body.NO_CHILDREN));
         }
     }
 

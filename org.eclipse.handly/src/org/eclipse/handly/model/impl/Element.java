@@ -44,11 +44,11 @@ public abstract class Element
 {
     /**
      * Special-purpose value for the <code>body</code> argument of the
-     * {@link #hToStringBody(IndentationPolicy, int, StringBuilder, Body,
+     * {@link #hToStringBody(IndentationPolicy, int, StringBuilder, Object,
      * boolean) hToStringBody} method. Indicates that body information
-     * should not be included in the output string.
+     * should not be included in the appended string.
      */
-    protected static final Body NO_BODY = new Body();
+    protected static final Object NO_BODY = new Object();
 
     private final Element parent;
     private final String name;
@@ -148,7 +148,7 @@ public abstract class Element
     @Override
     public IElement[] hChildren() throws CoreException
     {
-        return hBody().getChildren();
+        return hChildren(hBody());
     }
 
     /**
@@ -158,7 +158,7 @@ public abstract class Element
      * @return the cached body for this element, or <code>null</code>
      *  if none
      */
-    public Body hFindBody()
+    public Object hFindBody()
     {
         return hElementManager().get(this);
     }
@@ -170,7 +170,7 @@ public abstract class Element
      * @return the cached body for this element, or <code>null</code>
      *  if none
      */
-    public Body hPeekAtBody()
+    public Object hPeekAtBody()
     {
         return hElementManager().peek(this);
     }
@@ -242,10 +242,10 @@ public abstract class Element
     /**
      * Debugging purposes.
      */
-    public Body hToStringBody(IndentationPolicy indentationPolicy,
+    public Object hToStringBody(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
-        Body body = hPeekAtBody();
+        Object body = hPeekAtBody();
         hToStringBody(indentationPolicy, indentationLevel, builder, body,
             true/*show resolved info*/);
         return body;
@@ -272,7 +272,8 @@ public abstract class Element
     protected void hToString(IndentationPolicy indentationPolicy,
         int indentationLevel, StringBuilder builder)
     {
-        Body body = hToStringBody(indentationPolicy, indentationLevel, builder);
+        Object body = hToStringBody(indentationPolicy, indentationLevel,
+            builder);
         if (indentationLevel == 0)
         {
             hToStringAncestors(builder);
@@ -284,12 +285,12 @@ public abstract class Element
      * Debugging purposes.
      */
     protected void hToStringChildren(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Body body)
+        int indentationLevel, StringBuilder builder, Object body)
     {
         if (body == null)
             return;
         ToStringStyle childStyle = null;
-        for (IElement child : body.getChildren())
+        for (IElement child : hChildren(body))
         {
             indentationPolicy.appendLineSeparatorTo(builder);
             if (childStyle == null)
@@ -304,7 +305,7 @@ public abstract class Element
      * Debugging purposes.
      */
     protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Body body,
+        int indentationLevel, StringBuilder builder, Object body,
         boolean showResolvedInfo)
     {
         indentationPolicy.appendIndentTo(builder, indentationLevel);
@@ -370,8 +371,8 @@ public abstract class Element
      *  the element's corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected abstract void hBuildStructure(Body body,
-        Map<IElement, Body> newElements, IProgressMonitor monitor)
+    protected abstract void hBuildStructure(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
         throws CoreException;
 
     /**
@@ -383,7 +384,7 @@ public abstract class Element
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    protected final Body hBody() throws CoreException
+    protected final Object hBody() throws CoreException
     {
         return hBody(null);
     }
@@ -400,9 +401,9 @@ public abstract class Element
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected final Body hBody(IProgressMonitor monitor) throws CoreException
+    protected final Object hBody(IProgressMonitor monitor) throws CoreException
     {
-        Body body = hFindBody();
+        Object body = hFindBody();
         if (body != null)
             return body;
         return hOpen(hNewBody(), false, monitor);
@@ -415,11 +416,23 @@ public abstract class Element
      * @return a new body for this element, or <code>null</code> if the body
      *  for the element is to be created by the openable parent
      */
-    protected Body hNewBody()
+    protected Object hNewBody()
     {
         if (!hIsOpenable())
             return null;
         return new Body();
+    }
+
+    /**
+     * Given a body, returns the immediate children of this element.
+     *
+     * @param body the body corresponding to this element
+     *  (never <code>null</code>)
+     * @return the immediate children of this element (not <code>null</code>)
+     */
+    protected IElement[] hChildren(Object body)
+    {
+        return ((Body)body).getChildren();
     }
 
     /**
@@ -438,7 +451,7 @@ public abstract class Element
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    final Body hOpen(Body body, boolean force, IProgressMonitor monitor)
+    final Object hOpen(Object body, boolean force, IProgressMonitor monitor)
         throws CoreException
     {
         if (monitor == null)
@@ -447,7 +460,7 @@ public abstract class Element
         boolean hadTemporaryCache = elementManager.hasTemporaryCache();
         try
         {
-            Map<IElement, Body> newElements =
+            Map<IElement, Object> newElements =
                 elementManager.getTemporaryCache();
             hGenerateBodies(body, newElements, monitor);
             if (body == null)
@@ -469,7 +482,7 @@ public abstract class Element
                     elementManager.put(this, newElements);
                 else
                 {
-                    Body existingBody = elementManager.putIfAbsent(this,
+                    Object existingBody = elementManager.putIfAbsent(this,
                         newElements);
                     if (existingBody != null)
                         body = existingBody;
@@ -535,7 +548,7 @@ public abstract class Element
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected void hGenerateAncestorBodies(Map<IElement, Body> newElements,
+    protected void hGenerateAncestorBodies(Map<IElement, Object> newElements,
         IProgressMonitor monitor) throws CoreException
     {
         Element openableParent = hOpenableParent();
@@ -559,8 +572,8 @@ public abstract class Element
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    protected final void hGenerateBodies(Body body,
-        Map<IElement, Body> newElements, IProgressMonitor monitor)
+    protected final void hGenerateBodies(Object body,
+        Map<IElement, Object> newElements, IProgressMonitor monitor)
         throws CoreException
     {
         monitor.beginTask("", 2); //$NON-NLS-1$
@@ -638,7 +651,7 @@ public abstract class Element
      *
      * @param body the cached body for this element (never <code>null</code>)
      */
-    protected void hRemoving(Body body)
+    protected void hRemoving(Object body)
     {
         // Does nothing. Subclasses may override
     }

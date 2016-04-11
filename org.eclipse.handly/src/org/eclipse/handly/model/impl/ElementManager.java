@@ -32,11 +32,11 @@ public class ElementManager
     private IBodyCache cache;
 
     // Temporary cache of newly opened elements
-    private ThreadLocal<Map<IElement, Body>> temporaryCache =
-        new ThreadLocal<Map<IElement, Body>>();
+    private ThreadLocal<Map<IElement, Object>> temporaryCache =
+        new ThreadLocal<>();
 
     private Map<ISourceFile, WorkingCopyInfo> workingCopyInfos =
-        new HashMap<ISourceFile, WorkingCopyInfo>();
+        new HashMap<>();
 
     /**
      * Constructs an element manager with the given body cache.
@@ -61,20 +61,6 @@ public class ElementManager
     }
 
     /**
-     * Closes the given element if possible. Closing of an element usually
-     * involves closing its children and removal of its body from the cache.
-     * <p>
-     * This method is called internally; it is not intended to be called by clients.
-     * </p>
-     *
-     * @param element the element to close (never <code>null</code>)
-     */
-    protected void internalClose(IElement element)
-    {
-        ((Element)element).hClose(false);
-    }
-
-    /**
      * A handle/body relationship is going to be removed from the body cache
      * associated with this manager. Do any necessary cleanup.
      * <p>
@@ -86,9 +72,31 @@ public class ElementManager
      * @param body the corresponding body that is going to be removed
      *  (never <code>null</code>)
      */
-    protected void removing(IElement element, Body body)
+    protected void removing(IElement element, Object body)
     {
         ((Element)element).hRemoving(body);
+    }
+
+    /**
+     * Given a body, closes the children of the given element. If the current
+     * state of a child element does not permit closing (e.g., a working copy),
+     * it will stay open. Closing of an element usually involves closing its
+     * children and removal of its body from the cache.
+     * <p>
+     * This method is called internally; it is not intended to be called by clients.
+     * </p>
+     *
+     * @param element the element whose children need to be closed
+     *  (never <code>null</code>)
+     * @param body the body corresponding to the given element
+     *  (never <code>null</code>)
+     */
+    protected void closeChildren(IElement element, Object body)
+    {
+        for (IElement child : (((Element)element).hChildren(body)))
+        {
+            ((Element)child).hClose(false);
+        }
     }
 
     /**
@@ -104,12 +112,12 @@ public class ElementManager
      * @return the corresponding body for the given element, or
      *  <code>null</code> if no body is registered for the element
      */
-    synchronized Body get(IElement element)
+    synchronized Object get(IElement element)
     {
-        Map<IElement, Body> tempCache = temporaryCache.get();
+        Map<IElement, Object> tempCache = temporaryCache.get();
         if (tempCache != null)
         {
-            Body body = tempCache.get(element);
+            Object body = tempCache.get(element);
             if (body != null)
                 return body;
         }
@@ -130,12 +138,12 @@ public class ElementManager
      * @return the corresponding body for the given element, or
      *  <code>null</code> if no body is registered for the element
      */
-    synchronized Body peek(IElement element)
+    synchronized Object peek(IElement element)
     {
-        Map<IElement, Body> tempCache = temporaryCache.get();
+        Map<IElement, Object> tempCache = temporaryCache.get();
         if (tempCache != null)
         {
-            Body body = tempCache.get(element);
+            Object body = tempCache.get(element);
             if (body != null)
                 return body;
         }
@@ -151,7 +159,7 @@ public class ElementManager
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
      *  it must contain a body for the given element
      */
-    synchronized void put(IElement element, Map<IElement, Body> newElements)
+    synchronized void put(IElement element, Map<IElement, Object> newElements)
     {
         // remove existing children as they are replaced with the new children contained in newElements
         remove(element);
@@ -178,10 +186,10 @@ public class ElementManager
      * @return the previous body for the given element, or <code>null</code>
      *  if the body cache did not previously contain a body for the element
      */
-    synchronized Body putIfAbsent(IElement element,
-        Map<IElement, Body> newElements)
+    synchronized Object putIfAbsent(IElement element,
+        Map<IElement, Object> newElements)
     {
-        Body existingBody = cache.peek(element);
+        Object existingBody = cache.peek(element);
         if (existingBody != null)
             return existingBody;
 
@@ -195,19 +203,16 @@ public class ElementManager
      * contained no body for the element. Performs atomically.
      *
      * @param element the element whose body is to be removed from the body cache
-     * @see #internalClose(IElement)
-     * @see #removing(IElement, Body)
+     * @see #removing(IElement, Object)
+     * @see #closeChildren(IElement, Object)
      */
     synchronized void remove(IElement element)
     {
-        Body body = cache.peek(element);
+        Object body = cache.peek(element);
         if (body != null)
         {
             removing(element, body);
-            for (IElement child : body.getChildren())
-            {
-                internalClose(child);
-            }
+            closeChildren(element, body);
             cache.remove(element);
         }
     }
@@ -219,12 +224,12 @@ public class ElementManager
      * @return the temporary cache of handle/body relationships
      *  for the current thread (never <code>null</code>)
      */
-    Map<IElement, Body> getTemporaryCache()
+    Map<IElement, Object> getTemporaryCache()
     {
-        Map<IElement, Body> result = temporaryCache.get();
+        Map<IElement, Object> result = temporaryCache.get();
         if (result == null)
         {
-            result = new HashMap<IElement, Body>();
+            result = new HashMap<>();
             temporaryCache.set(result);
         }
         return result;

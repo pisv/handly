@@ -52,7 +52,7 @@ public class ElementDeltaBuilder
     /*
      * The old handle to body relationships
      */
-    private Map<IElement, Body> oldBodies;
+    private Map<IElement, Object> oldBodies;
 
     private Map<IElement, ListItem> oldPositions;
     private Map<IElement, ListItem> newPositions;
@@ -151,15 +151,15 @@ public class ElementDeltaBuilder
      * @param newBody the new version of the element's body (never <code>null</code>)
      * @param element the element whose bodies are to be compared (never <code>null</code>)
      */
-    protected void findContentChange(Body newBody, Body oldBody,
+    protected void findContentChange(Object newBody, Object oldBody,
         IElement element)
     {
-        newBody.findContentChange(oldBody, element, delta);
+        ((Body)newBody).findContentChange((Body)oldBody, element, delta);
     }
 
     private void initialize()
     {
-        oldBodies = new HashMap<IElement, Body>(20);
+        oldBodies = new HashMap<IElement, Object>(20);
         oldPositions = new HashMap<IElement, ListItem>(20);
         newPositions = new HashMap<IElement, ListItem>(20);
         oldPositions.put(element, new ListItem(null, null));
@@ -176,7 +176,7 @@ public class ElementDeltaBuilder
         if (depth >= maxDepth)
             return;
 
-        Body body;
+        Object body;
         try
         {
             body = ((Element)element).hBody();
@@ -188,7 +188,7 @@ public class ElementDeltaBuilder
 
         oldBodies.put(element, body);
 
-        IElement[] children = body.getChildren();
+        IElement[] children = ((Element)element).hChildren(body);
         insertPositions(children, false);
         for (IElement child : children)
         {
@@ -204,7 +204,7 @@ public class ElementDeltaBuilder
         if (depth >= maxDepth)
             return;
 
-        Body body;
+        Object body;
         try
         {
             body = ((Element)newElement).hBody();
@@ -214,7 +214,7 @@ public class ElementDeltaBuilder
             return;
         }
 
-        IElement[] children = body.getChildren();
+        IElement[] children = ((Element)newElement).hChildren(body);
         insertPositions(children, true);
         for (IElement child : children)
         {
@@ -248,7 +248,7 @@ public class ElementDeltaBuilder
      */
     private void findAdditions(IElement newElement, int depth)
     {
-        Body oldBody = getOldBody(newElement);
+        Object oldBody = getOldBody(newElement);
         if (oldBody == null && depth < maxDepth)
         {
             delta.hInsertAdded(newElement);
@@ -268,7 +268,7 @@ public class ElementDeltaBuilder
 
         if (oldBody != null)
         {
-            Body newBody;
+            Object newBody;
             try
             {
                 newBody = ((Element)newElement).hBody();
@@ -280,7 +280,7 @@ public class ElementDeltaBuilder
 
             findContentChange(newBody, oldBody, newElement);
 
-            for (IElement child : newBody.getChildren())
+            for (IElement child : ((Element)newElement).hChildren(newBody))
             {
                 findAdditions(child, depth + 1);
             }
@@ -315,7 +315,7 @@ public class ElementDeltaBuilder
             delta.hInsertChanged(element, F_REORDER);
         }
 
-        Body body;
+        Object body;
         try
         {
             body = ((Element)element).hBody();
@@ -325,7 +325,7 @@ public class ElementDeltaBuilder
             return;
         }
 
-        for (IElement child : body.getChildren())
+        for (IElement child : ((Element)element).hChildren(body))
         {
             findChangesInPositioning(child, depth + 1);
         }
@@ -407,7 +407,7 @@ public class ElementDeltaBuilder
             return oldPrevious.equals(newPrevious);
     }
 
-    private Body getOldBody(IElement element)
+    private Object getOldBody(IElement element)
     {
         return oldBodies.get(element);
     }

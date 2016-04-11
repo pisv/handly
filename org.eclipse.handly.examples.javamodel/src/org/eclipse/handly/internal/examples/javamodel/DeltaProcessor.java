@@ -615,7 +615,7 @@ class DeltaProcessor
 
     private static Body findBody(IJavaElement element)
     {
-        return ((Element)element).hFindBody();
+        return (Body)((Element)element).hFindBody();
     }
 
     private static void close(IJavaElement element)

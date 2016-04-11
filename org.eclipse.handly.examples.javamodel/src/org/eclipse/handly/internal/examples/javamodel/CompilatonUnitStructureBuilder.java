@@ -47,7 +47,7 @@ class CompilatonUnitStructureBuilder
      * @param newElements the map to populate with structure elements
      *  (not <code>null</code>)
      */
-    CompilatonUnitStructureBuilder(Map<IElement, Body> newElements)
+    CompilatonUnitStructureBuilder(Map<IElement, Object> newElements)
     {
         helper = new StructureHelper(newElements);
     }

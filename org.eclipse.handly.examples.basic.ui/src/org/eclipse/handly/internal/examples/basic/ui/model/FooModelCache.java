@@ -16,7 +16,6 @@ import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementCache;
 import org.eclipse.handly.model.impl.IBodyCache;
 
@@ -33,22 +32,22 @@ class FooModelCache
     // The memory ratio that should be applied to the above constants.
     private final double memoryRatio = getMemoryRatio();
 
-    private Body modelBody; // Foo model element's body
-    private HashMap<IElement, Body> projectCache; // cache of open Foo projects
+    private Object modelBody; // Foo model element's body
+    private HashMap<IElement, Object> projectCache; // cache of open Foo projects
     private ElementCache fileCache; // cache of open Foo files
-    private HashMap<IElement, Body> childrenCache; // cache of children of open Foo files
+    private HashMap<IElement, Object> childrenCache; // cache of children of open Foo files
 
     public FooModelCache()
     {
         // set the size of the caches as a function of the maximum amount of memory available
-        projectCache = new HashMap<IElement, Body>(DEFAULT_PROJECT_SIZE);
+        projectCache = new HashMap<>(DEFAULT_PROJECT_SIZE);
         fileCache = new ElementCache((int)(DEFAULT_FILE_SIZE * memoryRatio));
-        childrenCache = new HashMap<IElement, Body>((int)(DEFAULT_CHILDREN_SIZE
+        childrenCache = new HashMap<>((int)(DEFAULT_CHILDREN_SIZE
             * memoryRatio));
     }
 
     @Override
-    public Body get(IElement element)
+    public Object get(IElement element)
     {
         if (element instanceof IFooModel)
             return modelBody;
@@ -61,7 +60,7 @@ class FooModelCache
     }
 
     @Override
-    public Body peek(IElement element)
+    public Object peek(IElement element)
     {
         if (element instanceof IFooModel)
             return modelBody;
@@ -74,7 +73,7 @@ class FooModelCache
     }
 
     @Override
-    public void put(IElement element, Body body)
+    public void put(IElement element, Object body)
     {
         if (element instanceof IFooModel)
             modelBody = body;
