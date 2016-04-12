@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -35,6 +34,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooElement;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementDelta;
@@ -47,20 +47,29 @@ import org.eclipse.handly.model.impl.ElementDelta;
 class FooDeltaProcessor
     implements IResourceDeltaVisitor
 {
-    private ElementDelta currentDelta = new ElementDelta(
-        FooModelCore.getFooModel());
+    private ElementDelta.Builder builder = new ElementDelta.Builder(
+        new ElementDelta(FooModelCore.getFooModel()));
     private Set<String> oldFooProjectNames = new HashSet<String>();
 
     /**
      * Returns the Foo element delta built from the resource delta.
-     * Returns an empty delta if no Foo elements were affected
-     * by the resource change.
      *
      * @return Foo element delta (never <code>null</code>)
      */
-    public ElementDelta getDelta()
+    public IElementDelta getDelta()
     {
-        return currentDelta;
+        return builder.getDelta();
+    }
+
+    /**
+     * Returns whether Foo elements were affected by the resource change.
+     *
+     * @return <code>true</code> if no Foo elements were affected,
+     *  and <code>false</code> otherwise
+     */
+    public boolean isEmptyDelta()
+    {
+        return builder.isEmptyDelta();
     }
 
     @Override
@@ -90,7 +99,8 @@ class FooDeltaProcessor
         initOldFooProjectNames();
 
         if ((delta.getFlags() & IResourceDelta.MARKERS) != 0)
-            markersChanged(FooModelCore.getFooModel(), delta.getMarkerDeltas());
+            builder.markersChanged(FooModelCore.getFooModel(),
+                delta.getMarkerDeltas());
 
         return true;
     }
@@ -160,7 +170,7 @@ class FooDeltaProcessor
                 if (project.hasNature(IFooProject.NATURE_ID))
                 {
                     addToModel(fooProject);
-                    currentDelta.hInsertAdded(fooProject, F_OPEN);
+                    builder.added(fooProject, F_OPEN);
                 }
                 else
                 {
@@ -172,7 +182,7 @@ class FooDeltaProcessor
                 if (wasFooProject(project))
                 {
                     removeFromModel(fooProject);
-                    currentDelta.hInsertRemoved(fooProject, F_OPEN);
+                    builder.removed(fooProject, F_OPEN);
                 }
                 else
                 {
@@ -192,12 +202,12 @@ class FooDeltaProcessor
                 if (isFooProject)
                 {
                     addToModel(fooProject);
-                    currentDelta.hInsertAdded(fooProject, F_DESCRIPTION);
+                    builder.added(fooProject, F_DESCRIPTION);
                 }
                 else
                 {
                     removeFromModel(fooProject);
-                    currentDelta.hInsertRemoved(fooProject, F_DESCRIPTION);
+                    builder.removed(fooProject, F_DESCRIPTION);
                 }
                 return false; // when Foo nature is added/removed don't process children
             }
@@ -205,7 +215,7 @@ class FooDeltaProcessor
             {
                 if (isFooProject)
                 {
-                    currentDelta.hInsertChanged(fooProject, F_DESCRIPTION);
+                    builder.changed(fooProject, F_DESCRIPTION);
                 }
             }
         }
@@ -213,7 +223,7 @@ class FooDeltaProcessor
         if (isFooProject)
         {
             if ((delta.getFlags() & IResourceDelta.MARKERS) != 0)
-                markersChanged(fooProject, delta.getMarkerDeltas());
+                builder.markersChanged(fooProject, delta.getMarkerDeltas());
 
             Body parentBody = findBody(fooProject.getParent());
             IElement[] children = parentBody.getChildren();
@@ -296,10 +306,10 @@ class FooDeltaProcessor
                 contentChanged(fooFile);
 
             if ((delta.getFlags() & IResourceDelta.MARKERS) != 0)
-                markersChanged(fooFile, delta.getMarkerDeltas());
+                builder.markersChanged(fooFile, delta.getMarkerDeltas());
 
             if ((delta.getFlags() & IResourceDelta.SYNC) != 0)
-                currentDelta.hInsertChanged(fooFile, F_SYNC);
+                builder.changed(fooFile, F_SYNC);
         }
         else
         {
@@ -342,16 +352,16 @@ class FooDeltaProcessor
     {
         if ((delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) // regular addition
         {
-            currentDelta.hInsertAdded(element);
+            builder.added(element);
         }
         else
         {
             IFooElement movedFromElement = FooModelCore.create(getResource(
                 delta.getMovedFromPath(), delta.getResource().getType()));
             if (movedFromElement == null)
-                currentDelta.hInsertAdded(element);
+                builder.added(element);
             else
-                currentDelta.hInsertMovedTo(element, movedFromElement);
+                builder.movedTo(element, movedFromElement);
         }
     }
 
@@ -360,16 +370,16 @@ class FooDeltaProcessor
     {
         if ((delta.getFlags() & IResourceDelta.MOVED_TO) == 0) // regular removal
         {
-            currentDelta.hInsertRemoved(element);
+            builder.removed(element);
         }
         else
         {
             IFooElement movedToElement = FooModelCore.create(getResource(
                 delta.getMovedToPath(), delta.getResource().getType()));
             if (movedToElement == null)
-                currentDelta.hInsertRemoved(element);
+                builder.removed(element);
             else
-                currentDelta.hInsertMovedFrom(element, movedToElement);
+                builder.movedFrom(element, movedToElement);
         }
     }
 
@@ -377,54 +387,35 @@ class FooDeltaProcessor
     {
         if (fooFile.isWorkingCopy())
         {
-            currentDelta.hInsertChanged(fooFile, F_CONTENT
-                | F_UNDERLYING_RESOURCE);
+            builder.changed(fooFile, F_CONTENT | F_UNDERLYING_RESOURCE);
             return;
         }
 
         close(fooFile);
-        currentDelta.hInsertChanged(fooFile, F_CONTENT);
-    }
-
-    private void markersChanged(IFooElement fooElement,
-        IMarkerDelta[] markerDeltas)
-    {
-        ElementDelta delta = currentDelta.hDeltaFor(fooElement);
-        if (delta == null)
-        {
-            currentDelta.hInsertChanged(fooElement, 0);
-            delta = currentDelta.hDeltaFor(fooElement);
-        }
-        delta.hSetMarkerDeltas(markerDeltas);
+        builder.changed(fooFile, F_CONTENT);
     }
 
     private void addResourceDelta(IResourceDelta resourceDelta)
     {
-        ElementDelta delta;
+        IFooElement element;
         IResource parent = resourceDelta.getResource().getParent();
         if (parent instanceof IWorkspaceRoot)
-            delta = currentDelta;
+            element = FooModelCore.getFooModel();
         else if (parent instanceof IProject)
         {
-            IFooProject fooProject = FooModelCore.create((IProject)parent);
-            delta = currentDelta.hDeltaFor(fooProject);
-            if (delta == null)
-            {
-                currentDelta.hInsertChanged(fooProject, 0);
-                delta = currentDelta.hDeltaFor(fooProject);
-            }
+            element = FooModelCore.create((IProject)parent);
             if ((resourceDelta.getKind() & (IResourceDelta.ADDED
                 | IResourceDelta.REMOVED)) != 0)
             {
                 // reset non-Foo resources
-                FooProjectBody body = (FooProjectBody)findBody(fooProject);
+                FooProjectBody body = (FooProjectBody)findBody(element);
                 if (body != null)
                     body.setNonFooResources(null);
             }
         }
         else
             throw new AssertionError();
-        delta.hAddResourceDelta(resourceDelta);
+        builder.addResourceDelta(element, resourceDelta);
     }
 
     private static Body findBody(IFooElement element)

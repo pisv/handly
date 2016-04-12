@@ -23,6 +23,7 @@ import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
+import org.eclipse.handly.examples.basic.ui.model.IFooElement;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
@@ -86,20 +87,20 @@ public class FooWorkingCopyNotificationTest
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                assertDelta(new ElementDelta(fooModel).hInsertChanged(
-                    workingCopy, F_WORKING_COPY), listener.delta);
+                assertDelta(newDeltaBuilder(fooModel).changed(workingCopy,
+                    F_WORKING_COPY).getDelta(), listener.delta);
 
                 workingCopy.getFile().touch(null);
 
-                assertDelta(new ElementDelta(fooModel).hInsertChanged(
-                    workingCopy, F_CONTENT | F_UNDERLYING_RESOURCE),
+                assertDelta(newDeltaBuilder(fooModel).changed(workingCopy,
+                    F_CONTENT | F_UNDERLYING_RESOURCE).getDelta(),
                     listener.delta);
 
                 listener.delta = null;
             }
         });
-        assertDelta(new ElementDelta(fooModel).hInsertChanged(workingCopy,
-            F_WORKING_COPY), listener.delta);
+        assertDelta(newDeltaBuilder(fooModel).changed(workingCopy,
+            F_WORKING_COPY).getDelta(), listener.delta);
     }
 
     public void test2() throws Exception
@@ -129,8 +130,8 @@ public class FooWorkingCopyNotificationTest
 
                 assertFalse(def.exists());
 
-                assertDelta(new ElementDelta(workingCopy).hInsertAdded(
-                    workingCopy.getDef("g", 0)).hInsertRemoved(def),
+                assertDelta(newDeltaBuilder(workingCopy).added(
+                    workingCopy.getDef("g", 0)).removed(def).getDelta(),
                     listener.delta);
             }
         });
@@ -166,8 +167,8 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new ElementDelta(workingCopy).hInsertRemoved(varY),
-                    listener.delta);
+                assertDelta(newDeltaBuilder(workingCopy).removed(
+                    varY).getDelta(), listener.delta);
 
                 listener.delta = null;
 
@@ -183,7 +184,7 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new ElementDelta(workingCopy).hInsertAdded(varY),
+                assertDelta(newDeltaBuilder(workingCopy).added(varY).getDelta(),
                     listener.delta);
             }
         });
@@ -215,8 +216,8 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(false, null);
 
-                assertDelta(new ElementDelta(workingCopy).hInsertChanged(def,
-                    F_CONTENT), listener.delta); // 'parameterNames' property changed
+                assertDelta(newDeltaBuilder(workingCopy).changed(def,
+                    F_CONTENT).getDelta(), listener.delta); // 'parameterNames' property changed
             }
         });
     }
@@ -233,6 +234,11 @@ public class FooWorkingCopyNotificationTest
         {
             workingCopy.hDiscardWorkingCopy();
         }
+    }
+
+    private ElementDelta.Builder newDeltaBuilder(IFooElement element)
+    {
+        return new ElementDelta.Builder(new ElementDelta(element));
     }
 
     private static void assertDelta(ElementDelta expected, ElementDelta actual)

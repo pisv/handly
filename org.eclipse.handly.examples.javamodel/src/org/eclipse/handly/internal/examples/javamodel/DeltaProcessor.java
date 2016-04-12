@@ -14,7 +14,6 @@ import java.util.Arrays;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -31,6 +30,7 @@ import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementDelta;
@@ -44,25 +44,35 @@ import org.eclipse.jdt.core.IClasspathEntry;
 class DeltaProcessor
     implements IResourceDeltaVisitor
 {
-    private final JavaElementDelta currentDelta;
     private final DeltaProcessingState state;
+    private final ElementDelta.Builder builder;
 
     DeltaProcessor(DeltaProcessingState state)
     {
-        currentDelta = new JavaElementDelta(state.getJavaModel());
         this.state = state;
+        this.builder = new JavaElementDelta.Builder(new JavaElementDelta(
+            state.getJavaModel()));
     }
 
     /**
      * Returns the Java element delta built from the resource delta.
-     * Returns an empty delta if no Java elements were affected
-     * by the resource change.
      *
      * @return Java element delta (never <code>null</code>)
      */
-    JavaElementDelta getDelta()
+    IElementDelta getDelta()
     {
-        return currentDelta;
+        return builder.getDelta();
+    }
+
+    /**
+     * Returns whether Java elements were affected by the resource change.
+     *
+     * @return <code>true</code> if no Java elements were affected,
+     *  and <code>false</code> otherwise
+     */
+    boolean isEmptyDelta()
+    {
+        return builder.isEmptyDelta();
     }
 
     @Override
@@ -93,7 +103,8 @@ class DeltaProcessor
         state.initOldJavaProjectNames();
 
         if ((delta.getFlags() & IResourceDelta.MARKERS) != 0)
-            markersChanged(state.getJavaModel(), delta.getMarkerDeltas());
+            builder.markersChanged(state.getJavaModel(),
+                delta.getMarkerDeltas());
 
         return true;
     }
@@ -167,8 +178,7 @@ class DeltaProcessor
                 if (project.hasNature(IJavaProject.NATURE_ID))
                 {
                     addToModel(javaProject);
-                    currentDelta.hInsertChanged(javaProject,
-                        IJavaElementDelta.F_OPEN);
+                    builder.changed(javaProject, IJavaElementDelta.F_OPEN);
                     state.classpathChanged(javaProject, false);
                 }
             }
@@ -177,8 +187,7 @@ class DeltaProcessor
                 if (wasJavaProject(project))
                 {
                     removeFromModel(javaProject);
-                    currentDelta.hInsertChanged(javaProject,
-                        IJavaElementDelta.F_OPEN);
+                    builder.changed(javaProject, IJavaElementDelta.F_OPEN);
                     state.classpathChanged(javaProject, true);
                 }
             }
@@ -196,13 +205,13 @@ class DeltaProcessor
                 if (isJavaProject)
                 {
                     addToModel(javaProject);
-                    currentDelta.hInsertAdded(javaProject);
+                    builder.added(javaProject);
                     state.classpathChanged(javaProject, false);
                 }
                 else
                 {
                     removeFromModel(javaProject);
-                    currentDelta.hInsertRemoved(javaProject);
+                    builder.removed(javaProject);
                     state.classpathChanged(javaProject, true);
                 }
                 addResourceDelta(state.getJavaModel(), delta);
@@ -212,7 +221,7 @@ class DeltaProcessor
             {
                 if (isJavaProject)
                 {
-                    currentDelta.hInsertChanged(javaProject,
+                    builder.changed(javaProject,
                         IJavaElementDelta.F_DESCRIPTION);
                 }
             }
@@ -221,11 +230,10 @@ class DeltaProcessor
         if (isJavaProject)
         {
             if ((delta.getFlags() & IResourceDelta.MARKERS) != 0)
-                markersChanged(javaProject, delta.getMarkerDeltas());
+                builder.markersChanged(javaProject, delta.getMarkerDeltas());
 
             if ((delta.getFlags() & IResourceDelta.SYNC) != 0)
-                currentDelta.hInsertChanged(javaProject,
-                    IJavaElementDelta.F_SYNC);
+                builder.changed(javaProject, IJavaElementDelta.F_SYNC);
 
             Body parentBody = findBody(javaProject.getParent());
             IElement[] children = parentBody.getChildren();
@@ -262,7 +270,7 @@ class DeltaProcessor
         case IResourceDelta.REMOVED:
             if (state.classpathChanged(javaProject, false))
             {
-                currentDelta.hInsertChanged(javaProject,
+                builder.changed(javaProject,
                     IJavaElementDelta.F_CLASSPATH_CHANGED);
                 close(javaProject);
             }
@@ -330,10 +338,10 @@ class DeltaProcessor
         if (element != null)
         {
             if ((delta.getFlags() & IResourceDelta.MARKERS) != 0)
-                markersChanged(element, delta.getMarkerDeltas());
+                builder.markersChanged(element, delta.getMarkerDeltas());
 
             if ((delta.getFlags() & IResourceDelta.SYNC) != 0)
-                currentDelta.hInsertChanged(element, IJavaElementDelta.F_SYNC);
+                builder.changed(element, IJavaElementDelta.F_SYNC);
 
             return true;
         }
@@ -408,10 +416,10 @@ class DeltaProcessor
                 contentChanged(element);
 
             if ((delta.getFlags() & IResourceDelta.MARKERS) != 0)
-                markersChanged(element, delta.getMarkerDeltas());
+                builder.markersChanged(element, delta.getMarkerDeltas());
 
             if ((delta.getFlags() & IResourceDelta.SYNC) != 0)
-                currentDelta.hInsertChanged(element, IJavaElementDelta.F_SYNC);
+                builder.changed(element, IJavaElementDelta.F_SYNC);
         }
         else
         {
@@ -525,16 +533,16 @@ class DeltaProcessor
     {
         if ((delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) // regular addition
         {
-            currentDelta.hInsertAdded(element);
+            builder.added(element);
         }
         else
         {
             IJavaElement movedFromElement = state.createElement(getResource(
                 delta.getMovedFromPath(), delta.getResource().getType()), true);
             if (movedFromElement == null)
-                currentDelta.hInsertAdded(element);
+                builder.added(element);
             else
-                currentDelta.hInsertMovedTo(element, movedFromElement);
+                builder.movedTo(element, movedFromElement);
         }
     }
 
@@ -543,16 +551,16 @@ class DeltaProcessor
     {
         if ((delta.getFlags() & IResourceDelta.MOVED_TO) == 0) // regular removal
         {
-            currentDelta.hInsertRemoved(element);
+            builder.removed(element);
         }
         else
         {
             IJavaElement movedToElement = state.createElement(getResource(
                 delta.getMovedToPath(), delta.getResource().getType()), false);
             if (movedToElement == null)
-                currentDelta.hInsertRemoved(element);
+                builder.removed(element);
             else
-                currentDelta.hInsertMovedFrom(element, movedToElement);
+                builder.movedFrom(element, movedToElement);
         }
     }
 
@@ -561,25 +569,13 @@ class DeltaProcessor
         if (element instanceof ICompilationUnit
             && ((ICompilationUnit)element).isWorkingCopy())
         {
-            currentDelta.hInsertChanged(element, IJavaElementDelta.F_CONTENT
+            builder.changed(element, IJavaElementDelta.F_CONTENT
                 | IJavaElementDelta.F_UNDERLYING_RESOURCE);
             return;
         }
 
         close(element);
-        currentDelta.hInsertChanged(element, IJavaElementDelta.F_CONTENT);
-    }
-
-    private void markersChanged(IJavaElement element,
-        IMarkerDelta[] markerDeltas)
-    {
-        ElementDelta delta = currentDelta.hDeltaFor(element);
-        if (delta == null)
-        {
-            currentDelta.hInsertChanged(element, 0);
-            delta = currentDelta.hDeltaFor(element);
-        }
-        delta.hSetMarkerDeltas(markerDeltas);
+        builder.changed(element, IJavaElementDelta.F_CONTENT);
     }
 
     private void addResourceDelta(IJavaElement element,
@@ -604,13 +600,7 @@ class DeltaProcessor
                 throw new AssertionError();
         }
 
-        ElementDelta delta = currentDelta.hDeltaFor(element);
-        if (delta == null)
-        {
-            currentDelta.hInsertChanged(element, 0);
-            delta = currentDelta.hDeltaFor(element);
-        }
-        delta.hAddResourceDelta(resourceDelta);
+        builder.addResourceDelta(element, resourceDelta);
     }
 
     private static Body findBody(IJavaElement element)

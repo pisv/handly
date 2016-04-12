@@ -24,12 +24,29 @@ public class ElementDeltaTest
     public void testBug456060()
     {
         SimpleElement root = new SimpleElement(null, "root");
-        ElementDelta delta = new ElementDelta(root);
-        delta.hInsertAdded(root.getChild("A"));
-        delta.hInsertAdded(root.getChild("B"));
-        delta.hInsertAdded(root.getChild("C"));
-        delta.hInsertAdded(root.getChild("D"));
-        delta.hInsertMovedFrom(root.getChild("C"), root.getChild("X"));
-        delta.hInsertMovedFrom(root.getChild("D"), root.getChild("Y"));
+        ElementDelta.Builder builder = new ElementDelta.Builder(
+            new ElementDelta(root));
+        builder.added(root.getChild("A"));
+        builder.added(root.getChild("B"));
+        builder.added(root.getChild("C"));
+        builder.added(root.getChild("D"));
+        builder.movedFrom(root.getChild("C"), root.getChild("X"));
+        builder.movedFrom(root.getChild("D"), root.getChild("Y"));
+    }
+
+    public void testBadlyFormedDeltaTree()
+    {
+        SimpleElement parent = new SimpleElement(null, "parent");
+        SimpleElement child = parent.getChild("child");
+        ElementDelta.Builder builder = new ElementDelta.Builder(
+            new ElementDelta(child));
+        try
+        {
+            builder.added(parent);
+            fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 }

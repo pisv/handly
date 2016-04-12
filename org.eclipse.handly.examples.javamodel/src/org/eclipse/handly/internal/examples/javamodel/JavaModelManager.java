@@ -106,11 +106,10 @@ public class JavaModelManager
         {
             deltaState.reset();
         }
-        JavaElementDelta delta = deltaProcessor.getDelta();
-        if (!delta.hIsEmpty())
+        if (!deltaProcessor.isEmptyDelta())
         {
             fireElementChangeEvent(new ElementChangeEvent(
-                ElementChangeEvent.POST_CHANGE, delta));
+                ElementChangeEvent.POST_CHANGE, deltaProcessor.getDelta()));
         }
     }
 

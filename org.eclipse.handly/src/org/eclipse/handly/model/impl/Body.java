@@ -96,10 +96,10 @@ public class Body
      *
      * @param oldBody the old version of the body (never <code>null</code>)
      * @param element the element this body corresponds to (never <code>null</code>)
-     * @param delta the delta tree being built (never <code>null</code>)
+     * @param builder represents the delta tree being built (never <code>null</code>)
      */
     public void findContentChange(Body oldBody, IElement element,
-        ElementDelta delta)
+        ElementDelta.Builder builder)
     {
         // subclasses may override
     }

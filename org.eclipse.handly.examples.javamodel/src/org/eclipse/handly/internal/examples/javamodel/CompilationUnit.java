@@ -23,6 +23,7 @@ import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
+import org.eclipse.handly.model.impl.ElementDifferencer;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
@@ -221,15 +222,16 @@ public class CompilationUnit
     {
         super.hWorkingCopyModeChanged();
 
-        JavaElementDelta delta = new JavaElementDelta(getRoot());
+        JavaElementDelta.Builder builder = new JavaElementDelta.Builder(
+            new JavaElementDelta(getRoot()));
         if (getFile().exists())
-            delta.hInsertChanged(this, JavaElementDelta.F_WORKING_COPY);
+            builder.changed(this, JavaElementDelta.F_WORKING_COPY);
         else if (isWorkingCopy())
-            delta.hInsertAdded(this, JavaElementDelta.F_WORKING_COPY);
+            builder.added(this, JavaElementDelta.F_WORKING_COPY);
         else
-            delta.hInsertRemoved(this, JavaElementDelta.F_WORKING_COPY);
+            builder.removed(this, JavaElementDelta.F_WORKING_COPY);
         JavaModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
-            ElementChangeEvent.POST_CHANGE, delta));
+            ElementChangeEvent.POST_CHANGE, builder.getDelta()));
     }
 
     private class NotifyingReconcileOperation
@@ -239,22 +241,22 @@ public class CompilationUnit
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
             boolean forced, IProgressMonitor monitor) throws CoreException
         {
-            JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(
-                CompilationUnit.this);
+            ElementDifferencer differ = new ElementDifferencer(
+                new JavaElementDelta.Builder(new JavaElementDelta(
+                    CompilationUnit.this)));
 
             super.reconcile(ast, snapshot, forced, monitor);
 
             reportProblems(
                 ((org.eclipse.jdt.core.dom.CompilationUnit)ast).getProblems());
 
-            deltaBuilder.buildDelta();
+            differ.buildDelta();
 
-            JavaElementDelta delta = deltaBuilder.getDelta();
-            if (!delta.hIsEmpty())
+            if (!differ.isEmptyDelta())
             {
                 JavaModelManager.INSTANCE.fireElementChangeEvent(
                     new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,
-                        delta));
+                        differ.getDelta()));
             }
         }
 

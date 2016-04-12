@@ -31,7 +31,7 @@ import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementDelta;
-import org.eclipse.handly.model.impl.ElementDeltaBuilder;
+import org.eclipse.handly.model.impl.ElementDifferencer;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
@@ -213,15 +213,16 @@ public class FooFile
     {
         super.hWorkingCopyModeChanged();
 
-        ElementDelta delta = new ElementDelta(getRoot());
+        ElementDelta.Builder builder = new ElementDelta.Builder(
+            new ElementDelta(getRoot()));
         if (getFile().exists())
-            delta.hInsertChanged(this, F_WORKING_COPY);
+            builder.changed(this, F_WORKING_COPY);
         else if (isWorkingCopy())
-            delta.hInsertAdded(this, F_WORKING_COPY);
+            builder.added(this, F_WORKING_COPY);
         else
-            delta.hInsertRemoved(this, F_WORKING_COPY);
+            builder.removed(this, F_WORKING_COPY);
         FooModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
-            ElementChangeEvent.POST_CHANGE, delta));
+            ElementChangeEvent.POST_CHANGE, builder.getDelta()));
     }
 
     private class NotifyingReconcileOperation
@@ -231,17 +232,17 @@ public class FooFile
         public void reconcile(Object ast, NonExpiringSnapshot snapshot,
             boolean forced, IProgressMonitor monitor) throws CoreException
         {
-            ElementDeltaBuilder deltaBuilder = new ElementDeltaBuilder(
-                FooFile.this);
+            ElementDifferencer differ = new ElementDifferencer(
+                new ElementDelta.Builder(new ElementDelta(FooFile.this)));
 
             super.reconcile(ast, snapshot, forced, monitor);
 
-            deltaBuilder.buildDelta();
-            if (!deltaBuilder.getDelta().hIsEmpty())
+            differ.buildDelta();
+            if (!differ.isEmptyDelta())
             {
                 FooModelManager.INSTANCE.fireElementChangeEvent(
                     new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,
-                        deltaBuilder.getDelta()));
+                        differ.getDelta()));
             }
         }
     }

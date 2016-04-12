@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.handly.model;
 
+import java.util.Objects;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -211,6 +213,22 @@ public class Elements
     public static String toString(IElement element, ToStringStyle style)
     {
         return ((IElementImpl)element).hToString(style);
+    }
+
+    /**
+     * Returns whether the given elements are equal and have the same parent.
+     *
+     * @param e1 the first element (not <code>null</code>)
+     * @param e2 the second element (may be <code>null</code>)
+     * @return <code>true</code> if the given elements are equal and have
+     *  the same parent, <code>false</code> otherwise
+     */
+    public static boolean equalsAndSameParent(IElement e1, IElement e2)
+    {
+        if (!e1.equals(e2))
+            return false;
+
+        return Objects.equals(getParent(e1), getParent(e2));
     }
 
     /**
