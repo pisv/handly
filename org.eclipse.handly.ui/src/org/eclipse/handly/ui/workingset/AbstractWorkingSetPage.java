@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Vladimir Piskarev (1C) - adaptation
+ *     Vladimir Piskarev (1C) - adaptation (adapted from
+ *         org.eclipse.jdt.internal.ui.workingsets.AbstractWorkingSetWizardPage)
  *******************************************************************************/
 package org.eclipse.handly.ui.workingset;
 
@@ -57,9 +58,6 @@ import org.eclipse.ui.dialogs.IWorkingSetPage;
  * is used to show the working set content. Buttons to move content from right
  * to left and vice versa are available between the two viewers. A text field
  * allows to set/change the working set name.
- * <p>
- * Adapted from <code>org.eclipse.jdt.internal.ui.workingsets.AbstractWorkingSetWizardPage</code>.
- * </p>
  * @see #getPageId()
  * @see #configureTree(TreeViewer)
  * @see #configureTable(TableViewer)

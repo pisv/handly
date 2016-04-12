@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Vladimir Piskarev (1C) - adaptation
+ *     Vladimir Piskarev (1C) - adaptation (adapted from
+ *         org.eclipse.jdt.internal.ui.workingsets.JavaWorkingSetUpdater)
  *******************************************************************************/
 package org.eclipse.handly.ui.workingset;
 
@@ -42,9 +43,6 @@ import org.eclipse.ui.IWorkingSetUpdater;
  * for Handly-based models. Subclasses need to implement a couple
  * of abstract methods for subscription to change notifications
  * in the underlying model.
- * <p>
- * Adapted from <code>org.eclipse.jdt.internal.ui.workingsets.JavaWorkingSetUpdater</code>.
- * </p>
  * @see #addElementChangeListener(IElementChangeListener)
  * @see #removeElementChangeListener(IElementChangeListener)
  */

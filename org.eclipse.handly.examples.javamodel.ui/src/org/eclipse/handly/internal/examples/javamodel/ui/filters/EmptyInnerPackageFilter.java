@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ondrej Ilcik (Codasip) - adaptation (adapted from
- *                  org.eclipse.jdt.internal.ui.filters.EmptyInnerPackageFilter)
+ *         org.eclipse.jdt.internal.ui.filters.EmptyInnerPackageFilter)
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel.ui.filters;
 

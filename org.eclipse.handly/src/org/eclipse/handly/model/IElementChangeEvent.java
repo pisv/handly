@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Vladimir Piskarev (1C) - adaptation
+ *     Vladimir Piskarev (1C) - adaptation (adapted from
+ *         org.eclipse.jdt.core.ElementChangedEvent)
  *******************************************************************************/
 package org.eclipse.handly.model;
 
@@ -15,9 +16,6 @@ package org.eclipse.handly.model;
  * Describes a change to the structure or contents of a tree of elements
  * of a Handly-based model. The changes to the elements are described by
  * the associated delta object carried by this event.
- * <p>
- * Adapted from <code>org.eclipse.jdt.core.ElementChangedEvent</code>.
- * </p>
  *
  * @noimplement This interface is not intended to be implemented by clients.
  */

@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Vladimir Piskarev (1C) - adaptation
+ *     Vladimir Piskarev (1C) - adaptation (adapted from
+ *         org.eclipse.jdt.internal.core.JavaElementDelta)
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
@@ -54,9 +55,6 @@ import org.eclipse.handly.util.IndentationPolicy;
  * <p>
  * Clients can use this class as it stands or subclass it as circumstances
  * warrant. Subclasses should consider overriding {@link #hNewDelta} method.
- * </p>
- * <p>
- * Adapted from <code>org.eclipse.jdt.internal.core.JavaElementDelta</code>.
  * </p>
  */
 public class ElementDelta

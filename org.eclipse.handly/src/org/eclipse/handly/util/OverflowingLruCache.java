@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Vladimir Piskarev (1C) - adaptation
+ *     Vladimir Piskarev (1C) - adaptation (adapted from
+ *         org.eclipse.jdt.internal.core.OverflowingLRUCache)
  *******************************************************************************/
 package org.eclipse.handly.util;
 
@@ -26,9 +27,6 @@ package org.eclipse.handly.util;
  * <p>
  * This implementation is NOT thread-safe. If multiple threads access the cache
  * concurrently, it must be synchronized externally.
- * </p>
- * <p>
- * Adapted from <code>org.eclipse.jdt.internal.core.OverflowingLRUCache</code>.
  * </p>
  * @see LruCache
  */
