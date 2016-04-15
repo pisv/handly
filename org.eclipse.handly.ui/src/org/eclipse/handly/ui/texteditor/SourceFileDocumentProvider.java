@@ -104,35 +104,24 @@ public class SourceFileDocumentProvider
         SourceFile sourceFile = getSourceFile(element);
         if (sourceFile == null)
             return null;
-        TextFileBuffer delegate = new TextFileBuffer(sourceFile.hFile(),
-            ITextFileBufferManager.DEFAULT);
-        try
-        {
+        try (
+            TextFileBuffer delegate = new TextFileBuffer(sourceFile.hFile(),
+                ITextFileBufferManager.DEFAULT);
             DelegatingWorkingCopyBuffer buffer =
                 new DelegatingWorkingCopyBuffer(delegate, // will addRef() the delegate
-                    createWorkingCopyReconciler(sourceFile, element, info));
-            try
-            {
-                if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
-                    getWorkingCopyInfoFactory(sourceFile, element, info),
-                    getProgressMonitor()) != null)
-                {
-                    sourceFile.hDiscardWorkingCopy();
-
-                    throw new CoreException(Activator.createErrorStatus(
-                        MessageFormat.format(
-                            Messages.SourceFileDocumentProvider_Working_copy_already_exists__0,
-                            sourceFile), null));
-                }
-            }
-            finally
-            {
-                buffer.release();
-            }
-        }
-        finally
+                    createWorkingCopyReconciler(sourceFile, element, info)))
         {
-            delegate.release();
+            if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
+                getWorkingCopyInfoFactory(sourceFile, element, info),
+                getProgressMonitor()) != null)
+            {
+                sourceFile.hDiscardWorkingCopy();
+
+                throw new CoreException(Activator.createErrorStatus(
+                    MessageFormat.format(
+                        Messages.SourceFileDocumentProvider_Working_copy_already_exists__0,
+                        sourceFile), null));
+            }
         }
         ((SourceFileInfo)info).workingCopy = sourceFile;
         return info;

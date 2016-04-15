@@ -11,9 +11,9 @@
  *******************************************************************************/
 package org.eclipse.handly.refactoring;
 
-import static org.eclipse.handly.model.Elements.getPath;
 import static org.eclipse.handly.model.Elements.getBuffer;
 import static org.eclipse.handly.model.Elements.getFile;
+import static org.eclipse.handly.model.Elements.getPath;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -227,8 +227,7 @@ public class SourceFileChange
         if (base == null)
             return result; // OK
 
-        IBuffer buffer = getBuffer(sourceFile, true, pm);
-        try
+        try (IBuffer buffer = getBuffer(sourceFile, true, pm))
         {
             if (!base.isEqualTo(buffer.getSnapshot()))
             {
@@ -236,54 +235,42 @@ public class SourceFileChange
                     Messages.SourceFileChange_Cannot_apply_stale_change__0,
                     getPath(sourceFile).makeRelative()));
             }
-            return result;
         }
-        finally
-        {
-            buffer.release();
-        }
+        return result;
     }
 
     @Override
     public Change perform(IProgressMonitor pm) throws CoreException
     {
         pm.beginTask("", 2); //$NON-NLS-1$
-        try
-        {
+        try (
             IBuffer buffer = getBuffer(sourceFile, true, new SubProgressMonitor(
-                pm, 1));
+                pm, 1)))
+        {
+            BufferChangeWithExcludes change = new BufferChangeWithExcludes(
+                edit);
+            change.setExcludes(getDisabledEdits());
+            change.setBase(base);
+            change.setStyle(IBufferChange.CREATE_UNDO
+                | IBufferChange.UPDATE_REGIONS);
+            change.setSaveMode(saveMode);
+
+            IBufferChange undoChange;
+
             try
             {
-                BufferChangeWithExcludes change = new BufferChangeWithExcludes(
-                    edit);
-                change.setExcludes(getDisabledEdits());
-                change.setBase(base);
-                change.setStyle(IBufferChange.CREATE_UNDO
-                    | IBufferChange.UPDATE_REGIONS);
-                change.setSaveMode(saveMode);
-
-                IBufferChange undoChange;
-
-                try
-                {
-                    undoChange = buffer.applyChange(change,
-                        new SubProgressMonitor(pm, 1));
-                }
-                catch (StaleSnapshotException e)
-                {
-                    throw new CoreException(Activator.createErrorStatus(
-                        MessageFormat.format(
-                            Messages.SourceFileChange_Cannot_apply_stale_change__0,
-                            getPath(sourceFile).makeRelative()), e));
-                }
-
-                return new UndoSourceFileChange(getName(), sourceFile,
-                    undoChange);
+                undoChange = buffer.applyChange(change, new SubProgressMonitor(
+                    pm, 1));
             }
-            finally
+            catch (StaleSnapshotException e)
             {
-                buffer.release();
+                throw new CoreException(Activator.createErrorStatus(
+                    MessageFormat.format(
+                        Messages.SourceFileChange_Cannot_apply_stale_change__0,
+                        getPath(sourceFile).makeRelative()), e));
             }
+
+            return new UndoSourceFileChange(getName(), sourceFile, undoChange);
         }
         finally
         {
@@ -309,15 +296,10 @@ public class SourceFileChange
     @Override
     public String getCurrentContent(IProgressMonitor pm) throws CoreException
     {
-        IBuffer buffer = getBuffer(sourceFile, true, pm);
-        try
+        try (IBuffer buffer = getBuffer(sourceFile, true, pm))
         {
             NonExpiringSnapshot snapshot = new NonExpiringSnapshot(buffer);
             return snapshot.getContents();
-        }
-        finally
-        {
-            buffer.release();
         }
     }
 

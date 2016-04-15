@@ -88,8 +88,7 @@ class UndoSourceFileChange
         if (undoChange.getBase() == null)
             return result; // OK
 
-        IBuffer buffer = getBuffer(sourceFile, true, pm);
-        try
+        try (IBuffer buffer = getBuffer(sourceFile, true, pm))
         {
             if (!undoChange.getBase().isEqualTo(buffer.getSnapshot()))
             {
@@ -97,46 +96,34 @@ class UndoSourceFileChange
                     Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
                     getPath(sourceFile).makeRelative()));
             }
-            return result;
         }
-        finally
-        {
-            buffer.release();
-        }
+        return result;
     }
 
     @Override
     public Change perform(IProgressMonitor pm) throws CoreException
     {
         pm.beginTask("", 2); //$NON-NLS-1$
-        try
-        {
+        try (
             IBuffer buffer = getBuffer(sourceFile, true, new SubProgressMonitor(
-                pm, 1));
+                pm, 1)))
+        {
+            IBufferChange redoChange;
+
             try
             {
-                IBufferChange redoChange;
-
-                try
-                {
-                    redoChange = buffer.applyChange(undoChange,
-                        new SubProgressMonitor(pm, 1));
-                }
-                catch (StaleSnapshotException e)
-                {
-                    throw new CoreException(Activator.createErrorStatus(
-                        MessageFormat.format(
-                            Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
-                            getPath(sourceFile).makeRelative()), e));
-                }
-
-                return new UndoSourceFileChange(getName(), sourceFile,
-                    redoChange);
+                redoChange = buffer.applyChange(undoChange,
+                    new SubProgressMonitor(pm, 1));
             }
-            finally
+            catch (StaleSnapshotException e)
             {
-                buffer.release();
+                throw new CoreException(Activator.createErrorStatus(
+                    MessageFormat.format(
+                        Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
+                        getPath(sourceFile).makeRelative()), e));
             }
+
+            return new UndoSourceFileChange(getName(), sourceFile, redoChange);
         }
         finally
         {

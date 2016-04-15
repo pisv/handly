@@ -330,40 +330,24 @@ public class HandlyXtextEditorCallback
 
     private void createWorkingCopy(SourceFile sourceFile, XtextEditor editor)
     {
-        try
-        {
+        try (
             TextEditorBuffer delegate = new TextEditorBuffer(editor);
-            try
+            XtextWorkingCopyBuffer buffer = new XtextWorkingCopyBuffer(
+                sourceFile, delegate)) // will addRef() the delegate
+        {
+            if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
+                null) != null)
             {
-                XtextWorkingCopyBuffer buffer = new XtextWorkingCopyBuffer(
-                    sourceFile, delegate); // will addRef() the delegate
-                try
-                {
-                    if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
-                        null) != null)
-                    {
-                        sourceFile.hDiscardWorkingCopy();
+                sourceFile.hDiscardWorkingCopy();
 
-                        throw new IllegalStateException(
-                            "Already a working copy: " //$NON-NLS-1$
-                                + sourceFile);
-                    }
-
-                    workingCopies.put(editor, new WorkingCopyInfo(sourceFile,
-                        true));
-
-                    setHighlightRange(editor,
-                        editor.getSelectionProvider().getSelection());
-                }
-                finally
-                {
-                    buffer.release();
-                }
+                throw new IllegalStateException("Already a working copy: " //$NON-NLS-1$
+                    + sourceFile);
             }
-            finally
-            {
-                delegate.release();
-            }
+
+            workingCopies.put(editor, new WorkingCopyInfo(sourceFile, true));
+
+            setHighlightRange(editor,
+                editor.getSelectionProvider().getSelection());
         }
         catch (CoreException e)
         {

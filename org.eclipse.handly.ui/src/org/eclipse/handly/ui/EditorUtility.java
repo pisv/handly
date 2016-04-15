@@ -173,10 +173,9 @@ public class EditorUtility
     private IEditorReference findSourceEditor(IEditorReference[] references,
         ISourceElement element)
     {
-        IBuffer buffer = getBuffer(element);
-        if (buffer != null)
+        try (IBuffer buffer = getBuffer(element))
         {
-            try
+            if (buffer != null)
             {
                 for (IEditorReference reference : references)
                 {
@@ -198,10 +197,6 @@ public class EditorUtility
                     }
                 }
             }
-            finally
-            {
-                buffer.release();
-            }
         }
         return null;
     }
@@ -209,10 +204,9 @@ public class EditorUtility
     private boolean revealSourceElement(ITextEditor editor,
         ISourceElement element)
     {
-        IBuffer buffer = getBuffer(element);
-        if (buffer != null)
+        try (IBuffer buffer = getBuffer(element))
         {
-            try
+            if (buffer != null)
             {
                 IDocument document = editor.getDocumentProvider().getDocument(
                     editor.getEditorInput());
@@ -229,10 +223,6 @@ public class EditorUtility
                         return true;
                     }
                 }
-            }
-            finally
-            {
-                buffer.release();
             }
         }
         return false;

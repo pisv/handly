@@ -42,7 +42,7 @@ import org.eclipse.jface.text.IDocument;
  * @noextend This interface is not intended to be extended by clients.
  */
 public interface IBuffer
-    extends ISnapshotProvider
+    extends ISnapshotProvider, AutoCloseable
 {
     /**
      * Takes a snapshot of the buffer.
@@ -137,6 +137,14 @@ public interface IBuffer
      * this method.
      */
     void release();
+
+    /**
+     * Alias for {@link #release}.
+     */
+    default void close()
+    {
+        release();
+    }
 
     /**
      * Returns the underlying document of this buffer,

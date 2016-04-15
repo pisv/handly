@@ -48,16 +48,12 @@ public class WorkingCopyNotificationTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
-            ITextFileBufferManager.DEFAULT);
-        try
+        try (
+            TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
+                ITextFileBufferManager.DEFAULT))
         {
             buffer = new DelegatingWorkingCopyBuffer(delegate,
                 new JavaWorkingCopyReconciler(workingCopy));
-        }
-        finally
-        {
-            delegate.release();
         }
         workingCopy.getRoot().addElementChangeListener(listener);
     }

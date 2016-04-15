@@ -65,16 +65,12 @@ public class WorkingCopyTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
-            ITextFileBufferManager.DEFAULT);
-        try
+        try (
+            TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
+                ITextFileBufferManager.DEFAULT))
         {
             buffer = new DelegatingWorkingCopyBuffer(delegate,
                 new JavaWorkingCopyReconciler(workingCopy));
-        }
-        finally
-        {
-            delegate.release();
         }
         problems = new ArrayList<IProblem>();
     }
@@ -321,53 +317,53 @@ public class WorkingCopyTest
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                //@formatter:off
                 final CompilationUnit privateCopy = new CompilationUnit(
                     workingCopy.getParent(), workingCopy.getFile(),
-                    new WorkingCopyOwner() {});
-                assertFalse(privateCopy.equals(workingCopy));
-                final IWorkingCopyBuffer privateBuffer =
-                    newPrivateWorkingCopyBuffer(privateCopy);
-                try
-                {
-                    doWithWorkingCopy(privateCopy, privateBuffer, null, new IWorkspaceRunnable()
+                    new WorkingCopyOwner()
                     {
-                        public void run(IProgressMonitor monitor) throws CoreException
-                        {
-                            //@formatter:on
-                            IType[] types = privateCopy.getTypes();
-                            assertEquals(1, types.length);
-                            IType typeX = privateCopy.getType("X");
-                            assertEquals(typeX, types[0]);
-
-                            TextRange r =
-                                typeX.getSourceElementInfo().getIdentifyingRange();
-                            BufferChange change = new BufferChange(
-                                new ReplaceEdit(r.getOffset(), r.getLength(),
-                                    "Y"));
-                            change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                            privateBuffer.applyChange(change, null);
-
-                            privateCopy.reconcile(false, monitor);
-
-                            assertFalse(typeX.exists());
-
-                            types = privateCopy.getTypes();
-                            assertEquals(1, types.length);
-                            assertEquals(privateCopy.getType("Y"), types[0]);
-
-                            workingCopy.reconcile(false, monitor);
-
-                            types = workingCopy.getTypes();
-                            assertEquals(1, types.length);
-                            assertEquals(workingCopy.getType("X"), types[0]);
-                            assertFalse(typeX.equals(types[0]));
-                        }
                     });
-                }
-                finally
+                assertFalse(privateCopy.equals(workingCopy));
+                try (
+                    IWorkingCopyBuffer privateBuffer =
+                        newPrivateWorkingCopyBuffer(privateCopy))
                 {
-                    privateBuffer.release();
+                    doWithWorkingCopy(privateCopy, privateBuffer, null,
+                        new IWorkspaceRunnable()
+                        {
+                            public void run(IProgressMonitor monitor)
+                                throws CoreException
+                            {
+                                IType[] types = privateCopy.getTypes();
+                                assertEquals(1, types.length);
+                                IType typeX = privateCopy.getType("X");
+                                assertEquals(typeX, types[0]);
+
+                                TextRange r =
+                                    typeX.getSourceElementInfo().getIdentifyingRange();
+                                BufferChange change = new BufferChange(
+                                    new ReplaceEdit(r.getOffset(),
+                                        r.getLength(), "Y"));
+                                change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+                                privateBuffer.applyChange(change, null);
+
+                                privateCopy.reconcile(false, monitor);
+
+                                assertFalse(typeX.exists());
+
+                                types = privateCopy.getTypes();
+                                assertEquals(1, types.length);
+                                assertEquals(privateCopy.getType("Y"),
+                                    types[0]);
+
+                                workingCopy.reconcile(false, monitor);
+
+                                types = workingCopy.getTypes();
+                                assertEquals(1, types.length);
+                                assertEquals(workingCopy.getType("X"),
+                                    types[0]);
+                                assertFalse(typeX.equals(types[0]));
+                            }
+                        });
                 }
             }
         });

@@ -48,16 +48,12 @@ public class FooWorkingCopyTest
         super.setUp();
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
-        TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
-            ITextFileBufferManager.DEFAULT);
-        try
+        try (
+            TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
+                ITextFileBufferManager.DEFAULT))
         {
             buffer = new DelegatingWorkingCopyBuffer(delegate,
                 new WorkingCopyReconciler(workingCopy));
-        }
-        finally
-        {
-            delegate.release();
         }
     }
 
