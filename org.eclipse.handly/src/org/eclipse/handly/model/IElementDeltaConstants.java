@@ -15,6 +15,11 @@ package org.eclipse.handly.model;
  */
 public interface IElementDeltaConstants
 {
+    /*
+     * Don't add new members to this interface.
+     * Instead, introduce IElementDeltaConstants2, etc. when/if necessary.
+     */
+
     /**
      * Status constant indicating that the element has been added. Note that
      * an added element delta has no children, as they are all implicitly added.

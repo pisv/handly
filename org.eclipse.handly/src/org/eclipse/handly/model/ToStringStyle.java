@@ -18,7 +18,7 @@ import org.eclipse.handly.util.IndentationPolicy;
 
 /**
  * Debugging purposes. Style hint for string representation of
- * <code>IElement</code> or <code>IElementDelta</cod>.
+ * <code>IElement</code> or <code>IElementDelta</code>.
  *
  * @see Elements#toString(IElement, ToStringStyle)
  * @see ElementDeltas#toString(IElementDelta, ToStringStyle)

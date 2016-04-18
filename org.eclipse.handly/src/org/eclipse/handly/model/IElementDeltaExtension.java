@@ -166,7 +166,6 @@ public interface IElementDeltaExtension
      * hang on to these objects.
      * </p>
      *
-     * @param delta not <code>null</code>
      * @return the marker deltas, or <code>null</code> if none.
      *  Clients <b>must not</b> modify the returned array.
      */
