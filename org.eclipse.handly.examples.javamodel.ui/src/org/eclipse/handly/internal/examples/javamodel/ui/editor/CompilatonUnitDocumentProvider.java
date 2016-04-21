@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel.ui.editor;
 
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.internal.examples.javamodel.CompilationUnit;
-import org.eclipse.handly.internal.examples.javamodel.JavaWorkingCopyReconciler;
+import org.eclipse.handly.internal.examples.javamodel.JavaWorkingCopyInfo;
 import org.eclipse.handly.internal.examples.javamodel.ui.JavaInputElementProvider;
-import org.eclipse.handly.model.impl.IWorkingCopyReconciler;
+import org.eclipse.handly.model.impl.IWorkingCopyInfoFactory;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.ui.texteditor.SourceFileDocumentProvider;
 
@@ -38,9 +39,9 @@ public class CompilatonUnitDocumentProvider
     }
 
     @Override
-    protected IWorkingCopyReconciler createWorkingCopyReconciler(
-        SourceFile sourceFile, Object element, FileInfo info)
+    protected IWorkingCopyInfoFactory getWorkingCopyInfoFactory(
+        SourceFile sourceFile, Object element, FileInfo fileInfo)
     {
-        return new JavaWorkingCopyReconciler((CompilationUnit)sourceFile);
+        return (IBuffer buffer) -> new JavaWorkingCopyInfo(buffer, null);
     }
 }

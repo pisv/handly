@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.ChildBuffer;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
@@ -29,10 +30,6 @@ import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
-import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.IWorkingCopyInfoFactory;
-import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -54,7 +51,7 @@ public class WorkingCopyTest
     private static final int AST_LEVEL = AST.JLS8;
 
     private CompilationUnit workingCopy;
-    private IWorkingCopyBuffer buffer;
+    private IBuffer buffer;
     private List<IProblem> problems;
     private IProblemRequestor problemRequestor = new ProblemRequestor();
 
@@ -65,13 +62,8 @@ public class WorkingCopyTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        try (
-            TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
-                ITextFileBufferManager.DEFAULT))
-        {
-            buffer = new DelegatingWorkingCopyBuffer(delegate,
-                new JavaWorkingCopyReconciler(workingCopy));
-        }
+        buffer = new TextFileBuffer(workingCopy.getFile(),
+            ITextFileBufferManager.DEFAULT);
         problems = new ArrayList<IProblem>();
     }
 
@@ -323,9 +315,7 @@ public class WorkingCopyTest
                     {
                     });
                 assertFalse(privateCopy.equals(workingCopy));
-                try (
-                    IWorkingCopyBuffer privateBuffer =
-                        newPrivateWorkingCopyBuffer(privateCopy))
+                try (IBuffer privateBuffer = new ChildBuffer(buffer))
                 {
                     doWithWorkingCopy(privateCopy, privateBuffer, null,
                         new IWorkspaceRunnable()
@@ -376,18 +366,11 @@ public class WorkingCopyTest
     }
 
     private static void doWithWorkingCopy(CompilationUnit workingCopy,
-        IWorkingCopyBuffer buffer, final IProblemRequestor problemRequestor,
+        IBuffer buffer, IProblemRequestor problemRequestor,
         IWorkspaceRunnable runnable) throws CoreException
     {
-        workingCopy.hBecomeWorkingCopy(buffer, new IWorkingCopyInfoFactory()
-        {
-            @Override
-            public WorkingCopyInfo createWorkingCopyInfo(
-                IWorkingCopyBuffer buffer)
-            {
-                return new JavaWorkingCopyInfo(buffer, problemRequestor);
-            }
-        }, null);
+        workingCopy.hBecomeWorkingCopy(buffer, (IBuffer b) ->
+            new JavaWorkingCopyInfo(b, problemRequestor), null);
         try
         {
             runnable.run(null);
@@ -395,21 +378,6 @@ public class WorkingCopyTest
         finally
         {
             workingCopy.hDiscardWorkingCopy();
-        }
-    }
-
-    private IWorkingCopyBuffer newPrivateWorkingCopyBuffer(
-        CompilationUnit privateCopy)
-    {
-        ChildBuffer delegate = new ChildBuffer(buffer);
-        try
-        {
-            return new DelegatingWorkingCopyBuffer(delegate,
-                new JavaWorkingCopyReconciler(privateCopy));
-        }
-        finally
-        {
-            delegate.release();
         }
     }
 

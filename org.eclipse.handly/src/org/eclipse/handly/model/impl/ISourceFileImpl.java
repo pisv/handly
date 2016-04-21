@@ -62,40 +62,40 @@ public interface ISourceFileImpl
      * Makes this working copy consistent with its buffer by updating
      * the element's structure and properties as necessary. Does nothing
      * if the source file is not in working copy mode. The boolean argument
-     * allows to force problem detection even if the working copy is already
+     * allows to force reconciling even if the working copy is already
      * consistent with its buffer.
      *
-     * @param forceProblemDetection indicates whether problems should be
-     *  recomputed even if the source hasn't changed
+     * @param force indicates whether reconciling has to be performed
+     *  even if the working copy is already consistent with its buffer
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if this working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
-    default void hReconcile(boolean forceProblemDetection,
-        IProgressMonitor monitor) throws CoreException
+    default void hReconcile(boolean force, IProgressMonitor monitor)
+        throws CoreException
     {
-        hReconcile(forceProblemDetection, null, monitor);
+        hReconcile(force, null, monitor);
     }
 
     /**
      * Makes this working copy consistent with its buffer by updating
      * the element's structure and properties as necessary. Does nothing
      * if the source file is not in working copy mode. The boolean argument
-     * allows to force problem detection even if the working copy is already
+     * allows to force reconciling even if the working copy is already
      * consistent with its buffer. This method also takes an additional
      * <code>Object</code> argument reserved for model-specific use.
      *
-     * @param forceProblemDetection indicates whether problems should be
-     *  recomputed even if the source hasn't changed
+     * @param force indicates whether reconciling has to be performed
+     *  even if the working copy is already consistent with its buffer
      * @param arg reserved for model-specific use (may be <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if this working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
-    void hReconcile(boolean forceProblemDetection, Object arg,
-        IProgressMonitor monitor) throws CoreException;
+    void hReconcile(boolean force, Object arg, IProgressMonitor monitor)
+        throws CoreException;
 
     /**
      * Returns the buffer opened for this source file. Note that buffers may

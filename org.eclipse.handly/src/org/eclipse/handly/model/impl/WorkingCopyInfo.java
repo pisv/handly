@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,18 +19,21 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.handly.buffer.IBuffer;
 
 /**
  * Holds information related to a working copy.
  * <p>
- * Clients can use this class as it stands or subclass it
- * as circumstances warrant.
+ * Concrete implementations of this abstract class are expected to be safe
+ * for use by multiple threads.
  * </p>
  */
-public class WorkingCopyInfo
+public abstract class WorkingCopyInfo
 {
-    private final IWorkingCopyBuffer buffer;
+    private final IBuffer buffer;
     final InitTask initTask = new InitTask();
+    SourceFile workingCopy;
     volatile boolean created; // whether wc was created (from the model POV)
     int refCount;
 
@@ -40,7 +43,7 @@ public class WorkingCopyInfo
      *
      * @param buffer the working copy buffer (not <code>null</code>)
      */
-    public WorkingCopyInfo(IWorkingCopyBuffer buffer)
+    public WorkingCopyInfo(IBuffer buffer)
     {
         if ((this.buffer = buffer) == null)
             throw new IllegalArgumentException();
@@ -52,7 +55,7 @@ public class WorkingCopyInfo
      *
      * @return the working copy buffer (never <code>null</code>)
      */
-    public final IWorkingCopyBuffer getBuffer()
+    public final IBuffer getBuffer()
     {
         return buffer;
     }
@@ -92,11 +95,51 @@ public class WorkingCopyInfo
     }
 
     /**
-     * Disposal callback.
+     * Initialization callback.
+     */
+    protected void onInit() throws CoreException
+    {
+        // does nothing: subclasses may override
+    }
+
+    /**
+     * Disposal callback. Note that there is no guarantee that
+     * <code>onInit()</code> has been called.
      */
     protected void onDispose()
     {
         // does nothing: subclasses may override
+    }
+
+    /**
+     * Returns whether the working copy needs reconciling, i.e.
+     * its buffer has been modified since the last time it was reconciled.
+     *
+     * @return <code>true</code> if the working copy needs reconciling,
+     *  <code>false</code> otherwise
+     */
+    protected abstract boolean needsReconciling();
+
+    /**
+     * Makes the working copy consistent with its buffer by updating the
+     * element's structure and properties as necessary. The boolean argument
+     * allows to force reconciling even if the working copy is already
+     * consistent with its buffer.
+     *
+     * @param force indicates whether reconciling has to be performed
+     *  even if the working copy is already consistent with its buffer
+     * @param arg reserved for model-specific use (may be <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @throws CoreException if the working copy cannot be reconciled
+     * @throws OperationCanceledException if this method is canceled
+     */
+    protected abstract void reconcile(boolean force, Object arg,
+        IProgressMonitor monitor) throws CoreException;
+
+    protected SourceFile getWorkingCopy()
+    {
+        return workingCopy;
     }
 
     /**
@@ -179,11 +222,12 @@ public class WorkingCopyInfo
 
         private void run() throws CoreException
         {
-            buffer.reconcile(true/*force*/, null, monitor);
+            onInit();
+            reconcile(true/*force*/, null, monitor);
             if (!created)
             {
                 throw new AssertionError(
-                    "Working copy creation was not completed. Ill-behaved working copy buffer?"); //$NON-NLS-1$
+                    "Working copy creation was not completed. Ill-behaved implementation of #reconcile?"); //$NON-NLS-1$
             }
         }
     }

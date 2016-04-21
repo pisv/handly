@@ -431,23 +431,21 @@ public class Elements
      * Makes the working copy consistent with its buffer by updating
      * the element's structure and properties as necessary. Does nothing
      * if the source file is not in working copy mode. The boolean argument
-     * allows to force problem detection even if the working copy is already
+     * allows to force reconciling even if the working copy is already
      * consistent with its buffer.
      *
      * @param sourceFile not <code>null</code>
-     * @param forceProblemDetection indicates whether problems should be
-     *  recomputed even if the source hasn't changed
+     * @param force indicates whether reconciling has to be performed
+     *  even if the working copy is already consistent with its buffer
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if the working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
-    public static void reconcile(ISourceFile sourceFile,
-        boolean forceProblemDetection, IProgressMonitor monitor)
-        throws CoreException
+    public static void reconcile(ISourceFile sourceFile, boolean force,
+        IProgressMonitor monitor) throws CoreException
     {
-        ((ISourceFileImpl)sourceFile).hReconcile(forceProblemDetection,
-            monitor);
+        ((ISourceFileImpl)sourceFile).hReconcile(force, monitor);
     }
 
     /**

@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.BufferChange;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
@@ -31,10 +32,7 @@ import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.ISourceElementInfo;
-import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.ElementDelta;
-import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
@@ -47,7 +45,7 @@ public class FooWorkingCopyNotificationTest
     extends WorkspaceTestCase
 {
     private FooFile workingCopy;
-    private IWorkingCopyBuffer buffer;
+    private IBuffer buffer;
     private IFooModel fooModel = FooModelCore.getFooModel();
     private FooModelListener listener = new FooModelListener();
 
@@ -58,13 +56,8 @@ public class FooWorkingCopyNotificationTest
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
         fooModel.addElementChangeListener(listener);
-        try (
-            TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
-                ITextFileBufferManager.DEFAULT))
-        {
-            buffer = new DelegatingWorkingCopyBuffer(delegate,
-                new WorkingCopyReconciler(workingCopy));
-        }
+        buffer = new TextFileBuffer(workingCopy.getFile(),
+            ITextFileBufferManager.DEFAULT);
     }
 
     @Override

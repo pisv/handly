@@ -95,7 +95,7 @@ public abstract class SourceFile
         {
             try
             {
-                IWorkingCopyBuffer buffer = info.getBuffer();
+                IBuffer buffer = info.getBuffer();
                 buffer.addRef();
                 return buffer;
             }
@@ -127,7 +127,7 @@ public abstract class SourceFile
      * </p>
      * <p>
      * Each successful call to this method must ultimately be followed
-     * by exactly one call to <code>discardWorkingCopy</code>.
+     * by exactly one call to <code>hDiscardWorkingCopy</code>.
      * </p>
      *
      * @param buffer the working copy buffer (not <code>null</code>)
@@ -140,7 +140,7 @@ public abstract class SourceFile
      * @throws OperationCanceledException if this method is canceled
      * @see #hDiscardWorkingCopy()
      */
-    public final WorkingCopyInfo hBecomeWorkingCopy(IWorkingCopyBuffer buffer,
+    public final WorkingCopyInfo hBecomeWorkingCopy(IBuffer buffer,
         IProgressMonitor monitor) throws CoreException
     {
         return hBecomeWorkingCopy(buffer, null, monitor);
@@ -168,7 +168,7 @@ public abstract class SourceFile
      * </p>
      * <p>
      * Each successful call to this method must ultimately be followed
-     * by exactly one call to <code>discardWorkingCopy</code>.
+     * by exactly one call to <code>hDiscardWorkingCopy</code>.
      * </p>
      *
      * @param buffer the working copy buffer (not <code>null</code>)
@@ -183,9 +183,9 @@ public abstract class SourceFile
      * @throws OperationCanceledException if this method is canceled
      * @see #hDiscardWorkingCopy()
      */
-    public final WorkingCopyInfo hBecomeWorkingCopy(
-        final IWorkingCopyBuffer buffer, final IWorkingCopyInfoFactory factory,
-        final IProgressMonitor monitor) throws CoreException
+    public final WorkingCopyInfo hBecomeWorkingCopy(IBuffer buffer,
+        IWorkingCopyInfoFactory factory, IProgressMonitor monitor)
+        throws CoreException
     {
         WorkingCopyProvider provider = new WorkingCopyProvider()
         {
@@ -210,6 +210,7 @@ public abstract class SourceFile
             try
             {
                 WorkingCopyInfo newInfo = hPeekAtWorkingCopyInfo();
+                newInfo.workingCopy = this;
                 newInfo.initTask.execute(monitor);
                 success = true;
             }
@@ -229,7 +230,7 @@ public abstract class SourceFile
      * if this source file is not a working copy. Performs atomically.
      * <p>
      * Each successful call to this method that did not return <code>null</code>
-     * must ultimately be followed by exactly one call to <code>discardWorkingCopy</code>.
+     * must ultimately be followed by exactly one call to <code>hDiscardWorkingCopy</code>.
      * </p>
      *
      * @return the working copy info for this source file,
@@ -303,7 +304,7 @@ public abstract class SourceFile
         {
             try
             {
-                return info.getBuffer().needsReconciling();
+                return info.needsReconciling();
             }
             finally
             {
@@ -326,7 +327,7 @@ public abstract class SourceFile
                 if (monitor == null)
                     monitor = new NullProgressMonitor();
 
-                info.getBuffer().reconcile(force, arg, monitor);
+                info.reconcile(force, arg, monitor);
             }
             finally
             {
@@ -338,7 +339,7 @@ public abstract class SourceFile
     /**
      * Returns a reconcile operation for this source file.
      * <p>
-     * This method may be used in {@link IWorkingCopyBuffer} implementations.
+     * This method may be used in {@link WorkingCopyInfo} implementations.
      * Other clients are not intended to invoke this method.
      * </p>
      * <p>
@@ -542,8 +543,8 @@ public abstract class SourceFile
         }
     }
 
-    private WorkingCopyInfo putWorkingCopyInfoIfAbsent(
-        IWorkingCopyBuffer buffer, IWorkingCopyInfoFactory factory)
+    private WorkingCopyInfo putWorkingCopyInfoIfAbsent(IBuffer buffer,
+        IWorkingCopyInfoFactory factory)
     {
         return hElementManager().putWorkingCopyInfoIfAbsent(this, buffer,
             factory);
@@ -556,7 +557,7 @@ public abstract class SourceFile
 
     /**
      * A reconcile operation for this source file.
-     * Intended to be used in {@link IWorkingCopyBuffer} implementations.
+     * Intended to be used in {@link WorkingCopyInfo} implementations.
      * <p>
      * This class can be extended to augment the default behavior, e.g.
      * to send out a delta notification indicating the nature of the change

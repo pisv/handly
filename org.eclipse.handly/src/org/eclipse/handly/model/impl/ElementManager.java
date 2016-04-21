@@ -13,6 +13,7 @@ package org.eclipse.handly.model.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceFile;
 
@@ -281,7 +282,7 @@ public class ElementManager
      * @see #discardWorkingCopyInfo(ISourceFile)
      */
     WorkingCopyInfo putWorkingCopyInfoIfAbsent(ISourceFile sourceFile,
-        IWorkingCopyBuffer buffer, IWorkingCopyInfoFactory factory)
+        IBuffer buffer, IWorkingCopyInfoFactory factory)
     {
         if (sourceFile == null)
             throw new IllegalArgumentException();
@@ -290,44 +291,45 @@ public class ElementManager
 
         final WorkingCopyInfo info;
         if (factory == null)
-            info = new WorkingCopyInfo(buffer);
+            info = new DefaultWorkingCopyInfo(buffer);
         else
             info = factory.createWorkingCopyInfo(buffer);
         if (info.refCount != 0)
             throw new AssertionError();
         boolean disposeInfo = true;
+        boolean releaseBuffer = false;
         try
         {
             if (info.getBuffer() != buffer)
                 throw new AssertionError();
             buffer.addRef();
-            boolean releaseBuffer = true;
+            releaseBuffer = true;
+            synchronized (this)
+            {
+                WorkingCopyInfo oldInfo = workingCopyInfos.get(sourceFile);
+                if (oldInfo != null)
+                    oldInfo.refCount++;
+                else
+                {
+                    workingCopyInfos.put(sourceFile, info);
+                    info.refCount = 1;
+                    releaseBuffer = disposeInfo = false;
+                }
+                return oldInfo;
+            }
+        }
+        finally
+        {
             try
             {
-                synchronized (this)
-                {
-                    WorkingCopyInfo oldInfo = workingCopyInfos.get(sourceFile);
-                    if (oldInfo != null)
-                        oldInfo.refCount++;
-                    else
-                    {
-                        workingCopyInfos.put(sourceFile, info);
-                        info.refCount = 1;
-                        releaseBuffer = disposeInfo = false;
-                    }
-                    return oldInfo;
-                }
+                if (disposeInfo)
+                    info.dispose();
             }
             finally
             {
                 if (releaseBuffer)
                     buffer.release();
             }
-        }
-        finally
-        {
-            if (disposeInfo)
-                info.dispose();
         }
     }
 
@@ -399,8 +401,15 @@ public class ElementManager
         {
             if (infoToDispose != null)
             {
-                infoToDispose.getBuffer().release();
-                infoToDispose.dispose();
+                IBuffer buffer = infoToDispose.getBuffer();
+                try
+                {
+                    infoToDispose.dispose();
+                }
+                finally
+                {
+                    buffer.release();
+                }
             }
         }
     }

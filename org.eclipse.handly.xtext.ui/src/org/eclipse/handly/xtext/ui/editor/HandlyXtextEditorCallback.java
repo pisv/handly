@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
@@ -330,13 +331,10 @@ public class HandlyXtextEditorCallback
 
     private void createWorkingCopy(SourceFile sourceFile, XtextEditor editor)
     {
-        try (
-            TextEditorBuffer delegate = new TextEditorBuffer(editor);
-            XtextWorkingCopyBuffer buffer = new XtextWorkingCopyBuffer(
-                sourceFile, delegate)) // will addRef() the delegate
+        try (TextEditorBuffer buffer = new TextEditorBuffer(editor))
         {
             if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
-                null) != null)
+                (IBuffer b) -> new XtextWorkingCopyInfo(b), null) != null)
             {
                 sourceFile.hDiscardWorkingCopy();
 

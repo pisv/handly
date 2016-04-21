@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.examples.javamodel.IField;
@@ -24,8 +25,6 @@ import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
-import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
-import org.eclipse.handly.model.impl.IWorkingCopyBuffer;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
@@ -38,7 +37,7 @@ public class WorkingCopyNotificationTest
     extends WorkspaceTestCase
 {
     private CompilationUnit workingCopy;
-    private IWorkingCopyBuffer buffer;
+    private IBuffer buffer;
     private JavaModelListener listener = new JavaModelListener();
 
     @Override
@@ -48,13 +47,8 @@ public class WorkingCopyNotificationTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        try (
-            TextFileBuffer delegate = new TextFileBuffer(workingCopy.getFile(),
-                ITextFileBufferManager.DEFAULT))
-        {
-            buffer = new DelegatingWorkingCopyBuffer(delegate,
-                new JavaWorkingCopyReconciler(workingCopy));
-        }
+        buffer = new TextFileBuffer(workingCopy.getFile(),
+            ITextFileBufferManager.DEFAULT);
         workingCopy.getRoot().addElementChangeListener(listener);
     }
 

@@ -18,11 +18,8 @@ import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.impl.DelegatingWorkingCopyBuffer;
 import org.eclipse.handly.model.impl.IWorkingCopyInfoFactory;
-import org.eclipse.handly.model.impl.IWorkingCopyReconciler;
 import org.eclipse.handly.model.impl.SourceFile;
-import org.eclipse.handly.model.impl.WorkingCopyReconciler;
 import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.ui.IWorkingCopyManager;
 import org.eclipse.ui.IEditorInput;
@@ -105,11 +102,8 @@ public class SourceFileDocumentProvider
         if (sourceFile == null)
             return null;
         try (
-            TextFileBuffer delegate = new TextFileBuffer(sourceFile.hFile(),
-                ITextFileBufferManager.DEFAULT);
-            DelegatingWorkingCopyBuffer buffer =
-                new DelegatingWorkingCopyBuffer(delegate, // will addRef() the delegate
-                    createWorkingCopyReconciler(sourceFile, element, info)))
+            TextFileBuffer buffer = new TextFileBuffer(sourceFile.hFile(),
+                ITextFileBufferManager.DEFAULT))
         {
             if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
                 getWorkingCopyInfoFactory(sourceFile, element, info),
@@ -171,27 +165,6 @@ public class SourceFileDocumentProvider
         if (!(inputElement instanceof SourceFile))
             return null;
         return (SourceFile)inputElement;
-    }
-
-    /**
-     * Returns a new working copy reconciler for the given source file.
-     * <p>
-     * This implementation returns a {@link WorkingCopyReconciler default}
-     * reconciler. Subclasses may override.
-     * </p>
-     *
-     * @param sourceFile the source file corresponding to the given element
-     *  (never <code>null</code>)
-     * @param element the element (never <code>null</code>)
-     * @param fileInfo the file info for the given element
-     *  (never <code>null</code>)
-     * @return the working copy reconciler for the given source file
-     *  (not <code>null</code>)
-     */
-    protected IWorkingCopyReconciler createWorkingCopyReconciler(
-        SourceFile sourceFile, Object element, FileInfo fileInfo)
-    {
-        return new WorkingCopyReconciler(sourceFile);
     }
 
     /**

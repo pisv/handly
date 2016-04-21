@@ -73,20 +73,20 @@ public interface ISourceFileExtension
      * Makes this working copy consistent with its buffer by updating
      * the element's structure and properties as necessary. Does nothing
      * if the source file is not in working copy mode. The boolean argument
-     * allows to force problem detection even if the working copy is already
+     * allows to force reconciling even if the working copy is already
      * consistent with its buffer.
      *
-     * @param forceProblemDetection indicates whether problems should be
-     *  recomputed even if the source hasn't changed
+     * @param force indicates whether reconciling has to be performed
+     *  even if the working copy is already consistent with its buffer
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @throws CoreException if this working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
-    default void reconcile(boolean forceProblemDetection,
-        IProgressMonitor monitor) throws CoreException
+    default void reconcile(boolean force, IProgressMonitor monitor)
+        throws CoreException
     {
-        Elements.reconcile(this, forceProblemDetection, monitor);
+        Elements.reconcile(this, force, monitor);
     }
 
     /**
