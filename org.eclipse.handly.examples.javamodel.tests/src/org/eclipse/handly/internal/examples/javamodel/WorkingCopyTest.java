@@ -97,7 +97,7 @@ public class WorkingCopyTest
                 assertEquals(1, types.length);
                 assertEquals(typeX, types[0]);
 
-                workingCopy.reconcile(false, monitor);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 assertFalse(typeX.exists());
 
@@ -131,7 +131,7 @@ public class WorkingCopyTest
                 assertEquals(1, fields.length);
                 assertEquals(fieldX, fields[0]);
 
-                workingCopy.reconcile(false, null);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 fields = typeX.getFields();
                 assertEquals(0, fields.length);
@@ -145,7 +145,7 @@ public class WorkingCopyTest
                 fields = typeX.getFields();
                 assertEquals(0, fields.length);
 
-                workingCopy.reconcile(false, null);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 fields = typeX.getFields();
                 assertEquals(1, fields.length);
@@ -177,7 +177,7 @@ public class WorkingCopyTest
                 assertEquals(1, methods.length);
                 assertEquals(methodFI, methods[0]);
 
-                workingCopy.reconcile(false, monitor);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 assertFalse(methodFI.exists());
 
@@ -336,7 +336,8 @@ public class WorkingCopyTest
                                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
                                 privateBuffer.applyChange(change, null);
 
-                                privateCopy.reconcile(false, monitor);
+                                privateCopy.reconcile(ICompilationUnit.NO_AST,
+                                    0, monitor);
 
                                 assertFalse(typeX.exists());
 
@@ -345,7 +346,8 @@ public class WorkingCopyTest
                                 assertEquals(privateCopy.getType("Y"),
                                     types[0]);
 
-                                workingCopy.reconcile(false, monitor);
+                                workingCopy.reconcile(ICompilationUnit.NO_AST,
+                                    0, monitor);
 
                                 types = workingCopy.getTypes();
                                 assertEquals(1, types.length);

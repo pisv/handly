@@ -12,7 +12,6 @@ package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.ISourceConstruct;
-import org.eclipse.handly.model.ISourceElementExtension;
 
 /**
  * Represents an import container. It is a child of a Java compilation unit
@@ -20,12 +19,12 @@ import org.eclipse.handly.model.ISourceElementExtension;
  * has no import declarations, no import container will be present.
  */
 public interface IImportContainer
-    extends IJavaElement, ISourceConstruct, ISourceElementExtension
+    extends IJavaSourceElement, ISourceConstruct
 {
     @Override
     default ICompilationUnit getParent()
     {
-        return (ICompilationUnit)IJavaElement.super.getParent();
+        return (ICompilationUnit)IJavaSourceElement.super.getParent();
     }
 
     /**

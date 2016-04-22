@@ -11,17 +11,16 @@
 package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.handly.model.ISourceConstruct;
-import org.eclipse.handly.model.ISourceElementExtension;
 
 /**
  * Represents a package declaration in Java compilation unit.
  */
 public interface IPackageDeclaration
-    extends IJavaElement, ISourceConstruct, ISourceElementExtension
+    extends IJavaSourceElement, ISourceConstruct
 {
     @Override
     default ICompilationUnit getParent()
     {
-        return (ICompilationUnit)IJavaElement.super.getParent();
+        return (ICompilationUnit)IJavaSourceElement.super.getParent();
     }
 }

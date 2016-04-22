@@ -74,13 +74,13 @@ public class JavaElementLabelComposer
         }
         else
         {
-            append(element.getName());
+            append(element.getElementName());
         }
     }
 
     private void appendMethodLabel(IMethod method) throws CoreException
     {
-        append(method.getName());
+        append(method.getElementName());
 
         // parameters
         append('(');
@@ -130,7 +130,7 @@ public class JavaElementLabelComposer
         }
         else
         {
-            append(pack.getName());
+            append(pack.getElementName());
         }
     }
 

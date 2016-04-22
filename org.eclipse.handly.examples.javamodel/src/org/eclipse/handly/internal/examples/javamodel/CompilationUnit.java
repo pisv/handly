@@ -16,9 +16,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
+import org.eclipse.handly.examples.javamodel.IJavaSourceElement;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.IElement;
@@ -28,6 +30,7 @@ import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
+import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaConventions;
@@ -81,6 +84,12 @@ public class CompilationUnit
     }
 
     @Override
+    public IFile getFile()
+    {
+        return hFile();
+    }
+
+    @Override
     public IImportDeclaration getImport(String name)
     {
         return getImportContainer().getImport(name);
@@ -126,6 +135,19 @@ public class CompilationUnit
     }
 
     @Override
+    public IJavaSourceElement getElementAt(int position, ISnapshot base)
+        throws CoreException
+    {
+        return (IJavaSourceElement)hSourceElementAt(position, base);
+    }
+
+    @Override
+    public boolean isWorkingCopy()
+    {
+        return hIsWorkingCopy();
+    }
+
+    @Override
     public org.eclipse.jdt.core.dom.CompilationUnit reconcile(int astLevel,
         int reconcileFlags, IProgressMonitor monitor) throws CoreException
     {
@@ -133,6 +155,12 @@ public class CompilationUnit
         ReconcileInfo info = new ReconcileInfo(astLevel, reconcileFlags);
         hReconcile(force, info, monitor);
         return info.getAst();
+    }
+
+    @Override
+    public IBuffer getBuffer() throws CoreException
+    {
+        return hBuffer();
     }
 
     @Override
@@ -173,7 +201,7 @@ public class CompilationUnit
             true);
         String complianceLevel = javaProject.getOption(
             JavaCore.COMPILER_COMPLIANCE, true);
-        return JavaConventions.validateCompilationUnitName(getName(),
+        return JavaConventions.validateCompilationUnitName(getElementName(),
             sourceLevel, complianceLevel);
     }
 
@@ -223,7 +251,7 @@ public class CompilationUnit
         super.hWorkingCopyModeChanged();
 
         JavaElementDelta.Builder builder = new JavaElementDelta.Builder(
-            new JavaElementDelta(getRoot()));
+            new JavaElementDelta(getJavaModel()));
         if (getFile().exists())
             builder.changed(this, JavaElementDelta.F_WORKING_COPY);
         else if (isWorkingCopy())

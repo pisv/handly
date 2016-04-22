@@ -20,6 +20,7 @@ import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.buffer.TextFileBuffer;
+import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
@@ -49,14 +50,14 @@ public class WorkingCopyNotificationTest
             project.getFile(new Path("src/X.java")));
         buffer = new TextFileBuffer(workingCopy.getFile(),
             ITextFileBufferManager.DEFAULT);
-        workingCopy.getRoot().addElementChangeListener(listener);
+        workingCopy.getJavaModel().addElementChangeListener(listener);
     }
 
     @Override
     protected void tearDown() throws Exception
     {
         if (workingCopy != null)
-            workingCopy.getRoot().removeElementChangeListener(listener);
+            workingCopy.getJavaModel().removeElementChangeListener(listener);
         if (buffer != null)
             buffer.release();
         super.tearDown();
@@ -120,7 +121,7 @@ public class WorkingCopyNotificationTest
 
                 assertNull(listener.delta);
 
-                workingCopy.reconcile(false, monitor);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 //@formatter:off
                 listener.assertDelta(
@@ -150,7 +151,7 @@ public class WorkingCopyNotificationTest
 
                 assertNull(listener.delta);
 
-                workingCopy.reconcile(false, null);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 //@formatter:off
                 listener.assertDelta(
@@ -169,7 +170,7 @@ public class WorkingCopyNotificationTest
 
                 assertNull(listener.delta);
 
-                workingCopy.reconcile(false, null);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 //@formatter:off
                 listener.assertDelta(
@@ -200,7 +201,7 @@ public class WorkingCopyNotificationTest
 
                 assertNull(listener.delta);
 
-                workingCopy.reconcile(false, monitor);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 //@formatter:off
                 listener.assertDelta(
@@ -232,7 +233,7 @@ public class WorkingCopyNotificationTest
 
                 assertNull(listener.delta);
 
-                workingCopy.reconcile(false, monitor);
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
                 //@formatter:off
                 listener.assertDelta(

@@ -107,7 +107,7 @@ public class PackageFragment
     @Override
     public boolean isDefaultPackage()
     {
-        return getName().isEmpty();
+        return getElementName().isEmpty();
     }
 
     @Override
@@ -172,7 +172,7 @@ public class PackageFragment
         if (!isValidPackageName())
             throw new CoreException(Activator.createErrorStatus(
                 MessageFormat.format("Invalid Java package name: {0}",
-                    getName()), null));
+                    getElementName()), null));
 
         IResource resource = getResource();
         if (resource != null && !resource.isAccessible())

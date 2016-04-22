@@ -11,18 +11,17 @@
 package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.handly.model.ISourceConstruct;
-import org.eclipse.handly.model.ISourceElementExtension;
 
 /**
  * Represents an import declaration in Java compilation unit.
  */
 public interface IImportDeclaration
-    extends IJavaElement, ISourceConstruct, ISourceElementExtension
+    extends IJavaSourceElement, ISourceConstruct
 {
     @Override
     default IImportContainer getParent()
     {
-        return (IImportContainer)IJavaElement.super.getParent();
+        return (IImportContainer)IJavaSourceElement.super.getParent();
     }
 
     /**
@@ -35,8 +34,8 @@ public interface IImportDeclaration
      *
      * @return the name that has been imported (never <code>null</code>)
      */
-    default String getName()
+    default String getElementName()
     {
-        return IJavaElement.super.getName();
+        return IJavaSourceElement.super.getElementName();
     }
 }

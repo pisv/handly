@@ -13,8 +13,10 @@ package org.eclipse.handly.examples.javamodel;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.model.ISourceElementExtension;
-import org.eclipse.handly.model.ISourceFileExtension;
+import org.eclipse.handly.buffer.IBuffer;
+import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
@@ -27,7 +29,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  * </p>
  */
 public interface ICompilationUnit
-    extends IJavaElement, ISourceFileExtension, ISourceElementExtension
+    extends IJavaSourceElement, ISourceFile
 {
     /**
      * Constant indicating that a reconcile operation should not return an AST.
@@ -66,7 +68,7 @@ public interface ICompilationUnit
     @Override
     default IPackageFragment getParent()
     {
-        return (IPackageFragment)IJavaElement.super.getParent();
+        return (IPackageFragment)IJavaSourceElement.super.getParent();
     }
 
     /**
@@ -74,11 +76,7 @@ public interface ICompilationUnit
      *
      * @return the underlying <code>IFile</code> (never <code>null</code>)
      */
-    @Override
-    default IFile getFile()
-    {
-        return ISourceFileExtension.super.getFile();
-    }
+    IFile getFile();
 
     /**
      * Returns the import declaration in this compilation unit
@@ -168,10 +166,39 @@ public interface ICompilationUnit
     IType[] getTypes() throws CoreException;
 
     /**
+     * Returns the smallest element within this compilation unit that includes
+     * the given source position, or <code>null</code> if the given position
+     * is not within the source range of this compilation unit. If no finer
+     * grained element is found at the position, this compilation unit itself
+     * is returned.
+     *
+     * @param position a source position (0-based)
+     * @param base a snapshot on which the given position is based,
+     *  or <code>null</code> if the snapshot is unknown or doesn't matter
+     * @return the innermost element enclosing the given source position,
+     *  or <code>null</code> if none (including this compilation unit itself)
+     * @throws CoreException if this element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws StaleSnapshotException if snapshot inconsistency is detected,
+     *  i.e. this element's current structure and properties are based on
+     *  a different snapshot
+     */
+    IJavaSourceElement getElementAt(int position, ISnapshot base)
+        throws CoreException;
+
+    /**
+     * Returns whether this compilation unit is a working copy.
+     *
+     * @return <code>true</code> if this compilation unit is a working copy,
+     *  <code>false</code> otherwise
+     */
+    boolean isWorkingCopy();
+
+    /**
      * Reconciles the contents of this working copy, sends out a delta
      * notification indicating the nature of the change of the working copy
      * since the last time it was reconciled, and returns a compilation unit AST
-     * if requested.
+     * if requested. Does nothing if this compilation unit is not a working copy.
      * <p>
      * The reconcile flags are a bit-mask of constants {@link
      * #FORCE_PROBLEM_DETECTION}, {@link #ENABLE_STATEMENTS_RECOVERY},
@@ -191,4 +218,23 @@ public interface ICompilationUnit
      */
     CompilationUnit reconcile(int astLevel, int reconcileFlags,
         IProgressMonitor monitor) throws CoreException;
+
+    /**
+     * Returns the buffer opened for this compilation unit. Note that buffers
+     * may be shared by multiple clients, so the returned buffer may have
+     * unsaved changes if it has been modified by another client.
+     * <p>
+     * The client takes (potentially shared) ownership of the returned buffer
+     * and is responsible for disposing it when finished. The buffer will be
+     * closed only after it is disposed by every owner. The buffer must not
+     * be accessed by clients which don't own it.
+     * </p>
+     *
+     * @return the buffer opened for this compilation unit
+     *  (never <code>null</code>)
+     * @throws CoreException if this element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @see IBuffer
+     */
+    IBuffer getBuffer() throws CoreException;
 }

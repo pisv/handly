@@ -116,7 +116,7 @@ public class Method
     @Override
     protected void hToStringName(StringBuilder builder)
     {
-        builder.append(getName());
+        builder.append(getElementName());
         builder.append('(');
         String[] parameterTypes = getParameterTypes();
         int length = parameterTypes.length;

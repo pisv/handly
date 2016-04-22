@@ -44,9 +44,9 @@ public interface IType
      * @return the simple name of this type (never <code>null</code>)
      */
     @Override
-    default String getName()
+    default String getElementName()
     {
-        return IMember.super.getName();
+        return IMember.super.getElementName();
     }
 
     /**

@@ -106,7 +106,7 @@ class DeltaProcessingState
         Set<String> javaProjectNames = new HashSet<String>(javaProjects.length);
         for (IJavaProject javaProject : javaProjects)
         {
-            javaProjectNames.add(javaProject.getName());
+            javaProjectNames.add(javaProject.getElementName());
         }
         oldJavaProjectNames = javaProjectNames;
     }

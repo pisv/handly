@@ -256,18 +256,18 @@ public class JavaProject
         if (!project.exists())
             throw new CoreException(Activator.createErrorStatus(
                 MessageFormat.format(
-                    "Project ''{0}'' does not exist in workspace", getName()),
+                    "Project ''{0}'' does not exist in workspace", getElementName()),
                 null));
 
         if (!project.isOpen())
             throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Project ''{0}'' is not open", getName()),
+                MessageFormat.format("Project ''{0}'' is not open", getElementName()),
                 null));
 
         if (!project.hasNature(NATURE_ID))
             throw new CoreException(Activator.createErrorStatus(
                 MessageFormat.format(
-                    "Project ''{0}'' does not have the Java nature", getName()),
+                    "Project ''{0}'' does not have the Java nature", getElementName()),
                 null));
     }
 

@@ -34,7 +34,7 @@ public class JavaModelTest
     {
         super.setUp();
         simpleProject = setUpProject("SimpleProject");
-        setUpProject(javaProject.getName());
+        setUpProject(javaProject.getElementName());
     }
 
     public void test001() throws Exception
@@ -60,7 +60,7 @@ public class JavaModelTest
         assertEquals(simpleProject, nonJavaProjects[0]);
 
         // (re-)create java project
-        setUpProject(javaProject.getName());
+        setUpProject(javaProject.getElementName());
 
         javaProjects = javaModel.getJavaProjects();
         assertEquals(1, javaProjects.length);
