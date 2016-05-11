@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Codasip Ltd.
+ * Copyright (c) 2015, 2016 Codasip Ltd and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Ondrej Ilcik (Codasip) - initial API and implementation
+ *    Vladimir Piskarev (1C) - ongoing maintenance
  *******************************************************************************/
 package org.eclipse.handly.examples.javamodel.ui;
 
@@ -137,7 +138,9 @@ public class JavaModelContentProvider
         {
             IContainer parent = ((IResource)element).getParent();
             IJavaElement javaParent = JavaModelCore.create(parent);
-            return javaParent != null ? javaParent : parent;
+            if (javaParent != null && javaParent.exists())
+                return javaParent;
+            return parent;
         }
         return null;
     }
