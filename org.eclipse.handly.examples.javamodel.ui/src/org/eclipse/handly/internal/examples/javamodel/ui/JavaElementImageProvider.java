@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Ondrej Ilcik (Codasip) - adaptation (adapted from
  *         org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider)
+ *     Vladimir Piskarev (1C) - ongoing maintenance
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel.ui;
 
@@ -317,7 +318,7 @@ public class JavaElementImageProvider
                 ISharedImages.IMG_FIELD_PRIVATE);
 
         return JavaUI.getSharedImages().getImageDescriptor(
-            ISharedImages.IMG_FIELD_PRIVATE);
+            ISharedImages.IMG_FIELD_DEFAULT);
     }
 
     private static ImageDescriptor getPackageFragmentIcon(IJavaElement element)
