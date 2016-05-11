@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,7 +51,7 @@ public class LabelComparator
 
         // use the comparator to compare the strings
         @SuppressWarnings("unchecked")
-        Comparator<Object> comparator = getComparator();
+        Comparator<? super String> comparator = getComparator();
         return comparator.compare(name1, name2);
     }
 
