@@ -237,6 +237,20 @@ Contributors:
                type="org.eclipse.ui.IContainmentAdapter">
          </adapter>
       </factory>
+      <factory
+            adaptableType="org.eclipse.handly.examples.javamodel.IJavaProject"
+            class="org.eclipse.handly.internal.examples.javamodel.ui.JavaProjectAdapterFactory">
+         <adapter
+               type="org.eclipse.core.resources.IProject">
+         </adapter>
+      </factory>
+      <factory
+            adaptableType="org.eclipse.handly.examples.javamodel.IJavaElement"
+            class="org.eclipse.handly.internal.examples.javamodel.ui.JavaElementAdapterFactory">
+         <adapter
+               type="org.eclipse.debug.ui.actions.ILaunchable">
+         </adapter>
+      </factory>
    </extension>
    <extension
          point="org.eclipse.ui.elementFactories">
