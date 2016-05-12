@@ -26,7 +26,7 @@ import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 
 /**
- * Provides 'Open' action and 'Open with' submenu. 
+ * Provides 'Open' action and 'Open With' submenu.
  */
 public class OpenActionProvider
     extends CommonActionProvider

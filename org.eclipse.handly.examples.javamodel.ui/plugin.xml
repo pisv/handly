@@ -91,9 +91,6 @@ Contributors:
                   pattern="org.eclipse.handly.examples.javamodel.ui.navigator.OpenActionProvider">
             </actionExtension>
             <actionExtension
-                  pattern="org.eclipse.ui.navigator.resources.OpenActions">
-            </actionExtension>
-            <actionExtension
                   pattern="org.eclipse.ui.navigator.resources.GotoActions">
             </actionExtension>
             <actionExtension
