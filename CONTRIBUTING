@@ -1,16 +1,24 @@
 Handly Contributor Guide
 ========================
 
-Welcome to Handly, and thanks for your interest in this project.
+Welcome to Handly, a technology project at Eclipse,
+and thanks for your interest in this project.
 
 Project description:
 --------------------
 
-Handly, a technology project at Eclipse, provides basic building blocks that
-help create handle-based models similar in design patterns and principles to
-the JDT Java model. The uniform API makes it possible to supply common IDE
-components dealing with Handly-based models. Integration with Xtext editor
-is provided along with support for other editors.
+Handly provides basic building blocks for handle-based models, with an emphasis
+on models that render Eclipse workspace from a programming language angle.
+It allows to create highly scalable, robust and thoroughly optimized models
+on a par with the tried-and-tested JDT Java model in quality while reducing
+programming effort, fostering software reuse and providing opportunities for
+interoperability. Handly can be used to implement handle-based models for
+practically any language and is compatible with any parsing technology.
+The model implementor has complete control over the model's base-level API,
+including the ability to implement a preexisting handle-based model API.
+At the same time, the uniform meta-level API makes it possible for IDE
+components to work in a generic way with any Handly-based model. Integration
+with Xtext editor is provided along with support for other source editors.
 
 The intent is to come up with a really nice design in this problem area
 through an open and transparent development process primarily driven by
