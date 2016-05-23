@@ -125,6 +125,11 @@ public abstract class WorkingCopyInfo
      * element's structure and properties as necessary. The boolean argument
      * allows to force reconciling even if the working copy is already
      * consistent with its buffer.
+     * <p>
+     * An implementation of this method has to call the working copy's {@link
+     * SourceFile.ReconcileOperation ReconcileOperation} with the appropriate
+     * arguments.
+     * </p>
      *
      * @param force indicates whether reconciling has to be performed
      *  even if the working copy is already consistent with its buffer
@@ -137,6 +142,17 @@ public abstract class WorkingCopyInfo
     protected abstract void reconcile(boolean force, Object arg,
         IProgressMonitor monitor) throws CoreException;
 
+    /**
+     * Returns the associated working copy.
+     * <p>
+     * Note that when {@link #dispose()} is called, this method returns a
+     * source file that is no longer a working copy as far as this working copy
+     * info is concerned, and may even return <code>null</code> if this working
+     * copy info has not been initialized before disposal.
+     * </p>
+     *
+     * @return the working copy
+     */
     protected SourceFile getWorkingCopy()
     {
         return workingCopy;
