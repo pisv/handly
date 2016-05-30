@@ -13,11 +13,11 @@ import org.eclipse.emf.ecore.EObject;
  *
  * <p>
  * The following features are supported:
+ * </p>
  * <ul>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.Def#getName <em>Name</em>}</li>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.Def#getParams <em>Params</em>}</li>
  * </ul>
- * </p>
  *
  * @see org.eclipse.handly.examples.basic.foo.FooPackage#getDef()
  * @model

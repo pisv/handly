@@ -3,8 +3,8 @@
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.eclipse.handly.examples.basic/src-gen" editDirectory="/org.eclipse.handly.examples.basic.edit/src"
     editorDirectory="/org.eclipse.handly.examples.basic.editor/src" modelPluginID="org.eclipse.handly.examples.basic"
     forceOverwrite="true" modelName="Foo" updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
-    complianceLevel="5.0" copyrightFields="false" editPluginID="org.eclipse.handly.examples.basic.edit"
-    editorPluginID="org.eclipse.handly.examples.basic.editor" runtimeVersion="2.9">
+    complianceLevel="6.0" copyrightFields="false" editPluginID="org.eclipse.handly.examples.basic.edit"
+    editorPluginID="org.eclipse.handly.examples.basic.editor" runtimeVersion="2.11">
   <genPackages prefix="Foo" basePackage="org.eclipse.handly.examples.basic" disposableProviderFactory="true"
       fileExtensions="foo" ecorePackage="Foo.ecore#/">
     <genClasses ecoreClass="Foo.ecore#//Module">

@@ -18,10 +18,10 @@ import org.eclipse.handly.examples.basic.foo.Var;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.VarImpl#getName <em>Name</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */

@@ -24,11 +24,11 @@ import org.eclipse.handly.examples.basic.foo.FooPackage;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.DefImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.DefImpl#getParams <em>Params</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */

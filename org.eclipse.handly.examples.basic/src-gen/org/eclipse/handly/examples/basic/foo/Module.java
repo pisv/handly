@@ -13,11 +13,11 @@ import org.eclipse.emf.ecore.EObject;
  *
  * <p>
  * The following features are supported:
+ * </p>
  * <ul>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.Module#getVars <em>Vars</em>}</li>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.Module#getDefs <em>Defs</em>}</li>
  * </ul>
- * </p>
  *
  * @see org.eclipse.handly.examples.basic.foo.FooPackage#getModule()
  * @model

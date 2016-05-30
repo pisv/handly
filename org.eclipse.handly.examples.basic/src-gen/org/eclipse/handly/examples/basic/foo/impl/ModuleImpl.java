@@ -27,11 +27,11 @@ import org.eclipse.handly.examples.basic.foo.Var;
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
+ * </p>
  * <ul>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.ModuleImpl#getVars <em>Vars</em>}</li>
  *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.ModuleImpl#getDefs <em>Defs</em>}</li>
  * </ul>
- * </p>
  *
  * @generated
  */
