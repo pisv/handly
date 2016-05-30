@@ -2,27 +2,27 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='13'>
-    <iu id='org.eclipse.sdk.ide' version='4.6.0.I20160428-0800'>
+    <iu id='org.eclipse.sdk.ide' version='4.6.0.I20160519-1730'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='4.4.0.201605041135-m1'>
+    <iu id='org.eclipse.egit.feature.group' version='4.4.0.201605250940-rc1'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='1.7.0.20160504-0322'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.7.0.20160524-1815'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.10.0.v201604290858'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.10.0.v201605250459'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xtend.sdk.feature.group' version='2.10.0.v201604290858'>
+    <iu id='org.eclipse.xtend.sdk.feature.group' version='2.10.0.v201605250459'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
@@ -62,7 +62,7 @@
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.2.0.v20160502-0821'>
+    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.2.0.v20160516-0939'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
