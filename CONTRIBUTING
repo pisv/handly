@@ -9,22 +9,23 @@ Project description:
 
 Handly provides basic building blocks for handle-based models,
 with an emphasis on high-level code-centric models that render Eclipse
-workspace from a programming language angle. It allows to create
-highly scalable, robust and thoroughly optimized models on a par with the
-tried-and-tested JDT Java model in quality while reducing programming effort,
-fostering software reuse and providing opportunities for interoperability.
+workspace from a programming language angle. It allows creating
+highly scalable, robust, and thoroughly optimized models similar in quality
+to the tried-and-tested Java model of Eclipse Java development tools
+while reducing programming effort, fostering software reuse, and
+enabling interoperability.
 
-Handly can be used to implement code models for practically any language
-and is compatible with any parsing technology. The model implementor has
-complete control over the model's base-level API, including the ability
-to implement a preexisting handle-based model API. At the same time, the
-uniform meta-level API makes it possible for IDE components to work in a
-generic way with any Handly-based model. Integration with Xtext editor
-is provided along with support for other source editors.
+Handly is designed for flexibility and can be used to create source code models
+for practically any language, whether general-purpose or domain-specific;
+it is compatible with any parsing technology. The model implementor has
+complete control over the model's base-level API, including the ability to
+implement a preexisting handle-based model API. At the same time, the provided
+uniform meta-level API establishes a common language and makes it possible
+for IDE components to work in a generic way with any Handly-based model.
 
 For more information, visit the project's website.
 
-- http://eclipse.org/handly/
+- https://www.eclipse.org/handly/
 
 Developer resources:
 --------------------
@@ -60,9 +61,9 @@ Perfect match (i.e. JDK 1.8) is recommended to avoid build warnings.
 
 Handly employs specific Java code formatting conventions. Please import and use
 the formatter profile from `tools/formatter.xml`. Note that the current profile
-is intended to be used with the new formatter available since Eclipse Mars
-release (4.5), and may produce suboptimal results with previous Eclipse
-versions.
+is intended to be used with the new formatter available since the Eclipse Mars
+(4.5) release, and may produce suboptimal results if used with previous
+Eclipse versions.
 
 Import all projects from the Git workspace (don't search for nested projects)
 and set the target platform using a `.target` file provided within the
@@ -75,11 +76,11 @@ to be done against the base platform, while continuous integration tends
 to be done against the latest platform.
 
 Handly Examples define some auxiliary Xtext-based languages. Note that for
-the MWE2 generator of the language Xtext infrastructure to work, the developer
-tool and the target platform should contain Xtext of the same version. A simple
-way to achieve that is to install the developer tool using one of the provided
-`.p2f` files that can be found in the Git workspace `tools` folder. They are
-designed to be consistent with their namesake `.target` files.
+the MWE2 generator of the language infrastructure to work correctly, the Eclipse
+installation and the target platform should contain the same version of Xtext.
+A simple way to ensure that is to install Eclipse using one of the provided
+`.p2f` files that can be found in the Git workspace `tools` folder. These
+`.p2f' files are kept consistent with their namesake `.target` files.
 
 Contributing:
 -------------
@@ -99,7 +100,7 @@ Before your contribution can be accepted by the project, you need to create
 and electronically sign the Eclipse Foundation Contributor License Agreement
 (CLA).
 
-- http://www.eclipse.org/legal/CLA.php
+- https://www.eclipse.org/legal/CLA.php
 
 For more information, see CLA FAQ.
 
