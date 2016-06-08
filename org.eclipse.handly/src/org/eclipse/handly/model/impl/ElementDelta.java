@@ -121,19 +121,19 @@ public class ElementDelta
     @Override
     public final ElementDelta[] hAddedChildren()
     {
-        return getChildrenOfType(ADDED);
+        return getChildrenOfKind(ADDED);
     }
 
     @Override
     public final ElementDelta[] hRemovedChildren()
     {
-        return getChildrenOfType(REMOVED);
+        return getChildrenOfKind(REMOVED);
     }
 
     @Override
     public final ElementDelta[] hChangedChildren()
     {
-        return getChildrenOfType(CHANGED);
+        return getChildrenOfKind(CHANGED);
     }
 
     @Override
@@ -428,14 +428,14 @@ public class ElementDelta
     }
 
     /**
-     * Returns the deltas for the affected children of the given type.
+     * Returns the deltas for the affected children of the given kind.
      *
      * @param kind one of <code>ADDED</code>, <code>REMOVED</code>, or
      *  <code>CHANGED</code>
-     * @return the deltas for the affected children of the given type
+     * @return the deltas for the affected children of the given kind
      *  (never <code>null</code>)
      */
-    private ElementDelta[] getChildrenOfType(int kind)
+    private ElementDelta[] getChildrenOfKind(int kind)
     {
         int length = affectedChildren.length;
         if (length == 0)
