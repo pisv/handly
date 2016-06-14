@@ -454,8 +454,8 @@ public class Elements
      * changes if it has been modified by another client.
      * <p>
      * The client takes (potentially shared) ownership of the returned buffer
-     * and is responsible for disposing it when finished. The buffer will be
-     * closed only after it is disposed by every owner. The buffer must not
+     * and is responsible for releasing it when finished. The buffer will be
+     * disposed only after it is released by every owner. The buffer must not
      * be accessed by clients which don't own it.
      * </p>
      *
@@ -476,8 +476,8 @@ public class Elements
      * changes if it has been modified by another client.
      * <p>
      * The client takes (potentially shared) ownership of the returned buffer
-     * and is responsible for disposing it when finished. The buffer will be
-     * closed only after it is disposed by every owner. The buffer must not
+     * and is responsible for releasing it when finished. The buffer will be
+     * disposed only after it is released by every owner. The buffer must not
      * be accessed by clients which don't own it.
      * </p>
      * <p>
