@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Copyright (c) 2014 1C LLC.
+# Copyright (c) 2014, 2016 1C-Soft LLC and others.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
@@ -91,14 +91,12 @@ else
 fi
 
 #
-# Downloading Handly build from HIPP
+# Downloading p2 repository from HIPP
 #
-
-echo "Downloading Handly build from Hudson..."
 
 RESPONSE=$(curl --insecure -s -S -w %{http_code} -o /dev/null https://hudson.eclipse.org/handly/job/$JOB_NAME/$BUILD_ID/artifact/build/VERSION)
 if [[ "$RESPONSE" != "200" ]]; then
-    echo "Cannot download Handly build (HTTP $RESPONSE)"
+    echo "Cannot download $JOB_NAME build #$BUILD_ID (HTTP $RESPONSE)"
     exit -1
 fi
 
@@ -129,12 +127,14 @@ fi
 REPO_PREFIX=${REPO_PREFIX:-"handly-repository-incubation"}
 REPO_FILE=$REPO_VERSION/$REPO_PREFIX-$REPO_VERSION.zip
 
+echo "Downloading p2 repository $BUILD_VERSION..."
+
 curl --insecure -s -S -o $REPO_FILE https://hudson.eclipse.org/handly/job/$JOB_NAME/$BUILD_ID/artifact/build/packages/$REPO_PREFIX-$BUILD_VERSION.zip
 if [[ "$?" != "0" ]]; then
     exit -1
 fi
 
-echo "Unzipping Handly p2 repository..."
+echo "Unzipping p2 repository..."
 
 unzip $REPO_FILE -d $REPO_VERSION/repository > /dev/null
 if [[ "$?" != "0" ]]; then
@@ -156,17 +156,15 @@ STATS_ARTIFACTS_SUFFIX="-$REPO_VERSION"
 P2_STATS_ARGS="-Dp2StatsURI=$P2_STATS_URL -DstatsTrackedArtifacts=$STATS_TRACKED_ARTIFACTS -DstatsArtifactsSuffix=$STATS_ARTIFACTS_SUFFIX"
 
 #
-# Updating Handly p2 repository with additional properties
+# Updating p2 repository with additional properties
 #
-
-echo "Using Eclipse installation at $ECLIPSE_HOME"
 
 if [[ -f "$ECLIPSE_HOME/eclipsec" ]]; then
     ECLIPSE_EXECUTABLE="eclipsec"
 elif [[ -f "$ECLIPSE_HOME/eclipse" ]]; then
     ECLIPSE_EXECUTABLE="eclipse"
 else
-    echo "Cannot find Eclipse executable"
+    echo "Cannot find Eclipse executable at $ECLIPSE_HOME"
     exit -1
 fi
 
@@ -178,20 +176,22 @@ if [[ "$?" != "0" ]]; then
 fi
 
 #
-# Downloading Handly Javadocs
+# Downloading Javadocs from HIPP
 #
 
-echo "Downloading Handly Javadocs..."
+echo "Downloading Javadocs $BUILD_VERSION..."
 
 curl --insecure -s -S -O https://hudson.eclipse.org/handly/job/$JOB_NAME/$BUILD_ID/artifact/build/apidocs/*zip*/apidocs.zip
 if [[ "$?" != "0" ]]; then
     exit -1
 fi
 
-echo "Unzipping Handly Javadocs..."
+echo "Unzipping Javadocs..."
 
 unzip apidocs.zip -d $REPO_VERSION > /dev/null
 if [[ "$?" != "0" ]]; then
     exit -1
 fi
 rm -f apidocs.zip
+
+echo "OK ./$REPO_VERSION"
