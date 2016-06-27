@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.handly.xtext"
       label="%featureName"
-      version="0.5.0.qualifier"
+      version="0.6.0.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.handly.xtext"
       license-feature="org.eclipse.license"
@@ -21,7 +21,7 @@
    </license>
 
    <requires>
-      <import feature="org.eclipse.handly" version="0.5.0" match="equivalent"/>
+      <import feature="org.eclipse.handly" version="0.6.0" match="equivalent"/>
       <import feature="org.eclipse.xtext.ui" version="2.8.0" match="compatible"/>
    </requires>
 
