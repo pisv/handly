@@ -11,7 +11,7 @@
 package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.model.Property;
+import org.eclipse.handly.util.Property;
 
 /**
  * Represents a method (or constructor) declared in a type.

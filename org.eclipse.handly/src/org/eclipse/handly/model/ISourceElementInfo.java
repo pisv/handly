@@ -11,6 +11,7 @@
 package org.eclipse.handly.model;
 
 import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
 /**

@@ -18,8 +18,8 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDeltaConstants;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.ISourceElementInfo;
-import org.eclipse.handly.model.Property;
 import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
 /**

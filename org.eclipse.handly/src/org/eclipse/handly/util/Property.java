@@ -8,13 +8,12 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.model;
+package org.eclipse.handly.util;
 
 /**
- * Represents a named property of an element.
+ * Represents a named property.
  *
  * @param <T> the type of property values
- * @see ISourceElementInfo#get(Property)
  */
 public final class Property<T>
 {

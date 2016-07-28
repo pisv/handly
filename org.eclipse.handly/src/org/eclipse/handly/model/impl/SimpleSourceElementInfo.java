@@ -12,8 +12,8 @@ package org.eclipse.handly.model.impl;
 
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.ISourceElementInfo;
-import org.eclipse.handly.model.Property;
 import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
 /**
