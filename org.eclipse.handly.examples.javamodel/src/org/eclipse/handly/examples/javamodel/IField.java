@@ -23,7 +23,7 @@ public interface IField
      * Type property.
      * @see #getType()
      */
-    Property<String> TYPE = new Property<String>("type"); //$NON-NLS-1$
+    Property<String> TYPE = Property.get("type", String.class); //$NON-NLS-1$
 
     @Override
     default IType getParent()

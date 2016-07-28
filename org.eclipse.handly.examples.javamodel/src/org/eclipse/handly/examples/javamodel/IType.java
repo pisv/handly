@@ -27,14 +27,15 @@ public interface IType
      * Superclass type property.
      * @see #getSuperclassType()
      */
-    Property<String> SUPERCLASS_TYPE = new Property<String>("superclassType"); //$NON-NLS-1$
+    Property<String> SUPERCLASS_TYPE = Property.get("superclassType", //$NON-NLS-1$
+        String.class);
 
     /**
      * Super interface types property.
      * @see #getSuperInterfaceTypes()
      */
-    Property<String[]> SUPER_INTERFACE_TYPES = new Property<String[]>(
-        "superInterfaceTypes"); //$NON-NLS-1$
+    Property<String[]> SUPER_INTERFACE_TYPES = Property.get(
+        "superInterfaceTypes", String[].class); //$NON-NLS-1$
 
     /**
      * Returns the simple name of this type, unqualified by package or

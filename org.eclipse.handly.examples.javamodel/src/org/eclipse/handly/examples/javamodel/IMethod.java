@@ -23,24 +23,25 @@ public interface IMethod
      * Parameter names property.
      * @see #getParameterNames()
      */
-    Property<String[]> PARAMETER_NAMES = new Property<String[]>(
-        "parameterNames"); //$NON-NLS-1$
+    Property<String[]> PARAMETER_NAMES = Property.get("parameterNames", //$NON-NLS-1$
+        String[].class);
     /**
      * Return type property.
      * @see #getReturnType()
      */
-    Property<String> RETURN_TYPE = new Property<String>("returnType"); //$NON-NLS-1$
+    Property<String> RETURN_TYPE = Property.get("returnType", String.class); //$NON-NLS-1$
     /**
      * Exception types property.
      * @see #getExceptionTypes()
      */
-    Property<String[]> EXCEPTION_TYPES = new Property<String[]>(
-        "exceptionTypes"); //$NON-NLS-1$
+    Property<String[]> EXCEPTION_TYPES = Property.get("exceptionTypes", //$NON-NLS-1$
+        String[].class);
     /**
      * Is_constructor property.
      * @see #isConstructor()
      */
-    Property<Boolean> IS_CONSTRUCTOR = new Property<Boolean>("isConstructor"); //$NON-NLS-1$
+    Property<Boolean> IS_CONSTRUCTOR = Property.get("isConstructor", //$NON-NLS-1$
+        Boolean.class);
 
     @Override
     default IType getParent()

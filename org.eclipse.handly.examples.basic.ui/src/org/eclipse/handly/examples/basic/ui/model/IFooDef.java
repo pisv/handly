@@ -25,8 +25,8 @@ public interface IFooDef
      * Parameter names property.
      * @see #getParameterNames()
      */
-    Property<String[]> PARAMETER_NAMES = new Property<String[]>(
-        "parameterNames");
+    Property<String[]> PARAMETER_NAMES = Property.get("parameterNames", //$NON-NLS-1$
+        String[].class);
 
     @Override
     default IFooFile getParent()

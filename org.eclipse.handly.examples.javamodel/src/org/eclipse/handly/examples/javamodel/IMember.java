@@ -27,7 +27,7 @@ public interface IMember
      * Flags property.
      * @see #getFlags()
      */
-    Property<Integer> FLAGS = new Property<Integer>("flags"); //$NON-NLS-1$
+    Property<Integer> FLAGS = Property.get("flags", Integer.class); //$NON-NLS-1$
 
     /**
      * Returns the type in which this member is declared, or <code>null</code>
