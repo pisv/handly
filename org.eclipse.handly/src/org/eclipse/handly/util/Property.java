@@ -68,7 +68,8 @@ public class Property<T>
 
     /**
      * Returns a property with the given name and type. The type is represented
-     * by a specified class object.
+     * by a specified class object. The returned property has no default value
+     * (i.e. <code>defaultValue()</code> will always return <code>null</code>).
      * <p>
      * Using this method of obtaining a property doesn't require creating
      * a subclass of this class and might thus be preferable to using the
@@ -90,7 +91,22 @@ public class Property<T>
     }
 
     /**
-     * Returns the name of the property.
+     * Returns a copy of this property with a new default value.
+     * <p>
+     * This instance is immutable and unaffected by this method call.
+     * </p>
+     *
+     * @param defaultValue the new default value (may be <code>null</code>)
+     * @return a property based on this property with the requested default value
+     *  (never <code>null</code>)
+     */
+    public Property<T> withDefault(T defaultValue)
+    {
+        return new Property.WithDefault<T>(name, type, defaultValue);
+    }
+
+    /**
+     * Returns the name of this property.
      *
      * @return the property name (never <code>null</code>)
      */
@@ -100,7 +116,7 @@ public class Property<T>
     }
 
     /**
-     * Returns the type of the property.
+     * Returns the type of this property.
      *
      * @return the property type (never <code>null</code>)
      */
@@ -109,9 +125,37 @@ public class Property<T>
         return type;
     }
 
+    /**
+     * Returns the "default value" for this property.
+     *
+     * @return the default value (may be <code>null</code>)
+     */
+    public T defaultValue()
+    {
+        return null;
+    }
+
     @Override
     public String toString()
     {
         return type.getTypeName() + ' ' + name;
+    }
+
+    private static final class WithDefault<T>
+        extends Property<T>
+    {
+        private final T defaultValue;
+
+        WithDefault(String name, Type type, T defaultValue)
+        {
+            super(name, type);
+            this.defaultValue = defaultValue;
+        }
+
+        @Override
+        public T defaultValue()
+        {
+            return defaultValue;
+        }
     }
 }
