@@ -15,7 +15,8 @@ import java.lang.reflect.Type;
 
 /**
  * Represents a named property of a given type. The type information
- * is retained and can be retrieved at runtime.
+ * is retained and can be retrieved at runtime. The property can provide
+ * a default value.
  *
  * @param <T> the type of property values
  */
@@ -71,13 +72,9 @@ public class Property<T>
      * by a specified class object. The returned property has no default value
      * (i.e. <code>defaultValue()</code> will always return <code>null</code>).
      * <p>
-     * Using this method of obtaining a property doesn't require creating
-     * a subclass of this class and might thus be preferable to using the
-     * constructor if the type of the property can be accurately represented
-     * by a class object at runtime. By contrast, creating an empty anonymous
-     * subclass forced by the protected constructor embeds the actual type
-     * argument in the anonymous class's type hierarchy so it can be
-     * reconstituted at runtime despite erasure.
+     * If the type of property values is not generic, using this method
+     * of obtaining a property might be preferable to using the constructor
+     * as it avoids creating a subclass for the property.
      * </p>
      *
      * @param name the name of the property (not <code>null</code>)
@@ -138,7 +135,7 @@ public class Property<T>
     @Override
     public String toString()
     {
-        return type.getTypeName() + ' ' + name;
+        return name + " : " + type.getTypeName(); //$NON-NLS-1$
     }
 
     private static final class WithDefault<T>
