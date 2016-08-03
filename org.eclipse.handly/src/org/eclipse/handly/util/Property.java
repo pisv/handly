@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.util;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -30,6 +32,7 @@ public class Property<T>
 {
     private final String name;
     private final Type type;
+    private final Class<T> rawType;
 
     /**
      * Constructs a new property with the given name. The type information
@@ -61,16 +64,18 @@ public class Property<T>
             throw new IllegalStateException("Missing type parameter"); //$NON-NLS-1$
         ParameterizedType parameterized = (ParameterizedType)superclass;
         this.type = parameterized.getActualTypeArguments()[0];
+        @SuppressWarnings("unchecked")
+        Class<T> rawType = (Class<T>)toClass(this.type);
+        if (rawType == null)
+            throw new IllegalStateException("Unsupported type parameter"); //$NON-NLS-1$
+        this.rawType = rawType;
     }
 
-    private Property(String name, Type type)
+    private Property(String name, Type type, Class<T> rawType)
     {
-        if (name == null)
-            throw new IllegalArgumentException();
-        if (type == null)
-            throw new IllegalArgumentException();
         this.name = name;
         this.type = type;
+        this.rawType = rawType;
     }
 
     /**
@@ -90,7 +95,11 @@ public class Property<T>
      */
     public static <T> Property<T> get(String name, Class<T> type)
     {
-        return new Property<T>(name, type);
+        if (name == null)
+            throw new IllegalArgumentException();
+        if (type == null)
+            throw new IllegalArgumentException();
+        return new Property<T>(name, type, type);
     }
 
     /**
@@ -105,7 +114,7 @@ public class Property<T>
      */
     public Property<T> withDefault(T defaultValue)
     {
-        return new Property.WithDefault<T>(name, type, defaultValue);
+        return new Property.WithDefault<T>(name, type, rawType, defaultValue);
     }
 
     /**
@@ -129,6 +138,16 @@ public class Property<T>
     }
 
     /**
+     * Returns the raw type of this property.
+     *
+     * @return the property raw type (never <code>null</code>)
+     */
+    public final Class<T> getRawType()
+    {
+        return rawType;
+    }
+
+    /**
      * Returns the "default value" for this property.
      *
      * @return the default value (may be <code>null</code>)
@@ -144,14 +163,29 @@ public class Property<T>
         return name + " : " + type.getTypeName(); //$NON-NLS-1$
     }
 
+    private static Class<?> toClass(Type type)
+    {
+        if (type instanceof Class)
+            return (Class<?>)type;
+        else if (type instanceof ParameterizedType)
+            return toClass(((ParameterizedType)type).getRawType());
+        else if (type instanceof GenericArrayType)
+        {
+            Type componentType =
+                ((GenericArrayType)type).getGenericComponentType();
+            return Array.newInstance(toClass(componentType), 0).getClass();
+        }
+        return null;
+    }
+
     private static final class WithDefault<T>
         extends Property<T>
     {
         private final T defaultValue;
 
-        WithDefault(String name, Type type, T defaultValue)
+        WithDefault(String name, Type type, Class<T> rawType, T defaultValue)
         {
-            super(name, type);
+            super(name, type, rawType);
             this.defaultValue = defaultValue;
         }
 

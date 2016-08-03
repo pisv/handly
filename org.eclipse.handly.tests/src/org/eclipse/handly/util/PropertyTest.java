@@ -29,6 +29,7 @@ public class PropertyTest
         Property<String> p1 = Property.get("p1", String.class);
         assertEquals("p1", p1.getName());
         assertEquals(String.class, p1.getType());
+        assertEquals(String.class, p1.getRawType());
         assertNull(p1.defaultValue());
     }
 
@@ -37,6 +38,7 @@ public class PropertyTest
         Property<String[]> p2 = Property.get("p2", String[].class);
         assertEquals("p2", p2.getName());
         assertEquals(String[].class, p2.getType());
+        assertEquals(String[].class, p2.getRawType());
         assertNull(p2.defaultValue());
     }
 
@@ -47,29 +49,42 @@ public class PropertyTest
         assertEquals("p3", p3.getName());
         assertEquals("java.util.List<java.lang.String>",
             p3.getType().getTypeName());
+        assertEquals(List.class, p3.getRawType());
         assertEquals(asList("1", "2", "3"), p3.defaultValue());
     }
 
-    @SuppressWarnings("rawtypes")
     public void test4()
     {
-        Property<List> p4 = Property.get("p4", List.class).withDefault(
-            null).withDefault(EMPTY_LIST);
+        Property<List<String>[]> p4 = new Property<List<String>[]>("p4") {};
         assertEquals("p4", p4.getName());
-        assertEquals(List.class, p4.getType());
-        assertEquals(EMPTY_LIST, p4.defaultValue());
+        assertEquals("java.util.List<java.lang.String>[]",
+            p4.getType().getTypeName());
+        assertEquals(List[].class, p4.getRawType());
+        assertNull(p4.defaultValue());
     }
 
     @SuppressWarnings("rawtypes")
     public void test5()
     {
+        Property<List> p5 = Property.get("p5", List.class).withDefault(
+            null).withDefault(EMPTY_LIST);
+        assertEquals("p5", p5.getName());
+        assertEquals(List.class, p5.getType());
+        assertEquals(List.class, p5.getRawType());
+        assertEquals(EMPTY_LIST, p5.defaultValue());
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void test6()
+    {
         try
         {
-            new Property("p5") {};
+            new Property("p6") {};
             fail();
         }
         catch (IllegalStateException e)
         {
+            // missing type parameter
         }
     }
 }
