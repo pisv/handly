@@ -17,6 +17,12 @@ import java.lang.reflect.Type;
  * Represents a named property of a given type. The type information
  * is retained and can be retrieved at runtime. The property can provide
  * a default value.
+ * <p>
+ * This class abstains from overriding the default implementation of
+ * <code>equals</code> inherited from the class <code>Object</code>.
+ * Functional equality of property objects depends on the usage context
+ * and should be specified separately.
+ * </p>
  *
  * @param <T> the type of property values
  */

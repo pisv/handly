@@ -32,8 +32,15 @@ public interface ISourceElementInfo
     ISnapshot getSnapshot();
 
     /**
-     * Returns the cached value of the given property, or <code>null</code>
-     * if the property is not set.
+     * Returns the cached value for the given property, or <code>null</code>
+     * if no value is set.
+     * <p>
+     * Functional equality of property objects as keys to a cached value is
+     * based on the name and (optionally, depending on the implementation of
+     * this method) type of the property. If the implementation opts to use an
+     * essentially name-based lookup, a {@code ClassCastException} may be thrown
+     * if the type of the found value is not assignable to the property type.
+     * </p>
      * <p>
      * Note that the result correlates to a source {@link #getSnapshot()
      * snapshot} (if there is one) and may be inconsistent with the current
@@ -41,10 +48,9 @@ public interface ISourceElementInfo
      * </p>
      *
      * @param property a source element's property (not <code>null</code>)
-     * @return the cached value of the given property, or <code>null</code>
-     *  if the property is not set. Clients <b>must not</b> modify the returned
-     *  value even if mutation is technically possible (e.g. for a non-empty
-     *  array).
+     * @return the cached value for the given property, or <code>null</code>
+     *  if no value is set. Clients <b>must not</b> modify the returned value
+     *  even if mutation is technically possible (e.g. for a non-empty array).
      */
     <T> T get(Property<T> property);
 
