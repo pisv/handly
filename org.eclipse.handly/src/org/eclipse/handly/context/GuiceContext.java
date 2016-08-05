@@ -22,8 +22,8 @@ import com.google.inject.name.Names;
  * A context that is based on a Guice injector.
  * <p>
  * A property object is translated into an injection key as
- * <pre>{@code Key.get(property.getType(), Names.named(property.getName()))}</pre>
  * </p>
+ * <pre>{@code Key.get(property.getType(), Names.named(property.getName()))}</pre>
  */
 public final class GuiceContext
     implements IContext

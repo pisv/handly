@@ -143,7 +143,6 @@
                   <additionalArgument>-tag noextend:t</additionalArgument>
                   <additionalArgument>-tag noimplement:t</additionalArgument>
                   <additionalArgument>-tag noreference:a</additionalArgument>
-                  <additionalArgument>-tag noassign:f</additionalArgument>
                 </additionalArguments>
               </javadocOptions>
             </configuration>
