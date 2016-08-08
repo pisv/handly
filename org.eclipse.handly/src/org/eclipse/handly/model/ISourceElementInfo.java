@@ -35,11 +35,11 @@ public interface ISourceElementInfo
      * Returns the cached value for the given property, or <code>null</code>
      * if no value is set.
      * <p>
-     * Functional equality of property objects as keys to a cached value is
-     * based on the name and (optionally, depending on the implementation of
-     * this method) type of the property. If the implementation opts to use an
-     * essentially name-based lookup, a {@code ClassCastException} may be thrown
-     * if the type of the found value is not assignable to the property type.
+     * To find the value to which the given property object is mapped,
+     * implementations of this method may use an identity-based lookup,
+     * name-based lookup, or anything in-between. Clients need to use
+     * unique property instances with unique names for unambiguous
+     * identification of a mapping.
      * </p>
      * <p>
      * Note that the result correlates to a source {@link #getSnapshot()

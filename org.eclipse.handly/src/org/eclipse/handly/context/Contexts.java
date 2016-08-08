@@ -30,20 +30,33 @@ public class Contexts
     public static final IContext EMPTY_CONTEXT = new EmptyContext();
 
     /**
-     * Returns a new context that combines the given contexts in the specified
-     * order.
-     * <p>
-     * The returned context is immutable provided that each of the given contexts
-     * is immutable. If some of the given contexts are not immutable, the
-     * returned context is neither immutable nor thread-safe.
-     * </p>
+     * Returns an immutable context containing only the given property-value
+     * binding.
      *
-     * @param contexts the contexts to combine
-     * @return the combined context (never <code>null</code>)
+     * @param <T> type of value
+     * @param property not <code>null</code>
+     * @param value may be <code>null</code>
+     * @return an immutable context containing only the given property-value
+     *  binding (never <code>null</code>)
      */
-    public static IContext combine(IContext... contexts)
+    public static <T> IContext of(Property<T> property, T value)
     {
-        return combine(Arrays.asList(contexts));
+        return new SingletonContext(property, value);
+    }
+
+    /**
+     * Returns an immutable context containing only the given class-value
+     * binding.
+     *
+     * @param <T> type of value
+     * @param clazz not <code>null</code>
+     * @param value may be <code>null</code>
+     * @return an immutable context containing only the given class-value
+     *  binding (never <code>null</code>)
+     */
+    public static <T> IContext of(Class<T> clazz, T value)
+    {
+        return new SingletonContext(clazz, value);
     }
 
     /**
@@ -58,7 +71,24 @@ public class Contexts
      * @param contexts the contexts to combine
      * @return the combined context (never <code>null</code>)
      */
-    public static IContext combine(List<IContext> contexts)
+    public static IContext with(IContext... contexts)
+    {
+        return with(Arrays.asList(contexts));
+    }
+
+    /**
+     * Returns a new context that combines the given contexts in the specified
+     * order.
+     * <p>
+     * The returned context is immutable provided that each of the given contexts
+     * is immutable. If some of the given contexts are not immutable, the
+     * returned context is neither immutable nor thread-safe.
+     * </p>
+     *
+     * @param contexts the contexts to combine
+     * @return the combined context (never <code>null</code>)
+     */
+    public static IContext with(List<IContext> contexts)
     {
         return new CompositeContext(flatten(contexts));
     }
@@ -107,6 +137,48 @@ public class Contexts
         public boolean containsKey(Class<?> clazz)
         {
             return false;
+        }
+    }
+
+    private static class SingletonContext
+        implements IContext
+    {
+        private final Object key, value;
+
+        private SingletonContext(Object key, Object value)
+        {
+            this.key = Objects.requireNonNull(key);
+            this.value = value;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Property<T> property)
+        {
+            if (property == key)
+                return (T)value;
+            return null;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> T get(Class<T> clazz)
+        {
+            if (clazz == key)
+                return (T)value;
+            return null;
+        }
+
+        @Override
+        public boolean containsKey(Property<?> property)
+        {
+            return property == key;
+        }
+
+        @Override
+        public boolean containsKey(Class<?> clazz)
+        {
+            return clazz == key;
         }
     }
 

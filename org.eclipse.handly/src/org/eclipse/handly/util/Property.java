@@ -20,10 +20,11 @@ import java.lang.reflect.Type;
  * is retained and can be retrieved at runtime. The property can provide
  * a default value.
  * <p>
- * This class abstains from overriding the default implementation of
- * <code>equals</code> inherited from the class <code>Object</code>.
- * Functional equality of property objects depends on the usage context
- * and should be specified separately.
+ * All properties share the default implementation of <code>equals</code>
+ * inherited from <code>Object</code>. Property objects that are not equal
+ * according to <code>equals</code> may still be "functionally equal" and
+ * used interchangeably, depending on the usage context. Such equivalence
+ * relations need to be specified on a case-by-case basis.
  * </p>
  *
  * @param <T> the type of property values
@@ -155,6 +156,18 @@ public class Property<T>
     public T defaultValue()
     {
         return null;
+    }
+
+    @Override
+    public final boolean equals(Object obj)
+    {
+        return super.equals(obj);
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return super.hashCode();
     }
 
     @Override

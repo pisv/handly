@@ -18,63 +18,65 @@ import org.eclipse.handly.util.Property;
 
 /**
  * A context that is based on explicit bindings and does not allow re-binding:
- * it is illegal to bind a property or a class with the same name as in an
- * existing binding.
+ * it is illegal to bind a key (a property or class object) that has already
+ * been bound.
  *
  * @see IContext
  */
 public final class Context
     implements IContext
 {
-    private final Map<String, Object> bindings = new HashMap<>();
+    private final Map<Object, Object> bindings = new HashMap<>();
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T get(Property<T> property)
     {
-        return (T)get(property.getName());
+        return (T)internalGet(property);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T get(Class<T> clazz)
     {
-        return (T)get(clazz.getName());
+        return (T)internalGet(clazz);
     }
 
     @Override
     public boolean containsKey(Property<?> property)
     {
-        return containsKey(property.getName());
+        return internalContainsKey(property);
     }
 
     @Override
     public boolean containsKey(Class<?> clazz)
     {
-        return containsKey(clazz.getName());
+        return internalContainsKey(clazz);
     }
 
     /**
-     * Binds the given property.
+     * Returns a binding builder for the given property.
      *
      * @param property not <code>null</code>
+     * @return a binding builder (never <code>null</code>)
      */
-    public <T> Builder<T> bind(Property<T> property)
+    public <T> BindingBuilder<T> bind(Property<T> property)
     {
-        return new Builder<>(requireUnique(property.getName()));
+        return new BindingBuilder<>(requireUnique(property));
     }
 
     /**
-     * Binds with the given class.
+     * Returns a binding builder for the given class.
      *
      * @param clazz not <code>null</code>
+     * @return a binding builder (never <code>null</code>)
      */
-    public <T> Builder<T> bind(Class<T> clazz)
+    public <T> BindingBuilder<T> bind(Class<T> clazz)
     {
-        return new Builder<>(requireUnique(clazz.getName()));
+        return new BindingBuilder<>(requireUnique(clazz));
     }
 
-    private Object get(String key)
+    private Object internalGet(Object key)
     {
         Object value = bindings.get(key);
         if (value instanceof ContextFunction)
@@ -82,36 +84,36 @@ public final class Context
         return value;
     }
 
-    private boolean containsKey(String key)
+    private boolean internalContainsKey(Object key)
     {
         return bindings.containsKey(key);
     }
 
-    private String requireUnique(String key)
+    private Object requireUnique(Object key)
     {
-        if (containsKey(key))
+        if (key == null)
+            throw new IllegalArgumentException();
+        if (internalContainsKey(key))
             throw new IllegalArgumentException("Already bound: " + key); //$NON-NLS-1$
         return key;
     }
 
     /**
-     * Builds a new binding in this context.
+     * Associates a value with the specified key in the context.
+     *
+     * @param <T> the type of value
      */
-    public class Builder<T>
+    public class BindingBuilder<T>
     {
-        private String key;
+        private Object key;
 
-        private Builder(String key)
+        private BindingBuilder(Object key)
         {
             this.key = key;
         }
 
         /**
-         * Associates the given value with a key in this context.
-         * <p>
-         * Subsequent invocations of this context {@code get(..)} methods
-         * with a functionally equal key will return the value.
-         * </p>
+         * Associates the given value with the specified key in the context.
          *
          * @param value may be <code>null</code>
          */
@@ -121,12 +123,9 @@ public final class Context
         }
 
         /**
-         * Associates the given supplier with a key in this context.
-         * <p>
-         * Subsequent invocations of this context {@code get(..)} methods
-         * with a functionally equal key will invoke the supplier to obtain
-         * the value.
-         * </p>
+         * Associates the given supplier with the specified key in the context.
+         * When a context value is requested for the key, the context will invoke
+         * the supplier to obtain the value.
          *
          * @param supplier not <code>null</code>
          */

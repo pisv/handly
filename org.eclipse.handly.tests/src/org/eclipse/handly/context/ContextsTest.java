@@ -11,7 +11,8 @@
 package org.eclipse.handly.context;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
-import static org.eclipse.handly.context.Contexts.combine;
+import static org.eclipse.handly.context.Contexts.with;
+import static org.eclipse.handly.context.Contexts.of;
 
 import java.util.Arrays;
 
@@ -25,153 +26,181 @@ import junit.framework.TestCase;
 public class ContextsTest
     extends TestCase
 {
-    private static final Property<String> P1 = Property.get("p1", String.class);
+    private static final Property<String> P1 = Property.get("p1",
+        String.class).withDefault("bar");
 
-    public void test01()
+    public void testEmptyContext()
     {
         assertFalse(EMPTY_CONTEXT.containsKey(P1));
         assertNull(EMPTY_CONTEXT.get(P1));
-        assertNull(EMPTY_CONTEXT.getOrDefault(P1));
-        assertEquals("foo", EMPTY_CONTEXT.getOrDefault(P1.withDefault("foo")));
+        assertEquals("bar", EMPTY_CONTEXT.getOrDefault(P1));
         assertFalse(EMPTY_CONTEXT.containsKey(String.class));
         assertNull(EMPTY_CONTEXT.get(String.class));
     }
 
-    public void test02()
+    public void testSingletonContext1()
     {
-        Context child = new Context();
-        child.bind(P1).to(null);
-
-        IContext ctx1 = combine(child, EMPTY_CONTEXT);
-        assertTrue(ctx1.containsKey(P1));
-        assertNull(ctx1.get(P1));
-        assertNull(ctx1.getOrDefault(P1.withDefault("foo")));
-
-        IContext ctx2 = combine(EMPTY_CONTEXT, child);
-        assertTrue(ctx2.containsKey(P1));
-        assertNull(ctx2.get(P1));
-        assertNull(ctx2.getOrDefault(P1.withDefault("foo")));
+        IContext ctx = of(P1, null);
+        assertTrue(ctx.containsKey(P1));
+        assertNull(ctx.get(P1));
+        assertNull(ctx.getOrDefault(P1));
+        assertFalse(ctx.containsKey(String.class));
+        assertNull(ctx.get(String.class));
     }
 
-    public void test03()
+    public void testSingletonContext2()
     {
-        Context child = new Context();
-        child.bind(String.class).to(null);
+        IContext ctx = of(String.class, null);
+        assertTrue(ctx.containsKey(String.class));
+        assertNull(ctx.get(String.class));
+        assertFalse(ctx.containsKey(P1));
+        assertNull(ctx.get(P1));
+        assertEquals("bar", ctx.getOrDefault(P1));
+    }
 
-        IContext ctx1 = combine(child, EMPTY_CONTEXT);
+    public void testSingletonContext3()
+    {
+        String value = "foo";
+        IContext ctx = of(P1, value);
+        assertTrue(ctx.containsKey(P1));
+        assertEquals(value, ctx.get(P1));
+        assertEquals(value, ctx.getOrDefault(P1));
+        assertFalse(ctx.containsKey(String.class));
+        assertNull(ctx.get(String.class));
+    }
+
+    public void testSingletonContext4()
+    {
+        String value = "foo";
+        IContext ctx = of(String.class, value);
+        assertTrue(ctx.containsKey(String.class));
+        assertEquals(value, ctx.get(String.class));
+        assertFalse(ctx.containsKey(P1));
+        assertNull(ctx.get(P1));
+        assertEquals("bar", ctx.getOrDefault(P1));
+    }
+
+    public void testCompositeContext1()
+    {
+        IContext child = of(P1, null);
+
+        IContext ctx1 = with(child, EMPTY_CONTEXT);
+        assertTrue(ctx1.containsKey(P1));
+        assertNull(ctx1.get(P1));
+        assertNull(ctx1.getOrDefault(P1));
+
+        IContext ctx2 = with(EMPTY_CONTEXT, child);
+        assertTrue(ctx2.containsKey(P1));
+        assertNull(ctx2.get(P1));
+        assertNull(ctx2.getOrDefault(P1));
+    }
+
+    public void testCompositeContext2()
+    {
+        IContext child = of(String.class, null);
+
+        IContext ctx1 = with(child, EMPTY_CONTEXT);
         assertTrue(ctx1.containsKey(String.class));
         assertNull(ctx1.get(String.class));
 
-        IContext ctx2 = combine(EMPTY_CONTEXT, child);
+        IContext ctx2 = with(EMPTY_CONTEXT, child);
         assertTrue(ctx2.containsKey(String.class));
         assertNull(ctx2.get(String.class));
     }
 
-    public void test04()
+    public void testCompositeContext3()
     {
-        Context child = new Context();
         String value = "foo";
-        child.bind(P1).to(value);
+        IContext child = of(P1, value);
 
-        IContext ctx1 = combine(child, EMPTY_CONTEXT);
+        IContext ctx1 = with(child, EMPTY_CONTEXT);
         assertTrue(ctx1.containsKey(P1));
         assertSame(value, ctx1.get(P1));
         assertSame(value, ctx1.getOrDefault(P1));
 
-        IContext ctx2 = combine(EMPTY_CONTEXT, child);
+        IContext ctx2 = with(EMPTY_CONTEXT, child);
         assertTrue(ctx2.containsKey(P1));
         assertSame(value, ctx2.get(P1));
         assertSame(value, ctx2.getOrDefault(P1));
     }
 
-    public void test05()
+    public void testCompositeContext4()
     {
-        Context child = new Context();
         String value = "foo";
-        child.bind(String.class).to(value);
+        IContext child = of(String.class, value);
 
-        IContext ctx1 = combine(child, EMPTY_CONTEXT);
+        IContext ctx1 = with(child, EMPTY_CONTEXT);
         assertTrue(ctx1.containsKey(String.class));
         assertSame(value, ctx1.get(String.class));
 
-        IContext ctx2 = combine(EMPTY_CONTEXT, child);
+        IContext ctx2 = with(EMPTY_CONTEXT, child);
         assertTrue(ctx2.containsKey(String.class));
         assertSame(value, ctx2.get(String.class));
     }
 
-    public void test06()
+    public void testCompositeContext5()
     {
-        Context child1 = new Context();
         String value1 = "foo";
-        child1.bind(P1).to(value1);
+        IContext child1 = of(P1, value1);
 
-        Context child2 = new Context();
         String value2 = "bar";
-        child2.bind(P1).to(value2);
+        IContext child2 = of(P1, value2);
 
-        IContext ctx1 = combine(child1, child2);
+        IContext ctx1 = with(child1, child2);
         assertTrue(ctx1.containsKey(P1));
         assertSame(value1, ctx1.get(P1));
         assertSame(value1, ctx1.getOrDefault(P1));
 
-        IContext ctx2 = combine(child2, child1);
+        IContext ctx2 = with(child2, child1);
         assertTrue(ctx2.containsKey(P1));
         assertSame(value2, ctx2.get(P1));
         assertSame(value2, ctx2.getOrDefault(P1));
     }
 
-    public void test07()
+    public void testCompositeContext6()
     {
-        Context child1 = new Context();
         String value1 = "foo";
-        child1.bind(String.class).to(value1);
+        IContext child1 = of(String.class, value1);
 
-        Context child2 = new Context();
         String value2 = "bar";
-        child2.bind(String.class).to(value2);
+        IContext child2 = of(String.class, value2);
 
-        IContext ctx1 = combine(child1, child2);
+        IContext ctx1 = with(child1, child2);
         assertTrue(ctx1.containsKey(String.class));
         assertSame(value1, ctx1.get(String.class));
 
-        IContext ctx2 = combine(child2, child1);
+        IContext ctx2 = with(child2, child1);
         assertTrue(ctx2.containsKey(String.class));
         assertSame(value2, ctx2.get(String.class));
     }
 
-    public void test08()
+    public void testCompositeContext7()
     {
-        Context child1 = new Context();
-        child1.bind(P1).to("foo");
+        IContext child1 = of(P1, "foo");
+        IContext child2 = of(P1, null);
 
-        Context child2 = new Context();
-        child2.bind(P1).to(null);
-
-        IContext ctx = combine(EMPTY_CONTEXT, combine(child2, child1));
+        IContext ctx = with(EMPTY_CONTEXT, with(child2, child1));
         assertEquals(Arrays.asList(EMPTY_CONTEXT, child2, child1),
             ((Contexts.CompositeContext)ctx).contexts);
         assertTrue(ctx.containsKey(P1));
         assertNull(ctx.get(P1));
-        assertNull(ctx.getOrDefault(P1.withDefault("bar")));
+        assertNull(ctx.getOrDefault(P1));
         assertFalse(ctx.containsKey(String.class));
         assertNull(ctx.get(String.class));
     }
 
-    public void test09()
+    public void testCompositeContext8()
     {
-        Context child1 = new Context();
-        child1.bind(String.class).to("foo");
+        IContext child1 = of(String.class, "foo");
+        IContext child2 = of(String.class, null);
 
-        Context child2 = new Context();
-        child2.bind(String.class).to(null);
-
-        IContext ctx = combine(EMPTY_CONTEXT, combine(child2, child1));
+        IContext ctx = with(EMPTY_CONTEXT, with(child2, child1));
         assertEquals(Arrays.asList(EMPTY_CONTEXT, child2, child1),
             ((Contexts.CompositeContext)ctx).contexts);
         assertTrue(ctx.containsKey(String.class));
         assertNull(ctx.get(String.class));
         assertFalse(ctx.containsKey(P1));
         assertNull(ctx.get(P1));
-        assertEquals("bar", ctx.getOrDefault(P1.withDefault("bar")));
+        assertEquals("bar", ctx.getOrDefault(P1));
     }
 }

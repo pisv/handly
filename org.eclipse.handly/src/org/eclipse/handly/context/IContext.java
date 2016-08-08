@@ -16,11 +16,9 @@ import org.eclipse.handly.util.Property;
  * A context supplies values associated with keys. Keys are instances of
  * {@link Property} or {@link Class}.
  * <p>
- * Functional equality of property objects as keys to a context value is
- * based on the name and (optionally, depending on the context implementation)
- * type of the property. If the context implementation opts to use an essentially
- * name-based lookup, a {@code ClassCastException} may be thrown if the type
- * of the found value is not assignable to the property type.
+ * Context implementations may use an identity-based lookup, name-based lookup,
+ * or anything in-between. For portability, keys should be unique instances
+ * with unique names.
  * </p>
  */
 public interface IContext
