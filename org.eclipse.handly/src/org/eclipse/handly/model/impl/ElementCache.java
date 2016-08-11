@@ -12,9 +12,13 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.INDENT_POLICY;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
+
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.handly.util.OverflowingLruCache;
 
 /**
@@ -112,8 +116,9 @@ public class ElementCache
         for (LruCacheEntry<IElement, Object> entry =
             entryQueue; entry != null; entry = entry.next)
         {
-            result.append(Elements.toString(entry.key, ToStringStyle.COMPACT));
-            result.append('\n');
+            result.append(Elements.toString(entry.key, of(FORMAT_STYLE,
+                MEDIUM)));
+            INDENT_POLICY.defaultValue().appendLine(result);
         }
         return result.toString();
     }

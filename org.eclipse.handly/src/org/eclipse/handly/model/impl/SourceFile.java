@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.TextFileBuffer;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -508,11 +509,11 @@ public abstract class SourceFile
         IProgressMonitor monitor);
 
     @Override
-    protected void hToStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder, IContext context)
     {
         if (hIsWorkingCopy())
             builder.append("[Working copy] "); //$NON-NLS-1$
-        super.hToStringName(builder);
+        super.hToStringName(builder, context);
     }
 
     @Override

@@ -16,8 +16,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.handly.model.impl.IElementImpl;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -139,7 +139,7 @@ public class JavaElement
     }
 
     @Override
-    public String hToString(ToStringStyle style)
+    public String hToString(IContext context)
     {
         return toString();
     }

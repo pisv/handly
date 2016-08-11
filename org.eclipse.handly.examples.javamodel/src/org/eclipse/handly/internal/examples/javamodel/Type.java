@@ -11,6 +11,7 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
@@ -20,7 +21,6 @@ import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.snapshot.ISnapshot;
-import org.eclipse.handly.util.IndentationPolicy;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jdt.core.Flags;
 
@@ -182,11 +182,9 @@ public class Type
     }
 
     @Override
-    protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Object body,
-        boolean showResolvedInfo)
+    protected void hToStringBody(StringBuilder builder, Object body,
+        IContext context)
     {
-        indentationPolicy.appendIndentTo(builder, indentationLevel);
         if (body != null && body != NO_BODY)
         {
             SourceElementBody typeBody = (SourceElementBody)body;
@@ -200,7 +198,7 @@ public class Type
             else
                 builder.append("class "); //$NON-NLS-1$
         }
-        hToStringName(builder);
+        hToStringName(builder, context);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

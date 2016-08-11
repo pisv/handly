@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.INDENT_LEVEL;
+import static org.eclipse.handly.util.ToStringOptions.INDENT_POLICY;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.LONG;
+
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,13 +28,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementManager;
-import org.eclipse.handly.util.IndentationPolicy;
+import org.eclipse.handly.util.IndentPolicy;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
@@ -219,31 +225,29 @@ public class PackageFragment
     }
 
     @Override
-    protected void hToStringName(StringBuilder builder)
+    public String hToString(IContext context)
+    {
+        if (context.getOrDefault(FORMAT_STYLE) == LONG)
+        {
+            StringBuilder builder = new StringBuilder();
+            IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
+            int indentLevel = context.getOrDefault(INDENT_LEVEL);
+            indentPolicy.appendIndent(builder, indentLevel);
+            Object body = hPeekAtBody();
+            hToStringBody(builder, body, context);
+            if (body != null)
+                builder.append(" (...)"); //$NON-NLS-1$
+            return builder.toString();
+        }
+        return super.hToString(context);
+    }
+
+    @Override
+    protected void hToStringName(StringBuilder builder, IContext context)
     {
         if (isDefaultPackage())
             builder.append("<default>"); //$NON-NLS-1$
         else
-            super.hToStringName(builder);
-    }
-
-    @Override
-    protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Object body,
-        boolean showResolvedInfo)
-    {
-        super.hToStringBody(indentationPolicy, indentationLevel, builder, body,
-            showResolvedInfo);
-        if (body != null && indentationLevel > 0)
-            builder.append(" (...)"); //$NON-NLS-1$
-    }
-
-    @Override
-    protected void hToStringChildren(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Object body)
-    {
-        if (indentationLevel == 0)
-            super.hToStringChildren(indentationPolicy, indentationLevel,
-                builder, body);
+            super.hToStringName(builder, context);
     }
 }

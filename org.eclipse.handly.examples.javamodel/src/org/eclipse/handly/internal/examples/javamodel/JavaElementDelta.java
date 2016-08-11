@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaElementDelta;
 import org.eclipse.handly.model.IElement;
@@ -84,9 +85,9 @@ public class JavaElementDelta
     }
 
     @Override
-    protected boolean hToStringFlags(StringBuilder builder)
+    protected boolean hToStringFlags(StringBuilder builder, IContext context)
     {
-        boolean prev = super.hToStringFlags(builder);
+        boolean prev = super.hToStringFlags(builder, context);
         if ((getFlags() & F_CLASSPATH_CHANGED) != 0)
         {
             if (prev)

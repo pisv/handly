@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.buffer.IBuffer;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.impl.IElementImpl;
 import org.eclipse.handly.model.impl.ISourceElementImpl;
@@ -203,16 +204,31 @@ public class Elements
 
     /**
      * Debugging purposes. Returns a string representation of the element.
-     * Note that the specified style serves as a hint that implementations
-     * may or may not fully support.
+     * Note that the format options specified in the given context serve as
+     * a hint that implementations may or may not fully support.
+     * <p>
+     * Implementations are advised to support common hints defined in
+     * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
+     * interpret the format style as follows:
+     * <ul>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
+     * - A full representation that lists ancestors and children.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#LONG LONG}
+     * - A long representation that lists children but not ancestors.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#MEDIUM MEDIUM}
+     * - A compact representation that lists ancestors but not children.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#SHORT SHORT}
+     * - A minimal representation that does not list ancestors or children.</li>
+     * </ul>
+     * </p>
      *
      * @param element not <code>null</code>
-     * @param style style hint (not <code>null</code>)
+     * @param context not <code>null</code>
      * @return a string representation of the element (never <code>null</code>)
      */
-    public static String toString(IElement element, ToStringStyle style)
+    public static String toString(IElement element, IContext context)
     {
-        return ((IElementImpl)element).hToString(style);
+        return ((IElementImpl)element).hToString(context);
     }
 
     /**

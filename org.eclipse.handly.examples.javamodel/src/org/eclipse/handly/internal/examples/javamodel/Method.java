@@ -13,9 +13,9 @@ package org.eclipse.handly.internal.examples.javamodel;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.model.impl.SourceElementBody;
-import org.eclipse.handly.util.IndentationPolicy;
 import org.eclipse.jdt.core.Signature;
 
 /**
@@ -114,7 +114,7 @@ public class Method
     }
 
     @Override
-    protected void hToStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder, IContext context)
     {
         builder.append(getElementName());
         builder.append('(');
@@ -146,11 +146,9 @@ public class Method
     }
 
     @Override
-    protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Object body,
-        boolean showResolvedInfo)
+    protected void hToStringBody(StringBuilder builder, Object body,
+        IContext context)
     {
-        indentationPolicy.appendIndentTo(builder, indentationLevel);
         if (body != null && body != NO_BODY)
         {
             SourceElementBody methodBody = (SourceElementBody)body;
@@ -161,7 +159,7 @@ public class Method
                 builder.append(' ');
             }
         }
-        hToStringName(builder);
+        hToStringName(builder, context);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

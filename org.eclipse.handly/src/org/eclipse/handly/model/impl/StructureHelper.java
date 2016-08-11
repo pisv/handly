@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +22,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.ToStringStyle;
 
 /**
  * A helper class for building the entire structure of innermost "openables"
@@ -83,7 +86,7 @@ public class StructureHelper
         if (newElements.containsKey(child))
             throw new AssertionError(
                 "Attempt to add an already present element: " //$NON-NLS-1$
-                    + Elements.toString(child, ToStringStyle.COMPACT));
+                    + Elements.toString(child, of(FORMAT_STYLE, MEDIUM)));
         newElements.put(child, childBody);
         List<IElement> childrenList = children.get(parentBody);
         if (childrenList == null)

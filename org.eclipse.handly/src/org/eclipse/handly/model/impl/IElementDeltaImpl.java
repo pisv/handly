@@ -12,10 +12,10 @@ package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.IElementDeltaConstants;
-import org.eclipse.handly.model.ToStringStyle;
 
 /**
  * All {@link IElementDelta}s must implement this interface.
@@ -158,11 +158,26 @@ public interface IElementDeltaImpl
 
     /**
      * Debugging purposes. Returns a string representation of this delta.
-     * Note that the specified style serves as a hint that implementations
-     * may or may not fully support.
+     * Note that the format options specified in the given context serve as
+     * a hint that implementations may or may not fully support.
+     * <p>
+     * Implementations are advised to support common hints defined in
+     * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
+     * interpret the format style as follows:
+     * <ul>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
+     * - A full representation that lists affected children.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#LONG LONG}
+     * - May be an alias for FULL.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#MEDIUM MEDIUM}
+     * - May be an alias for SHORT.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#SHORT SHORT}
+     * - A minimal representation that does not list affected children.</li>
+     * </ul>
+     * </p>
      *
-     * @param style style hint (not <code>null</code>)
+     * @param context not <code>null</code>
      * @return a string representation of this delta (never <code>null</code>)
      */
-    String hToString(ToStringStyle style);
+    String hToString(IContext context);
 }

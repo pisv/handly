@@ -11,9 +11,9 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.model.impl.SourceElementBody;
-import org.eclipse.handly.util.IndentationPolicy;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.Signature;
 
@@ -51,11 +51,9 @@ public class Field
     }
 
     @Override
-    protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Object body,
-        boolean showResolvedInfo)
+    protected void hToStringBody(StringBuilder builder, Object body,
+        IContext context)
     {
-        indentationPolicy.appendIndentTo(builder, indentationLevel);
         if (body != null && body != NO_BODY)
         {
             SourceElementBody fieldBody = (SourceElementBody)body;
@@ -63,7 +61,7 @@ public class Field
             builder.append(Signature.toString(type));
             builder.append(' ');
         }
-        hToStringName(builder);
+        hToStringName(builder, context);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

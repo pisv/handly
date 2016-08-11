@@ -17,9 +17,9 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.ToStringStyle;
 
 /**
  * All {@link IElement}s must implement this interface.
@@ -170,11 +170,26 @@ public interface IElementImpl
 
     /**
      * Debugging purposes. Returns a string representation of this element.
-     * Note that the specified style serves as a hint that implementations
-     * may or may not fully support.
+     * Note that the format options specified in the given context serve as
+     * a hint that implementations may or may not fully support.
+     * <p>
+     * Implementations are advised to support common hints defined in
+     * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
+     * interpret the format style as follows:
+     * <ul>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
+     * - A full representation that lists ancestors and children.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#LONG LONG}
+     * - A long representation that lists children but not ancestors.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#MEDIUM MEDIUM}
+     * - A compact representation that lists ancestors but not children.</li>
+     * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#SHORT SHORT}
+     * - A minimal representation that does not list ancestors or children.</li>
+     * </ul>
+     * </p>
      *
-     * @param style style hint (not <code>null</code>)
+     * @param context not <code>null</code>
      * @return a string representation of this element (never <code>null</code>)
      */
-    String hToString(ToStringStyle style);
+    String hToString(IContext context);
 }

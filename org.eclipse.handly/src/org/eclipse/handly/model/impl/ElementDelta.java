@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.IElementDeltaConstants.ADDED;
 import static org.eclipse.handly.model.IElementDeltaConstants.CHANGED;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_CHILDREN;
@@ -27,6 +30,13 @@ import static org.eclipse.handly.model.IElementDeltaConstants.F_SYNC;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
 import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.INDENT_LEVEL;
+import static org.eclipse.handly.util.ToStringOptions.INDENT_POLICY;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.FULL;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.LONG;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.SHORT;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -36,11 +46,12 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.ToStringStyle;
-import org.eclipse.handly.util.IndentationPolicy;
+import org.eclipse.handly.util.IndentPolicy;
+import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
  * Implementation of element delta. To create a delta tree, use the
@@ -198,24 +209,38 @@ public class ElementDelta
     @Override
     public String toString()
     {
-        StringBuilder builder = new StringBuilder();
-        hToStringFull(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder);
-        return builder.toString();
+        return hToString(EMPTY_CONTEXT);
     }
 
     @Override
-    public String hToString(ToStringStyle style)
+    public String hToString(IContext context)
     {
         StringBuilder builder = new StringBuilder();
-        if (style.getOptions().contains(ToStringStyle.Option.CHILDREN))
+        IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
+        int indentLevel = context.getOrDefault(INDENT_LEVEL);
+        indentPolicy.appendIndent(builder, indentLevel);
+        builder.append(Elements.toString(element, with(of(FORMAT_STYLE, SHORT),
+            of(INDENT_LEVEL, 0), context)));
+        builder.append('[');
+        hToStringKind(builder, context);
+        builder.append("]: {"); //$NON-NLS-1$
+        hToStringFlags(builder, context);
+        builder.append('}');
+        FormatStyle style = context.getOrDefault(FORMAT_STYLE);
+        if (style == FULL || style == LONG)
         {
-            hToStringFull(style.getIndentationPolicy(),
-                style.getIndentationLevel(), builder);
-        }
-        else
-        {
-            hToStringMinimal(style.getIndentationPolicy(),
-                style.getIndentationLevel(), builder);
+            if (affectedChildren.length > 0)
+            {
+                indentPolicy.appendLine(builder);
+                hToStringChildren(builder, with(of(INDENT_LEVEL, //
+                    indentLevel + 1), context));
+            }
+            if (resourceDeltasCounter > 0)
+            {
+                indentPolicy.appendLine(builder);
+                hToStringResourceDeltas(builder, with(of(INDENT_LEVEL,
+                    indentLevel + 1), context));
+            }
         }
         return builder.toString();
     }
@@ -223,22 +248,33 @@ public class ElementDelta
     /**
      * Debugging purposes.
      */
-    protected void hToStringFull(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder)
+    protected void hToStringChildren(StringBuilder builder, IContext context)
     {
-        hToStringMinimal(indentationPolicy, indentationLevel, builder);
-        for (ElementDelta child : affectedChildren)
+        IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
+        for (int i = 0; i < affectedChildren.length; i++)
         {
-            indentationPolicy.appendLineSeparatorTo(builder);
-            child.hToStringFull(indentationPolicy, indentationLevel + 1,
-                builder);
+            if (i > 0)
+                indentPolicy.appendLine(builder);
+            builder.append(affectedChildren[i].hToString(context));
         }
+    }
+
+    /**
+     * Debugging purposes.
+     */
+    protected void hToStringResourceDeltas(StringBuilder builder,
+        IContext context)
+    {
+        IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
+        int indentLevel = context.getOrDefault(INDENT_LEVEL);
         for (int i = 0; i < resourceDeltasCounter; i++)
         {
-            indentationPolicy.appendLineSeparatorTo(builder);
-            indentationPolicy.appendIndentTo(builder, indentationLevel + 1);
+            if (i > 0)
+                indentPolicy.appendLine(builder);
+            indentPolicy.appendIndent(builder, indentLevel);
             IResourceDelta resourceDelta = resourceDeltas[i];
-            builder.append(resourceDelta.toString());
+            builder.append("ResourceDelta(" + resourceDelta.getFullPath() //$NON-NLS-1$
+                + ')');
             builder.append('[');
             switch (resourceDelta.getKind())
             {
@@ -262,12 +298,8 @@ public class ElementDelta
     /**
      * Debugging purposes.
      */
-    protected void hToStringMinimal(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder)
+    protected void hToStringKind(StringBuilder builder, IContext context)
     {
-        indentationPolicy.appendIndentTo(builder, indentationLevel);
-        builder.append(Elements.toString(element, ToStringStyle.MINIMAL));
-        builder.append('[');
         switch (kind)
         {
         case ADDED:
@@ -283,19 +315,17 @@ public class ElementDelta
             builder.append('?');
             break;
         }
-        builder.append("]: {"); //$NON-NLS-1$
-        hToStringFlags(builder);
-        builder.append('}');
     }
 
     /**
      * Debugging purposes.
      *
      * @param builder a string builder to append the delta flags to
+     * @param context not <code>null</code>
      * @return <code>true</code> if a flag was appended to the builder,
      *  <code>false</code> if the builder was not modified by this method
      */
-    protected boolean hToStringFlags(StringBuilder builder)
+    protected boolean hToStringFlags(StringBuilder builder, IContext context)
     {
         boolean prev = false;
         if ((flags & F_CHILDREN) != 0)
@@ -317,8 +347,8 @@ public class ElementDelta
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_FROM("); //$NON-NLS-1$
-            builder.append(Elements.toString(movedFromElement,
-                ToStringStyle.COMPACT));
+            builder.append(Elements.toString(movedFromElement, with(of(
+                FORMAT_STYLE, MEDIUM), of(INDENT_LEVEL, 0), context)));
             builder.append(')');
             prev = true;
         }
@@ -327,8 +357,8 @@ public class ElementDelta
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_TO("); //$NON-NLS-1$
-            builder.append(Elements.toString(movedToElement,
-                ToStringStyle.COMPACT));
+            builder.append(Elements.toString(movedToElement, with(of(
+                FORMAT_STYLE, MEDIUM), of(INDENT_LEVEL, 0), context)));
             builder.append(')');
             prev = true;
         }
@@ -1026,10 +1056,10 @@ public class ElementDelta
             List<IElement> ancestors = getAncestors(delta.element);
             if (ancestors == null)
             {
+                IContext context = of(FORMAT_STYLE, SHORT);
                 throw new IllegalArgumentException(MessageFormat.format(
                     "Delta {0} cannot be rooted under {1}", delta.hToString( //$NON-NLS-1$
-                        ToStringStyle.MINIMAL), rootDelta.hToString(
-                            ToStringStyle.MINIMAL)));
+                        context), rootDelta.hToString(context)));
             }
             for (IElement ancestor : ancestors)
             {

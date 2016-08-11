@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.model.IElement;
@@ -160,7 +161,7 @@ public class JavaModel
     }
 
     @Override
-    protected void hToStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder, IContext context)
     {
         builder.append("Java Model"); //$NON-NLS-1$
     }

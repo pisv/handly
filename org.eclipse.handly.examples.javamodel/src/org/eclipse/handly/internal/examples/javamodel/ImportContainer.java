@@ -10,14 +10,21 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.context.Contexts.with;
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.FULL;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.LONG;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.SHORT;
+
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
-import org.eclipse.handly.util.IndentationPolicy;
+import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
  * Implementation of {@link IImportContainer}.
@@ -59,25 +66,22 @@ public class ImportContainer
     }
 
     @Override
-    protected void hToStringName(StringBuilder builder)
+    public String hToString(IContext context)
     {
-        builder.append("<import container>"); //$NON-NLS-1$
+        FormatStyle style = context.getOrDefault(FORMAT_STYLE);
+        if (style == FULL || style == LONG)
+        {
+            StringBuilder builder = new StringBuilder();
+            hToStringChildren(builder, hPeekAtBody(), with(of(FORMAT_STYLE,
+                SHORT), context));
+            return builder.toString();
+        }
+        return super.hToString(context);
     }
 
     @Override
-    protected void hToString(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder)
+    protected void hToStringName(StringBuilder builder, IContext context)
     {
-        Object body = hPeekAtBody();
-        if (body == null)
-            return;
-        IElement[] children = hChildren(body);
-        for (int i = 0; i < children.length; i++)
-        {
-            if (i > 0)
-                indentationPolicy.appendLineSeparatorTo(builder);
-            ((Element)children[i]).hToStringBody(indentationPolicy,
-                indentationLevel, builder);
-        }
+        builder.append("<import container>"); //$NON-NLS-1$
     }
 }

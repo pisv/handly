@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceConstruct;
@@ -42,9 +43,9 @@ public class ImportDeclaration
     }
 
     @Override
-    protected void hToStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder, IContext context)
     {
         builder.append("import "); //$NON-NLS-1$
-        super.hToStringName(builder);
+        super.hToStringName(builder, context);
     }
 }

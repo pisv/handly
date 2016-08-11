@@ -11,7 +11,16 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import java.util.EnumSet;
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.context.Contexts.with;
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.INDENT_LEVEL;
+import static org.eclipse.handly.util.ToStringOptions.INDENT_POLICY;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.FULL;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.LONG;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
+
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
@@ -21,11 +30,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.ToStringStyle;
-import org.eclipse.handly.util.IndentationPolicy;
+import org.eclipse.handly.util.IndentPolicy;
+import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
  * The root of the element class hierarchy.
@@ -44,9 +54,8 @@ public abstract class Element
 {
     /**
      * Special-purpose value for the <code>body</code> argument of the
-     * {@link #hToStringBody(IndentationPolicy, int, StringBuilder, Object,
-     * boolean) hToStringBody} method. Indicates that body information
-     * should not be included in the appended string.
+     * {@link #hToStringBody(StringBuilder, Object, IContext) hToStringBody}
+     * method. Indicates that information about the body is not relevant.
      */
     protected static final Object NO_BODY = new Object();
 
@@ -110,9 +119,7 @@ public abstract class Element
     @Override
     public String toString()
     {
-        StringBuilder builder = new StringBuilder();
-        hToString(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder);
-        return builder.toString();
+        return hToString(EMPTY_CONTEXT);
     }
 
     @Override
@@ -189,21 +196,32 @@ public abstract class Element
     }
 
     @Override
-    public String hToString(ToStringStyle style)
+    public String hToString(IContext context)
     {
         StringBuilder builder = new StringBuilder();
-        if (style.getOptions().contains(ToStringStyle.Option.CHILDREN))
+        IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
+        int indentLevel = context.getOrDefault(INDENT_LEVEL);
+        FormatStyle style = context.getOrDefault(FORMAT_STYLE);
+        if (style == FULL || style == LONG)
         {
-            hToString(style.getIndentationPolicy(), style.getIndentationLevel(),
-                builder);
+            Object body = hPeekAtBody();
+            indentPolicy.appendIndent(builder, indentLevel);
+            hToStringBody(builder, body, context);
+            if (style == FULL)
+                hToStringAncestors(builder, context);
+            if (body != null && hChildren(body).length > 0)
+            {
+                indentPolicy.appendLine(builder);
+                hToStringChildren(builder, body, with(of(FORMAT_STYLE, LONG),
+                    of(INDENT_LEVEL, indentLevel + 1), context));
+            }
         }
         else
         {
-            hToStringBody(style.getIndentationPolicy(),
-                style.getIndentationLevel(), builder, NO_BODY,
-                true/*show resolved info*/);
-            if (style.getOptions().contains(ToStringStyle.Option.ANCESTORS))
-                hToStringAncestors(builder);
+            indentPolicy.appendIndent(builder, indentLevel);
+            hToStringBody(builder, NO_BODY, context);
+            if (style == MEDIUM)
+                hToStringAncestors(builder, context);
         }
         return builder.toString();
     }
@@ -211,57 +229,13 @@ public abstract class Element
     /**
      * Debugging purposes.
      */
-    public String hToDebugString()
-    {
-        StringBuilder builder = new StringBuilder();
-        hToStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder,
-            NO_BODY, true/*show resolved info*/);
-        return builder.toString();
-    }
-
-    /**
-     * Debugging purposes.
-     */
-    public String hToStringWithAncestors()
-    {
-        return hToStringWithAncestors(true/*show resolved info*/);
-    }
-
-    /**
-     * Debugging purposes.
-     */
-    public String hToStringWithAncestors(boolean showResolvedInfo)
-    {
-        StringBuilder builder = new StringBuilder();
-        hToStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0, builder,
-            NO_BODY, showResolvedInfo);
-        hToStringAncestors(builder);
-        return builder.toString();
-    }
-
-    /**
-     * Debugging purposes.
-     */
-    public Object hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder)
-    {
-        Object body = hPeekAtBody();
-        hToStringBody(indentationPolicy, indentationLevel, builder, body,
-            true/*show resolved info*/);
-        return body;
-    }
-
-    /**
-     * Debugging purposes.
-     */
-    protected void hToStringAncestors(StringBuilder builder)
+    protected void hToStringAncestors(StringBuilder builder, IContext context)
     {
         if (parent != null && parent.hParent() != null)
         {
             builder.append(" [in "); //$NON-NLS-1$
-            parent.hToStringBody(ToStringStyle.DEFAULT_INDENTATION_POLICY, 0,
-                builder, NO_BODY, false/*don't show resolved info*/);
-            parent.hToStringAncestors(builder);
+            parent.hToStringBody(builder, NO_BODY, context);
+            parent.hToStringAncestors(builder, context);
             builder.append(']');
         }
     }
@@ -269,57 +243,36 @@ public abstract class Element
     /**
      * Debugging purposes.
      */
-    protected void hToString(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder)
-    {
-        Object body = hToStringBody(indentationPolicy, indentationLevel,
-            builder);
-        if (indentationLevel == 0)
-        {
-            hToStringAncestors(builder);
-        }
-        hToStringChildren(indentationPolicy, indentationLevel, builder, body);
-    }
-
-    /**
-     * Debugging purposes.
-     */
-    protected void hToStringChildren(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Object body)
+    protected void hToStringChildren(StringBuilder builder, Object body,
+        IContext context)
     {
         if (body == null)
             return;
-        ToStringStyle childStyle = null;
-        for (IElement child : hChildren(body))
+        IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
+        IElement[] children = hChildren(body);
+        for (int i = 0; i < children.length; i++)
         {
-            indentationPolicy.appendLineSeparatorTo(builder);
-            if (childStyle == null)
-                childStyle = new ToStringStyle(EnumSet.of(
-                    ToStringStyle.Option.CHILDREN), indentationPolicy,
-                    indentationLevel + 1);
-            builder.append(Elements.toString(child, childStyle));
+            if (i > 0)
+                indentPolicy.appendLine(builder);
+            builder.append(Elements.toString(children[i], context));
         }
     }
 
     /**
      * Debugging purposes.
      */
-    protected void hToStringBody(IndentationPolicy indentationPolicy,
-        int indentationLevel, StringBuilder builder, Object body,
-        boolean showResolvedInfo)
+    protected void hToStringBody(StringBuilder builder, Object body,
+        IContext context)
     {
-        indentationPolicy.appendIndentTo(builder, indentationLevel);
-        hToStringName(builder);
+        hToStringName(builder, context);
         if (body == null)
-        {
             builder.append(" (not open)"); //$NON-NLS-1$
-        }
     }
 
     /**
      * Debugging purposes.
      */
-    protected void hToStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder, IContext context)
     {
         builder.append(name);
     }

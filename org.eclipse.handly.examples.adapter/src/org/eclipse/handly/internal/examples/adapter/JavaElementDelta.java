@@ -25,9 +25,9 @@ import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
-import org.eclipse.handly.model.ToStringStyle;
 import org.eclipse.handly.model.impl.IElementDeltaImpl;
 import org.eclipse.jdt.core.IJavaElementDelta;
 
@@ -133,7 +133,7 @@ class JavaElementDelta
     }
 
     @Override
-    public String hToString(ToStringStyle style)
+    public String hToString(IContext context)
     {
         return toString();
     }

@@ -15,6 +15,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
 
 /**
@@ -128,9 +129,9 @@ public abstract class SourceConstruct
     }
 
     @Override
-    protected void hToStringName(StringBuilder builder)
+    protected void hToStringName(StringBuilder builder, IContext context)
     {
-        super.hToStringName(builder);
+        super.hToStringName(builder, context);
         if (occurrenceCount > 1)
         {
             builder.append('#');
