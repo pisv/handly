@@ -164,6 +164,7 @@ public interface IElementDeltaImpl
      * Implementations are advised to support common hints defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
      * interpret the format style as follows:
+     * </p>
      * <ul>
      * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
      * - A full representation that lists affected children.</li>
@@ -174,7 +175,6 @@ public interface IElementDeltaImpl
      * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#SHORT SHORT}
      * - A minimal representation that does not list affected children.</li>
      * </ul>
-     * </p>
      *
      * @param context not <code>null</code>
      * @return a string representation of this delta (never <code>null</code>)

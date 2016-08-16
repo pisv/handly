@@ -210,6 +210,7 @@ public class Elements
      * Implementations are advised to support common hints defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
      * interpret the format style as follows:
+     * </p>
      * <ul>
      * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
      * - A full representation that lists ancestors and children.</li>
@@ -220,7 +221,6 @@ public class Elements
      * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#SHORT SHORT}
      * - A minimal representation that does not list ancestors or children.</li>
      * </ul>
-     * </p>
      *
      * @param element not <code>null</code>
      * @param context not <code>null</code>
