@@ -25,9 +25,10 @@ import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.impl.IElementImpl;
 import org.eclipse.handly.model.impl.ISourceElementImpl;
 import org.eclipse.handly.model.impl.ISourceFileImpl;
-import org.eclipse.handly.model.impl.SimpleSourceElementInfo;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
+import org.eclipse.handly.util.Property;
+import org.eclipse.handly.util.TextRange;
 
 /**
  * Provides methods for generic access to elements of a Handly-based model.
@@ -47,17 +48,6 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
  */
 public class Elements
 {
-    /**
-     * A 'null object' indicating that no info is available for source element.
-     * <p>
-     * The instance's methods return either <code>null</code> (if allowed
-     * by the method contract) or an appropriate 'null object' (such as
-     * a zero-length array).
-     * </p>
-     */
-    public static final ISourceElementInfo NO_SOURCE_INFO =
-        new SimpleSourceElementInfo();
-
     /**
      * Returns the name of the element, or <code>null</code>
      * if the element has no name. This is a handle-only method.
@@ -325,7 +315,7 @@ public class Elements
 
     /**
      * Returns an object holding cached structure and properties for the
-     * source element, or {@link #NO_SOURCE_INFO} if source info is not
+     * source element, or {@link #NO_SOURCE_ELEMENT_INFO} if source info is not
      * available.
      *
      * @param element not <code>null</code>
@@ -346,8 +336,56 @@ public class Elements
             else
                 Activator.log(e.getStatus());
         }
-        return NO_SOURCE_INFO;
+        return NO_SOURCE_ELEMENT_INFO;
     }
+
+    /**
+     * A 'null object' indicating that no info is available for source element.
+     * <p>
+     * The instance methods return either <code>null</code> (if allowed
+     * by the method contract) or an appropriate 'null object' (such as
+     * a zero-length array).
+     * </p>
+     * @see ISourceElementInfo
+     */
+    public static final ISourceElementInfo NO_SOURCE_ELEMENT_INFO =
+        new NoSourceElementInfo();
+
+    private static class NoSourceElementInfo
+        implements ISourceElementInfo
+    {
+        static final ISourceConstruct[] NO_CHILDREN = new ISourceConstruct[0];
+
+        @Override
+        public ISnapshot getSnapshot()
+        {
+            return null;
+        }
+
+        @Override
+        public <T> T get(Property<T> property)
+        {
+            return null;
+        }
+
+        @Override
+        public ISourceConstruct[] getChildren()
+        {
+            return NO_CHILDREN;
+        }
+
+        @Override
+        public TextRange getFullRange()
+        {
+            return null;
+        }
+
+        @Override
+        public TextRange getIdentifyingRange()
+        {
+            return null;
+        }
+    };
 
     /**
      * Returns the source file that contains the given element,

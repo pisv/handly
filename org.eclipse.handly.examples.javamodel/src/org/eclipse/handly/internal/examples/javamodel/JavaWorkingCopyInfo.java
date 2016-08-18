@@ -35,7 +35,7 @@ public class JavaWorkingCopyInfo
     }
 
     @Override
-    public void reconcile(NonExpiringSnapshot snapshot, boolean forced,
+    protected void reconcile(NonExpiringSnapshot snapshot, boolean forced,
         Object arg, IProgressMonitor monitor) throws CoreException
     {
         ReconcileInfo info = (ReconcileInfo)arg;
