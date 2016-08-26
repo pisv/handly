@@ -21,14 +21,15 @@ public class ToStringOptions
      * @see IndentPolicy
      */
     public static final Property<IndentPolicy> INDENT_POLICY = Property.get(
-        "indentPolicy", IndentPolicy.class).withDefault( //$NON-NLS-1$
-            new IndentPolicy());
+        ToStringOptions.class.getName() + ".indentPolicy", //$NON-NLS-1$
+        IndentPolicy.class).withDefault(new IndentPolicy());
 
     /**
      * Indent level property. Values are zero-based.
      */
     public static final Property<Integer> INDENT_LEVEL = Property.get(
-        "indentLevel", Integer.class).withDefault(0); //$NON-NLS-1$
+        ToStringOptions.class.getName() + ".indentLevel", //$NON-NLS-1$
+        Integer.class).withDefault(0);
 
     /**
      * Format style property.
@@ -36,7 +37,8 @@ public class ToStringOptions
      * @see FormatStyle
      */
     public static final Property<FormatStyle> FORMAT_STYLE = Property.get(
-        "formatStyle", FormatStyle.class).withDefault(FormatStyle.FULL); //$NON-NLS-1$
+        ToStringOptions.class.getName() + ".formatStyle", //$NON-NLS-1$
+        FormatStyle.class).withDefault(FormatStyle.FULL);
 
     /**
      * Enumeration of the style of textual representation of an object.
