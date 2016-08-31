@@ -33,7 +33,6 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.handly.model.impl.ElementDifferencer;
-import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.xtext.parser.IParseResult;
@@ -46,7 +45,7 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
  */
 public class FooFile
     extends SourceFile
-    implements IFooFile
+    implements IFooFile, IFooElementInternal
 {
     /**
      * Constructs a handle for a Foo file with the given parent element
@@ -94,12 +93,6 @@ public class FooFile
     public IFooDef[] getDefs() throws CoreException
     {
         return getChildren(IFooDef.class);
-    }
-
-    @Override
-    protected ElementManager hElementManager()
-    {
-        return FooModelManager.INSTANCE.getElementManager();
     }
 
     @Override

@@ -31,11 +31,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.handly.examples.javamodel.IJavaModel;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementManager;
+import org.eclipse.handly.model.impl.IModelManager;
 
 /**
  * The manager for the Java model.
@@ -43,7 +44,7 @@ import org.eclipse.handly.model.impl.ElementManager;
  * @threadsafe This class is intended to be thread-safe
  */
 public class JavaModelManager
-    implements IResourceChangeListener
+    implements IModelManager, IResourceChangeListener
 {
     /**
      * The sole instance of the manager.
@@ -115,18 +116,25 @@ public class JavaModelManager
         }
     }
 
-    public IJavaModel getJavaModel()
+    @Override
+    public JavaModel getModel()
     {
         if (javaModel == null)
             throw new IllegalStateException();
         return javaModel;
     }
 
+    @Override
     public ElementManager getElementManager()
     {
         if (elementManager == null)
             throw new IllegalStateException();
         return elementManager;
+    }
+
+    public IContext getModelContext()
+    {
+        return EMPTY_CONTEXT;
     }
 
     public void addElementChangeListener(IElementChangeListener listener)

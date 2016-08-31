@@ -31,7 +31,6 @@ import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementDifferencer;
-import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
@@ -50,7 +49,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
  */
 public class CompilationUnit
     extends SourceFile
-    implements ICompilationUnit
+    implements ICompilationUnit, IJavaElementInternal
 {
     @SuppressWarnings("restriction")
     private static final WorkingCopyOwner PRIMARY_OWNER =
@@ -196,12 +195,6 @@ public class CompilationUnit
             return false;
         CompilationUnit other = (CompilationUnit)obj;
         return owner.equals(other.owner) && super.equals(obj);
-    }
-
-    @Override
-    protected ElementManager hElementManager()
-    {
-        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override

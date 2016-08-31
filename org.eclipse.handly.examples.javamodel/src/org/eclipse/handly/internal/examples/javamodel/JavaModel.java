@@ -23,9 +23,9 @@ import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeListener;
+import org.eclipse.handly.model.IModel;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
-import org.eclipse.handly.model.impl.ElementManager;
 
 /**
  * Implementation of {@link IJavaModel}. The Java model maintains a cache of
@@ -33,7 +33,7 @@ import org.eclipse.handly.model.impl.ElementManager;
  */
 public class JavaModel
     extends Element
-    implements IJavaModel
+    implements IJavaModel, IJavaElementInternal, IModel
 {
     private final IWorkspace workspace;
 
@@ -49,6 +49,18 @@ public class JavaModel
         if (workspace == null)
             throw new IllegalArgumentException();
         this.workspace = workspace;
+    }
+
+    @Override
+    public int getApiLevel()
+    {
+        return ApiLevel.CURRENT;
+    }
+
+    @Override
+    public IContext getModelContext()
+    {
+        return JavaModelManager.INSTANCE.getModelContext();
     }
 
     @Override
@@ -122,12 +134,6 @@ public class JavaModel
     public boolean hExists()
     {
         return true; // always exists
-    }
-
-    @Override
-    protected ElementManager hElementManager()
-    {
-        return JavaModelManager.INSTANCE.getElementManager();
     }
 
     @Override
