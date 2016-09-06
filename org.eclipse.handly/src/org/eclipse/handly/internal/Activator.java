@@ -24,7 +24,7 @@ public class Activator
 {
     public static final String PLUGIN_ID = "org.eclipse.handly"; //$NON-NLS-1$
 
-    public static final boolean IS_RESOURCES_BUNDLE_AVAILABLE =
+    private static final boolean IS_RESOURCES_BUNDLE_AVAILABLE =
         Platform.getBundle("org.eclipse.core.resources") != null; //$NON-NLS-1$
 
     private static Activator plugin;
@@ -52,6 +52,11 @@ public class Activator
     public static IStatus createWarningStatus(String msg)
     {
         return new Status(IStatus.WARNING, PLUGIN_ID, 0, msg, null);
+    }
+
+    public static boolean isResourcesBundleAvailable()
+    {
+        return IS_RESOURCES_BUNDLE_AVAILABLE;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ package org.eclipse.handly.snapshot;
  * </p>
  *
  * @noimplement This interface is not intended to be implemented by clients.
- * @noextend This interface is not intended to be extended by clients.
+ *  However, clients may extend the base implementation, class {@link Snapshot}.
  */
 public interface ISnapshot
 {
@@ -39,12 +39,15 @@ public interface ISnapshot
     String getContents();
 
     /**
-     * Returns whether the two snapshots are equal. If the snapshots are equal
-     * they have equal contents (or had had equal contents before one or both
-     * of them have expired). However, the converse is not necessarily true.
+     * Indicates whether some other snapshot is "equal to" this one.
      * <p>
-     * Note that snapshots which are equal but not identical may become not equal
-     * when one or both of them expire. However, not equal snapshots can never
+     * If snapshots are equal they have equal contents (or had had equal
+     * contents before one or both of them expired). However, the converse
+     * is not necessarily true.
+     * </p>
+     * <p>
+     * Note that snapshots which are equal but not identical may become unequal
+     * when one or both of them expire. However, unequal snapshots can never
      * become equal.
      * </p>
      * <p>

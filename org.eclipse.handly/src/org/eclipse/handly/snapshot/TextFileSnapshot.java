@@ -13,155 +13,105 @@ package org.eclipse.handly.snapshot;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.handly.internal.Activator;
 
 /**
  * A snapshot of a text file in the workspace. Thread-safe.
  */
 public final class TextFileSnapshot
-    extends Snapshot
+    extends TextFileSnapshotBase
 {
-    private static final int DEFAULT_READING_SIZE = 8192;
-    private static final char[] EMPTY_CHAR_ARRAY = new char[0];
-
     private final IFile file;
     private final boolean local;
     private final long modificationStamp;
-    private Reference<String> contents;
-    private volatile IStatus status = Status.OK_STATUS;
+    private String charset;
 
     /**
      * Takes a snapshot of the given text file in the workspace, using either
      * workspace contents or the contents of the local file system according
-     * to the <code>local</code> flag.
+     * to the <code>layer</code> arg.
      *
      * @param file must not be <code>null</code>
-     * @param local whether the contents of the local file system
-     *  (as opposed to workspace contents) should be used
+     * @param layer indicates whether workspace contents or the contents of the
+     *  local file system should be used
      */
-    public TextFileSnapshot(IFile file, boolean local)
+    public TextFileSnapshot(IFile file, Layer layer)
     {
+        if (file == null)
+            throw new IllegalArgumentException();
         this.file = file;
-        this.local = local;
-        this.modificationStamp = getFileModificationStamp();
+        this.local = layer.equals(Layer.FILESYSTEM);
+        this.modificationStamp = getFileModificationStamp(file, local);
     }
 
     @Override
-    public synchronized String getContents()
+    public boolean exists()
     {
-        String result = null;
-        boolean sync = isSynchronized();
-        if (contents != null)
-        {
-            if (!sync)
-                contents = null; // no need to continue holding on contents
-            else
-                result = contents.get();
-        }
-        if (result == null && sync)
-        {
-            try
-            {
-                String currentContents = readContents();
-                if (isSynchronized()) // still current
-                    contents = new SoftReference<String>(result =
-                        currentContents);
-            }
-            catch (CoreException e)
-            {
-                Activator.log(e.getStatus());
-                status = e.getStatus();
-            }
-        }
-        return result;
-    }
-
-    public IStatus getStatus()
-    {
-        return status;
+        if (local)
+            return modificationStamp != 0;
+        else
+            return modificationStamp != IResource.NULL_STAMP;
     }
 
     @Override
     protected Boolean predictEquality(Snapshot other)
     {
-        if (!isSynchronized())
-            return false;
-
         if (other instanceof TextFileSnapshot)
         {
             TextFileSnapshot otherSnapshot = (TextFileSnapshot)other;
-            if (!otherSnapshot.isSynchronized())
-                return false;
-
             if (file.equals(otherSnapshot.file) && local == otherSnapshot.local
                 && modificationStamp == otherSnapshot.modificationStamp)
                 return true;
         }
 
+        if (!isSynchronized())
+            return false; // expired
+
         return null;
     }
 
-    private boolean isSynchronized()
+    @Override
+    boolean isSynchronized()
     {
-        return modificationStamp == getFileModificationStamp() && status.isOK();
+        return modificationStamp == getFileModificationStamp(file, local)
+            && getStatus().isOK();
     }
 
-    private long getFileModificationStamp()
+    @Override
+    void cacheCharset() throws CoreException
     {
-        if (!file.exists())
-            return IResource.NULL_STAMP;
+        if (charset != null)
+            return;
 
-        if (!local)
-            return file.getModificationStamp();
-        else
-            return file.getLocation().toFile().lastModified();
+        charset = file.getCharset(false);
+        if (charset == null)
+        {
+            try (InputStream contents = file.getContents(local))
+            {
+                charset = getCharset(contents, file.getName());
+            }
+            catch (IOException e)
+            {
+                throw new CoreException(Activator.createErrorStatus(
+                    e.getMessage(), e));
+            }
+        }
+        if (charset == null)
+            charset = file.getParent().getDefaultCharset();
     }
 
-    private String readContents() throws CoreException
+    @Override
+    String readContents() throws CoreException
     {
-        if (!file.exists())
-            return ""; //$NON-NLS-1$
-
-        String encoding = null;
-        try
-        {
-            encoding = file.getCharset();
-        }
-        catch (CoreException ce)
-        {
-            // use no encoding
-        }
-
-        try
-        {
+        try (
             InputStream stream = file.getContents(local);
-            try
-            {
-                InputStreamReader reader = (encoding == null
-                    ? new InputStreamReader(stream) : new InputStreamReader(
-                        stream, encoding));
-                try
-                {
-                    return String.valueOf(getInputStreamAsCharArray(stream,
-                        reader));
-                }
-                finally
-                {
-                    reader.close();
-                }
-            }
-            finally
-            {
-                stream.close();
-            }
+            InputStreamReader reader = new InputStreamReader(stream, charset))
+        {
+            return String.valueOf(getInputStreamAsCharArray(stream, reader));
         }
         catch (IOException e)
         {
@@ -170,51 +120,27 @@ public final class TextFileSnapshot
         }
     }
 
-    private static char[] getInputStreamAsCharArray(InputStream stream,
-        InputStreamReader reader) throws IOException
+    private static long getFileModificationStamp(IFile file, boolean local)
     {
-        char[] contents = EMPTY_CHAR_ARRAY;
-        int contentsLength = 0;
-        int amountRead = -1;
-        do
-        {
-            int amountRequested = Math.max(stream.available(),
-                DEFAULT_READING_SIZE); // read at least 8K
+        if (!local)
+            return file.getModificationStamp();
+        else
+            return file.getLocation().toFile().lastModified();
+    }
 
-            // resize contents if needed
-            if (contentsLength + amountRequested > contents.length)
-            {
-                System.arraycopy(contents, 0, contents = new char[contentsLength
-                    + amountRequested], 0, contentsLength);
-            }
-
-            // read as many chars as possible
-            amountRead = reader.read(contents, contentsLength, amountRequested);
-
-            if (amountRead > 0)
-            {
-                // remember length of contents
-                contentsLength += amountRead;
-            }
-        }
-        while (amountRead != -1);
-
-        // Do not keep first character for UTF-8 BOM encoding
-        int start = 0;
-        if (contentsLength > 0 && "UTF-8".equals(reader.getEncoding())) //$NON-NLS-1$
-        {
-            if (contents[0] == 0xFEFF)
-            { // if BOM char then skip
-                contentsLength--;
-                start = 1;
-            }
-        }
-        // resize contents if necessary
-        if (contentsLength < contents.length)
-        {
-            System.arraycopy(contents, start, contents =
-                new char[contentsLength], 0, contentsLength);
-        }
-        return contents;
+    /**
+     * Specifies whether workspace contents or the contents of the local
+     * file system should be used.
+     */
+    public enum Layer
+    {
+        /**
+         * Indicates that workspace contents should be used.
+         */
+        WORKSPACE,
+        /**
+         * Indicates that the contents of the local file system should be used.
+         */
+        FILESYSTEM
     }
 }

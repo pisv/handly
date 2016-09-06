@@ -130,12 +130,6 @@ public class HandlyXtextDocument
     }
 
     @Override
-    public ISnapshot getSnapshot()
-    {
-        return new DocumentSnapshot(this);
-    }
-
-    @Override
     public ISnapshot getReconciledSnapshot()
     {
         NonExpiringSnapshot reconciledSnapshot = this.reconciledSnapshot;
@@ -254,9 +248,14 @@ public class HandlyXtextDocument
         }
     }
 
+    private ISnapshot getSnapshot()
+    {
+        return new DocumentSnapshot(this);
+    }
+
     private NonExpiringSnapshot getNonExpiringSnapshot()
     {
-        return new NonExpiringSnapshot(this);
+        return new NonExpiringSnapshot(this::getSnapshot);
     }
 
     /*

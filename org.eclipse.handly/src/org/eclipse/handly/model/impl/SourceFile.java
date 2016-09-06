@@ -36,7 +36,6 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.snapshot.ISnapshot;
-import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.handly.snapshot.TextFileSnapshot;
 import org.eclipse.handly.util.Property;
@@ -413,21 +412,26 @@ public abstract class SourceFile
                 NonExpiringSnapshot snapshot;
                 try
                 {
-                    snapshot = new NonExpiringSnapshot(new ISnapshotProvider()
+                    snapshot = new NonExpiringSnapshot(() ->
                     {
-                        @Override
-                        public ISnapshot getSnapshot()
+                        TextFileSnapshot result = new TextFileSnapshot(file,
+                            TextFileSnapshot.Layer.FILESYSTEM);
+                        if (!result.exists())
                         {
-                            TextFileSnapshot result = new TextFileSnapshot(file,
-                                true);
-                            if (result.getContents() == null
-                                && !result.getStatus().isOK())
-                            {
-                                throw new IllegalStateException(
-                                    new CoreException(result.getStatus()));
-                            }
-                            return result;
+                            throw new IllegalStateException(new CoreException(
+                                Activator.createErrorStatus(
+                                    MessageFormat.format(
+                                        Messages.SourceFile_File_does_not_exist__0,
+                                        file.getFullPath().makeRelative()),
+                                    null)));
                         }
+                        if (result.getContents() == null
+                            && !result.getStatus().isOK())
+                        {
+                            throw new IllegalStateException(new CoreException(
+                                result.getStatus()));
+                        }
+                        return result;
                     });
                 }
                 catch (IllegalStateException e)

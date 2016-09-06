@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@ package org.eclipse.handly.snapshot;
 /**
  * A snapshot that never expires (i.e. never returns <code>null</code> from
  * {@link #getContents()}). It wraps another snapshot and holds on its contents.
- * The wrapped snapshot is taken from the given snapshot provider.
  * <p>
  * Protractedly holding on non-expiring snapshots is not recommended,
  * as they may potentially consume large amount of space.
@@ -31,6 +30,7 @@ public final class NonExpiringSnapshot
      *
      * @param provider a snapshot provider from which a snapshot is to be taken
      *  (not <code>null</code>)
+     * @throws IllegalStateException if no snapshot can be taken at this time
      */
     public NonExpiringSnapshot(ISnapshotProvider provider)
     {
@@ -44,7 +44,7 @@ public final class NonExpiringSnapshot
         }
         if (contents == null)
         {
-            throw new AssertionError(
+            throw new IllegalStateException(
                 "Could not get a non-expired snapshot. Ill-behaved snapshot provider?"); //$NON-NLS-1$
         }
 

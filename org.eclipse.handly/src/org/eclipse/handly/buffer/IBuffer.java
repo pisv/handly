@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
+import org.eclipse.handly.util.IReferenceCountable;
 import org.eclipse.jface.text.IDocument;
 
 /**
@@ -37,12 +38,9 @@ import org.eclipse.jface.text.IDocument;
  * Each buffer implementation is expected to clearly document thread-safety
  * guarantees it provides.
  * </p>
- *
- * @noimplement This interface is not intended to be implemented by clients.
- * @noextend This interface is not intended to be extended by clients.
  */
 public interface IBuffer
-    extends ISnapshotProvider, AutoCloseable
+    extends ISnapshotProvider, IReferenceCountable
 {
     /**
      * Takes a snapshot of the buffer.
@@ -122,29 +120,9 @@ public interface IBuffer
      */
     void save(boolean overwrite, IProgressMonitor monitor) throws CoreException;
 
-    /**
-     * Spawns a new independent ownership of the buffer. Each successful call
-     * to <code>addRef</code> must ultimately be followed by exactly one call
-     * to <code>release</code>.
-     *
-     * @see #release()
-     */
     void addRef();
 
-    /**
-     * Relinquishes an independent ownership of the buffer. Each independent
-     * ownership of the buffer must ultimately end with exactly one call to
-     * this method.
-     */
     void release();
-
-    /**
-     * Alias for {@link #release}.
-     */
-    default void close()
-    {
-        release();
-    }
 
     /**
      * Returns the underlying document of this buffer,

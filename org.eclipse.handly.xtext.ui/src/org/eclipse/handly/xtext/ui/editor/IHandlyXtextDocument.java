@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.document.IDocumentChange;
 import org.eclipse.handly.snapshot.ISnapshot;
-import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -29,7 +28,7 @@ import org.eclipse.xtext.util.concurrent.IUnitOfWork;
  * @noextend This interface is not intended to be extended by clients.
  */
 public interface IHandlyXtextDocument
-    extends IXtextDocument, ISnapshotProvider
+    extends IXtextDocument
 {
     /**
      * Returns whether the resource contents is out of sync

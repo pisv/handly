@@ -13,8 +13,6 @@ package org.eclipse.handly.snapshot;
 /**
  * Abstract superclass of snapshots.
  * Implements an equivalence relation on snapshots.
- *
- * @noextend This class is not intended to be extended by clients
  */
 public abstract class Snapshot
     implements ISnapshot

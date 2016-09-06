@@ -12,15 +12,14 @@ package org.eclipse.handly.snapshot;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 
-import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.IFileBuffer;
 import org.eclipse.core.filebuffers.IFileBufferListener;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.handly.internal.Activator;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 
@@ -41,14 +40,14 @@ public final class TextFileBufferSnapshot
     private DocumentListener documentListener = new DocumentListener();
     private BufferListener bufferListener = new BufferListener();
     private Reference<String> contents;
-    private TextFileSnapshot delegate;
+    private ISnapshot delegate;
 
     /**
      * Takes a snapshot of the given text file buffer.
      *
      * @param buffer a buffer connected through the given buffer manager -
      *  must not be <code>null</code> and must be connected at least
-     *  for the duration of the constructor call
+     *  during the execution of this constructor
      * @param bufferManager must not be <code>null</code>
      */
     public TextFileBufferSnapshot(ITextFileBuffer buffer,
@@ -112,20 +111,12 @@ public final class TextFileBufferSnapshot
 
         removeListeners();
         bufferManager = null;
-        IPath location = buffer.getLocation();
-        if (location != null && Activator.IS_RESOURCES_BUNDLE_AVAILABLE)
+        ISnapshot fileSnapshot = new TextFileStoreSnapshot(
+            buffer.getFileStore(), Charset.forName(buffer.getEncoding()));
+        if (!buffer.isDirty() && buffer.isSynchronized())
         {
-            IFile file = FileBuffers.getWorkspaceFileAtLocation(location);
-            if (file != null)
-            {
-                TextFileSnapshot fileSnapshot = new TextFileSnapshot(file,
-                    false);
-                if (!buffer.isDirty() && buffer.isSynchronized())
-                {
-                    // the snapshot can be 'transcended' as file snapshot (no need to expire)
-                    delegate = fileSnapshot;
-                }
-            }
+            // the snapshot can be 'transcended' as file snapshot (no need to expire)
+            delegate = fileSnapshot;
         }
         contents = null; // if delegate == null, the snapshot expires
         buffer = null;
