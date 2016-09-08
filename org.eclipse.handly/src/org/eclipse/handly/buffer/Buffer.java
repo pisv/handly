@@ -33,7 +33,7 @@ import org.eclipse.text.edits.MalformedTreeException;
  * use this class as it stands or subclass it as circumstances warrant.
  * </p>
  */
-public class SimpleBuffer
+public class Buffer
     implements IBuffer
 {
     private final IDocument document;
@@ -46,7 +46,7 @@ public class SimpleBuffer
      * the created buffer after it is no longer needed.
      * </p>
      */
-    public SimpleBuffer()
+    public Buffer()
     {
         this(null);
     }
@@ -60,7 +60,7 @@ public class SimpleBuffer
      *
      * @param contents initial contents
      */
-    public SimpleBuffer(String contents)
+    public Buffer(String contents)
     {
         document = createEmptyDocument();
         if (contents != null && !contents.isEmpty())

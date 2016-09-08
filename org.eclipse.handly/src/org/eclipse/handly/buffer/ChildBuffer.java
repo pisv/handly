@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * </p>
  */
 public class ChildBuffer
-    extends SimpleBuffer
+    extends Buffer
 {
     private final IBuffer parent;
 
