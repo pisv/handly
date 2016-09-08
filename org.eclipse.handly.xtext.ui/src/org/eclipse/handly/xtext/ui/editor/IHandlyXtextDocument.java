@@ -12,9 +12,9 @@ package org.eclipse.handly.xtext.ui.editor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.handly.document.IDocumentChange;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
+import org.eclipse.handly.text.IDocumentChange;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.xtext.resource.XtextResource;

@@ -8,7 +8,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.document;
+package org.eclipse.handly.text;
 
 import org.eclipse.handly.snapshot.DocumentSnapshot;
 import org.eclipse.handly.snapshot.ISnapshot;
