@@ -18,19 +18,12 @@ import org.eclipse.core.filebuffers.IFileBuffer;
 import org.eclipse.core.filebuffers.IFileBufferListener;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 
 /**
  * A snapshot of a text file buffer. Thread-safe.
- * <p>
- * Note that despite having a dependency on {@link IFile} this class can
- * safely be used even when <code>org.eclipse.core.resources</code> bundle is
- * not available. This is based on the "outward impression" of late resolution
- * of symbolic references a JVM must provide according to the JVMS.
- * </p>
  */
 public final class TextFileBufferSnapshot
     extends Snapshot
