@@ -35,10 +35,11 @@ public interface ISnapshotProvider
      * Returns the current snapshot of the underlying resource or buffer.
      * The returned snapshot may immediately become stale or expire.
      * <p>
-     * Note that it is possible to obtain a {@link NonExpiringSnapshot#
-     * NonExpiringSnapshot(ISnapshotProvider) non-expiring} snapshot from the
-     * provider, although protractedly holding on non-expiring snapshots is not
-     * recommended, as they may potentially consume large amount of space.
+     * Note that it is possible to obtain a {@link
+     * NonExpiringSnapshot#NonExpiringSnapshot(ISnapshotProvider) non-expiring}
+     * snapshot from the provider, although protractedly holding on non-expiring
+     * snapshots is not recommended as they may potentially consume large amount
+     * of space.
      * </p>
      *
      * @return the current snapshot (never <code>null</code>)

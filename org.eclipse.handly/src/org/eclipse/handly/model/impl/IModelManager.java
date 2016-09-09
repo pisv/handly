@@ -25,7 +25,6 @@ public interface IModelManager
      * Returns the managed model.
      *
      * @return the managed model (never <code>null</code>)
-     * @throws IllegalStateException if the model is not accessible
      */
     IModel getModel();
 
@@ -34,7 +33,6 @@ public interface IModelManager
      * the model. Typical implementations would answer a model-specific singleton.
      *
      * @return the element manager (never <code>null</code>)
-     * @throws IllegalStateException if the element manager is not accessible
      */
     ElementManager getElementManager();
 

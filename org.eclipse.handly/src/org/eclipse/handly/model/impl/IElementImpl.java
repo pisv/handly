@@ -88,9 +88,7 @@ public interface IElementImpl
      * not change over the lifetime of an element.
      * </p>
      *
-     * @param element not <code>null</code>
      * @return the element's model (never <code>null</code>)
-     * @throws IllegalStateException if the model is no longer accessible
      */
     IModel hModel();
 

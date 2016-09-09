@@ -113,7 +113,6 @@ public class Elements
      *
      * @param element not <code>null</code>
      * @return the element's model (never <code>null</code>)
-     * @throws IllegalStateException if the model is no longer accessible
      */
     public static IModel getModel(IElement element)
     {

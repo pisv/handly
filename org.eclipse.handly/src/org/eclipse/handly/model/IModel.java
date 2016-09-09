@@ -36,15 +36,13 @@ public interface IModel
 {
     /**
      * Returns a context which provides information and services pertaining
-     * to the model as a whole. The context, as a set of bindings, is immutable.
+     * to this model. The context, as a set of bindings, is immutable.
      * <p>
      * Note that the relationship between a model and its context does not
      * change over the lifetime of a model.
      * </p>
      *
-     * @param model not <code>null</code>
-     * @return the model's context (never <code>null</code>)
-     * @throws IllegalStateException if the model is no longer accessible
+     * @return the model context (never <code>null</code>)
      */
     IContext getModelContext();
 
