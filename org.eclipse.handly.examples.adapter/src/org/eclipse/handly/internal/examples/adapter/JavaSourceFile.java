@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
+import org.eclipse.handly.buffer.ICoreTextFileBufferProvider;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.impl.ISourceFileImpl;
@@ -94,12 +95,14 @@ class JavaSourceFile
         IFile file = hFile();
         if (file == null)
             throw new AssertionError("No underlying IFile for " + toString());
+        ICoreTextFileBufferProvider provider =
+            ICoreTextFileBufferProvider.forLocation(file.getFullPath(),
+                LocationKind.IFILE, ITextFileBufferManager.DEFAULT);
         if (!context.getOrDefault(CREATE_BUFFER)
-            && ITextFileBufferManager.DEFAULT.getTextFileBuffer(
-                file.getFullPath(), LocationKind.IFILE) == null)
+            && provider.getBuffer() == null)
         {
             return null;
         }
-        return new TextFileBuffer(file, ITextFileBufferManager.DEFAULT);
+        return new TextFileBuffer(provider, monitor);
     }
 }

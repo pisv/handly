@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
@@ -48,8 +47,7 @@ public class WorkingCopyNotificationTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        buffer = new TextFileBuffer(workingCopy.getFile(),
-            ITextFileBufferManager.DEFAULT);
+        buffer = TextFileBuffer.forFile(workingCopy.getFile());
         workingCopy.getJavaModel().addElementChangeListener(listener);
     }
 

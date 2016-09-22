@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -46,8 +45,7 @@ public class FooWorkingCopyTest
         super.setUp();
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
-        buffer = new TextFileBuffer(workingCopy.getFile(),
-            ITextFileBufferManager.DEFAULT);
+        buffer = TextFileBuffer.forFile(workingCopy.getFile());
     }
 
     @Override

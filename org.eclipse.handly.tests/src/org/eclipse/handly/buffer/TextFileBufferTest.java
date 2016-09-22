@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.buffer;
 
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.swt.widgets.Display;
@@ -33,8 +32,7 @@ public class TextFileBufferTest
         IProject p = getProject("p");
         p.create(null);
         p.open(null);
-        buffer = new TextFileBuffer(p.getFile("f"),
-            ITextFileBufferManager.DEFAULT);
+        buffer = TextFileBuffer.forFile(p.getFile("f"));
     }
 
     @Override
@@ -61,7 +59,7 @@ public class TextFileBufferTest
                         buffer.applyChange(new BufferChange(new InsertEdit(0,
                             "b")), null);
 
-                        buffer.getDelegate().requestSynchronizationContext();
+                        buffer.getCoreTextFileBufferProvider().getBuffer().requestSynchronizationContext();
                         buffer.applyChange(new BufferChange(new InsertEdit(0,
                             "c")), null);
                     }
@@ -92,7 +90,7 @@ public class TextFileBufferTest
             // Synchronization context is requested but workbench is not running
         }
 
-        buffer.getDelegate().releaseSynchronizationContext();
+        buffer.getCoreTextFileBufferProvider().getBuffer().releaseSynchronizationContext();
         buffer.applyChange(new BufferChange(new InsertEdit(0, "d")), null);
         assertEquals("dcba", buffer.getContents());
     }

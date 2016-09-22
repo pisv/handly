@@ -13,10 +13,13 @@ package org.eclipse.handly.buffer;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.TextFileBufferSnapshot;
@@ -31,51 +34,131 @@ import org.eclipse.text.edits.MalformedTreeException;
  * An instance of this class is safe for use by multiple threads, provided that
  * the underlying <code>ITextFileBuffer</code> and its document are thread-safe.
  * </p>
+ * <p>
+ * This class has an optional dependency on {@link IFile} and can safely be used
+ * even when <code>org.eclipse.core.resources</code> bundle is not available.
+ * </p>
  */
 public class TextFileBuffer
     implements IBuffer
 {
-    private final IFile file;
-    private final ITextFileBufferManager bufferManager;
-    private ITextFileBuffer delegate;
+    private final Object location;
+    private ICoreTextFileBufferProvider coreTextFileBufferProvider;
     private int refCount = 1;
 
     /**
+     * Returns a buffer for the given file location.
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
+     * the buffer after it is no longer needed.
+     * </p>
+     *
+     * @param location not <code>null</code>
+     * @param locationKind not <code>null</code>
+     * @return a buffer for the given file location (never <code>null</code>)
+     * @throws CoreException if the buffer could not be successfully created
+     */
+    public static TextFileBuffer forLocation(IPath location,
+        LocationKind locationKind) throws CoreException
+    {
+        return new TextFileBuffer(ICoreTextFileBufferProvider.forLocation(
+            location, locationKind, ITextFileBufferManager.DEFAULT), null);
+    }
+
+    /**
+     * Returns a buffer for the given file store.
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
+     * the buffer after it is no longer needed.
+     * </p>
+     *
+     * @param fileStore not <code>null</code>
+     * @return a buffer for the given file store (never <code>null</code>)
+     * @throws CoreException if the buffer could not be successfully created
+     */
+    public static TextFileBuffer forFileStore(IFileStore fileStore)
+        throws CoreException
+    {
+        return new TextFileBuffer(ICoreTextFileBufferProvider.forFileStore(
+            fileStore, ITextFileBufferManager.DEFAULT), null);
+    }
+
+    /**
+     * Returns a buffer for the given file resource.
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
+     * the buffer after it is no longer needed.
+     * </p>
+     *
+     * @param file not <code>null</code>
+     * @return a buffer for the given file resource (never <code>null</code>)
+     * @throws CoreException if the buffer could not be successfully created
+     */
+    public static TextFileBuffer forFile(IFile file) throws CoreException
+    {
+        return forLocation(file.getFullPath(), LocationKind.IFILE);
+    }
+
+    /**
      * Creates a new buffer instance and connects it to the underlying {@link
-     * ITextFileBuffer} for the given file.
+     * ITextFileBuffer} via the given provider.
      * <p>
      * It is the client responsibility to {@link IBuffer#release() release}
      * the created buffer after it is no longer needed.
      * </p>
      *
-     * @param file the text file (not <code>null</code>)
-     * @param bufferManager the manager of the underlying file buffer
+     * @param provider {@link ICoreTextFileBufferProvider}
      *  (not <code>null</code>)
-     * @throws CoreException if the buffer could not be connected
+     * @param monitor the progress monitor,
+     *  or <code>null</code> if progress reporting is not desired.
+     *  The progress monitor is valid only for the duration of the invocation
+     *  of this constructor
+     * @throws CoreException if the buffer could not be successfully created
+     * @throws OperationCanceledException if this constructor is canceled
      */
-    public TextFileBuffer(IFile file, ITextFileBufferManager bufferManager)
-        throws CoreException
+    public TextFileBuffer(ICoreTextFileBufferProvider provider,
+        IProgressMonitor monitor) throws CoreException
     {
-        if ((this.file = file) == null)
+        if ((this.coreTextFileBufferProvider = provider) == null)
             throw new IllegalArgumentException();
-        if ((this.bufferManager = bufferManager) == null)
-            throw new IllegalArgumentException();
-        bufferManager.connect(file.getFullPath(), LocationKind.IFILE, null);
-        if ((this.delegate = bufferManager.getTextFileBuffer(file.getFullPath(),
-            LocationKind.IFILE)) == null)
-            throw new AssertionError();
+
+        provider.connect(monitor);
+
+        ITextFileBuffer buffer = provider.getBuffer();
+        Object location = buffer.getLocation();
+        if (location == null)
+            location = buffer.getFileStore();
+        this.location = location;
+    }
+
+    /**
+     * Returns the provider of the underlying {@link ITextFileBuffer}.
+     *
+     * @return the underlying buffer provider (never <code>null</code>)
+     * @throws IllegalStateException if this buffer is no longer accessible
+     */
+    public ICoreTextFileBufferProvider getCoreTextFileBufferProvider()
+    {
+        ICoreTextFileBufferProvider result = coreTextFileBufferProvider;
+        if (result == null)
+            throw new IllegalStateException(
+                "Attempt to access a disconnected TextFileBuffer for " //$NON-NLS-1$
+                    + location);
+        return result;
     }
 
     @Override
     public IDocument getDocument()
     {
-        return getDelegate().getDocument();
+        return getCoreTextFileBufferProvider().getBuffer().getDocument();
     }
 
     @Override
     public ISnapshot getSnapshot()
     {
-        return new TextFileBufferSnapshot(getDelegate(), bufferManager);
+        ICoreTextFileBufferProvider provider = getCoreTextFileBufferProvider();
+        return new TextFileBufferSnapshot(provider.getBuffer(),
+            provider.getBufferManager());
     }
 
     @Override
@@ -88,7 +171,7 @@ public class TextFileBuffer
         {
             BufferChangeOperation operation = new BufferChangeOperation(this,
                 change);
-            if (!getDelegate().isSynchronizationContextRequested())
+            if (!getCoreTextFileBufferProvider().getBuffer().isSynchronizationContextRequested())
                 return operation.execute(monitor);
 
             UiSynchronizer synchronizer = UiSynchronizer.getDefault();
@@ -127,21 +210,21 @@ public class TextFileBuffer
     @Override
     public boolean hasUnsavedChanges()
     {
-        return getDelegate().isDirty();
+        return getCoreTextFileBufferProvider().getBuffer().isDirty();
     }
 
     @Override
     public boolean mustSaveChanges()
     {
-        ITextFileBuffer delegate = getDelegate();
-        return delegate.isDirty() && !delegate.isShared();
+        ITextFileBuffer buffer = getCoreTextFileBufferProvider().getBuffer();
+        return buffer.isDirty() && !buffer.isShared();
     }
 
     @Override
     public void save(boolean overwrite, IProgressMonitor monitor)
         throws CoreException
     {
-        getDelegate().commit(monitor, overwrite);
+        getCoreTextFileBufferProvider().getBuffer().commit(monitor, overwrite);
     }
 
     @Override
@@ -156,39 +239,23 @@ public class TextFileBuffer
     @Override
     public void release()
     {
+        ICoreTextFileBufferProvider provider;
         synchronized (this)
         {
             if (--refCount != 0)
                 return;
-            if (delegate == null)
+            if (coreTextFileBufferProvider == null)
                 return;
-            delegate = null;
+            provider = coreTextFileBufferProvider;
+            coreTextFileBufferProvider = null;
         }
         try
         {
-            bufferManager.disconnect(file.getFullPath(), LocationKind.IFILE,
-                null);
+            provider.disconnect(null);
         }
         catch (CoreException e)
         {
             Activator.log(e.getStatus());
         }
-    }
-
-    /**
-     * Returns the underlying {@link ITextFileBuffer}.
-     *
-     * @return the underlying <code>ITextFileBuffer</code>
-     *  (never <code>null</code>)
-     * @throws IllegalStateException if the buffer is disconnected
-     */
-    protected final ITextFileBuffer getDelegate()
-    {
-        ITextFileBuffer result = delegate;
-        if (result == null)
-            throw new IllegalStateException(
-                "Attempt to access a disconnected TextFileBuffer for " //$NON-NLS-1$
-                    + file.getFullPath());
-        return result;
     }
 }

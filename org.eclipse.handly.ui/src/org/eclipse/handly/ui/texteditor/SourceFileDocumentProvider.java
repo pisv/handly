@@ -12,7 +12,6 @@ package org.eclipse.handly.ui.texteditor;
 
 import java.text.MessageFormat;
 
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.internal.ui.Activator;
@@ -101,13 +100,11 @@ public class SourceFileDocumentProvider
         SourceFile sourceFile = getSourceFile(element);
         if (sourceFile == null)
             return null;
-        try (
-            TextFileBuffer buffer = new TextFileBuffer(sourceFile.hFile(),
-                ITextFileBufferManager.DEFAULT))
+        try (TextFileBuffer buffer = TextFileBuffer.forFile(sourceFile.hFile()))
         {
             if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
                 getWorkingCopyInfoFactory(sourceFile, element, info),
-                getProgressMonitor()) != null)
+                null) != null)
             {
                 sourceFile.hDiscardWorkingCopy();
 

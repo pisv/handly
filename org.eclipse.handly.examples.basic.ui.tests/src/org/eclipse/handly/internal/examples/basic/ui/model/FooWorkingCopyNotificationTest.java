@@ -14,7 +14,6 @@ import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
 
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -56,8 +55,7 @@ public class FooWorkingCopyNotificationTest
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
         fooModel.addElementChangeListener(listener);
-        buffer = new TextFileBuffer(workingCopy.getFile(),
-            ITextFileBufferManager.DEFAULT);
+        buffer = TextFileBuffer.forFile(workingCopy.getFile());
     }
 
     @Override

@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
+import org.eclipse.handly.buffer.ICoreTextFileBufferProvider;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
@@ -88,13 +89,15 @@ public abstract class SourceFile
         WorkingCopyInfo info = hAcquireWorkingCopy();
         if (info == null)
         {
+            ICoreTextFileBufferProvider provider =
+                ICoreTextFileBufferProvider.forLocation(file.getFullPath(),
+                    LocationKind.IFILE, ITextFileBufferManager.DEFAULT);
             if (!context.getOrDefault(CREATE_BUFFER)
-                && ITextFileBufferManager.DEFAULT.getTextFileBuffer(
-                    file.getFullPath(), LocationKind.IFILE) == null)
+                && provider.getBuffer() == null)
             {
                 return null;
             }
-            return new TextFileBuffer(file, ITextFileBufferManager.DEFAULT);
+            return new TextFileBuffer(provider, monitor);
         }
         else
         {
