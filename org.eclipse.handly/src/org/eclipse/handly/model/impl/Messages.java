@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@ class Messages
     private static final String BUNDLE_NAME =
         "org.eclipse.handly.model.impl.messages"; //$NON-NLS-1$
 
-    public static String SourceFile_File_does_not_exist__0;
+    public static String WorkspaceSourceFile_File_does_not_exist__0;
 
     static
     {

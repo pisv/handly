@@ -21,7 +21,7 @@ import org.eclipse.handly.model.IModel;
  * Test clients can instantiate this class directly or subclass it.
  */
 class SimpleSourceFile
-    extends SourceFile
+    extends WorkspaceSourceFile
 {
     private final IModel model;
 

@@ -12,74 +12,54 @@ package org.eclipse.handly.model.impl;
 
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.context.Contexts.with;
-import static org.eclipse.handly.model.Elements.CREATE_BUFFER;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.filebuffers.LocationKind;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
-import org.eclipse.handly.buffer.ICoreTextFileBufferProvider;
-import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
-import org.eclipse.handly.snapshot.TextFileSnapshot;
 import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
 /**
  * Common superclass for source files.
+ * <p>
+ * This abstract implementation doesn't depend on a specific representation for
+ * the underlying file, like <code>IFile</code> or <code>IFileStore</code>.
+ * The binding has to be made in a subclass.
+ * </p>
+ *
+ * @see WorkspaceSourceFile
  */
 public abstract class SourceFile
     extends SourceElement
     implements ISourceFileImpl
 {
-    private final IFile file;
-
     /**
      * Constructs a handle for a source file with the given parent element and
-     * the given underlying workspace file.
+     * the given name.
      *
      * @param parent the parent of the element,
      *  or <code>null</code> if the element has no parent
-     * @param file the workspace file underlying the element (not <code>null</code>)
+     * @param name the name of the element, or <code>null</code>
+     *  if the element has no name
      */
-    public SourceFile(Element parent, IFile file)
+    public SourceFile(Element parent, String name)
     {
-        super(parent, file.getName());
-        this.file = file;
-    }
-
-    @Override
-    public final IResource hResource()
-    {
-        return file;
-    }
-
-    /**
-     * Returns the underlying {@link IFile}. This is a handle-only method.
-     *
-     * @return the underlying <code>IFile</code> (never <code>null</code>)
-     */
-    @Override
-    public final IFile hFile()
-    {
-        return file;
+        super(parent, name);
     }
 
     @Override
@@ -89,15 +69,7 @@ public abstract class SourceFile
         WorkingCopyInfo info = hAcquireWorkingCopy();
         if (info == null)
         {
-            ICoreTextFileBufferProvider provider =
-                ICoreTextFileBufferProvider.forLocation(file.getFullPath(),
-                    LocationKind.IFILE, ITextFileBufferManager.DEFAULT);
-            if (!context.getOrDefault(CREATE_BUFFER)
-                && provider.getBuffer() == null)
-            {
-                return null;
-            }
-            return new TextFileBuffer(provider, monitor);
+            return hFileBuffer(context, monitor);
         }
         else
         {
@@ -385,19 +357,6 @@ public abstract class SourceFile
     }
 
     @Override
-    protected void hValidateExistence(IContext context) throws CoreException
-    {
-        if (!hIsWorkingCopy())
-        {
-            if (!file.exists())
-                throw new CoreException(Activator.createErrorStatus(
-                    MessageFormat.format(
-                        Messages.SourceFile_File_does_not_exist__0,
-                        file.getFullPath().makeRelative()), null));
-        }
-    }
-
-    @Override
     protected final void hBuildStructure(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
@@ -413,36 +372,21 @@ public abstract class SourceFile
                 // not from the buffer contents, since source files that are not
                 // working copies must reflect the structure of the underlying file
                 NonExpiringSnapshot snapshot;
-                try
+                try (
+                    ISnapshotProvider provider = hFileSnapshotProvider(context))
                 {
-                    snapshot = new NonExpiringSnapshot(() ->
+                    try
                     {
-                        TextFileSnapshot result = new TextFileSnapshot(file,
-                            TextFileSnapshot.Layer.FILESYSTEM);
-                        if (!result.exists())
-                        {
-                            throw new IllegalStateException(new CoreException(
-                                Activator.createErrorStatus(
-                                    MessageFormat.format(
-                                        Messages.SourceFile_File_does_not_exist__0,
-                                        file.getFullPath().makeRelative()),
-                                    null)));
-                        }
-                        if (result.getContents() == null
-                            && !result.getStatus().isOK())
-                        {
-                            throw new IllegalStateException(new CoreException(
-                                result.getStatus()));
-                        }
-                        return result;
-                    });
-                }
-                catch (IllegalStateException e)
-                {
-                    Throwable cause = e.getCause();
-                    if (cause instanceof CoreException)
-                        throw (CoreException)cause;
-                    throw new AssertionError(e); // should never happen
+                        snapshot = new NonExpiringSnapshot(provider);
+                    }
+                    catch (IllegalStateException e)
+                    {
+                        Throwable cause = e.getCause();
+                        if (cause instanceof CoreException)
+                            throw (CoreException)cause;
+                        throw new CoreException(Activator.createErrorStatus(
+                            e.getMessage(), e));
+                    }
                 }
                 ast = hCreateAst(snapshot.getContents(), context,
                     new SubProgressMonitor(monitor, 1));
@@ -474,6 +418,58 @@ public abstract class SourceFile
             monitor.done();
         }
     }
+
+    /**
+     * Returns a snapshot provider for the underlying file's stored contents.
+     * <p>
+     * The client takes (potentially shared) ownership of the returned provider
+     * and is responsible for releasing it. The provider will be disposed
+     * only after it is released by every owner. The provider must not
+     * be accessed by clients that don't own it.
+     * </p>
+     *
+     * @param context the operation context (never <code>null</code>)
+     * @return a snapshot provider for the underlying file's stored contents
+     *  (not <code>null</code>)
+     * @see ISnapshotProvider
+     */
+    protected abstract ISnapshotProvider hFileSnapshotProvider(
+        IContext context);
+
+    /**
+     * Returns the buffer opened for the underlying file of this source file.
+     * Note that buffers may be shared by multiple clients, so the returned buffer
+     * may have unsaved changes if it has been modified by another client.
+     * <p>
+     * The client takes (potentially shared) ownership of the returned buffer
+     * and is responsible for releasing it. The buffer will be disposed
+     * only after it is released by every owner. The buffer must not
+     * be accessed by clients that don't own it.
+     * </p>
+     * <p>
+     * Implementations are encouraged to support the following standard options,
+     * which may be specified in the given context:
+     * </p>
+     * <ul>
+     * <li>
+     * {@link org.eclipse.handly.model.Elements#CREATE_BUFFER CREATE_BUFFER} -
+     * Indicates whether a new buffer should be created if none already exists.
+     * </li>
+     * </ul>
+     *
+     * @param context the operation context (never <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the buffer opened for the underlying file of this source file,
+     *  or <code>null</code> if <code>CREATE_BUFFER == false</code> and
+     *  there is currently no buffer opened for that file
+     * @throws CoreException if the underlying file does not exist
+     *  or its contents cannot be accessed
+     * @throws OperationCanceledException if this method is canceled
+     * @see IBuffer
+     */
+    protected abstract IBuffer hFileBuffer(IContext context,
+        IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns a new AST created from the given source string. Unless otherwise

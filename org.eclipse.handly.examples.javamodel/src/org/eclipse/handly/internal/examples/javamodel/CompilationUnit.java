@@ -32,8 +32,8 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementDifferencer;
 import org.eclipse.handly.model.impl.SourceElementBody;
-import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
+import org.eclipse.handly.model.impl.WorkspaceSourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.Property;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -48,7 +48,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
  * Implementation of {@link ICompilationUnit}.
  */
 public class CompilationUnit
-    extends SourceFile
+    extends WorkspaceSourceFile
     implements ICompilationUnit, IJavaElementInternal
 {
     @SuppressWarnings("restriction")

@@ -12,6 +12,7 @@ package org.eclipse.handly.ui.texteditor;
 
 import java.text.MessageFormat;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.internal.ui.Activator;
@@ -94,28 +95,41 @@ public class SourceFileDocumentProvider
     @Override
     protected FileInfo createFileInfo(Object element) throws CoreException
     {
+        boolean f = false;
         FileInfo info = super.createFileInfo(element);
-        if (!(info instanceof SourceFileInfo))
-            return null;
-        SourceFile sourceFile = getSourceFile(element);
-        if (sourceFile == null)
-            return null;
-        try (TextFileBuffer buffer = TextFileBuffer.forFile(sourceFile.hFile()))
+        try
         {
-            if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
-                getWorkingCopyInfoFactory(sourceFile, element, info),
-                null) != null)
+            if (!(info instanceof SourceFileInfo))
+                return null;
+            SourceFile sourceFile = getSourceFile(element);
+            if (sourceFile == null)
+                return null;
+            IFile file = sourceFile.hFile();
+            if (file == null)
+                return null;
+            try (TextFileBuffer buffer = TextFileBuffer.forFile(file))
             {
-                sourceFile.hDiscardWorkingCopy();
+                if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
+                    getWorkingCopyInfoFactory(sourceFile, element, info),
+                    null) != null)
+                {
+                    sourceFile.hDiscardWorkingCopy();
 
-                throw new CoreException(Activator.createErrorStatus(
-                    MessageFormat.format(
-                        Messages.SourceFileDocumentProvider_Working_copy_already_exists__0,
-                        sourceFile), null));
+                    throw new CoreException(Activator.createErrorStatus(
+                        MessageFormat.format(
+                            Messages.SourceFileDocumentProvider_Working_copy_already_exists__0,
+                            sourceFile), null));
+                }
             }
+            ((SourceFileInfo)info).workingCopy = sourceFile;
+            f = true;
+            return info;
         }
-        ((SourceFileInfo)info).workingCopy = sourceFile;
-        return info;
+        finally
+        {
+            if (!f && info != null)
+                super.disposeFileInfo(element, info);
+        }
     }
 
     /*

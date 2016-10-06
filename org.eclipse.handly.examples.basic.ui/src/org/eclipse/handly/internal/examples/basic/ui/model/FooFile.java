@@ -34,7 +34,7 @@ import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.handly.model.impl.ElementDifferencer;
 import org.eclipse.handly.model.impl.SourceElementBody;
-import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.impl.WorkspaceSourceFile;
 import org.eclipse.xtext.parser.IParseResult;
 import org.eclipse.xtext.resource.IResourceServiceProvider;
 import org.eclipse.xtext.resource.XtextResource;
@@ -44,7 +44,7 @@ import org.eclipse.xtext.ui.resource.IResourceSetProvider;
  * Represents a Foo source file.
  */
 public class FooFile
-    extends SourceFile
+    extends WorkspaceSourceFile
     implements IFooFile, IFooElementInternal
 {
     /**
