@@ -92,6 +92,6 @@ public class TextFileBufferTest
 
         buffer.getCoreTextFileBufferProvider().getBuffer().releaseSynchronizationContext();
         buffer.applyChange(new BufferChange(new InsertEdit(0, "d")), null);
-        assertEquals("dcba", buffer.getContents());
+        assertEquals("dcba", buffer.getSnapshot().getContents());
     }
 }

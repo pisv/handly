@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.TextFileBufferSnapshot;
@@ -39,7 +40,7 @@ import org.eclipse.text.edits.MalformedTreeException;
  * even when <code>org.eclipse.core.resources</code> bundle is not available.
  * </p>
  */
-public class TextFileBuffer
+public final class TextFileBuffer
     implements IBuffer
 {
     private final Object location;
@@ -124,11 +125,21 @@ public class TextFileBuffer
 
         provider.connect(monitor);
 
-        ITextFileBuffer buffer = provider.getBuffer();
-        Object location = buffer.getLocation();
-        if (location == null)
-            location = buffer.getFileStore();
-        this.location = location;
+        boolean f = false;
+        try
+        {
+            ITextFileBuffer buffer = provider.getBuffer();
+            Object location = buffer.getLocation();
+            if (location == null)
+                location = buffer.getFileStore();
+            this.location = location;
+            f = true;
+        }
+        finally
+        {
+            if (!f)
+                provider.disconnect(null);
+        }
     }
 
     /**
@@ -196,35 +207,16 @@ public class TextFileBuffer
     }
 
     @Override
-    public void setContents(String contents)
-    {
-        getDocument().set(contents);
-    }
-
-    @Override
-    public String getContents()
-    {
-        return getDocument().get();
-    }
-
-    @Override
-    public boolean hasUnsavedChanges()
-    {
-        return getCoreTextFileBufferProvider().getBuffer().isDirty();
-    }
-
-    @Override
-    public boolean mustSaveChanges()
-    {
-        ITextFileBuffer buffer = getCoreTextFileBufferProvider().getBuffer();
-        return buffer.isDirty() && !buffer.isShared();
-    }
-
-    @Override
-    public void save(boolean overwrite, IProgressMonitor monitor)
+    public void save(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        getCoreTextFileBufferProvider().getBuffer().commit(monitor, overwrite);
+        getCoreTextFileBufferProvider().getBuffer().commit(monitor, false);
+    }
+
+    @Override
+    public boolean isDirty()
+    {
+        return getCoreTextFileBufferProvider().getBuffer().isDirty();
     }
 
     @Override

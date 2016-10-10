@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2016 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.handly.buffer;
+
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -39,8 +41,7 @@ public class BufferChangeOperation
 
     /**
      * Creates a new operation that can apply the given change
-     * to the given buffer. The operation uses the buffer's
-     * underlying document, which must not be <code>null</code>.
+     * to the given buffer.
      *
      * @param buffer must not be <code>null</code>
      * @param change must not be <code>null</code>
@@ -48,8 +49,6 @@ public class BufferChangeOperation
     public BufferChangeOperation(IBuffer buffer, IBufferChange change)
     {
         if (buffer == null)
-            throw new IllegalArgumentException();
-        if (buffer.getDocument() == null)
             throw new IllegalArgumentException();
         if (change == null)
             throw new IllegalArgumentException();
@@ -78,8 +77,6 @@ public class BufferChangeOperation
         BadLocationException
     {
         IDocument document = buffer.getDocument();
-        if (document == null)
-            throw new IllegalStateException();
 
         if (!(document instanceof IDocumentExtension4))
             return applyChange(monitor);
@@ -109,7 +106,7 @@ public class BufferChangeOperation
         IDocument document = buffer.getDocument();
         LinkedModeModel.closeAllModels(document);
 
-        boolean saved = !buffer.hasUnsavedChanges();
+        boolean saved = !buffer.isDirty();
         long stampToRestore = getModificationStampOf(document);
 
         UndoEdit undoEdit = applyTextEdit();
@@ -123,7 +120,7 @@ public class BufferChangeOperation
         if (change.getSaveMode() == SaveMode.FORCE_SAVE || (saved
             && change.getSaveMode() == SaveMode.KEEP_SAVED_STATE))
         {
-            buffer.save(false, pm);
+            buffer.save(EMPTY_CONTEXT, pm);
         }
 
         return createUndoChange(undoEdit, stampToRestore);

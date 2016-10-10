@@ -17,6 +17,7 @@ import org.eclipse.handly.buffer.BufferChangeOperation;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
 import org.eclipse.handly.buffer.UiBufferChangeRunner;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.snapshot.DocumentSnapshot;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -36,12 +37,12 @@ import org.eclipse.ui.texteditor.ITextEditor;
  * However, certain operations can only be executed by the UI thread:
  * </p>
  * <ul>
- * <li><code>hasUnsavedChanges</code></li>
- * <li><code>mustSaveChanges</code></li>
- * <li><code>save</code></li>
+ * <li>{@link #save}</li>
+ * <li>{@link #isDirty}</li>
+ * <li>{@link #applyChange} - if save is requested</li>
  * </ul>
  */
-public class TextEditorBuffer
+public final class TextEditorBuffer
     implements IBuffer
 {
     private final UiSynchronizer uiSynchronizer;
@@ -67,16 +68,26 @@ public class TextEditorBuffer
     {
         if (editor == null)
             throw new IllegalArgumentException();
-        if ((this.uiSynchronizer = UiSynchronizer.getDefault()) == null)
+        if ((uiSynchronizer = UiSynchronizer.getDefault()) == null)
             throw new AssertionError();
-        if ((this.editorInput = editor.getEditorInput()) == null)
+        if ((editorInput = editor.getEditorInput()) == null)
             throw new IllegalArgumentException();
         checkThread();
-        if ((this.documentProvider = editor.getDocumentProvider()) == null)
+        if ((documentProvider = editor.getDocumentProvider()) == null)
             throw new IllegalArgumentException();
         documentProvider.connect(editorInput);
-        if ((this.document = documentProvider.getDocument(editorInput)) == null)
-            throw new AssertionError();
+        boolean f = false;
+        try
+        {
+            if ((document = documentProvider.getDocument(editorInput)) == null)
+                throw new AssertionError();
+            f = true;
+        }
+        finally
+        {
+            if (!f)
+                documentProvider.disconnect(editorInput);
+        }
     }
 
     @Override
@@ -121,38 +132,19 @@ public class TextEditorBuffer
     }
 
     @Override
-    public void setContents(String contents)
-    {
-        getDocument().set(contents);
-    }
-
-    @Override
-    public String getContents()
-    {
-        return getDocument().get();
-    }
-
-    @Override
-    public boolean hasUnsavedChanges()
-    {
-        checkThread();
-        return documentProvider.canSaveDocument(editorInput);
-    }
-
-    @Override
-    public boolean mustSaveChanges()
-    {
-        checkThread();
-        return documentProvider.mustSaveDocument(editorInput);
-    }
-
-    @Override
-    public void save(boolean overwrite, IProgressMonitor monitor)
+    public void save(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         checkThread();
         documentProvider.saveDocument(monitor, editorInput, getDocument(),
-            overwrite);
+            false);
+    }
+
+    @Override
+    public boolean isDirty()
+    {
+        checkThread();
+        return documentProvider.canSaveDocument(editorInput);
     }
 
     @Override

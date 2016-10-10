@@ -12,6 +12,7 @@ package org.eclipse.handly.buffer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
@@ -66,26 +67,23 @@ public interface IBuffer
      *  since the inception of the snapshot on which the change is based
      * @throws CoreException if the change's edit tree isn't in a valid state,
      *  or if one of the edits in the tree can't be executed, or (if the save
-     *  mode of the change requested buffer save) in case of underlying resource
-     *  failure or if the resource is not synchronized with the file system
+     *  mode of the change requested buffer save) in case the buffer could not
+     *  be saved successfully
      */
     IBufferChange applyChange(IBufferChange change, IProgressMonitor monitor)
         throws CoreException;
 
     /**
-     * Sets the buffer contents. This will forcefully overwrite any previous
-     * buffer contents. Leaves the buffer with unsaved changes.
+     * Saves the buffer. It is up to the implementors of this method to decide
+     * what saving means. Typically, the contents of an underlying resource
+     * is changed to the contents of the buffer.
      *
-     * @param contents the new buffer contents (not <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor to report progress,
+     *  or <code>null</code> if no progress reporting is desired
+     * @throws CoreException if the buffer could not be saved successfully
      */
-    void setContents(String contents);
-
-    /**
-     * Returns the buffer contents.
-     *
-     * @return the buffer contents (never <code>null</code>)
-     */
-    String getContents();
+    void save(IContext context, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns whether the buffer has been modified since the last time
@@ -94,41 +92,16 @@ public interface IBuffer
      * @return <code>true</code> if the buffer has unsaved changes,
      *  <code>false</code> otherwise
      */
-    boolean hasUnsavedChanges();
+    boolean isDirty();
 
     /**
-     * Returns <code>true</code> if the buffer is not shared and has unsaved
-     * changes. In this case, the client should save the buffer before
-     * letting it go, or else unsaved changes will be lost.
+     * Returns the underlying document of this buffer.
+     * <p>
+     * Note that the relationship between a buffer and its document does not
+     * change over the lifetime of a buffer.
+     * </p>
      *
-     * @return <code>true</code> if the buffer is not shared and has unsaved
-     *  changes, <code>false</code> otherwise
-     */
-    boolean mustSaveChanges();
-
-    /**
-     * Saves the buffer by changing the contents of the underlying resource
-     * to the contents of the buffer.
-     *
-     * @param overwrite indicates whether the underlying resource should be
-     *  overwritten if it is not synchronized with the file system
-     * @param monitor a progress monitor to report progress,
-     *  or <code>null</code> if no progress reporting is desired
-     * @throws CoreException in case of underlying resource failure,
-     *  or if the resource is not synchronized with the file system
-     *  and <code>overwrite == false</code>
-     */
-    void save(boolean overwrite, IProgressMonitor monitor) throws CoreException;
-
-    void addRef();
-
-    void release();
-
-    /**
-     * Returns the underlying document of this buffer,
-     * or <code>null</code> if there is no such document.
-     *
-     * @return the buffer's underlying document or <code>null</code> if none
+     * @return the buffer's underlying document (never <code>null</code>)
      */
     IDocument getDocument();
 }

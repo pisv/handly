@@ -15,6 +15,7 @@ import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.snapshot.DocumentSnapshot;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -27,7 +28,7 @@ import org.eclipse.text.edits.MalformedTreeException;
 /**
  * A simple {@link IBuffer} implementation. This implementation is not backed
  * by an underlying resource, so saving the buffer only modifies its {@link
- * #hasUnsavedChanges() "saved"} state -- it does not really save its contents.
+ * #isDirty() "dirty"} state -- it does not really save its contents.
  * <p>
  * An instance of this class is safe for use by multiple threads. Clients can
  * use this class as it stands or subclass it as circumstances warrant.
@@ -63,10 +64,7 @@ public class Buffer
     public Buffer(String contents)
     {
         document = createEmptyDocument();
-        if (contents != null && !contents.isEmpty())
-            document.set(contents);
-        synchronizationStamp =
-            ((IDocumentExtension4)document).getModificationStamp();
+        initWithContents(contents);
     }
 
     @Override
@@ -106,36 +104,26 @@ public class Buffer
     }
 
     @Override
-    public void setContents(String contents)
-    {
-        document.set(contents);
-    }
-
-    @Override
-    public String getContents()
-    {
-        return document.get();
-    }
-
-    @Override
-    public boolean hasUnsavedChanges()
-    {
-        return ((IDocumentExtension4)document).getModificationStamp() != synchronizationStamp;
-    }
-
-    @Override
-    public boolean mustSaveChanges()
-    {
-        return hasUnsavedChanges();
-    }
-
-    @Override
-    public synchronized void save(boolean overwrite, IProgressMonitor monitor)
+    public void save(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        doSave(overwrite, monitor);
-        synchronizationStamp =
-            ((IDocumentExtension4)document).getModificationStamp();
+        Object lock = ((ISynchronizable)document).getLockObject();
+        if (lock == null)
+            throw new IllegalStateException();
+        synchronized (lock)
+        {
+            if (!isDirty())
+                return;
+            doSave(context, monitor);
+            synchronizationStamp =
+                ((IDocumentExtension4)document).getModificationStamp();
+        }
+    }
+
+    @Override
+    public boolean isDirty()
+    {
+        return ((IDocumentExtension4)document).getModificationStamp() != synchronizationStamp;
     }
 
     @Override
@@ -158,9 +146,17 @@ public class Buffer
         return document;
     }
 
-    protected void doSave(boolean overwrite, IProgressMonitor monitor)
+    protected void doSave(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         // default implementation does nothing; subclasses may override
+    }
+
+    final void initWithContents(String contents)
+    {
+        if (contents != null && !contents.isEmpty())
+            document.set(contents);
+        synchronizationStamp =
+            ((IDocumentExtension4)document).getModificationStamp();
     }
 }
