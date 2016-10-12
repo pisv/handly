@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,23 +10,17 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.handly.model.IElementChangeEvent;
 
-class Messages
-    extends NLS
+/**
+ * Notifies the registered listeners about an element change event.
+ */
+public interface INotificationManager
 {
-    private static final String BUNDLE_NAME =
-        "org.eclipse.handly.model.impl.messages"; //$NON-NLS-1$
-
-    public static String SourceFile_File_does_not_exist__0;
-
-    static
-    {
-        // initialize resource bundle
-        NLS.initializeMessages(BUNDLE_NAME, Messages.class);
-    }
-
-    private Messages()
-    {
-    }
+    /**
+     * Notifies the registered listeners about the given event.
+     *
+     * @param event the change event (not <code>null</code>)
+     */
+    void fireElementChangeEvent(IElementChangeEvent event);
 }

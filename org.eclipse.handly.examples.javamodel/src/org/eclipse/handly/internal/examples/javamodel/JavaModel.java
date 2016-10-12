@@ -66,13 +66,15 @@ public class JavaModel
     @Override
     public void addElementChangeListener(IElementChangeListener listener)
     {
-        JavaModelManager.INSTANCE.addElementChangeListener(listener);
+        JavaModelManager.INSTANCE.getNotificationManager().addElementChangeListener(
+            listener);
     }
 
     @Override
     public void removeElementChangeListener(IElementChangeListener listener)
     {
-        JavaModelManager.INSTANCE.removeElementChangeListener(listener);
+        JavaModelManager.INSTANCE.getNotificationManager().removeElementChangeListener(
+            listener);
     }
 
     @Override

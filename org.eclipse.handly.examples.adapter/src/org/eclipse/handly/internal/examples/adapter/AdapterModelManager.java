@@ -12,15 +12,12 @@ package org.eclipse.handly.internal.examples.adapter;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 
-import org.eclipse.core.runtime.ISafeRunnable;
-import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElementChangeEvent;
-import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.IModel;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
+import org.eclipse.handly.model.impl.NotificationManager;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.JavaCore;
@@ -41,13 +38,13 @@ public class AdapterModelManager
     public static final AdapterModelManager INSTANCE =
         new AdapterModelManager();
 
-    private ListenerList listenerList;
+    private NotificationManager notificationManager;
 
     public void startup() throws Exception
     {
         try
         {
-            listenerList = new ListenerList();
+            notificationManager = new NotificationManager();
             JavaCore.addElementChangedListener(this);
         }
         catch (Exception e)
@@ -60,7 +57,7 @@ public class AdapterModelManager
     public void shutdown() throws Exception
     {
         JavaCore.removeElementChangedListener(this);
-        listenerList = null;
+        notificationManager = null;
     }
 
     @Override
@@ -75,46 +72,17 @@ public class AdapterModelManager
         return ApiLevel.CURRENT;
     }
 
-    public void addElementChangeListener(IElementChangeListener listener)
+    public NotificationManager getNotificationManager()
     {
-        if (listenerList == null)
+        if (notificationManager == null)
             throw new IllegalStateException();
-        listenerList.add(listener);
-    }
-
-    public void removeElementChangeListener(IElementChangeListener listener)
-    {
-        if (listenerList == null)
-            throw new IllegalStateException();
-        listenerList.remove(listener);
-    }
-
-    public void fireElementChangeEvent(final IElementChangeEvent event)
-    {
-        if (listenerList == null)
-            throw new IllegalStateException();
-        Object[] listeners = listenerList.getListeners();
-        for (final Object listener : listeners)
-        {
-            SafeRunner.run(new ISafeRunnable()
-            {
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-
-                public void run() throws Exception
-                {
-                    ((IElementChangeListener)listener).elementChanged(event);
-                }
-            });
-        }
+        return notificationManager;
     }
 
     @Override
     public void elementChanged(ElementChangedEvent event)
     {
-        fireElementChangeEvent(convert(event));
+        getNotificationManager().fireElementChangeEvent(convert(event));
     }
 
     private static IElementChangeEvent convert(ElementChangedEvent event)

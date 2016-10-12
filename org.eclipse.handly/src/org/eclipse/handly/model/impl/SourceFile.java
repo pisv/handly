@@ -12,9 +12,11 @@ package org.eclipse.handly.model.impl;
 
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.context.Contexts.with;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -40,6 +42,11 @@ import org.eclipse.handly.util.TextRange;
  * This abstract implementation doesn't depend on a specific representation for
  * the underlying file, like <code>IFile</code> or <code>IFileStore</code>.
  * The binding has to be made in a subclass.
+ * </p>
+ * <p>
+ * If a notification manager is registered in the model context, this class
+ * will take advantage of it to send out working copy notifications. See
+ * {@link #hWorkingCopyModeChanged()} and {@link NotifyingReconcileOperation}.
  * </p>
  *
  * @see WorkspaceSourceFile
@@ -319,7 +326,10 @@ public abstract class SourceFile
     /**
      * Returns a reconcile operation for this source file.
      * <p>
-     * This implementation returns a new instance of {@link ReconcileOperation}.
+     * This implementation returns a new instance of {@link
+     * NotifyingReconcileOperation} if there is a notification manager
+     * registered in the model context. Otherwise, a new instance of
+     * {@link ReconcileOperation} is returned.
      * </p>
      * <p>
      * Clients are not intended to invoke this method, but may override it.
@@ -329,6 +339,9 @@ public abstract class SourceFile
      */
     protected ReconcileOperation hReconcileOperation()
     {
+        if (hModel().getModelContext().get(INotificationManager.class) != null)
+            return new NotifyingReconcileOperation();
+
         return new ReconcileOperation();
     }
 
@@ -349,11 +362,49 @@ public abstract class SourceFile
     /**
      * Notifies about a working copy mode change: either the source file
      * became a working copy or reverted back from the working copy mode.
-     * Clients are not supposed to call this method, but may override it.
+     * <p>
+     * This implementation does nothing if no notification manager is
+     * registered in the model context. Otherwise, it sends out a delta
+     * notification indicating the nature of the working copy mode change.
+     * </p>
+     * <p>
+     * Clients are not intended to invoke this method, but may override it.
+     * </p>
      */
     protected void hWorkingCopyModeChanged()
     {
-        // subclasses might fire an appropriate event, etc.
+        INotificationManager notificationManager =
+            hModel().getModelContext().get(INotificationManager.class);
+        if (notificationManager == null)
+            return;
+
+        ElementDelta.Factory deltaFactory = hModel().getModelContext().get(
+            ElementDelta.Factory.class);
+        if (deltaFactory == null)
+            deltaFactory = element -> new ElementDelta(element);
+        ElementDelta rootDelta = deltaFactory.newDelta(hRoot());
+        ElementDelta.Builder builder = new ElementDelta.Builder(rootDelta);
+        if (hFileExists())
+            builder.changed(this, F_WORKING_COPY);
+        else if (hIsWorkingCopy())
+            builder.added(this, F_WORKING_COPY);
+        else
+            builder.removed(this, F_WORKING_COPY);
+        notificationManager.fireElementChangeEvent(new ElementChangeEvent(
+            ElementChangeEvent.POST_CHANGE, builder.getDelta()));
+    }
+
+    @Override
+    protected void hValidateExistence(IContext context) throws CoreException
+    {
+        if (!hIsWorkingCopy())
+        {
+            if (!hFileExists())
+                throw new CoreException(Activator.createErrorStatus(
+                    MessageFormat.format(
+                        Messages.SourceFile_File_does_not_exist__0, hPath()),
+                    null));
+        }
     }
 
     @Override
@@ -418,6 +469,14 @@ public abstract class SourceFile
             monitor.done();
         }
     }
+
+    /**
+     * Returns whether the underlying file exists.
+     *
+     * @return <code>true</code> if the underlying file exists,
+     *  and <code>false</code> otherwise
+     */
+    protected abstract boolean hFileExists();
 
     /**
      * Returns a snapshot provider for the underlying file's stored contents.
@@ -622,6 +681,8 @@ public abstract class SourceFile
      * extend this class or a subclass of this class should consider
      * overriding {@link SourceFile#hReconcileOperation()} method.
      * </p>
+     *
+     * @see NotifyingReconcileOperation
      */
     protected class ReconcileOperation
     {
@@ -705,6 +766,64 @@ public abstract class SourceFile
                     throw new AssertionError(); // should never happen
                 hWorkingCopyModeChanged(); // notify about wc creation
             }
+        }
+    }
+
+    /**
+     * Reconciles this working copy and sends out a delta notification
+     * indicating the nature of the change of the working copy since
+     * the last time it was reconciled. Uses the notification manager
+     * registered in the model context.
+     *
+     * @see INotificationManager
+     */
+    protected class NotifyingReconcileOperation
+        extends ReconcileOperation
+    {
+        @Override
+        protected void reconcile(Object ast, IContext context,
+            IProgressMonitor monitor) throws CoreException
+        {
+            ElementDelta.Factory deltaFactory = hModel().getModelContext().get(
+                ElementDelta.Factory.class);
+            if (deltaFactory == null)
+                deltaFactory = element -> new ElementDelta(element);
+            ElementDelta rootDelta = deltaFactory.newDelta(SourceFile.this);
+            ElementDifferencer differ = new ElementDifferencer(
+                new ElementDelta.Builder(rootDelta));
+
+            doReconcile(ast, context, monitor);
+
+            differ.buildDelta();
+            if (!differ.isEmptyDelta())
+            {
+                hModel().getModelContext().get(
+                    INotificationManager.class).fireElementChangeEvent(
+                        new ElementChangeEvent(
+                            ElementChangeEvent.POST_RECONCILE,
+                            differ.getDelta()));
+            }
+        }
+
+        /**
+         * This implementation calls {@link ReconcileOperation#reconcile(Object,
+         * IContext, IProgressMonitor) super.reconcile(..)}.
+         * <p>
+         * Subclasses may override this method, but must call its <b>super</b>
+         * implementation.
+         * </p>
+         *
+         * @param ast the working copy AST (not <code>null</code>)
+         * @param context the operation context (not <code>null</code>)
+         * @param monitor a progress monitor, or <code>null</code>
+         *  if progress reporting is not desired
+         * @throws CoreException if the working copy cannot be reconciled
+         * @throws OperationCanceledException if this method is canceled
+         */
+        protected void doReconcile(Object ast, IContext context,
+            IProgressMonitor monitor) throws CoreException
+        {
+            super.reconcile(ast, context, monitor);
         }
     }
 

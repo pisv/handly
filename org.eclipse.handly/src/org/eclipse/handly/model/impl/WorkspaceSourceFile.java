@@ -84,6 +84,12 @@ public abstract class WorkspaceSourceFile
     }
 
     @Override
+    protected boolean hFileExists()
+    {
+        return file.exists();
+    }
+
+    @Override
     protected final IBuffer hFileBuffer(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
@@ -109,8 +115,8 @@ public abstract class WorkspaceSourceFile
             {
                 throw new IllegalStateException(new CoreException(
                     Activator.createErrorStatus(MessageFormat.format(
-                        Messages.WorkspaceSourceFile_File_does_not_exist__0,
-                        file.getFullPath().makeRelative()), null)));
+                        Messages.SourceFile_File_does_not_exist__0, hPath()),
+                        null)));
             }
             if (result.getContents() == null && !result.getStatus().isOK())
             {
@@ -119,18 +125,5 @@ public abstract class WorkspaceSourceFile
             }
             return result;
         };
-    }
-
-    @Override
-    protected void hValidateExistence(IContext context) throws CoreException
-    {
-        if (!hIsWorkingCopy())
-        {
-            if (!file.exists())
-                throw new CoreException(Activator.createErrorStatus(
-                    MessageFormat.format(
-                        Messages.WorkspaceSourceFile_File_does_not_exist__0,
-                        file.getFullPath().makeRelative()), null));
-        }
     }
 }

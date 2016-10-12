@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Codasip Ltd.
+ * Copyright (c) 2015, 2016 Codasip Ltd and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,16 +44,15 @@ public class JavaElementAdapterFactory
     public Object getAdapter(Object element,
         @SuppressWarnings("rawtypes") Class adapterType)
     {
-        IJavaElement java = (IJavaElement)element;
-        if (IResource.class.equals(adapterType))
+        if (adapterType == IResource.class)
         {
-            return getResource(java);
+            return getResource((IJavaElement)element);
         }
-        else if (IPersistableElement.class.equals(adapterType))
+        else if (adapterType == IPersistableElement.class)
         {
-            return new PersistableJavaElementFactory(java);
+            return new PersistableJavaElementFactory((IJavaElement)element);
         }
-        else if (IContainmentAdapter.class.equals(adapterType))
+        else if (adapterType == IContainmentAdapter.class)
         {
             return CONTAINMENT_ADAPTER;
         }
@@ -67,15 +66,10 @@ public class JavaElementAdapterFactory
             // top level types behave like the CU
             IJavaElement parent = element.getParent();
             if (parent instanceof ICompilationUnit)
-            {
-                return ((ICompilationUnit)parent).getResource();
-            }
+                return parent.getResource();
         }
-        else if (element instanceof ICompilationUnit)
-        {
-            return ((ICompilationUnit)element).getResource();
-        }
-        else if (element instanceof IPackageFragment
+        else if (element instanceof ICompilationUnit
+            || element instanceof IPackageFragment
             || element instanceof IPackageFragmentRoot
             || element instanceof IJavaProject || element instanceof IJavaModel)
         {

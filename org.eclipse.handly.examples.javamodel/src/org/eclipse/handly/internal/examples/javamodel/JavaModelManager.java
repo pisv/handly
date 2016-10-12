@@ -26,17 +26,17 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
-import org.eclipse.handly.model.IElementChangeEvent;
-import org.eclipse.handly.model.IElementChangeListener;
+import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
+import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.IModelManager;
+import org.eclipse.handly.model.impl.INotificationManager;
+import org.eclipse.handly.model.impl.NotificationManager;
 
 /**
  * The manager for the Java model.
@@ -53,8 +53,9 @@ public class JavaModelManager
 
     private JavaModel javaModel;
     private ElementManager elementManager;
-    private ListenerList listenerList;
+    private NotificationManager notificationManager;
     private DeltaProcessingState deltaState;
+    private Context modelContext;
     private Map<IProject, PerProjectInfo> perProjectInfo =
         new HashMap<IProject, PerProjectInfo>(5); // NOTE: this object itself is used as a lock to synchronize creation/removal of per project info
 
@@ -66,9 +67,15 @@ public class JavaModelManager
 
             javaModel = new JavaModel(workspace);
             elementManager = new ElementManager(new JavaModelCache());
-            listenerList = new ListenerList();
+            notificationManager = new NotificationManager();
             deltaState = new DeltaProcessingState();
             deltaState.initialize();
+
+            modelContext = new Context();
+            modelContext.bind(INotificationManager.class).to(
+                notificationManager);
+            modelContext.bind(ElementDelta.Factory.class).to(
+                element -> new JavaElementDelta((IJavaElement)element));
 
             workspace.addResourceChangeListener(this,
                 IResourceChangeEvent.POST_CHANGE);
@@ -85,8 +92,9 @@ public class JavaModelManager
     public void shutdown() throws Exception
     {
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+        modelContext = null;
         deltaState = null;
-        listenerList = null;
+        notificationManager = null;
         elementManager = null;
         javaModel = null;
     }
@@ -111,8 +119,9 @@ public class JavaModelManager
         }
         if (!deltaProcessor.isEmptyDelta())
         {
-            fireElementChangeEvent(new ElementChangeEvent(
-                ElementChangeEvent.POST_CHANGE, deltaProcessor.getDelta()));
+            getNotificationManager().fireElementChangeEvent(
+                new ElementChangeEvent(ElementChangeEvent.POST_CHANGE,
+                    deltaProcessor.getDelta()));
         }
     }
 
@@ -132,45 +141,18 @@ public class JavaModelManager
         return elementManager;
     }
 
+    public NotificationManager getNotificationManager()
+    {
+        if (notificationManager == null)
+            throw new IllegalStateException();
+        return notificationManager;
+    }
+
     public IContext getModelContext()
     {
-        return EMPTY_CONTEXT;
-    }
-
-    public void addElementChangeListener(IElementChangeListener listener)
-    {
-        if (listenerList == null)
+        if (modelContext == null)
             throw new IllegalStateException();
-        listenerList.add(listener);
-    }
-
-    public void removeElementChangeListener(IElementChangeListener listener)
-    {
-        if (listenerList == null)
-            throw new IllegalStateException();
-        listenerList.remove(listener);
-    }
-
-    public void fireElementChangeEvent(final IElementChangeEvent event)
-    {
-        if (listenerList == null)
-            throw new IllegalStateException();
-        Object[] listeners = listenerList.getListeners();
-        for (final Object listener : listeners)
-        {
-            SafeRunner.run(new ISafeRunnable()
-            {
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-
-                public void run() throws Exception
-                {
-                    ((IElementChangeListener)listener).elementChanged(event);
-                }
-            });
-        }
+        return modelContext;
     }
 
     /**

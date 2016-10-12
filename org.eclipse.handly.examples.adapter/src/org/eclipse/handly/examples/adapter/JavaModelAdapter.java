@@ -59,7 +59,8 @@ public class JavaModelAdapter
      */
     public static void addElementChangeListener(IElementChangeListener listener)
     {
-        AdapterModelManager.INSTANCE.addElementChangeListener(listener);
+        AdapterModelManager.INSTANCE.getNotificationManager().addElementChangeListener(
+            listener);
     }
 
     /**
@@ -71,7 +72,8 @@ public class JavaModelAdapter
     public static void removeElementChangeListener(
         IElementChangeListener listener)
     {
-        AdapterModelManager.INSTANCE.removeElementChangeListener(listener);
+        AdapterModelManager.INSTANCE.getNotificationManager().removeElementChangeListener(
+            listener);
     }
 
     private JavaModelAdapter()

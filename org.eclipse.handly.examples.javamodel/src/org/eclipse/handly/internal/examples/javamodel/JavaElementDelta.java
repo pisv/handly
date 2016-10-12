@@ -13,7 +13,6 @@ package org.eclipse.handly.internal.examples.javamodel;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaElementDelta;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ElementDelta;
 
 /**
@@ -76,12 +75,6 @@ public class JavaElementDelta
     public IJavaElement getMovedToElement()
     {
         return (IJavaElement)hMovedToElement();
-    }
-
-    @Override
-    protected ElementDelta hNewDelta(IElement element)
-    {
-        return new JavaElementDelta((IJavaElement)element);
     }
 
     @Override

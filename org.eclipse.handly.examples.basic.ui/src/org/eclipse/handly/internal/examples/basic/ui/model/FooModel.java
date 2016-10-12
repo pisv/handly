@@ -66,13 +66,15 @@ public class FooModel
     @Override
     public void addElementChangeListener(IElementChangeListener listener)
     {
-        FooModelManager.INSTANCE.addElementChangeListener(listener);
+        FooModelManager.INSTANCE.getNotificationManager().addElementChangeListener(
+            listener);
     }
 
     @Override
     public void removeElementChangeListener(IElementChangeListener listener)
     {
-        FooModelManager.INSTANCE.removeElementChangeListener(listener);
+        FooModelManager.INSTANCE.getNotificationManager().removeElementChangeListener(
+            listener);
     }
 
     @Override

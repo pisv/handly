@@ -65,7 +65,8 @@ import org.eclipse.handly.util.ToStringOptions.FormatStyle;
  * </p>
  * <p>
  * Clients can use this class as it stands or subclass it as circumstances
- * warrant. Subclasses should consider overriding {@link #hNewDelta} method.
+ * warrant. Clients that subclass this class should consider registering
+ * an appropriate {@link ElementDelta.Factory} in the model context.
  * </p>
  */
 public class ElementDelta
@@ -424,7 +425,10 @@ public class ElementDelta
     /**
      * Returns a new, initially empty delta for the given element.
      * <p>
-     * Subclasses should consider overriding this method.
+     * This implementation uses {@link ElementDelta.Factory} registered in the
+     * element's model context. If no delta factory is registered in the model
+     * context, a new instance of this class (i.e. <code>ElementDelta</code>)
+     * is returned.
      * </p>
      *
      * @param element the element that this delta describes a change to
@@ -434,6 +438,10 @@ public class ElementDelta
      */
     protected ElementDelta hNewDelta(IElement element)
     {
+        Factory factory = Elements.getModel(element).getModelContext().get(
+            Factory.class);
+        if (factory != null)
+            return factory.newDelta(element);
         return new ElementDelta(element);
     }
 
@@ -807,6 +815,22 @@ public class ElementDelta
         if (rest > 0)
             System.arraycopy(array, index + 1, result, index, rest);
         return result;
+    }
+
+    /**
+     * Element delta factory.
+     */
+    public interface Factory
+    {
+        /**
+         * Returns a new, initially empty delta for the given element.
+         *
+         * @param element the element that this delta describes a change to
+         *  (not <code>null</code>)
+         * @return a new, initially empty delta for the given element
+         *  (never <code>null</code>)
+         */
+        ElementDelta newDelta(IElement element);
     }
 
     /**

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
-import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collections;
@@ -30,9 +28,6 @@ import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.ElementChangeEvent;
-import org.eclipse.handly.model.impl.ElementDelta;
-import org.eclipse.handly.model.impl.ElementDifferencer;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.WorkspaceSourceFile;
 import org.eclipse.xtext.parser.IParseResult;
@@ -195,48 +190,5 @@ public class FooFile
     protected URI getResourceUri()
     {
         return URI.createPlatformResourceURI(getPath().toString(), true);
-    }
-
-    @Override
-    protected void hWorkingCopyModeChanged()
-    {
-        ElementDelta.Builder builder = new ElementDelta.Builder(
-            new ElementDelta(getRoot()));
-        if (getFile().exists())
-            builder.changed(this, F_WORKING_COPY);
-        else if (isWorkingCopy())
-            builder.added(this, F_WORKING_COPY);
-        else
-            builder.removed(this, F_WORKING_COPY);
-        FooModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
-            ElementChangeEvent.POST_CHANGE, builder.getDelta()));
-    }
-
-    @Override
-    protected ReconcileOperation hReconcileOperation()
-    {
-        return new NotifyingReconcileOperation();
-    }
-
-    private class NotifyingReconcileOperation
-        extends ReconcileOperation
-    {
-        @Override
-        protected void reconcile(Object ast, IContext context,
-            IProgressMonitor monitor) throws CoreException
-        {
-            ElementDifferencer differ = new ElementDifferencer(
-                new ElementDelta.Builder(new ElementDelta(FooFile.this)));
-
-            super.reconcile(ast, context, monitor);
-
-            differ.buildDelta();
-            if (!differ.isEmptyDelta())
-            {
-                FooModelManager.INSTANCE.fireElementChangeEvent(
-                    new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,
-                        differ.getDelta()));
-            }
-        }
     }
 }

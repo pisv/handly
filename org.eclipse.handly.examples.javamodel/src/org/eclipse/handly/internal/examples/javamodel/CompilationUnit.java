@@ -29,8 +29,6 @@ import org.eclipse.handly.examples.javamodel.IJavaSourceElement;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.ElementChangeEvent;
-import org.eclipse.handly.model.impl.ElementDifferencer;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.model.impl.WorkspaceSourceFile;
@@ -274,47 +272,19 @@ public class CompilationUnit
     }
 
     @Override
-    protected void hWorkingCopyModeChanged()
-    {
-        JavaElementDelta.Builder builder = new JavaElementDelta.Builder(
-            new JavaElementDelta(getJavaModel()));
-        if (getFile().exists())
-            builder.changed(this, JavaElementDelta.F_WORKING_COPY);
-        else if (isWorkingCopy())
-            builder.added(this, JavaElementDelta.F_WORKING_COPY);
-        else
-            builder.removed(this, JavaElementDelta.F_WORKING_COPY);
-        JavaModelManager.INSTANCE.fireElementChangeEvent(new ElementChangeEvent(
-            ElementChangeEvent.POST_CHANGE, builder.getDelta()));
-    }
-
-    @Override
     protected ReconcileOperation hReconcileOperation()
     {
-        return new NotifyingReconcileOperation();
+        return new CuReconcileOperation();
     }
 
-    private class NotifyingReconcileOperation
-        extends ReconcileOperation
+    private class CuReconcileOperation
+        extends NotifyingReconcileOperation
     {
         @Override
         protected void reconcile(Object ast, IContext context,
             IProgressMonitor monitor) throws CoreException
         {
-            ElementDifferencer differ = new ElementDifferencer(
-                new JavaElementDelta.Builder(new JavaElementDelta(
-                    CompilationUnit.this)));
-
             super.reconcile(ast, context, monitor);
-
-            differ.buildDelta();
-
-            if (!differ.isEmptyDelta())
-            {
-                JavaModelManager.INSTANCE.fireElementChangeEvent(
-                    new ElementChangeEvent(ElementChangeEvent.POST_RECONCILE,
-                        differ.getDelta()));
-            }
 
             org.eclipse.jdt.core.dom.CompilationUnit cu =
                 (org.eclipse.jdt.core.dom.CompilationUnit)ast;

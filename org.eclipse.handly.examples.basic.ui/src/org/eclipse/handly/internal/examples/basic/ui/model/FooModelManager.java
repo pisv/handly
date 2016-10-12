@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
-import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
-
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ISaveContext;
@@ -22,18 +20,16 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
-import org.eclipse.handly.model.IElementChangeEvent;
-import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.IModelManager;
+import org.eclipse.handly.model.impl.INotificationManager;
+import org.eclipse.handly.model.impl.NotificationManager;
 
 /**
  * The manager for the Foo Model.
@@ -50,7 +46,8 @@ public class FooModelManager
 
     private FooModel fooModel;
     private ElementManager elementManager;
-    private ListenerList listenerList;
+    private NotificationManager notificationManager;
+    private Context modelContext;
 
     public void startup() throws Exception
     {
@@ -60,7 +57,11 @@ public class FooModelManager
 
             fooModel = new FooModel(workspace);
             elementManager = new ElementManager(new FooModelCache());
-            listenerList = new ListenerList();
+            notificationManager = new NotificationManager();
+
+            modelContext = new Context();
+            modelContext.bind(INotificationManager.class).to(
+                notificationManager);
 
             workspace.addResourceChangeListener(this,
                 IResourceChangeEvent.POST_CHANGE);
@@ -77,7 +78,8 @@ public class FooModelManager
     public void shutdown() throws Exception
     {
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
-        listenerList = null;
+        modelContext = null;
+        notificationManager = null;
         elementManager = null;
         fooModel = null;
     }
@@ -98,8 +100,9 @@ public class FooModelManager
         }
         if (!deltaProcessor.isEmptyDelta())
         {
-            fireElementChangeEvent(new ElementChangeEvent(
-                ElementChangeEvent.POST_CHANGE, deltaProcessor.getDelta()));
+            getNotificationManager().fireElementChangeEvent(
+                new ElementChangeEvent(ElementChangeEvent.POST_CHANGE,
+                    deltaProcessor.getDelta()));
         }
     }
 
@@ -119,45 +122,18 @@ public class FooModelManager
         return elementManager;
     }
 
+    public NotificationManager getNotificationManager()
+    {
+        if (notificationManager == null)
+            throw new IllegalStateException();
+        return notificationManager;
+    }
+
     public IContext getModelContext()
     {
-        return EMPTY_CONTEXT;
-    }
-
-    public void addElementChangeListener(IElementChangeListener listener)
-    {
-        if (listenerList == null)
+        if (modelContext == null)
             throw new IllegalStateException();
-        listenerList.add(listener);
-    }
-
-    public void removeElementChangeListener(IElementChangeListener listener)
-    {
-        if (listenerList == null)
-            throw new IllegalStateException();
-        listenerList.remove(listener);
-    }
-
-    public void fireElementChangeEvent(final IElementChangeEvent event)
-    {
-        if (listenerList == null)
-            throw new IllegalStateException();
-        Object[] listeners = listenerList.getListeners();
-        for (final Object listener : listeners)
-        {
-            SafeRunner.run(new ISafeRunnable()
-            {
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-
-                public void run() throws Exception
-                {
-                    ((IElementChangeListener)listener).elementChanged(event);
-                }
-            });
-        }
+        return modelContext;
     }
 
     private FooModelManager()
