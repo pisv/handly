@@ -18,16 +18,9 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ISaveContext;
-import org.eclipse.core.resources.ISaveParticipant;
-import org.eclipse.core.resources.ISavedState;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
@@ -37,6 +30,7 @@ import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.IModelManager;
 import org.eclipse.handly.model.impl.INotificationManager;
 import org.eclipse.handly.model.impl.NotificationManager;
+import org.eclipse.handly.util.SavedStateJob;
 
 /**
  * The manager for the Java model.
@@ -80,7 +74,7 @@ public class JavaModelManager
             workspace.addResourceChangeListener(this,
                 IResourceChangeEvent.POST_CHANGE);
 
-            new SavedStateJob().schedule();
+            new SavedStateJob(Activator.PLUGIN_ID, this).schedule();
         }
         catch (Exception e)
         {
@@ -102,8 +96,6 @@ public class JavaModelManager
     @Override
     public void resourceChanged(IResourceChangeEvent event)
     {
-        if (event.getType() != IResourceChangeEvent.POST_CHANGE)
-            return;
         DeltaProcessor deltaProcessor = new DeltaProcessor(deltaState);
         try
         {
@@ -213,58 +205,5 @@ public class JavaModelManager
 
     private JavaModelManager()
     {
-    }
-
-    private static class SavedStateJob
-        extends WorkspaceJob
-    {
-        public SavedStateJob()
-        {
-            super("SavedState"); //$NON-NLS-1$
-            setSystem(true);
-            setPriority(SHORT);
-            setRule(ResourcesPlugin.getWorkspace().getRoot());
-        }
-
-        @Override
-        public IStatus runInWorkspace(IProgressMonitor monitor)
-            throws CoreException
-        {
-            ISavedState savedState =
-                ResourcesPlugin.getWorkspace().addSaveParticipant(
-                    Activator.PLUGIN_ID, new SaveParticipant());
-            if (savedState != null)
-                savedState.processResourceChangeEvents(
-                    JavaModelManager.INSTANCE);
-            return Status.OK_STATUS;
-        }
-
-        private static class SaveParticipant
-            implements ISaveParticipant
-        {
-            @Override
-            public void doneSaving(ISaveContext context)
-            {
-            }
-
-            @Override
-            public void prepareToSave(ISaveContext context) throws CoreException
-            {
-            }
-
-            @Override
-            public void rollback(ISaveContext context)
-            {
-            }
-
-            @Override
-            public void saving(ISaveContext context) throws CoreException
-            {
-                if (context.getKind() == ISaveContext.FULL_SAVE)
-                {
-                    context.needDelta();
-                }
-            }
-        }
     }
 }

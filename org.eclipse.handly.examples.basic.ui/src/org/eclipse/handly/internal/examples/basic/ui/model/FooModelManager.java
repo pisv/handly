@@ -12,16 +12,9 @@ package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ISaveContext;
-import org.eclipse.core.resources.ISaveParticipant;
-import org.eclipse.core.resources.ISavedState;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
@@ -30,6 +23,7 @@ import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.IModelManager;
 import org.eclipse.handly.model.impl.INotificationManager;
 import org.eclipse.handly.model.impl.NotificationManager;
+import org.eclipse.handly.util.SavedStateJob;
 
 /**
  * The manager for the Foo Model.
@@ -66,7 +60,7 @@ public class FooModelManager
             workspace.addResourceChangeListener(this,
                 IResourceChangeEvent.POST_CHANGE);
 
-            new SavedStateJob().schedule();
+            new SavedStateJob(Activator.PLUGIN_ID, this).schedule();
         }
         catch (Exception e)
         {
@@ -87,8 +81,6 @@ public class FooModelManager
     @Override
     public void resourceChanged(IResourceChangeEvent event)
     {
-        if (event.getType() != IResourceChangeEvent.POST_CHANGE)
-            return;
         FooDeltaProcessor deltaProcessor = new FooDeltaProcessor();
         try
         {
@@ -138,58 +130,5 @@ public class FooModelManager
 
     private FooModelManager()
     {
-    }
-
-    private static class SavedStateJob
-        extends WorkspaceJob
-    {
-        public SavedStateJob()
-        {
-            super("SavedState"); //$NON-NLS-1$
-            setSystem(true);
-            setPriority(SHORT);
-            setRule(ResourcesPlugin.getWorkspace().getRoot());
-        }
-
-        @Override
-        public IStatus runInWorkspace(IProgressMonitor monitor)
-            throws CoreException
-        {
-            ISavedState savedState =
-                ResourcesPlugin.getWorkspace().addSaveParticipant(
-                    Activator.PLUGIN_ID, new SaveParticipant());
-            if (savedState != null)
-                savedState.processResourceChangeEvents(
-                    FooModelManager.INSTANCE);
-            return Status.OK_STATUS;
-        }
-
-        private static class SaveParticipant
-            implements ISaveParticipant
-        {
-            @Override
-            public void doneSaving(ISaveContext context)
-            {
-            }
-
-            @Override
-            public void prepareToSave(ISaveContext context) throws CoreException
-            {
-            }
-
-            @Override
-            public void rollback(ISaveContext context)
-            {
-            }
-
-            @Override
-            public void saving(ISaveContext context) throws CoreException
-            {
-                if (context.getKind() == ISaveContext.FULL_SAVE)
-                {
-                    context.needDelta();
-                }
-            }
-        }
     }
 }
