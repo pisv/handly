@@ -13,7 +13,10 @@ package org.eclipse.handly.snapshot;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -26,33 +29,39 @@ public final class TextFileSnapshot
     extends TextFileSnapshotBase
 {
     private final IFile file;
-    private final boolean local;
+    private final boolean fromFs;
     private final long modificationStamp;
     private String charset;
 
     /**
-     * Takes a snapshot of the given text file in the workspace, using either
-     * workspace contents or the contents of the local file system according
-     * to the <code>layer</code> arg.
+     * Takes a snapshot of the given text file in the workspace.
+     * <p>
+     * The workspace may be out of sync with file system. The <code>layer</code>
+     * argument controls how to deal with such a case. If {@code Layer.FILESYSTEM}
+     * is specified, the snapshot will be taken directly from file system,
+     * bypassing the workspace. If {@code Layer.WORKSPACE} is specified, the
+     * snapshot will expire if the workspace is not in sync with the
+     * corresponding location in file system.
+     * </p>
      *
-     * @param file must not be <code>null</code>
-     * @param layer indicates whether workspace contents or the contents of the
-     *  local file system should be used
+     * @param file not <code>null</code>
+     * @param layer controls whether the snapshot is taken directly from
+     *  file system, bypassing the workspace
      */
     public TextFileSnapshot(IFile file, Layer layer)
     {
         if (file == null)
             throw new IllegalArgumentException();
         this.file = file;
-        this.local = layer.equals(Layer.FILESYSTEM);
-        this.modificationStamp = getFileModificationStamp(file, local);
+        this.fromFs = layer.equals(Layer.FILESYSTEM);
+        this.modificationStamp = getFileModificationStamp(file, fromFs);
     }
 
     @Override
     public boolean exists()
     {
-        if (local)
-            return modificationStamp != 0;
+        if (fromFs)
+            return modificationStamp != EFS.NONE;
         else
             return modificationStamp != IResource.NULL_STAMP;
     }
@@ -63,7 +72,8 @@ public final class TextFileSnapshot
         if (other instanceof TextFileSnapshot)
         {
             TextFileSnapshot otherSnapshot = (TextFileSnapshot)other;
-            if (file.equals(otherSnapshot.file) && local == otherSnapshot.local
+            if (file.equals(otherSnapshot.file)
+                && fromFs == otherSnapshot.fromFs
                 && modificationStamp == otherSnapshot.modificationStamp)
                 return true;
         }
@@ -77,7 +87,7 @@ public final class TextFileSnapshot
     @Override
     boolean isSynchronized()
     {
-        return modificationStamp == getFileModificationStamp(file, local)
+        return modificationStamp == getFileModificationStamp(file, fromFs)
             && getStatus().isOK();
     }
 
@@ -90,7 +100,7 @@ public final class TextFileSnapshot
         charset = file.getCharset(false);
         if (charset == null)
         {
-            try (InputStream contents = file.getContents(local))
+            try (InputStream contents = file.getContents(fromFs))
             {
                 charset = getCharset(contents, file.getName());
             }
@@ -108,7 +118,7 @@ public final class TextFileSnapshot
     String readContents() throws CoreException
     {
         try (
-            InputStream stream = file.getContents(local);
+            InputStream stream = file.getContents(fromFs);
             InputStreamReader reader = new InputStreamReader(stream, charset))
         {
             return String.valueOf(getInputStreamAsCharArray(stream, reader));
@@ -120,26 +130,43 @@ public final class TextFileSnapshot
         }
     }
 
-    private static long getFileModificationStamp(IFile file, boolean local)
+    private static long getFileModificationStamp(IFile file, boolean fromFs)
     {
-        if (!local)
+        if (!fromFs)
             return file.getModificationStamp();
         else
-            return file.getLocation().toFile().lastModified();
+        {
+            URI uri = file.getLocationURI();
+            if (uri == null)
+                return EFS.NONE;
+            IFileStore fileStore;
+            try
+            {
+                fileStore = EFS.getStore(uri);
+            }
+            catch (CoreException e)
+            {
+                Activator.log(e.getStatus());
+                return EFS.NONE;
+            }
+            return fileStore.fetchInfo().getLastModified();
+        }
     }
 
     /**
-     * Specifies whether workspace contents or the contents of the local
-     * file system should be used.
+     * Specifies whether the snapshot should be taken directly from file system,
+     * bypassing the workspace.
      */
     public enum Layer
     {
         /**
-         * Indicates that workspace contents should be used.
+         * Indicates that the snapshot should be taken from the workspace,
+         * which may be out of sync with file system.
          */
         WORKSPACE,
         /**
-         * Indicates that the contents of the local file system should be used.
+         * Indicates that the snapshot should be taken directly from file system,
+         * bypassing the workspace.
          */
         FILESYSTEM
     }
