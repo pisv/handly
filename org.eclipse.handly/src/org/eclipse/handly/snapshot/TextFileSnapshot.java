@@ -36,16 +36,16 @@ public final class TextFileSnapshot
     /**
      * Takes a snapshot of the given text file in the workspace.
      * <p>
-     * The workspace may be out of sync with file system. The <code>layer</code>
+     * The workspace may be out of sync with the file system. The {@code layer}
      * argument controls how to deal with such a case. If {@code Layer.FILESYSTEM}
-     * is specified, the snapshot will be taken directly from file system,
+     * is specified, the snapshot will be taken directly from the file system,
      * bypassing the workspace. If {@code Layer.WORKSPACE} is specified, the
      * snapshot will expire if the workspace is not in sync with the
-     * corresponding location in file system.
+     * corresponding location in the file system.
      * </p>
      *
      * @param file not <code>null</code>
-     * @param layer controls whether the snapshot is taken directly from
+     * @param layer controls whether the snapshot is taken directly from the
      *  file system, bypassing the workspace
      */
     public TextFileSnapshot(IFile file, Layer layer)
@@ -154,19 +154,20 @@ public final class TextFileSnapshot
     }
 
     /**
-     * Specifies whether the snapshot should be taken directly from file system,
-     * bypassing the workspace.
+     * Specifies whether the snapshot should be taken directly from the
+     * file system, bypassing the workspace.
      */
     public enum Layer
     {
         /**
          * Indicates that the snapshot should be taken from the workspace,
-         * which may be out of sync with file system.
+         * which may be out of sync with the file system.
          */
         WORKSPACE,
+
         /**
-         * Indicates that the snapshot should be taken directly from file system,
-         * bypassing the workspace.
+         * Indicates that the snapshot should be taken directly from
+         * the file system, bypassing the workspace.
          */
         FILESYSTEM
     }
