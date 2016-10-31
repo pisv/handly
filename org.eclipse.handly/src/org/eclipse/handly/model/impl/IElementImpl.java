@@ -10,17 +10,22 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.context.Contexts.with;
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+
 import java.lang.reflect.Array;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IModel;
+import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
  * All {@link IElement}s must implement this interface.
@@ -108,23 +113,19 @@ public interface IElementImpl
     IResource hResource();
 
     /**
-     * Returns the path to the innermost resource enclosing this element.
-     * If this element is enclosed in a workspace resource, the path returned
-     * is the full, absolute path to the underlying resource, relative to
-     * the workspace. Otherwise, the path returned is the absolute path to
-     * a file or to a folder in the file system.
-     * This is a handle-only method.
+     * Returns a file system location for this element. The resulting URI is
+     * suitable to passing to <code>EFS.getStore(URI)</code>. Returns
+     * <code>null</code> if no location can be determined.
      *
-     * @return the path to the innermost resource enclosing this element
-     *  (never <code>null</code>)
+     * @return a file system location for this element,
+     *  or <code>null</code> if no location can be determined
      */
-    default IPath hPath()
+    default URI hLocationURI()
     {
         IResource resource = hResource();
         if (resource != null)
-            return resource.getFullPath();
-        throw new AssertionError(
-            "Please override the default implementation of this method"); //$NON-NLS-1$
+            return resource.getLocationURI();
+        return null;
     }
 
     /**
@@ -181,11 +182,12 @@ public interface IElementImpl
     }
 
     /**
-     * Debugging purposes. Returns a string representation of this element.
-     * Note that the format options specified in the given context serve as
-     * a hint that implementations may or may not fully support.
+     * Returns a string representation of this element in a form suitable for
+     * debugging purposes. Clients can influence the result with format options
+     * specified in the given context; unrecognized options are ignored and
+     * an empty context is permitted.
      * <p>
-     * Implementations are advised to support common hints defined in
+     * Implementations are advised to support common options defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
      * interpret the format style as follows:
      * </p>
@@ -204,4 +206,30 @@ public interface IElementImpl
      * @return a string representation of this element (never <code>null</code>)
      */
     String hToString(IContext context);
+
+    /**
+     * Returns a string representation of this element in a form suitable for
+     * displaying to the user, e.g. in message dialogs. Clients can influence
+     * the result with format options specified in the given context;
+     * unrecognized options are ignored and an empty context is permitted.
+     * <p>
+     * Implementations are encouraged to support common options defined in
+     * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and may
+     * interpret the format style as they see fit in a way that is specific to
+     * the model. No hard rules apply, but usually the string representation
+     * does not list the element's children regardless of the format style, and
+     * a {@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
+     * representation fully identifies the element within the model.
+     * </p>
+     *
+     * @param context not <code>null</code>
+     * @return a string representation of this element (never <code>null</code>)
+     */
+    default String hToDisplayString(IContext context)
+    {
+        FormatStyle style = context.getOrDefault(FORMAT_STYLE);
+        if (style != FormatStyle.SHORT && style != FormatStyle.MEDIUM)
+            context = with(of(FORMAT_STYLE, FormatStyle.MEDIUM), context);
+        return hToString(context);
+    }
 }

@@ -27,8 +27,8 @@ import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaElementDelta;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
+import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
-import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.Body;
@@ -487,7 +487,7 @@ class DeltaProcessor
             }
             lastComparedIndex = j;
 
-            if (Elements.getPath(roots[i]).equals(entryPath))
+            if (((IPackageFragmentRoot)roots[i]).getPath().equals(entryPath))
                 i++;
             else
                 j++;
@@ -499,7 +499,7 @@ class DeltaProcessor
             if (roots[i].equals(root))
                 return;
 
-            if (!Elements.getPath(roots[i]).equals(rootPath))
+            if (!((IPackageFragmentRoot)roots[i]).getPath().equals(rootPath))
                 break;
         }
 

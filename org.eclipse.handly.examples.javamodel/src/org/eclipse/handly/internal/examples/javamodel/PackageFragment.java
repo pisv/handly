@@ -16,7 +16,6 @@ import static org.eclipse.handly.util.ToStringOptions.INDENT_LEVEL;
 import static org.eclipse.handly.util.ToStringOptions.INDENT_POLICY;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.LONG;
 
-import java.text.MessageFormat;
 import java.util.HashSet;
 
 import org.eclipse.core.resources.IContainer;
@@ -168,15 +167,11 @@ public class PackageFragment
     protected void hValidateExistence(IContext context) throws CoreException
     {
         if (!isValidPackageName())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Invalid Java package name: {0}",
-                    getElementName()), null));
+            throw hDoesNotExistException();
 
         IResource resource = getResource();
         if (resource != null && !resource.isAccessible())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Resource ''{0}'' is not accessible",
-                    resource.getFullPath()), null));
+            throw hDoesNotExistException();
     }
 
     @Override

@@ -16,7 +16,6 @@ import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -400,10 +399,7 @@ public abstract class SourceFile
         if (!hIsWorkingCopy())
         {
             if (!hFileExists())
-                throw new CoreException(Activator.createErrorStatus(
-                    MessageFormat.format(
-                        Messages.SourceFile_File_does_not_exist__0, hPath()),
-                    null));
+                throw hDoesNotExistException();
         }
     }
 

@@ -312,6 +312,20 @@ public abstract class Element
     }
 
     /**
+     * Returns a new instance of a generic "element does not exist" exception.
+     * The exception's message identifies the non-existing element without
+     * giving any details about the reason for nonexistence.
+     *
+     * @return a new "element does not exist" exception (never <code>null</code>)
+     */
+    protected CoreException hDoesNotExistException()
+    {
+        return new CoreException(Activator.createErrorStatus(
+            MessageFormat.format(Messages.Element_Does_not_exist__0,
+                hToDisplayString(of(FORMAT_STYLE, FULL))), null));
+    }
+
+    /**
      * Validates if the element represented by the handle may be "opened",
      * i.e. begin existence in the model. For example, a necessary condition
      * for element existence might be that the underlying resource exists.
@@ -322,6 +336,7 @@ public abstract class Element
      *
      * @param context the operation context (never <code>null</code>)
      * @throws CoreException if this element shall not exist
+     * @see #hDoesNotExistException()
      */
     protected abstract void hValidateExistence(IContext context)
         throws CoreException;
@@ -333,7 +348,8 @@ public abstract class Element
     protected static final Property<Map<IElement, Object>> NEW_ELEMENTS =
         new Property<Map<IElement, Object>>(Element.class.getName()
             + ".newElements") //$NON-NLS-1$
-        {};
+        {
+        };
 
     /**
      * Creates and initializes bodies for this element and for each non-{@link
@@ -445,8 +461,7 @@ public abstract class Element
             if (body == null)
             {
                 // the openable parent did not create a body for this element
-                throw new CoreException(Activator.createErrorStatus(
-                    "The element does not exist: " + toString(), null)); //$NON-NLS-1$
+                throw hDoesNotExistException();
             }
             if (monitor.isCanceled())
                 throw new OperationCanceledException();

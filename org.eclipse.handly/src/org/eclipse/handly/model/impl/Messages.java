@@ -18,7 +18,7 @@ class Messages
     private static final String BUNDLE_NAME =
         "org.eclipse.handly.model.impl.messages"; //$NON-NLS-1$
 
-    public static String SourceFile_File_does_not_exist__0;
+    public static String Element_Does_not_exist__0;
 
     static
     {

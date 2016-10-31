@@ -60,7 +60,6 @@ public class ExternalFooProject
     @Override
     protected void hValidateExistence(IContext context) throws CoreException
     {
-        throw new CoreException(Activator.createErrorStatus(
-            "External project never exists", null));
+        throw hDoesNotExistException(); // external project never exists
     }
 }

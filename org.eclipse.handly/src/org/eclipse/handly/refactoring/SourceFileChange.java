@@ -14,7 +14,7 @@ package org.eclipse.handly.refactoring;
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.model.Elements.getBuffer;
 import static org.eclipse.handly.model.Elements.getFile;
-import static org.eclipse.handly.model.Elements.getPath;
+import static org.eclipse.handly.model.Elements.toDisplayString;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -28,12 +28,14 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.internal.Activator;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
@@ -100,7 +102,9 @@ public class SourceFileChange
             throw new IllegalArgumentException();
         if ((this.edit = edit) == null)
             throw new IllegalArgumentException();
-        setTextType(getPath(sourceFile).getFileExtension());
+        String fileName = Elements.getName(sourceFile);
+        if (fileName != null)
+            setTextType(new Path(fileName).getFileExtension());
     }
 
     /**
@@ -234,7 +238,7 @@ public class SourceFileChange
             {
                 result.addFatalError(MessageFormat.format(
                     Messages.SourceFileChange_Cannot_apply_stale_change__0,
-                    getPath(sourceFile).makeRelative()));
+                    toDisplayString(sourceFile, EMPTY_CONTEXT)));
             }
         }
         return result;
@@ -268,7 +272,7 @@ public class SourceFileChange
                 throw new CoreException(Activator.createErrorStatus(
                     MessageFormat.format(
                         Messages.SourceFileChange_Cannot_apply_stale_change__0,
-                        getPath(sourceFile).makeRelative()), e));
+                        toDisplayString(sourceFile, EMPTY_CONTEXT)), e));
             }
 
             return new UndoSourceFileChange(getName(), sourceFile, undoChange);

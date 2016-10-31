@@ -11,7 +11,6 @@
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.internal.examples.basic.ui.Activator;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
@@ -147,22 +145,8 @@ public class FooProject
     @Override
     protected void hValidateExistence(IContext context) throws CoreException
     {
-        if (!project.exists())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format(
-                    "Project ''{0}'' does not exist in workspace", getName()),
-                null));
-
-        if (!project.isOpen())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Project ''{0}'' is not open", getName()),
-                null));
-
         if (!project.hasNature(NATURE_ID))
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format(
-                    "Project ''{0}'' does not have the Foo nature", getName()),
-                null));
+            throw hDoesNotExistException();
     }
 
     @Override

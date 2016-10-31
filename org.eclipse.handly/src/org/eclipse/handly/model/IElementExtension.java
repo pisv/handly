@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.model;
 
+import java.net.URI;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 
 /**
  * Model implementors may choose to extend this interface, which extends
@@ -99,19 +100,16 @@ public interface IElementExtension
     }
 
     /**
-     * Returns the path to the innermost resource enclosing this element.
-     * If this element is enclosed in a workspace resource, the path returned
-     * is the full, absolute path to the underlying resource, relative to
-     * the workspace. Otherwise, the path returned is the absolute path to
-     * a file or to a folder in the file system.
-     * This is a handle-only method.
+     * Returns a file system location for this element. The resulting URI is
+     * suitable to passing to <code>EFS.getStore(URI)</code>. Returns
+     * <code>null</code> if no location can be determined.
      *
-     * @return the path to the innermost resource enclosing this element
-     *  (never <code>null</code>)
+     * @return a file system location for this element,
+     *  or <code>null</code> if no location can be determined
      */
-    default IPath getPath()
+    default URI getLocationURI()
     {
-        return Elements.getPath(this);
+        return Elements.getLocationURI(this);
     }
 
     /**

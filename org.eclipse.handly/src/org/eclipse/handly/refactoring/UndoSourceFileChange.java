@@ -12,9 +12,9 @@ package org.eclipse.handly.refactoring;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.model.Elements.exists;
-import static org.eclipse.handly.model.Elements.getPath;
 import static org.eclipse.handly.model.Elements.getBuffer;
 import static org.eclipse.handly.model.Elements.getFile;
+import static org.eclipse.handly.model.Elements.toDisplayString;
 
 import java.text.MessageFormat;
 
@@ -73,16 +73,16 @@ class UndoSourceFileChange
             if (exists(sourceFile))
             {
                 result.addFatalError(MessageFormat.format(
-                    Messages.UndoSourceFileChange_Should_not_exist__0, getPath(
-                        sourceFile).makeRelative()));
+                    Messages.UndoSourceFileChange_Should_not_exist__0,
+                    toDisplayString(sourceFile, EMPTY_CONTEXT)));
             }
             return result; // let the delete/move undo change handle the rest
         }
         else if (!exists(sourceFile))
         {
             result.addFatalError(MessageFormat.format(
-                Messages.UndoSourceFileChange_Should_exist__0, getPath(
-                    sourceFile).makeRelative()));
+                Messages.UndoSourceFileChange_Should_exist__0, toDisplayString(
+                    sourceFile, EMPTY_CONTEXT)));
             return result;
         }
 
@@ -95,7 +95,7 @@ class UndoSourceFileChange
             {
                 result.addFatalError(MessageFormat.format(
                     Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
-                    getPath(sourceFile).makeRelative()));
+                    toDisplayString(sourceFile, EMPTY_CONTEXT)));
             }
         }
         return result;
@@ -121,7 +121,7 @@ class UndoSourceFileChange
                 throw new CoreException(Activator.createErrorStatus(
                     MessageFormat.format(
                         Messages.UndoSourceFileChange_Cannot_undo_stale_change__0,
-                        getPath(sourceFile).makeRelative()), e));
+                        toDisplayString(sourceFile, EMPTY_CONTEXT)), e));
             }
 
             return new UndoSourceFileChange(getName(), sourceFile, redoChange);

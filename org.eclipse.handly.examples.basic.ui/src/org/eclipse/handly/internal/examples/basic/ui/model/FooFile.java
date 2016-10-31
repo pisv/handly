@@ -189,6 +189,7 @@ public class FooFile
      */
     protected URI getResourceUri()
     {
-        return URI.createPlatformResourceURI(getPath().toString(), true);
+        return URI.createPlatformResourceURI(hFile().getFullPath().toString(),
+            true);
     }
 }

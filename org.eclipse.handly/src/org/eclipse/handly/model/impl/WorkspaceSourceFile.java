@@ -12,8 +12,6 @@ package org.eclipse.handly.model.impl;
 
 import static org.eclipse.handly.model.Elements.CREATE_BUFFER;
 
-import java.text.MessageFormat;
-
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
@@ -24,7 +22,6 @@ import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.ICoreTextFileBufferProvider;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.context.IContext;
-import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.TextFileSnapshot;
 
@@ -113,10 +110,7 @@ public abstract class WorkspaceSourceFile
                 TextFileSnapshot.Layer.FILESYSTEM);
             if (!result.exists())
             {
-                throw new IllegalStateException(new CoreException(
-                    Activator.createErrorStatus(MessageFormat.format(
-                        Messages.SourceFile_File_does_not_exist__0, hPath()),
-                        null)));
+                throw new IllegalStateException(hDoesNotExistException());
             }
             if (result.getContents() == null && !result.getStatus().isOK())
             {

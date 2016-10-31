@@ -101,7 +101,11 @@ public interface IJavaElement
      */
     default IPath getPath()
     {
-        return Elements.getPath(this);
+        IResource resource = getResource();
+        if (resource != null)
+            return resource.getFullPath();
+        throw new AssertionError(
+            "Please override the default implementation of this method"); //$NON-NLS-1$
     }
 
     /**

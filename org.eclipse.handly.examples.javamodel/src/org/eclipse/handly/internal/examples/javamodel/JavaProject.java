@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -247,22 +246,8 @@ public class JavaProject
     @Override
     protected void hValidateExistence(IContext context) throws CoreException
     {
-        if (!project.exists())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format(
-                    "Project ''{0}'' does not exist in workspace",
-                    getElementName()), null));
-
-        if (!project.isOpen())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Project ''{0}'' is not open",
-                    getElementName()), null));
-
         if (!project.hasNature(NATURE_ID))
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format(
-                    "Project ''{0}'' does not have the Java nature",
-                    getElementName()), null));
+            throw hDoesNotExistException();
     }
 
     @Override

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IContainer;
@@ -117,19 +116,15 @@ public class PackageFragmentRoot
     {
         validateOnClasspath();
 
-        if (!resource.exists())
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Resource ''{0}'' does not exist",
-                    resource.getFullPath()), null));
+        if (!resource.isAccessible())
+            throw hDoesNotExistException();
     }
 
     protected void validateOnClasspath() throws CoreException
     {
         IClasspathEntry[] rawClasspath = getParent().getRawClasspath();
         if (!ClasspathUtil.isSourceFolder(resource, rawClasspath))
-            throw new CoreException(Activator.createErrorStatus(
-                MessageFormat.format("Not a source folder: {0}", getPath()),
-                null));
+            throw hDoesNotExistException();
     }
 
     @Override

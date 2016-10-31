@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.adapter;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
@@ -109,9 +109,12 @@ public class JavaElement
     }
 
     @Override
-    public IPath hPath()
+    public URI hLocationURI()
     {
-        return javaElement.getPath();
+        IResource resource = hResource();
+        if (resource != null)
+            return resource.getLocationURI();
+        return javaElement.getPath().toFile().toURI();
     }
 
     @Override
