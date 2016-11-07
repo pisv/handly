@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,28 +10,78 @@
  *******************************************************************************/
 package org.eclipse.handly.ui;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.ui.IEditorInput;
+import org.eclipse.jface.text.IDocument;
 
 /**
  * Interface for accessing working copies of source files.
- * The original source file is only given indirectly by means
- * of an <code>IEditorInput</code>.
- *
- * @noimplement This interface is not intended to be implemented by clients.
- * @noextend This interface is not intended to be extended by clients.
+ * The life cycle is as follows:
+ * <ul>
+ * <li>
+ * {@link #connect} attempts to acquire a working copy for the given element
+ * </li>
+ * <li>
+ * {@link #getWorkingCopy} returns the working copy acquired on {@code connect}
+ * </li>
+ * <li>
+ * {@link #disconnect} releases the working copy acquired on {@code connect}
+ * </li>
+ * </ul>
+ * <p>
+ * Implementations are generally not expected to be thread safe and, if not
+ * mentioned otherwise, may only be called from the user-interface thread.
+ * </p>
  */
 public interface IWorkingCopyManager
 {
     /**
-     * Returns the working copy remembered for the source file corresponding to
-     * the given editor input.
+     * Connects the given element to this manager. Attempts to acquire a
+     * working copy for the given element.
      *
-     * @param editorInput the editor input (may be <code>null</code>)
-     * @return the working copy remembered for the source file corresponding
-     *  to the given editor input, or <code>null</code> if there is no source
-     *  file corresponding to the input or if there is no working copy
-     *  remembered for the corresponding source file
+     * @param element the element (not <code>null</code>)
+     * @throws CoreException if working copy could not be acquired successfully
      */
-    ISourceFile getWorkingCopy(IEditorInput editorInput);
+    void connect(Object element) throws CoreException;
+
+    /**
+     * Disconnects the given element from this manager. Releases the working copy
+     * acquired on {@link #connect}.
+     *
+     * @param element the element (not <code>null</code>)
+     */
+    void disconnect(Object element);
+
+    /**
+     * Returns the working copy managed for the given element.
+     *
+     * @param element the element for which to find the working copy,
+     *  or <code>null</code>
+     * @return the working copy managed for the given element,
+     *  or <code>null</code> if none
+     */
+    ISourceFile getWorkingCopy(Object element);
+
+    /**
+     * Returns the working copy managed for the given document.
+     * <p>
+     * <b>Note:</b> An implementation may go through the list of working copies and
+     * test whether the working copy buffer's document is equal to the given one.
+     * Therefore, this method should not be used in performance critical code.
+     * </p>
+     *
+     * @param document the document for which to find the working copy,
+     *  or <code>null</code>
+     * @return the working copy managed for the given document,
+     *  or <code>null</code> if none
+     */
+    ISourceFile getWorkingCopy(IDocument document);
+
+    /**
+     * Returns all working copies that are currently managed by this manager.
+     *
+     * @return the working copies currently managed by this manager
+     *  (never <code>null</code>)
+     */
+    ISourceFile[] getWorkingCopies();
 }

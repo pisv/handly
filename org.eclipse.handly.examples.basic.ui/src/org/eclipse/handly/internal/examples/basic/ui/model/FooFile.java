@@ -91,12 +91,27 @@ public class FooFile
     }
 
     @Override
-    protected void hBuildStructure(Object ast, IContext context,
-        IProgressMonitor monitor)
+    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
         Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
         SourceElementBody body = new SourceElementBody();
-        XtextResource resource = (XtextResource)ast;
+
+        XtextResource resource = (XtextResource)context.get(SOURCE_AST);
+        if (resource == null)
+        {
+            try
+            {
+                resource = parse(context.get(SOURCE_CONTENTS),
+                    getFile().getCharset());
+            }
+            catch (IOException e)
+            {
+                throw new CoreException(Activator.createErrorStatus(
+                    e.getMessage(), e));
+            }
+        }
+
         IParseResult parseResult = resource.getParseResult();
         if (parseResult != null)
         {
@@ -108,32 +123,8 @@ public class FooFile
                 builder.buildStructure(this, body, (Module)root, monitor);
             }
         }
-        newElements.put(this, body);
-    }
 
-    /**
-     * Returns a new <code>XtextResource</code> loaded from the given source
-     * string. The resource is created in a new <code>ResourceSet</code>
-     * obtained from the <code>IResourceSetProvider</code> corresponding to
-     * this file.
-     *
-     * @return the new <code>XtextResource</code> loaded from the given source
-     *  string (never <code>null</code>)
-     * @throws CoreException if resource loading failed
-     */
-    @Override
-    protected XtextResource hCreateAst(String source, IContext context,
-        IProgressMonitor monitor) throws CoreException
-    {
-        try
-        {
-            return parse(source, getFile().getCharset());
-        }
-        catch (IOException e)
-        {
-            throw new CoreException(Activator.createErrorStatus(e.getMessage(),
-                e));
-        }
+        newElements.put(this, body);
     }
 
     /**

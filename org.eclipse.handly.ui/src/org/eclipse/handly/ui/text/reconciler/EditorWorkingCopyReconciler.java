@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,23 +11,22 @@
 package org.eclipse.handly.ui.text.reconciler;
 
 import org.eclipse.handly.ui.IWorkingCopyManager;
-import org.eclipse.handly.ui.WorkingCopyProvider;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
  * An abstract base class of a working copy reconciler that is activated on
  * editor activation and forces reconciling on a significant change in the
  * underlying model.
  */
-public abstract class HandlyReconciler
-    extends BaseReconciler
+public abstract class EditorWorkingCopyReconciler
+    extends WorkingCopyReconciler
 {
-    protected final ITextEditor editor;
+    private final IEditorPart editor;
     private final IPartListener partListener = new IPartListener()
     {
         public void partActivated(IWorkbenchPart part)
@@ -58,11 +57,12 @@ public abstract class HandlyReconciler
      * with the given text editor.
      *
      * @param editor the editor (not <code>null</code>)
-     * @param manager the working copy manager (not <code>null</code>)
+     * @param workingCopyManager the working copy manager (not <code>null</code>)
      */
-    public HandlyReconciler(ITextEditor editor, IWorkingCopyManager manager)
+    public EditorWorkingCopyReconciler(IEditorPart editor,
+        IWorkingCopyManager workingCopyManager)
     {
-        super(new WorkingCopyProvider(editor, manager));
+        super(workingCopyManager);
         this.editor = editor;
     }
 
@@ -88,6 +88,11 @@ public abstract class HandlyReconciler
 
     @Override
     protected Object getReconcilerLock()
+    {
+        return editor;
+    }
+
+    protected final IEditorPart getEditor()
     {
         return editor;
     }

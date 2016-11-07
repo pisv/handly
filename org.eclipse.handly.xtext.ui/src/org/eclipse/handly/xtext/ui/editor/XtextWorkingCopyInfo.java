@@ -19,6 +19,7 @@ import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.xtext.ui.Activator;
+import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.jface.text.IDocument;
@@ -46,20 +47,25 @@ public class XtextWorkingCopyInfo
                 context.bind(SOURCE_CONTENTS).to(snapshot.getContents());
                 context.bind(SOURCE_SNAPSHOT).to(snapshot.getWrappedSnapshot());
                 context.bind(RECONCILING_FORCED).to(forced);
-                basicReconcile(context, monitor);
+                reconcile0(context, monitor);
             }
         };
 
     /**
      * Constructs a new working copy info and associates it with the given
-     * buffer; the buffer is NOT <code>addRef</code>'ed.
+     * source file and buffer. Does not <code>addRef</code> the given buffer.
+     * <p>
+     * Clients should explicitly {@link #dispose} the working copy info
+     * after it is no longer needed.
+     * </p>
      *
-     * @param buffer the working copy buffer (not <code>null</code>,
+     * @param sourceFile the working copy's source file (not <code>null</code>)
+     * @param buffer the working copy's buffer (not <code>null</code>,
      *  must provide a <code>HandlyXtextDocument</code>)
      */
-    public XtextWorkingCopyInfo(IBuffer buffer)
+    public XtextWorkingCopyInfo(SourceFile sourceFile, IBuffer buffer)
     {
-        super(buffer);
+        super(sourceFile, buffer);
         IDocument document = buffer.getDocument();
         if (!(document instanceof HandlyXtextDocument))
             throw new IllegalArgumentException();
@@ -80,13 +86,13 @@ public class XtextWorkingCopyInfo
     }
 
     @Override
-    protected boolean needsReconciling()
+    protected final boolean needsReconciling()
     {
         return getDocument().needsReconciling();
     }
 
     @Override
-    protected void reconcile(IContext context, IProgressMonitor monitor)
+    protected final void reconcile(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         try
@@ -105,7 +111,7 @@ public class XtextWorkingCopyInfo
         }
     }
 
-    protected HandlyXtextDocument getDocument()
+    protected final HandlyXtextDocument getDocument()
     {
         return (HandlyXtextDocument)getBuffer().getDocument();
     }

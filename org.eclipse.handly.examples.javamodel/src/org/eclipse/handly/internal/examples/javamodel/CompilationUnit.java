@@ -11,6 +11,8 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.Elements.FORCE_RECONCILING;
 
 import java.util.Map;
@@ -30,7 +32,6 @@ import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.SourceElementBody;
-import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.model.impl.WorkspaceSourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.Property;
@@ -237,8 +238,7 @@ public class CompilationUnit
         CompilationUnit.class.getName() + ".ignoreMethodBodies", //$NON-NLS-1$
         Boolean.class).withDefault(false);
 
-    @Override
-    protected org.eclipse.jdt.core.dom.CompilationUnit hCreateAst(String source,
+    org.eclipse.jdt.core.dom.CompilationUnit createAst(String source,
         IContext context, IProgressMonitor monitor) throws CoreException
     {
         ASTParser parser = ASTParser.newParser(context.getOrDefault(AST_LEVEL));
@@ -259,16 +259,29 @@ public class CompilationUnit
     }
 
     @Override
-    protected void hBuildStructure(Object ast, IContext context,
-        IProgressMonitor monitor)
+    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
         Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
         SourceElementBody body = new SourceElementBody();
+
+        org.eclipse.jdt.core.dom.CompilationUnit cu =
+            (org.eclipse.jdt.core.dom.CompilationUnit)context.get(SOURCE_AST);
+        if (cu == null)
+            cu = createAst(context.get(SOURCE_CONTENTS), context, monitor);
+
         CompilatonUnitStructureBuilder builder =
             new CompilatonUnitStructureBuilder(newElements);
-        builder.buildStructure(this, body,
-            (org.eclipse.jdt.core.dom.CompilationUnit)ast);
+        builder.buildStructure(this, body, cu);
+
         newElements.put(this, body);
+    }
+
+    @Override
+    protected IContext hWorkingCopyContext(IContext context)
+    {
+        return of(IProblemRequestor.class, context.get(
+            IProblemRequestor.class));
     }
 
     @Override
@@ -281,13 +294,19 @@ public class CompilationUnit
         extends NotifyingReconcileOperation
     {
         @Override
-        protected void reconcile(Object ast, IContext context,
-            IProgressMonitor monitor) throws CoreException
+        protected void reconcile(IContext context, IProgressMonitor monitor)
+            throws CoreException
         {
-            super.reconcile(ast, context, monitor);
-
             org.eclipse.jdt.core.dom.CompilationUnit cu =
-                (org.eclipse.jdt.core.dom.CompilationUnit)ast;
+                (org.eclipse.jdt.core.dom.CompilationUnit)context.get(
+                    SOURCE_AST);
+            if (cu == null)
+            {
+                cu = createAst(context.get(SOURCE_CONTENTS), context, monitor);
+                context = with(of(SOURCE_AST, cu), context);
+            }
+
+            super.reconcile(context, monitor);
 
             reportProblems(cu.getProblems());
 
@@ -300,12 +319,8 @@ public class CompilationUnit
         {
             if (problems == null || problems.length == 0)
                 return;
-            WorkingCopyInfo info = hPeekAtWorkingCopyInfo();
-            if (info instanceof JavaWorkingCopyInfo)
-            {
-                reportProblems(((JavaWorkingCopyInfo)info).problemRequestor,
-                    problems);
-            }
+            reportProblems(hWorkingCopyInfo().getContext().get(
+                IProblemRequestor.class), problems);
         }
 
         private void reportProblems(IProblemRequestor requestor,

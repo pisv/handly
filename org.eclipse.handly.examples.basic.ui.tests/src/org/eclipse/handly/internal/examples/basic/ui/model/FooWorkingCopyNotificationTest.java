@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
@@ -18,9 +19,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.BufferChange;
-import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
-import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.examples.basic.ui.model.IFooElement;
@@ -44,7 +43,6 @@ public class FooWorkingCopyNotificationTest
     extends WorkspaceTestCase
 {
     private FooFile workingCopy;
-    private IBuffer buffer;
     private IFooModel fooModel = FooModelCore.getFooModel();
     private FooModelListener listener = new FooModelListener();
 
@@ -55,14 +53,11 @@ public class FooWorkingCopyNotificationTest
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
         fooModel.addElementChangeListener(listener);
-        buffer = TextFileBuffer.forFile(workingCopy.getFile());
     }
 
     @Override
     protected void tearDown() throws Exception
     {
-        if (buffer != null)
-            buffer.release();
         fooModel.removeElementChangeListener(listener);
         super.tearDown();
     }
@@ -109,7 +104,8 @@ public class FooWorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "g")); // rename f() to g()
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertDelta(null, listener.delta);
 
@@ -148,7 +144,8 @@ public class FooWorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new DeleteEdit(
                     r.getOffset(), r.getLength())); // delete 'var y;'
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertDelta(null, listener.delta);
 
@@ -165,7 +162,8 @@ public class FooWorkingCopyNotificationTest
                 change = // insert 'var y;' before 'var x;'
                     new BufferChange(new InsertEdit(r.getOffset(), varYText));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertDelta(null, listener.delta);
 
@@ -197,7 +195,8 @@ public class FooWorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "def f(y) {}")); // instead of 'def f(x) {}'
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertDelta(null, listener.delta);
 
@@ -212,14 +211,14 @@ public class FooWorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.hBecomeWorkingCopy(buffer, null);
+        workingCopy.hBecomeWorkingCopy(EMPTY_CONTEXT, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.hDiscardWorkingCopy();
+            workingCopy.hReleaseWorkingCopy();
         }
     }
 

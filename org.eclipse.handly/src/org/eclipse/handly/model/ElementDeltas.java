@@ -42,8 +42,8 @@ import org.eclipse.handly.model.impl.IElementDeltaImpl;
  * on delta A will return the handle for B. The delta for B will have status
  * <code>ADDED</code>, with change flag <code>F_MOVED_FROM</code>, and {@link
  * #getMovedFromElement} on delta B will return the handle for A. (Note,
- * the handle to A in this case represents an element that no longer exists).
- * Note that the move change flags only describe the changes to a single element,
+ * the handle to A in this case represents an element that no longer exists.)
+ * Move change flags only describe changes to a single element,
  * they do not imply anything about the parent or children of the element.
  * </p>
  * <p>

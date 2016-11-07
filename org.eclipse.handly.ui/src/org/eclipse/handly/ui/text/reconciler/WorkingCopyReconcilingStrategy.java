@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.text.reconciler;
 
-import static org.eclipse.handly.context.Contexts.of;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.ui.IWorkingCopyProvider;
+import org.eclipse.handly.ui.IWorkingCopyManager;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.reconciler.DirtyRegion;
@@ -31,20 +30,28 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 public class WorkingCopyReconcilingStrategy
     implements IReconcilingStrategy, IReconcilingStrategyExtension
 {
-    private final IWorkingCopyProvider provider;
-    private IProgressMonitor monitor;
+    private final IWorkingCopyManager workingCopyManager;
+    private volatile ISourceFile workingCopy;
+    private volatile IProgressMonitor monitor;
 
     /**
      * Creates a new working copy reconciling strategy
-     * with the given working copy provider.
+     * with the given working copy manager.
      *
-     * @param provider the working copy provider (not <code>null</code>)
+     * @param workingCopyManager the working copy manager (not <code>null</code>)
      */
-    public WorkingCopyReconcilingStrategy(IWorkingCopyProvider provider)
+    public WorkingCopyReconcilingStrategy(
+        IWorkingCopyManager workingCopyManager)
     {
-        if (provider == null)
+        if (workingCopyManager == null)
             throw new IllegalArgumentException();
-        this.provider = provider;
+        this.workingCopyManager = workingCopyManager;
+    }
+
+    @Override
+    public void setDocument(IDocument document)
+    {
+        setWorkingCopy(workingCopyManager.getWorkingCopy(document));
     }
 
     @Override
@@ -57,11 +64,6 @@ public class WorkingCopyReconcilingStrategy
     public final void initialReconcile()
     {
         reconcile(true);
-    }
-
-    @Override
-    public void setDocument(IDocument document)
-    {
     }
 
     @Override
@@ -81,42 +83,44 @@ public class WorkingCopyReconcilingStrategy
      *
      * @param workingCopy the given working copy (never <code>null</code>)
      * @param initialReconcile <code>true</code> if this is the initial reconcile
-     * @throws CoreException if the given working copy cannot be reconciled
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @throws CoreException if the working copy cannot be reconciled
+     * @throws OperationCanceledException if this method is canceled
      * @see #initialReconcile()
      */
-    protected void reconcile(ISourceFile workingCopy, boolean initialReconcile)
-        throws CoreException
+    protected void reconcile(ISourceFile workingCopy, boolean initialReconcile,
+        IProgressMonitor monitor) throws CoreException
     {
-        Elements.reconcile(workingCopy, of(Elements.FORCE_RECONCILING, true),
-            getProgressMonitor());
+        Elements.reconcile(workingCopy, monitor);
     }
 
-    /**
-     * @return the progress monitor set for this strategy,
-     *  or <code>null</code> if none
-     */
-    protected final IProgressMonitor getProgressMonitor()
+    private void reconcile(boolean initialReconcile)
     {
-        return monitor;
-    }
-
-    private void reconcile(final boolean initialReconcile)
-    {
-        final ISourceFile workingCopy = provider.getWorkingCopy();
-        if (workingCopy != null)
+        ISourceFile workingCopy = getWorkingCopy();
+        if (workingCopy == null)
+            return;
+        SafeRunner.run(new ISafeRunnable()
         {
-            SafeRunner.run(new ISafeRunnable()
+            public void run() throws Exception
             {
-                public void run() throws Exception
-                {
-                    reconcile(workingCopy, initialReconcile);
-                }
+                reconcile(workingCopy, initialReconcile, monitor);
+            }
 
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-            });
-        }
+            public void handleException(Throwable exception)
+            {
+                // already logged by Platform
+            }
+        });
+    }
+
+    private void setWorkingCopy(ISourceFile workingCopy)
+    {
+        this.workingCopy = workingCopy;
+    }
+
+    private ISourceFile getWorkingCopy()
+    {
+        return workingCopy;
     }
 }

@@ -38,17 +38,22 @@ public class DefaultWorkingCopyInfo
 
     /**
      * Constructs a new working copy info and associates it with the given
-     * buffer; the buffer is NOT <code>addRef</code>'ed.
+     * source file and buffer. Does not <code>addRef</code> the given buffer.
+     * <p>
+     * Clients should explicitly {@link #dispose} the working copy info
+     * after it is no longer needed.
+     * </p>
      *
-     * @param buffer the working copy buffer (not <code>null</code>)
+     * @param sourceFile the working copy's source file (not <code>null</code>)
+     * @param buffer the working copy's buffer (not <code>null</code>)
      */
-    public DefaultWorkingCopyInfo(IBuffer buffer)
+    public DefaultWorkingCopyInfo(SourceFile sourceFile, IBuffer buffer)
     {
-        super(buffer);
+        super(sourceFile, buffer);
     }
 
     @Override
-    protected boolean needsReconciling()
+    protected final boolean needsReconciling()
     {
         return !getBuffer().getSnapshot().isEqualTo(reconciledSnapshot);
     }
@@ -58,7 +63,7 @@ public class DefaultWorkingCopyInfo
         throws CoreException
     {
         if (context.containsKey(SOURCE_AST))
-            throw new IllegalArgumentException(); // just to be safe that we don't pass SOURCE_AST to #basicReconcile accidentally
+            throw new IllegalArgumentException(); // just to be safe that we don't pass SOURCE_AST to #reconcile0 accidentally
 
         synchronized (reconcilingLock)
         {
@@ -67,8 +72,8 @@ public class DefaultWorkingCopyInfo
             {
                 NonExpiringSnapshot snapshot = new NonExpiringSnapshot(
                     getBuffer());
-                basicReconcile(with(of(SOURCE_CONTENTS, snapshot.getContents()),
-                    of(SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), of(
+                reconcile0(with(of(SOURCE_CONTENTS, snapshot.getContents()), of(
+                    SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), of(
                         RECONCILING_FORCED, !needsReconciling), context),
                     monitor);
                 reconciledSnapshot = snapshot.getWrappedSnapshot();

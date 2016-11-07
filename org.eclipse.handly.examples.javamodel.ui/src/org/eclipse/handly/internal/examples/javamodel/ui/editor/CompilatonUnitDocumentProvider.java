@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2016 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel.ui.editor;
 
-import org.eclipse.handly.buffer.IBuffer;
-import org.eclipse.handly.internal.examples.javamodel.CompilationUnit;
-import org.eclipse.handly.internal.examples.javamodel.JavaWorkingCopyInfo;
+import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.internal.examples.javamodel.ui.JavaInputElementProvider;
-import org.eclipse.handly.model.impl.IWorkingCopyInfoFactory;
-import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.ui.texteditor.SourceFileDocumentProvider;
+import org.eclipse.ui.IEditorInput;
 
 /**
  * Compilation unit document provider.
@@ -24,24 +23,15 @@ import org.eclipse.handly.ui.texteditor.SourceFileDocumentProvider;
 public class CompilatonUnitDocumentProvider
     extends SourceFileDocumentProvider
 {
-    public CompilatonUnitDocumentProvider()
-    {
-        super(JavaInputElementProvider.INSTANCE);
-    }
-
     @Override
-    protected SourceFile getSourceFile(Object element)
+    protected ISourceFile getSourceFile(Object input)
     {
-        SourceFile sourceFile = super.getSourceFile(element);
-        if (!(sourceFile instanceof CompilationUnit))
+        if (!(input instanceof IEditorInput))
             return null;
-        return sourceFile;
-    }
-
-    @Override
-    protected IWorkingCopyInfoFactory getWorkingCopyInfoFactory(
-        SourceFile sourceFile, Object element, FileInfo fileInfo)
-    {
-        return (IBuffer buffer) -> new JavaWorkingCopyInfo(buffer, null);
+        IElement element = JavaInputElementProvider.INSTANCE.getElement(
+            (IEditorInput)input);
+        if (!(element instanceof ICompilationUnit))
+            return null;
+        return (ICompilationUnit)element;
     }
 }

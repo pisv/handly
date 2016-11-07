@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
@@ -72,113 +73,111 @@ public abstract class SourceFile
     public final IBuffer hBuffer(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        WorkingCopyInfo info = hAcquireWorkingCopy();
-        if (info == null)
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+        monitor.beginTask("", 100); //$NON-NLS-1$
+        try
         {
-            return hFileBuffer(context, monitor);
+            WorkingCopyInfo info = hAcquireExistingWorkingCopy(
+                new SubProgressMonitor(monitor, 10));
+            if (info == null)
+            {
+                return hFileBuffer(context, new SubProgressMonitor(monitor,
+                    90));
+            }
+            else
+            {
+                try
+                {
+                    IBuffer buffer = info.getBuffer();
+                    buffer.addRef();
+                    return buffer;
+                }
+                finally
+                {
+                    hReleaseWorkingCopy();
+                }
+            }
         }
-        else
+        finally
         {
-            try
-            {
-                IBuffer buffer = info.getBuffer();
-                buffer.addRef();
-                return buffer;
-            }
-            finally
-            {
-                hDiscardWorkingCopy();
-            }
+            monitor.done();
         }
     }
 
     /**
      * If this source file is not already in working copy mode, switches it
-     * into a working copy, associates it with the given buffer, and acquires
-     * an independent ownership of the working copy and its buffer. Performs
-     * atomically.
+     * into a working copy, associates it with a working copy buffer via a new
+     * working copy info, and acquires an independent ownership of the working
+     * copy (and, hence, of the working copy buffer). Performs atomically.
      * <p>
-     * Switching to working copy means that the source file's structure and
-     * properties will no longer correspond to the underlying resource contents
-     * and will no longer be updated by a resource delta processor. Instead,
-     * those structure and properties can be explicitly {@link #hReconcile(
-     * IContext, IProgressMonitor) reconciled} with the current contents of
-     * the working copy buffer.
+     * In working copy mode the source file's structure and properties
+     * shall no longer correspond to the underlying resource contents
+     * and must no longer be updated by a resource delta processor.
+     * Instead, the source file's structure and properties can be explicitly
+     * {@link #hReconcile(IContext, IProgressMonitor) reconciled} with the
+     * current contents of the working copy buffer.
+     * </p>
+     * <p>
+     * This method supports the following options, which may be specified
+     * in the given context:
+     * </p>
+     * <ul>
+     * <li>
+     * {@link #WORKING_COPY_BUFFER} - Specifies the working copy buffer.
+     * If not set, a default buffer is associated with the working copy.
+     * </li>
+     * <li>
+     * {@link #WORKING_COPY_INFO_FACTORY} - Specifies the working copy info factory.
+     * If not set, a default factory is used for obtaining a new working copy info.
+     * </li>
+     * </ul>
      * </p>
      * <p>
      * If the source file was already in working copy mode, this method acquires
      * a new independent ownership of the working copy by incrementing an internal
      * counter and returns the info associated with the working copy; the given
-     * buffer is ignored.
+     * context is ignored. The returned info is owned by the working copy and
+     * must not be explicitly disposed by the client.
      * </p>
      * <p>
      * Each successful call to this method must ultimately be followed
-     * by exactly one call to <code>hDiscardWorkingCopy</code>.
+     * by exactly one call to <code>hReleaseWorkingCopy</code>.
      * </p>
      *
-     * @param buffer the working copy buffer (not <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
      * @return the working copy info previously associated with
      *  this source file, or <code>null</code> if there was no
      *  working copy info for this source file
-     * @throws CoreException if the working copy cannot be created
+     * @throws CoreException if the working copy could not be created successfully
      * @throws OperationCanceledException if this method is canceled
-     * @see #hDiscardWorkingCopy()
+     * @see #hReleaseWorkingCopy()
+     * @see #hAcquireExistingWorkingCopy(IProgressMonitor)
      */
-    public final WorkingCopyInfo hBecomeWorkingCopy(IBuffer buffer,
+    public final WorkingCopyInfo hBecomeWorkingCopy(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
-        return hBecomeWorkingCopy(buffer, null, monitor);
-    }
-
-    /**
-     * If this source file is not already in working copy mode, switches it
-     * into a working copy, associates it with the given buffer via a new
-     * working copy info obtained from the given factory, and acquires an
-     * independent ownership of the working copy and its buffer. Performs
-     * atomically.
-     * <p>
-     * Switching to working copy means that the source file's structure and
-     * properties will no longer correspond to the underlying resource contents
-     * and will no longer be updated by a resource delta processor. Instead,
-     * those structure and properties can be explicitly {@link #hReconcile(
-     * IContext, IProgressMonitor) reconciled} with the current contents of
-     * the working copy buffer.
-     * </p>
-     * <p>
-     * If the source file was already in working copy mode, this method acquires
-     * a new independent ownership of the working copy by incrementing an internal
-     * counter and returns the info associated with the working copy; the given
-     * buffer and factory are ignored.
-     * </p>
-     * <p>
-     * Each successful call to this method must ultimately be followed
-     * by exactly one call to <code>hDiscardWorkingCopy</code>.
-     * </p>
-     *
-     * @param buffer the working copy buffer (not <code>null</code>)
-     * @param factory the working copy info factory, or <code>null</code>
-     *  if a default factory is to be used
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @return the working copy info previously associated with
-     *  this source file, or <code>null</code> if there was no
-     *  working copy info for this source file
-     * @throws CoreException if the working copy cannot be created
-     * @throws OperationCanceledException if this method is canceled
-     * @see #hDiscardWorkingCopy()
-     */
-    public final WorkingCopyInfo hBecomeWorkingCopy(IBuffer buffer,
-        IWorkingCopyInfoFactory factory, IProgressMonitor monitor)
-        throws CoreException
-    {
+        if (context == null)
+            throw new IllegalArgumentException();
+        IBuffer buffer = context.get(WORKING_COPY_BUFFER);
+        if (buffer == null)
+        {
+            try (IBuffer defaultBuffer = hFileBuffer(context, monitor))
+            {
+                return hBecomeWorkingCopy(with(of(WORKING_COPY_BUFFER,
+                    defaultBuffer), context), monitor);
+            }
+        }
         WorkingCopyProvider provider = new WorkingCopyProvider()
         {
             @Override
             protected WorkingCopyInfo doAcquireWorkingCopy()
             {
-                return putWorkingCopyInfoIfAbsent(buffer, factory);
+                return hElementManager().putWorkingCopyInfoIfAbsent(
+                    SourceFile.this, buffer, context.get(
+                        WORKING_COPY_INFO_FACTORY));
             }
 
             @Override
@@ -195,42 +194,68 @@ public abstract class SourceFile
             boolean success = false;
             try
             {
-                WorkingCopyInfo newInfo = hPeekAtWorkingCopyInfo();
-                newInfo.workingCopy = this;
-                newInfo.initTask.execute(monitor);
+                WorkingCopyInfo newInfo =
+                    hElementManager().peekAtWorkingCopyInfo(this);
+                newInfo.initTask.execute(context, monitor);
                 success = true;
             }
             finally
             {
                 if (!success)
-                    hDiscardWorkingCopy();
+                    hReleaseWorkingCopy();
             }
         }
         return oldInfo;
     }
 
     /**
+     * Specifies the working copy buffer.
+     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
+     */
+    public static final Property<IBuffer> WORKING_COPY_BUFFER = Property.get(
+        SourceFile.class.getName() + ".workingCopyBuffer", IBuffer.class); //$NON-NLS-1$
+    /**
+     * Specifies the working copy info factory.
+     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
+     */
+    public static final Property<WorkingCopyInfo.Factory> WORKING_COPY_INFO_FACTORY =
+        Property.get(SourceFile.class.getName() + ".workingCopyInfoFactory", //$NON-NLS-1$
+            WorkingCopyInfo.Factory.class);
+
+    /**
      * If this source file is in working copy mode, acquires a new independent
      * ownership of the working copy by incrementing an internal counter and
-     * returns the info associated with the working copy. Returns <code>null</code>
-     * if this source file is not a working copy. Performs atomically.
+     * returns the info associated with the working copy. The returned info is
+     * owned by the working copy and must not be explicitly disposed by the client.
+     * Returns <code>null</code> if this source file is not a working copy.
+     * Performs atomically.
      * <p>
      * Each successful call to this method that did not return <code>null</code>
-     * must ultimately be followed by exactly one call to <code>hDiscardWorkingCopy</code>.
+     * must ultimately be followed by exactly one call to <code>hReleaseWorkingCopy</code>.
      * </p>
      *
      * @return the working copy info for this source file,
      *  or <code>null</code> if this source file is not a working copy
-     * @see #hDiscardWorkingCopy()
+     * @see #hReleaseWorkingCopy()
+     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
      */
-    public final WorkingCopyInfo hAcquireWorkingCopy()
+    public final WorkingCopyInfo hAcquireExistingWorkingCopy(
+        IProgressMonitor monitor)
     {
         WorkingCopyProvider provider = new WorkingCopyProvider()
         {
             @Override
             protected WorkingCopyInfo doAcquireWorkingCopy()
             {
-                return getWorkingCopyInfo();
+                return hElementManager().getWorkingCopyInfo(SourceFile.this);
+            }
+
+            @Override
+            protected boolean isCanceled()
+            {
+                if (monitor == null)
+                    return false;
+                return monitor.isCanceled();
             }
         };
         return provider.acquireWorkingCopy();
@@ -238,23 +263,22 @@ public abstract class SourceFile
 
     /**
      * Relinquishes an independent ownership of the working copy by decrementing
-     * an internal counter. If there are no remaining independent owners of the
-     * working copy, switches this source file from working copy mode back to
-     * its original mode and releases the working copy buffer. Performs
-     * atomically.
+     * an internal counter. If there are no remaining owners of the working copy,
+     * switches this source file from working copy mode back to its original mode
+     * and releases the working copy buffer. Performs atomically.
      * <p>
      * Each independent ownership of the working copy must ultimately end
-     * with exactly one call to this method. If a client is not an independent
-     * owner of the working copy, it must not call this method.
+     * with exactly one call to this method. Clients that do not own the
+     * working copy must not call this method.
      * </p>
      *
      * @return <code>true</code> if this source file was switched from
      *  working copy mode back to its original mode, <code>false</code>
      *  otherwise
      */
-    public final boolean hDiscardWorkingCopy()
+    public final boolean hReleaseWorkingCopy()
     {
-        WorkingCopyInfo info = hElementManager().discardWorkingCopyInfo(this);
+        WorkingCopyInfo info = hElementManager().releaseWorkingCopyInfo(this);
         if (info == null)
             throw new IllegalStateException("Not a working copy: " + hToString( //$NON-NLS-1$
                 of(FORMAT_STYLE, MEDIUM)));
@@ -266,24 +290,45 @@ public abstract class SourceFile
         return false;
     }
 
+    /**
+     * If this source file is in working copy mode, returns the working copy info
+     * without acquiring an independent ownership of the working copy. The
+     * returned info is owned by the working copy and must not be explicitly
+     * disposed by the client. Returns <code>null</code> if this source file
+     * is not a working copy.
+     * <p>
+     * Note that if this method is invoked by a client that does not own the
+     * working copy, the returned info may get disposed from another thread.
+     * </p>
+     *
+     * @return the working copy info for this source file,
+     *  or <code>null</code> if this source file is not a working copy
+     * @see #hAcquireExistingWorkingCopy(IProgressMonitor)
+     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
+     */
+    public final WorkingCopyInfo hWorkingCopyInfo()
+    {
+        WorkingCopyInfo info = hElementManager().peekAtWorkingCopyInfo(this);
+        if (info == null)
+            return null;
+        if (info.created)
+            return info;
+        // special case: wc creation is in progress on the current thread
+        if (this.equals(CURRENTLY_RECONCILED.get()))
+            return info;
+        return null;
+    }
+
     @Override
     public final boolean hIsWorkingCopy()
     {
-        WorkingCopyInfo info = hPeekAtWorkingCopyInfo();
-        if (info == null)
-            return false;
-        if (info.created)
-            return true;
-        // special case: wc creation is in progress on the current thread
-        if (this.equals(CURRENTLY_RECONCILED.get()))
-            return true;
-        return false;
+        return hWorkingCopyInfo() != null;
     }
 
     @Override
     public final boolean hNeedsReconciling()
     {
-        WorkingCopyInfo info = hAcquireWorkingCopy();
+        WorkingCopyInfo info = hAcquireExistingWorkingCopy(null);
         if (info == null)
             return false;
         else
@@ -294,7 +339,7 @@ public abstract class SourceFile
             }
             finally
             {
-                hDiscardWorkingCopy();
+                hReleaseWorkingCopy();
             }
         }
     }
@@ -303,22 +348,31 @@ public abstract class SourceFile
     public final void hReconcile(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        WorkingCopyInfo info = hAcquireWorkingCopy();
-        if (info == null)
-            return; // not a working copy
-        else
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+        monitor.beginTask("", 100); //$NON-NLS-1$
+        try
         {
-            try
+            WorkingCopyInfo info = hAcquireExistingWorkingCopy(
+                new SubProgressMonitor(monitor, 10));
+            if (info == null)
+                return; // not a working copy
+            else
             {
-                if (monitor == null)
-                    monitor = new NullProgressMonitor();
-
-                info.reconcile(context, monitor);
+                try
+                {
+                    info.reconcile(context, new SubProgressMonitor(monitor,
+                        90));
+                }
+                finally
+                {
+                    hReleaseWorkingCopy();
+                }
             }
-            finally
-            {
-                hDiscardWorkingCopy();
-            }
+        }
+        finally
+        {
+            monitor.done();
         }
     }
 
@@ -345,17 +399,19 @@ public abstract class SourceFile
     }
 
     /**
-     * If this source file is in working copy mode, returns the working copy info
-     * without acquiring an independent ownership of the working copy. Returns
-     * <code>null</code> if this source file is not a working copy.
+     * Returns a context to be associated with a new working copy of this
+     * source file. The given operation context is propagated from the
+     * {@link #hBecomeWorkingCopy} method.
+     * <p>
+     * This implementation returns an empty context. Subclasses may override.
+     * </p>
      *
-     * @return the working copy info for this source file,
-     *  or <code>null</code> if this source file is not a working copy
-     * @see #hAcquireWorkingCopy()
+     * @param context the operation context (never <code>null</code>)
+     * @return the working copy context (not <code>null</code>)
      */
-    protected final WorkingCopyInfo hPeekAtWorkingCopyInfo()
+    protected IContext hWorkingCopyContext(IContext context)
     {
-        return hElementManager().peekAtWorkingCopyInfo(this);
+        return EMPTY_CONTEXT;
     }
 
     /**
@@ -404,65 +460,51 @@ public abstract class SourceFile
     }
 
     @Override
-    protected final void hBuildStructure(IContext context,
-        IProgressMonitor monitor) throws CoreException
+    void hBuildStructure0(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
-        int ticks = 2;
-        monitor.beginTask("", ticks); //$NON-NLS-1$
-        try
+        if (!context.containsKey(SOURCE_CONTENTS) && !context.containsKey(
+            SOURCE_AST))
         {
-            Object ast = context.get(SOURCE_AST);
-
-            if (ast == null) // not a working copy
+            if (hIsWorkingCopy())
+                throw new AssertionError();
+            // NOTE: source files that are not working copies must reflect
+            // the structure of the underlying file rather than the buffer
+            NonExpiringSnapshot snapshot;
+            try (ISnapshotProvider provider = hFileSnapshotProvider())
             {
-                // NOTE: AST is created from the underlying file contents,
-                // not from the buffer contents, since source files that are not
-                // working copies must reflect the structure of the underlying file
-                NonExpiringSnapshot snapshot;
-                try (
-                    ISnapshotProvider provider = hFileSnapshotProvider(context))
+                try
                 {
-                    try
-                    {
-                        snapshot = new NonExpiringSnapshot(provider);
-                    }
-                    catch (IllegalStateException e)
-                    {
-                        Throwable cause = e.getCause();
-                        if (cause instanceof CoreException)
-                            throw (CoreException)cause;
-                        throw new CoreException(Activator.createErrorStatus(
-                            e.getMessage(), e));
-                    }
+                    snapshot = new NonExpiringSnapshot(provider);
                 }
-                ast = hCreateAst(snapshot.getContents(), context,
-                    new SubProgressMonitor(monitor, 1));
-                context = with(of(SOURCE_CONTENTS, snapshot.getContents()), of(
-                    SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), context);
-                --ticks;
+                catch (IllegalStateException e)
+                {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof CoreException)
+                        throw (CoreException)cause;
+                    throw new CoreException(Activator.createErrorStatus(
+                        e.getMessage(), e));
+                }
             }
-
-            hBuildStructure(ast, context, new SubProgressMonitor(monitor,
-                ticks));
-
-            Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
-            Object body = newElements.get(this);
-            if (body instanceof SourceElementBody)
-            {
-                SourceElementBody thisBody = (SourceElementBody)body;
-
-                String source = context.get(SOURCE_CONTENTS);
-                if (source != null)
-                    thisBody.setFullRange(new TextRange(0, source.length()));
-
-                ISnapshot snapshot = context.get(SOURCE_SNAPSHOT);
-                if (snapshot != null)
-                    setSnapshot(thisBody, snapshot, newElements);
-            }
+            context = with(of(SOURCE_CONTENTS, snapshot.getContents()), of(
+                SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), context);
         }
-        finally
+
+        super.hBuildStructure0(context, monitor);
+
+        Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
+        Object body = newElements.get(this);
+        if (body instanceof SourceElementBody)
         {
-            monitor.done();
+            SourceElementBody thisBody = (SourceElementBody)body;
+
+            String source = context.get(SOURCE_CONTENTS);
+            if (source != null)
+                thisBody.setFullRange(new TextRange(0, source.length()));
+
+            ISnapshot snapshot = context.get(SOURCE_SNAPSHOT);
+            if (snapshot != null)
+                setSnapshot(thisBody, snapshot, newElements);
         }
     }
 
@@ -483,13 +525,11 @@ public abstract class SourceFile
      * be accessed by clients that don't own it.
      * </p>
      *
-     * @param context the operation context (never <code>null</code>)
      * @return a snapshot provider for the underlying file's stored contents
      *  (not <code>null</code>)
      * @see ISnapshotProvider
      */
-    protected abstract ISnapshotProvider hFileSnapshotProvider(
-        IContext context);
+    protected abstract ISnapshotProvider hFileSnapshotProvider();
 
     /**
      * Returns the buffer opened for the underlying file of this source file.
@@ -518,8 +558,7 @@ public abstract class SourceFile
      * @return the buffer opened for the underlying file of this source file,
      *  or <code>null</code> if <code>CREATE_BUFFER == false</code> and
      *  there is currently no buffer opened for that file
-     * @throws CoreException if the underlying file does not exist
-     *  or its contents cannot be accessed
+     * @throws CoreException if the buffer could not be opened successfully
      * @throws OperationCanceledException if this method is canceled
      * @see IBuffer
      */
@@ -527,31 +566,28 @@ public abstract class SourceFile
         IProgressMonitor monitor) throws CoreException;
 
     /**
-     * Returns a new AST created from the given source string. Unless otherwise
-     * indicated by options specified in the given context, the AST may contain
-     * just enough information for computing the structure and properties of
-     * this element and each of its descendant elements.
-     *
-     * @param source the source string to parse (not <code>null</code>)
-     * @param context the operation context (not <code>null</code>)
-     * @param monitor a progress monitor (not <code>null</code>)
-     * @return the AST created from the given source string (never <code>null</code>)
-     * @throws CoreException if the AST could not be created
-     * @throws OperationCanceledException if this method is canceled
-     */
-    protected abstract Object hCreateAst(String source, IContext context,
-        IProgressMonitor monitor) throws CoreException;
-
-    /**
      * Creates and initializes bodies for this element and for each
-     * of its descendant elements using information in the given AST.
-     * Uses the {@link #NEW_ELEMENTS} map in the given context to associate
-     * the created bodies with their respective elements.
+     * of its descendant elements according to options specified in the
+     * given context. Uses the {@link #NEW_ELEMENTS} map in the given context
+     * to associate the created bodies with their respective elements.
      * <p>
-     * The AST is safe to read in the dynamic context of this method call,
-     * but must not be modified. In general, implementations should not keep
-     * references to any part of the AST or the context outside the dynamic
-     * scope of the invocation of this method.
+     * The following context options influence how the structure is built and,
+     * if simultaneously present, must be mutually consistent:
+     * </p>
+     * <ul>
+     * <li>
+     * {@link #SOURCE_AST} - Specifies the AST to use when building the structure.
+     * The AST is safe to read in the dynamic context of this method call, but
+     * must not be modified.
+     * </li>
+     * <li>
+     * {@link #SOURCE_CONTENTS} - Specifies the source string to use when
+     * building the structure.
+     * </li>
+     * </ul>
+     * <p>
+     * At least one of <code>SOURCE_AST</code> or <code>SOURCE_CONTENTS</code>
+     * will have a non-null value in the given context.
      * </p>
      * <p>
      * The given context may provide additional data that this method can use,
@@ -559,34 +595,36 @@ public abstract class SourceFile
      * </p>
      * <ul>
      * <li>
-     * {@link #SOURCE_CONTENTS} - Specifies the source string from which the
-     * given AST was created.
-     * </li>
-     * <li>
-     * {@link #SOURCE_SNAPSHOT} - Specifies the source snapshot from which the
-     * given AST was created. The snapshot may expire. Implementations may
-     * keep references to the snapshot outside the dynamic scope of the
-     * invocation of this method.
+     * {@link #SOURCE_SNAPSHOT} - Specifies the source snapshot from which
+     * <code>SOURCE_AST</code> was created or <code>SOURCE_CONTENTS</code>
+     * was obtained. The snapshot may expire.
      * </li>
      * </ul>
      *
-     * @param ast the AST (never <code>null</code>)
      * @param context the operation context (never <code>null</code>)
      * @param monitor a progress monitor (never <code>null</code>)
+     * @throws CoreException if this method fails
      * @throws OperationCanceledException if this method is canceled
      */
-    protected abstract void hBuildStructure(Object ast, IContext context,
-        IProgressMonitor monitor);
+    @Override
+    protected abstract void hBuildStructure(IContext context,
+        IProgressMonitor monitor) throws CoreException;
 
     /**
+     * Specifies the source AST.
+     * @see #hBuildStructure(IContext, IProgressMonitor)
+     */
+    protected static final Property<Object> SOURCE_AST = Property.get(
+        SourceFile.class.getName() + ".sourceAst", Object.class); //$NON-NLS-1$
+    /**
      * Specifies the source string.
-     * @see #hBuildStructure(Object, IContext, IProgressMonitor)
+     * @see #hBuildStructure(IContext, IProgressMonitor)
      */
     protected static final Property<String> SOURCE_CONTENTS = Property.get(
         SourceFile.class.getName() + ".sourceContents", String.class); //$NON-NLS-1$
     /**
      * Specifies the source snapshot.
-     * @see #hBuildStructure(Object, IContext, IProgressMonitor)
+     * @see #hBuildStructure(IContext, IProgressMonitor)
      */
     protected static final Property<ISnapshot> SOURCE_SNAPSHOT = Property.get(
         SourceFile.class.getName() + ".sourceSnapshot", ISnapshot.class); //$NON-NLS-1$
@@ -631,22 +669,10 @@ public abstract class SourceFile
         }
     }
 
-    private WorkingCopyInfo putWorkingCopyInfoIfAbsent(IBuffer buffer,
-        IWorkingCopyInfoFactory factory)
-    {
-        return hElementManager().putWorkingCopyInfoIfAbsent(this, buffer,
-            factory);
-    }
-
-    private WorkingCopyInfo getWorkingCopyInfo()
-    {
-        return hElementManager().getWorkingCopyInfo(this);
-    }
-
     /**
      * Indicates whether the structure should be rebuilt when reconciling
      * is forced.
-     * @see ReconcileOperation#reconcile(Object, IContext, IProgressMonitor)
+     * @see ReconcileOperation#reconcile(IContext, IProgressMonitor)
      */
     protected static final Property<Boolean> REBUILD_STRUCTURE_IF_FORCED =
         Property.get(SourceFile.class.getName() + ".rebuildStructureIfForced", //$NON-NLS-1$
@@ -654,15 +680,11 @@ public abstract class SourceFile
     /**
      * Indicates whether reconciling was forced, i.e. the working copy buffer
      * has not been modified since the last time it was reconciled.
-     * @see ReconcileOperation#reconcile(Object, IContext, IProgressMonitor)
+     * @see ReconcileOperation#reconcile(IContext, IProgressMonitor)
      */
     static final Property<Boolean> RECONCILING_FORCED = Property.get(
         SourceFile.class.getName() + ".reconcilingForced", //$NON-NLS-1$
         Boolean.class).withDefault(false);
-
-    private static final Property<Object> SOURCE_AST = Property.get(
-        SourceFile.class.getName() + ".sourceAst", //$NON-NLS-1$
-        Object.class); // the AST to use when building the source file structure
 
     private static final ThreadLocal<SourceFile> CURRENTLY_RECONCILED =
         new ThreadLocal<SourceFile>(); // the source file being reconciled
@@ -683,40 +705,48 @@ public abstract class SourceFile
     protected class ReconcileOperation
     {
         /**
-         * Reconciles this working copy according to the given AST and
-         * additional data provided in the context.
-         * <p>
-         * The AST is safe to read in the dynamic context of this method call,
-         * but must not be modified. In general, implementations should not keep
-         * references to any part of the AST or the context outside the dynamic
-         * scope of the invocation of this method.
-         * </p>
+         * Reconciles this working copy according to options specified
+         * in the given context.
          * <p>
          * The following context options can influence whether the structure
          * of the working copy gets rebuilt:
          * </p>
          * <ul>
          * <li>
-         * {@link SourceFile#REBUILD_STRUCTURE_IF_FORCED REBUILD_STRUCTURE_IF_FORCED} -
-         * Indicates whether the structure should be rebuilt even if reconciling
-         * was forced, i.e. the working copy buffer has not been modified since
-         * the last time it was reconciled.
+         * {@link #REBUILD_STRUCTURE_IF_FORCED} - Indicates whether the structure
+         * should be rebuilt even if reconciling was forced, i.e. the working copy
+         * buffer has not been modified since the last time it was reconciled.
          * </li>
          * </ul>
+         * <p>
+         * The following context options influence rebuilding of the structure
+         * of the working copy and, if simultaneously present, must be mutually
+         * consistent:
+         * </p>
+         * <ul>
+         * <li>
+         * {@link #SOURCE_AST} - Specifies the AST to use when building the
+         * structure. The AST is safe to read in the dynamic context of this
+         * method call, but must not be modified.
+         * </li>
+         * <li>
+         * {@link #SOURCE_CONTENTS} - Specifies the source string to use when
+         * building the structure.
+         * </li>
+         * </ul>
+         * <p>
+         * At least one of <code>SOURCE_AST</code> or <code>SOURCE_CONTENTS</code>
+         * must have a non-null value in the given context.
+         * </p>
          * <p>
          * The given context may provide additional data that this method can use,
          * including the following:
          * </p>
          * <ul>
          * <li>
-         * {@link #SOURCE_CONTENTS} - Specifies the source string from which the
-         * given AST was created.
-         * </li>
-         * <li>
          * {@link #SOURCE_SNAPSHOT} - Specifies the source snapshot from which
-         * the given AST was created. The snapshot may expire. Implementations
-         * may keep references to the snapshot outside the dynamic scope of the
-         * invocation of this method.
+         * <code>SOURCE_AST</code> was created or <code>SOURCE_CONTENTS</code>
+         * was obtained. The snapshot may expire.
          * </li>
          * </ul>
          * <p>
@@ -724,21 +754,22 @@ public abstract class SourceFile
          * implementation.
          * </p>
          *
-         * @param ast the working copy AST (not <code>null</code>)
          * @param context the operation context (not <code>null</code>)
          * @param monitor a progress monitor, or <code>null</code>
          *  if progress reporting is not desired
          * @throws CoreException if the working copy cannot be reconciled
          * @throws OperationCanceledException if this method is canceled
          */
-        protected void reconcile(Object ast, IContext context,
-            IProgressMonitor monitor) throws CoreException
+        protected void reconcile(IContext context, IProgressMonitor monitor)
+            throws CoreException
         {
-            if (ast == null)
+            if (context.get(SOURCE_AST) == null && context.get(
+                SOURCE_CONTENTS) == null)
+            {
                 throw new IllegalArgumentException();
-            if (context == null)
-                throw new IllegalArgumentException();
-            WorkingCopyInfo info = hPeekAtWorkingCopyInfo();
+            }
+            WorkingCopyInfo info = hElementManager().peekAtWorkingCopyInfo(
+                SourceFile.this);
             boolean create = !info.created; // case of wc creation
             if (create || !context.getOrDefault(RECONCILING_FORCED)
                 || context.getOrDefault(REBUILD_STRUCTURE_IF_FORCED))
@@ -748,8 +779,7 @@ public abstract class SourceFile
                 CURRENTLY_RECONCILED.set(SourceFile.this);
                 try
                 {
-                    hOpen(with(of(SOURCE_AST, ast), of(FORCE_OPEN, true),
-                        context), monitor);
+                    hOpen(with(of(FORCE_OPEN, true), context), monitor);
                 }
                 finally
                 {
@@ -777,8 +807,8 @@ public abstract class SourceFile
         extends ReconcileOperation
     {
         @Override
-        protected void reconcile(Object ast, IContext context,
-            IProgressMonitor monitor) throws CoreException
+        protected void reconcile(IContext context, IProgressMonitor monitor)
+            throws CoreException
         {
             ElementDelta.Factory deltaFactory = hModel().getModelContext().get(
                 ElementDelta.Factory.class);
@@ -788,7 +818,7 @@ public abstract class SourceFile
             ElementDifferencer differ = new ElementDifferencer(
                 new ElementDelta.Builder(rootDelta));
 
-            doReconcile(ast, context, monitor);
+            doReconcile(context, monitor);
 
             differ.buildDelta();
             if (!differ.isEmptyDelta())
@@ -802,24 +832,23 @@ public abstract class SourceFile
         }
 
         /**
-         * This implementation calls {@link ReconcileOperation#reconcile(Object,
+         * This implementation calls {@link ReconcileOperation#reconcile(
          * IContext, IProgressMonitor) super.reconcile(..)}.
          * <p>
          * Subclasses may override this method, but must call its <b>super</b>
          * implementation.
          * </p>
          *
-         * @param ast the working copy AST (not <code>null</code>)
          * @param context the operation context (not <code>null</code>)
          * @param monitor a progress monitor, or <code>null</code>
          *  if progress reporting is not desired
          * @throws CoreException if the working copy cannot be reconciled
          * @throws OperationCanceledException if this method is canceled
          */
-        protected void doReconcile(Object ast, IContext context,
-            IProgressMonitor monitor) throws CoreException
+        protected void doReconcile(IContext context, IProgressMonitor monitor)
+            throws CoreException
         {
-            super.reconcile(ast, context, monitor);
+            super.reconcile(context, monitor);
         }
     }
 
@@ -842,7 +871,7 @@ public abstract class SourceFile
                 finally
                 {
                     if (!success)
-                        hDiscardWorkingCopy();
+                        hReleaseWorkingCopy();
                 }
                 if (success)
                     return info;

@@ -11,7 +11,6 @@
 package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IModel;
@@ -53,15 +52,7 @@ class SimpleSourceFile
     }
 
     @Override
-    protected Object hCreateAst(String source, IContext context,
-        IProgressMonitor monitor) throws CoreException
-    {
-        return new Object();
-    }
-
-    @Override
-    protected void hBuildStructure(Object ast, IContext context,
-        IProgressMonitor monitor)
+    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
     {
     }
 }

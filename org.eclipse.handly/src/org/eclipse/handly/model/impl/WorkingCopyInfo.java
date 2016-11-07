@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.model.Elements.FORCE_RECONCILING;
 
@@ -29,41 +30,72 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.Property;
 
 /**
- * Holds information related to a working copy.
+ * Holds information related to a working copy of a {@link SourceFile}.
  * <p>
- * Concrete implementations of this abstract class are expected to be safe
+ * Concrete subclasses of this abstract class are expected to be safe
  * for use by multiple threads.
  * </p>
+ *
+ * @noextend This class is not intended to be directly extended by clients.
+ *  However, clients may extend concrete subclasses of this class.
  */
 public abstract class WorkingCopyInfo
 {
+    private final SourceFile sourceFile;
     private final IBuffer buffer;
+    private IContext context = EMPTY_CONTEXT;
     final InitTask initTask = new InitTask();
-    SourceFile workingCopy;
     volatile boolean created; // whether wc was created (from the model POV)
     int refCount;
 
     /**
      * Constructs a new working copy info and associates it with the given
-     * buffer; the buffer is NOT <code>addRef</code>'ed.
+     * source file and buffer. Does not <code>addRef</code> the given buffer.
+     * <p>
+     * Clients should explicitly {@link #dispose} the working copy info
+     * after it is no longer needed.
+     * </p>
      *
-     * @param buffer the working copy buffer (not <code>null</code>)
+     * @param sourceFile the working copy's source file (not <code>null</code>)
+     * @param buffer the working copy's buffer (not <code>null</code>)
      */
-    public WorkingCopyInfo(IBuffer buffer)
+    public WorkingCopyInfo(SourceFile sourceFile, IBuffer buffer)
     {
+        if ((this.sourceFile = sourceFile) == null)
+            throw new IllegalArgumentException();
         if ((this.buffer = buffer) == null)
             throw new IllegalArgumentException();
     }
 
     /**
-     * Returns the buffer associated with this working copy info;
-     * does NOT <code>addRef</code> the buffer.
+     * Returns the source file associated with this working copy info.
      *
-     * @return the working copy buffer (never <code>null</code>)
+     * @return the working copy's source file (never <code>null</code>)
+     */
+    public final SourceFile getSourceFile()
+    {
+        return sourceFile;
+    }
+
+    /**
+     * Returns the buffer associated with this working copy info.
+     * Does not <code>addRef</code> the buffer.
+     *
+     * @return the working copy's buffer (never <code>null</code>)
      */
     public final IBuffer getBuffer()
     {
         return buffer;
+    }
+
+    /**
+     * Returns the context associated with this working copy info.
+     *
+     * @return the working copy's context (never <code>null</code>)
+     */
+    public IContext getContext()
+    {
+        return context;
     }
 
     /**
@@ -123,6 +155,7 @@ public abstract class WorkingCopyInfo
      *
      * @return <code>true</code> if the working copy needs reconciling,
      *  <code>false</code> otherwise
+     * @noreference This method is for internal use only.
      */
     protected abstract boolean needsReconciling();
 
@@ -141,9 +174,9 @@ public abstract class WorkingCopyInfo
      * </li>
      * </ul>
      * <p>
-     * An implementation of this method is supposed to call {@link
-     * #basicReconcile} with an appropriately augmented context while
-     * providing the necessary synchronization guarantees.
+     * An implementation of this method is supposed to call {@link #reconcile0}
+     * with an appropriately augmented context while providing the necessary
+     * synchronization guarantees.
      * </p>
      *
      * @param context the operation context (not <code>null</code>)
@@ -151,6 +184,7 @@ public abstract class WorkingCopyInfo
      *  if progress reporting is not desired
      * @throws CoreException if the working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
+     * @noreference This method is for internal use only.
      */
     protected abstract void reconcile(IContext context,
         IProgressMonitor monitor) throws CoreException;
@@ -212,39 +246,39 @@ public abstract class WorkingCopyInfo
      *  if progress reporting is not desired
      * @throws CoreException if the working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
+     * @noreference This method is for internal use only.
      */
-    protected final void basicReconcile(IContext context,
-        IProgressMonitor monitor) throws CoreException
+    protected final void reconcile0(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
-        Object ast = context.get(SOURCE_AST);
-        if (ast == null)
-            ast = workingCopy.hCreateAst(context.get(SOURCE_CONTENTS), context,
-                monitor);
-        workingCopy.hReconcileOperation().reconcile(ast, context, monitor);
+        sourceFile.hReconcileOperation().reconcile(context, monitor);
     }
 
     /**
      * Specifies the source AST for reconciling.
-     * @see #basicReconcile(IContext, IProgressMonitor)
+     * @see #reconcile0(IContext, IProgressMonitor)
+     * @noreference This property is for internal use only.
      */
-    protected static final Property<Object> SOURCE_AST = Property.get(
-        WorkingCopyInfo.class.getName() + ".sourceAst", Object.class); //$NON-NLS-1$
+    protected static final Property<Object> SOURCE_AST = SourceFile.SOURCE_AST;
     /**
      * Specifies the source string for reconciling.
-     * @see #basicReconcile(IContext, IProgressMonitor)
+     * @see #reconcile0(IContext, IProgressMonitor)
+     * @noreference This property is for internal use only.
      */
     protected static final Property<String> SOURCE_CONTENTS =
         SourceFile.SOURCE_CONTENTS;
     /**
      * Specifies the source snapshot for reconciling.
-     * @see #basicReconcile(IContext, IProgressMonitor)
+     * @see #reconcile0(IContext, IProgressMonitor)
+     * @noreference This property is for internal use only.
      */
     protected static final Property<ISnapshot> SOURCE_SNAPSHOT =
         SourceFile.SOURCE_SNAPSHOT;
     /**
      * Indicates whether reconciling was forced, i.e. the working copy buffer
      * has not been modified since the last time it was reconciled.
-     * @see #basicReconcile(IContext, IProgressMonitor)
+     * @see #reconcile0(IContext, IProgressMonitor)
+     * @noreference This property is for internal use only.
      */
     protected static final Property<Boolean> RECONCILING_FORCED =
         SourceFile.RECONCILING_FORCED;
@@ -253,7 +287,7 @@ public abstract class WorkingCopyInfo
      * Clients should not be exposed to working copy info if it has not been
      * initialized.
      *
-     * @noreference For internal use only.
+     * @noreference This method is for internal use only.
      */
     public final boolean isInitialized()
     {
@@ -271,8 +305,33 @@ public abstract class WorkingCopyInfo
         }
     }
 
+    /**
+     * A factory of working copy info.
+     */
+    public interface Factory
+    {
+        /**
+         * Returns a new working copy info associated with the given source file
+         * and buffer. This method is not expected to <code>addRef</code> the
+         * given buffer.
+         * <p>
+         * Clients should explicitly {@link WorkingCopyInfo#dispose() dispose}
+         * the working copy info after it is no longer needed.
+         * </p>
+         *
+         * @param sourceFile the source file to be associated with the
+         *  created working copy info (not <code>null</code>)
+         * @param buffer the buffer to be associated with the
+         *  created working copy info (not <code>null</code>)
+         * @return a new working copy info (never <code>null</code>)
+         */
+        WorkingCopyInfo newWorkingCopyInfo(SourceFile sourceFile,
+            IBuffer buffer);
+    }
+
     class InitTask
     {
+        private IContext creationContext;
         private IProgressMonitor monitor;
         private final FutureTask<?> futureTask = new FutureTask<Object>(
             new Callable<Object>()
@@ -285,13 +344,16 @@ public abstract class WorkingCopyInfo
                 }
             });
 
-        void execute(IProgressMonitor monitor) throws CoreException
+        void execute(IContext context, IProgressMonitor monitor)
+            throws CoreException
         {
+            this.creationContext = context;
             if (monitor == null)
                 monitor = new NullProgressMonitor();
             this.monitor = monitor;
             futureTask.run();
             this.monitor = null;
+            this.creationContext = null;
             try
             {
                 futureTask.get();
@@ -329,6 +391,7 @@ public abstract class WorkingCopyInfo
 
         private void run() throws CoreException
         {
+            context = sourceFile.hWorkingCopyContext(creationContext);
             onInit();
             reconcile(of(FORCE_RECONCILING, true), monitor);
             if (!created)

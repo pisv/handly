@@ -36,8 +36,7 @@ public class ElementManager
     private ThreadLocal<Map<IElement, Object>> temporaryCache =
         new ThreadLocal<>();
 
-    private Map<ISourceFile, WorkingCopyInfo> workingCopyInfos =
-        new HashMap<>();
+    private Map<SourceFile, WorkingCopyInfo> workingCopyInfos = new HashMap<>();
 
     /**
      * Constructs an element manager with the given body cache.
@@ -54,7 +53,15 @@ public class ElementManager
     }
 
     /**
-     * Returns the source files that have corresponding working copy info.
+     * Returns the source files that are currently in working copy mode.
+     * Performs atomically.
+     * <p>
+     * Note that the result may immediately become stale if other threads can
+     * create or destroy working copies that are managed by this manager.
+     * </p>
+     *
+     * @return the source files that are currently in working copy mode
+     *  (never <code>null</code>)
      */
     public final synchronized ISourceFile[] getWorkingCopies()
     {
@@ -62,42 +69,19 @@ public class ElementManager
     }
 
     /**
-     * A handle/body relationship is going to be removed from the body cache
-     * associated with this manager. Do any necessary cleanup.
+     * Attempts to close the given element. If the current state of the element
+     * does not permit closing (e.g., a working copy), it will stay open. Closing
+     * of an element usually involves closing its children and removal of its body
+     * from the cache.
      * <p>
-     * This method is called internally; it is not intended to be called by clients.
+     * This method is called internally; it is not intended to be invoked by clients.
      * </p>
      *
-     * @param element the element whose body is going to be removed
-     *  (never <code>null</code>)
-     * @param body the corresponding body that is going to be removed
-     *  (never <code>null</code>)
+     * @param element the element that needs closing (never <code>null</code>)
      */
-    protected void removing(IElement element, Object body)
+    protected void close(IElement element)
     {
-        ((Element)element).hRemoving(body);
-    }
-
-    /**
-     * Given a body, closes the children of the given element. If the current
-     * state of a child element does not permit closing (e.g., a working copy),
-     * it will stay open. Closing of an element usually involves closing its
-     * children and removal of its body from the cache.
-     * <p>
-     * This method is called internally; it is not intended to be called by clients.
-     * </p>
-     *
-     * @param element the element whose children need to be closed
-     *  (never <code>null</code>)
-     * @param body the body corresponding to the given element
-     *  (never <code>null</code>)
-     */
-    protected void closeChildren(IElement element, Object body)
-    {
-        for (IElement child : (((Element)element).hChildren(body)))
-        {
-            ((Element)child).hClose(false);
-        }
+        ((Element)element).hClose(false);
     }
 
     /**
@@ -113,7 +97,7 @@ public class ElementManager
      * @return the corresponding body for the given element, or
      *  <code>null</code> if no body is registered for the element
      */
-    synchronized Object get(IElement element)
+    synchronized Object get(Element element)
     {
         Map<IElement, Object> tempCache = temporaryCache.get();
         if (tempCache != null)
@@ -139,7 +123,7 @@ public class ElementManager
      * @return the corresponding body for the given element, or
      *  <code>null</code> if no body is registered for the element
      */
-    synchronized Object peek(IElement element)
+    synchronized Object peek(Element element)
     {
         Map<IElement, Object> tempCache = temporaryCache.get();
         if (tempCache != null)
@@ -160,16 +144,16 @@ public class ElementManager
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
      *  it must contain a body for the given element
      */
-    synchronized void put(IElement element, Map<IElement, Object> newElements)
+    synchronized void put(Element element, Map<IElement, Object> newElements)
     {
         // remove existing children as they are replaced with the new children contained in newElements
         remove(element);
 
         cache.putAll(newElements);
 
-        if (element instanceof ISourceFile)
+        if (element instanceof SourceFile)
         {
-            WorkingCopyInfo info = workingCopyInfos.get((ISourceFile)element);
+            WorkingCopyInfo info = workingCopyInfos.get((SourceFile)element);
             if (info != null && !info.created) // case of wc creation
                 info.created = true;
         }
@@ -187,7 +171,7 @@ public class ElementManager
      * @return the previous body for the given element, or <code>null</code>
      *  if the body cache did not previously contain a body for the element
      */
-    synchronized Object putIfAbsent(IElement element,
+    synchronized Object putIfAbsent(Element element,
         Map<IElement, Object> newElements)
     {
         Object existingBody = cache.peek(element);
@@ -204,16 +188,18 @@ public class ElementManager
      * contained no body for the element. Performs atomically.
      *
      * @param element the element whose body is to be removed from the body cache
-     * @see #removing(IElement, Object)
-     * @see #closeChildren(IElement, Object)
+     * @see #close(IElement)
      */
-    synchronized void remove(IElement element)
+    synchronized void remove(Element element)
     {
         Object body = cache.peek(element);
         if (body != null)
         {
-            removing(element, body);
-            closeChildren(element, body);
+            element.hRemoving(body);
+            for (IElement child : element.hChildren(body))
+            {
+                close(child);
+            }
             cache.remove(element);
         }
     }
@@ -268,7 +254,7 @@ public class ElementManager
      * Performs atomically.
      * <p>
      * Each successful call to this method must ultimately be followed
-     * by exactly one call to <code>discardWorkingCopyInfo</code>.
+     * by exactly one call to <code>releaseWorkingCopyInfo</code>.
      * </p>
      *
      * @param sourceFile the source file with which a working copy info
@@ -279,10 +265,10 @@ public class ElementManager
      * @return the previous working copy info associated with the given
      *  source file, or <code>null</code> if there was no working copy info
      *  for the source file
-     * @see #discardWorkingCopyInfo(ISourceFile)
+     * @see #releaseWorkingCopyInfo(SourceFile)
      */
-    WorkingCopyInfo putWorkingCopyInfoIfAbsent(ISourceFile sourceFile,
-        IBuffer buffer, IWorkingCopyInfoFactory factory)
+    WorkingCopyInfo putWorkingCopyInfoIfAbsent(SourceFile sourceFile,
+        IBuffer buffer, WorkingCopyInfo.Factory factory)
     {
         if (sourceFile == null)
             throw new IllegalArgumentException();
@@ -291,10 +277,12 @@ public class ElementManager
 
         final WorkingCopyInfo info;
         if (factory == null)
-            info = new DefaultWorkingCopyInfo(buffer);
+            info = new DefaultWorkingCopyInfo(sourceFile, buffer);
         else
-            info = factory.createWorkingCopyInfo(buffer);
+            info = factory.newWorkingCopyInfo(sourceFile, buffer);
         if (info.refCount != 0)
+            throw new AssertionError();
+        if (info.getSourceFile() != sourceFile)
             throw new AssertionError();
         boolean disposeInfo = true;
         boolean releaseBuffer = false;
@@ -340,15 +328,15 @@ public class ElementManager
      * <p>
      * Each successful call to this method that did not return
      * <code>null</code> must ultimately be followed by exactly
-     * one call to <code>discardWorkingCopyInfo</code>.
+     * one call to <code>releaseWorkingCopyInfo</code>.
      * </p>
      *
      * @param sourceFile the source file whose working copy info is to be returned
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file has no working copy info
-     * @see #discardWorkingCopyInfo(ISourceFile)
+     * @see #releaseWorkingCopyInfo(SourceFile)
      */
-    synchronized WorkingCopyInfo getWorkingCopyInfo(ISourceFile sourceFile)
+    synchronized WorkingCopyInfo getWorkingCopyInfo(SourceFile sourceFile)
     {
         WorkingCopyInfo info = workingCopyInfos.get(sourceFile);
         if (info != null)
@@ -364,7 +352,7 @@ public class ElementManager
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file has no working copy info
      */
-    synchronized WorkingCopyInfo peekAtWorkingCopyInfo(ISourceFile sourceFile)
+    synchronized WorkingCopyInfo peekAtWorkingCopyInfo(SourceFile sourceFile)
     {
         return workingCopyInfos.get(sourceFile);
     }
@@ -375,11 +363,11 @@ public class ElementManager
      * working copy info and releases the working copy buffer. Has no effect if
      * there was no working copy info for the source file. Performs atomically.
      *
-     * @param sourceFile the source file whose working copy info is to be discarded
+     * @param sourceFile the source file whose working copy info is to be released
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file had no working copy info
      */
-    WorkingCopyInfo discardWorkingCopyInfo(ISourceFile sourceFile)
+    WorkingCopyInfo releaseWorkingCopyInfo(SourceFile sourceFile)
     {
         WorkingCopyInfo infoToDispose = null;
         try

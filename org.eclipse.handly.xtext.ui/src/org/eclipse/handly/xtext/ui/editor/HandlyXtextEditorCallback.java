@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.xtext.ui.editor;
 
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.Elements.exists;
 import static org.eclipse.handly.model.Elements.getSourceElementAt;
 import static org.eclipse.handly.model.Elements.getSourceElementInfo;
@@ -18,7 +20,6 @@ import static org.eclipse.handly.model.Elements.reconcile;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
@@ -28,8 +29,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.internal.xtext.ui.Activator;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.ui.texteditor.TextEditorBuffer;
@@ -58,9 +61,11 @@ import com.google.inject.Singleton;
 
 /**
  * Integrates Xtext editor with Handly working copy management facility.
- * Creates a working copy when a source file is opened in Xtext editor.
- * Discards the working copy when the editor is being disposed. Also,
- * sets the editor highlight range for the currently selected element.
+ * <p>
+ * Multiple Xtext editor instances may simultaneously be open for a given
+ * source file, each with its own underlying document, but only one of them
+ * (the most recently used one) is connected to the source file's working copy.
+ * </p>
  * <p>
  * Note that this class relies on a language-specific implementation of
  * {@link IInputElementProvider} being available through injection.
@@ -98,16 +103,11 @@ public class HandlyXtextEditorCallback
 {
     private IInputElementProvider inputElementProvider;
 
-    private Map<XtextEditor, WorkingCopyInfo> workingCopies =
-        new HashMap<XtextEditor, WorkingCopyInfo>();
+    private Map<IEditorInput, WorkingCopyEditorInfo> workingCopyEditors =
+        new HashMap<>();
     private Map<MultiPageEditorPart, Set<XtextEditor>> nestedEditors =
-        new HashMap<MultiPageEditorPart, Set<XtextEditor>>();
-    private Map<XtextEditor, IPartListener> partListeners =
-        new HashMap<XtextEditor, IPartListener>();
-    private Map<XtextEditor, ISelectionChangedListener> selectionListeners =
-        new HashMap<XtextEditor, ISelectionChangedListener>();
-    private Map<XtextEditor, HighlightRangeJob> highlightRangeJobs =
-        new HashMap<XtextEditor, HighlightRangeJob>();
+        new HashMap<>();
+    private Map<XtextEditor, EditorInfo> editorInfoMap = new HashMap<>();
 
     @Inject
     public void setInputElementProvider(IInputElementProvider provider)
@@ -118,19 +118,16 @@ public class HandlyXtextEditorCallback
     @Override
     public void afterCreatePartControl(XtextEditor editor)
     {
+        connect(editor);
         registerContainer(editor);
-        registerPartListener(editor);
-        registerSelectionListener(editor);
     }
 
     @Override
     public void beforeDispose(XtextEditor editor)
     {
-        deregisterPartListener(editor);
-        deregisterSelectionListener(editor);
         disconnectWorkingCopy(editor);
-        disposeHighlightRangeJob(editor);
         deregisterContainer(editor);
+        disconnect(editor);
     }
 
     @Override
@@ -149,34 +146,56 @@ public class HandlyXtextEditorCallback
     protected void afterSelectionChange(XtextEditor editor,
         ISelection selection)
     {
-        setHighlightRange(editor, selection);
+        if (selection != null)
+            setHighlightRange(editor, selection);
     }
 
     protected void setHighlightRange(XtextEditor editor, ISelection selection)
     {
-        if (selection == null)
-            return;
-        SourceFile sourceFile = getWorkingCopy(editor);
-        if (sourceFile == null)
-            return;
-        scheduleHighlightRangeJob(editor, sourceFile, selection);
+        scheduleHighlightRangeJob(editor, selection);
     }
 
-    protected SourceFile getSourceFile(XtextEditor editor)
+    protected ISourceFile getSourceFile(XtextEditor editor)
     {
         IElement inputElement = inputElementProvider.getElement(
             editor.getEditorInput());
-        if (!(inputElement instanceof SourceFile))
+        if (!(inputElement instanceof ISourceFile))
             return null;
-        return (SourceFile)inputElement;
+        return (ISourceFile)inputElement;
     }
 
-    protected final SourceFile getWorkingCopy(XtextEditor editor)
+    protected final ISourceFile getWorkingCopy(XtextEditor editor)
     {
-        WorkingCopyInfo workingCopyInfo = workingCopies.get(editor);
-        if (workingCopyInfo == null || !workingCopyInfo.success)
+        WorkingCopyEditorInfo info = workingCopyEditors.get(
+            editor.getEditorInput());
+        if (info == null || info.editor != editor)
             return null;
-        return workingCopyInfo.sourceFile;
+        return info.workingCopy;
+    }
+
+    protected ISourceFile acquireWorkingCopy(XtextEditor editor)
+        throws CoreException
+    {
+        ISourceFile sourceFile = getSourceFile(editor);
+        if (sourceFile instanceof SourceFile)
+        {
+            try (TextEditorBuffer buffer = new TextEditorBuffer(editor))
+            {
+                ((SourceFile)sourceFile).hBecomeWorkingCopy(with(of(
+                    SourceFile.WORKING_COPY_BUFFER, buffer), of(
+                        SourceFile.WORKING_COPY_INFO_FACTORY, (SourceFile sf,
+                            IBuffer b) -> new XtextWorkingCopyInfo(sf, b))),
+                    null);
+                return sourceFile;
+            }
+        }
+        return null;
+    }
+
+    protected void releaseWorkingCopy(XtextEditor editor,
+        ISourceFile workingCopy)
+    {
+        ((SourceFile)workingCopy).hReleaseWorkingCopy();
     }
 
     private boolean isActive(XtextEditor editor)
@@ -229,9 +248,9 @@ public class HandlyXtextEditorCallback
         }
     }
 
-    private void registerPartListener(final XtextEditor editor)
+    private void connect(XtextEditor editor)
     {
-        IPartListener listener = new IPartListener()
+        IPartListener partListener = new IPartListener()
         {
             public void partActivated(IWorkbenchPart part)
             {
@@ -252,137 +271,140 @@ public class HandlyXtextEditorCallback
             // @formatter:on
         };
         editor.getSite().getWorkbenchWindow().getPartService().addPartListener(
-            listener);
-        partListeners.put(editor, listener);
-    }
+            partListener);
 
-    private void deregisterPartListener(XtextEditor editor)
-    {
-        IPartListener listener = partListeners.remove(editor);
-        if (listener != null)
-        {
-            editor.getSite().getWorkbenchWindow().getPartService().removePartListener(
-                listener);
-        }
-    }
-
-    private void registerSelectionListener(final XtextEditor editor)
-    {
-        ISelectionChangedListener listener = new ISelectionChangedListener()
-        {
-            @Override
-            public void selectionChanged(SelectionChangedEvent event)
+        ISelectionChangedListener selectionChangedListener =
+            new ISelectionChangedListener()
             {
-                afterSelectionChange(editor, event.getSelection());
-            }
-        };
+                @Override
+                public void selectionChanged(SelectionChangedEvent event)
+                {
+                    afterSelectionChange(editor, event.getSelection());
+                }
+            };
         ISelectionProvider selectionProvider = editor.getSelectionProvider();
         if (selectionProvider instanceof IPostSelectionProvider)
             ((IPostSelectionProvider)selectionProvider).addPostSelectionChangedListener(
-                listener);
+                selectionChangedListener);
         else
-            selectionProvider.addSelectionChangedListener(listener);
-        selectionListeners.put(editor, listener);
+            selectionProvider.addSelectionChangedListener(
+                selectionChangedListener);
+
+        EditorInfo info = new EditorInfo();
+        info.partListener = partListener;
+        info.selectionChangedListener = selectionChangedListener;
+        info.highlightRangeJob = new HighlightRangeJob(editor);
+        editorInfoMap.put(editor, info);
     }
 
-    private void deregisterSelectionListener(XtextEditor editor)
+    private void disconnect(XtextEditor editor)
     {
-        ISelectionChangedListener listener = selectionListeners.remove(editor);
-        if (listener != null)
-        {
-            ISelectionProvider selectionProvider =
-                editor.getSelectionProvider();
-            if (selectionProvider instanceof IPostSelectionProvider)
-                ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(
-                    listener);
-            else
-                selectionProvider.removeSelectionChangedListener(listener);
-        }
+        EditorInfo info = editorInfoMap.remove(editor);
+        if (info == null)
+            return;
+
+        editor.getSite().getWorkbenchWindow().getPartService().removePartListener(
+            info.partListener);
+
+        ISelectionProvider selectionProvider = editor.getSelectionProvider();
+        if (selectionProvider instanceof IPostSelectionProvider)
+            ((IPostSelectionProvider)selectionProvider).removePostSelectionChangedListener(
+                info.selectionChangedListener);
+        else
+            selectionProvider.removeSelectionChangedListener(
+                info.selectionChangedListener);
+
+        HighlightRangeJob highlightRangeJob = info.highlightRangeJob;
+        highlightRangeJob.cancel();
+        highlightRangeJob.setArgs(null);
     }
 
     private void connectWorkingCopy(XtextEditor editor)
     {
-        SourceFile sourceFile = getSourceFile(editor);
-        if (sourceFile == null)
-            return;
-
-        XtextEditor workingCopyEditor = getWorkingCopyEditor(sourceFile);
+        XtextEditor workingCopyEditor = getWorkingCopyEditor(
+            editor.getEditorInput());
         if (editor != workingCopyEditor)
         {
             if (workingCopyEditor != null)
-                discardWorkingCopy(workingCopyEditor);
+                disconnectWorkingCopy0(workingCopyEditor);
 
-            createWorkingCopy(sourceFile, editor);
+            connectWorkingCopy0(editor);
         }
     }
 
     private void disconnectWorkingCopy(XtextEditor editor)
     {
-        SourceFile sourceFile = discardWorkingCopy(editor);
-        if (sourceFile == null)
+        if (!disconnectWorkingCopy0(editor))
             return;
 
         XtextEditor mruClone = findMruClone(editor);
         if (mruClone != null)
         {
-            createWorkingCopy(sourceFile, mruClone);
+            connectWorkingCopy0(mruClone);
         }
     }
 
-    private void createWorkingCopy(SourceFile sourceFile, XtextEditor editor)
+    private void connectWorkingCopy0(XtextEditor editor)
     {
-        try (TextEditorBuffer buffer = new TextEditorBuffer(editor))
+        ISourceFile workingCopy = null;
+        try
         {
-            if (sourceFile.hBecomeWorkingCopy(buffer, // will addRef() the buffer
-                (IBuffer b) -> new XtextWorkingCopyInfo(b), null) != null)
-            {
-                sourceFile.hDiscardWorkingCopy();
-
-                throw new IllegalStateException("Already a working copy: " //$NON-NLS-1$
-                    + sourceFile);
-            }
-
-            workingCopies.put(editor, new WorkingCopyInfo(sourceFile, true));
-
-            setHighlightRange(editor,
-                editor.getSelectionProvider().getSelection());
+            workingCopy = acquireWorkingCopy(editor);
         }
         catch (CoreException e)
         {
-            workingCopies.put(editor, new WorkingCopyInfo(sourceFile, false));
-
-            editor.resetHighlightRange();
-
             if (!editor.getEditorInput().exists())
                 ; // this is considered normal
             else
                 Activator.log(e.getStatus());
         }
+        if (workingCopy != null)
+        {
+            if (!Elements.isWorkingCopy(workingCopy))
+                throw new AssertionError();
+            try (IBuffer buffer = Elements.getBuffer(workingCopy))
+            {
+                if (buffer.getDocument() != editor.getDocument())
+                {
+                    releaseWorkingCopy(editor, workingCopy);
+                    throw new AssertionError();
+                }
+            }
+            catch (CoreException e)
+            {
+                Activator.log(e.getStatus());
+            }
+        }
+        workingCopyEditors.put(editor.getEditorInput(),
+            new WorkingCopyEditorInfo(editor, workingCopy));
+        if (workingCopy != null)
+            setHighlightRange(editor,
+                editor.getSelectionProvider().getSelection());
+        else
+            editor.resetHighlightRange();
     }
 
-    private SourceFile discardWorkingCopy(XtextEditor editor)
+    private boolean disconnectWorkingCopy0(XtextEditor editor)
     {
-        WorkingCopyInfo workingCopyInfo = workingCopies.remove(editor);
-        if (workingCopyInfo == null)
-            return null;
-        if (workingCopyInfo.success)
+        WorkingCopyEditorInfo info = workingCopyEditors.get(
+            editor.getEditorInput());
+        if (info == null || info.editor != editor)
+            return false;
+        workingCopyEditors.remove(editor.getEditorInput());
+        if (info.workingCopy != null)
         {
-            workingCopyInfo.sourceFile.hDiscardWorkingCopy();
+            releaseWorkingCopy(editor, info.workingCopy);
             editor.resetHighlightRange();
         }
-        return workingCopyInfo.sourceFile;
+        return true;
     }
 
-    private XtextEditor getWorkingCopyEditor(SourceFile sourceFile)
+    private XtextEditor getWorkingCopyEditor(IEditorInput editorInput)
     {
-        Set<Entry<XtextEditor, WorkingCopyInfo>> entrySet =
-            workingCopies.entrySet();
-        for (Entry<XtextEditor, WorkingCopyInfo> entry : entrySet)
-        {
-            if (entry.getValue().sourceFile.equals(sourceFile))
-                return entry.getKey();
-        }
-        return null;
+        WorkingCopyEditorInfo info = workingCopyEditors.get(editorInput);
+        if (info == null)
+            return null;
+        return info.editor;
     }
 
     private XtextEditor findMruClone(XtextEditor editor)
@@ -419,27 +441,18 @@ public class HandlyXtextEditorCallback
     }
 
     private void scheduleHighlightRangeJob(XtextEditor editor,
-        SourceFile sourceFile, ISelection selection)
+        ISelection selection)
     {
-        HighlightRangeJob highlightRangeJob = highlightRangeJobs.get(editor);
-        if (highlightRangeJob == null)
-        {
-            highlightRangeJob = new HighlightRangeJob(editor);
-            highlightRangeJobs.put(editor, highlightRangeJob);
-        }
+        ISourceFile workingCopy = getWorkingCopy(editor);
+        if (workingCopy == null)
+            return;
+        EditorInfo info = editorInfoMap.get(editor);
+        if (info == null)
+            return;
+        HighlightRangeJob highlightRangeJob = info.highlightRangeJob;
         highlightRangeJob.cancel();
-        highlightRangeJob.setArgs(new HighlightArgs(sourceFile, selection));
+        highlightRangeJob.setArgs(new HighlightArgs(workingCopy, selection));
         highlightRangeJob.schedule();
-    }
-
-    private void disposeHighlightRangeJob(XtextEditor editor)
-    {
-        HighlightRangeJob highlightRangeJob = highlightRangeJobs.remove(editor);
-        if (highlightRangeJob != null)
-        {
-            highlightRangeJob.cancel();
-            highlightRangeJob.setArgs(null);
-        }
     }
 
     private class HighlightRangeJob
@@ -448,14 +461,14 @@ public class HandlyXtextEditorCallback
         private final XtextEditor editor;
         private volatile HighlightArgs args;
 
-        public HighlightRangeJob(XtextEditor editor)
+        HighlightRangeJob(XtextEditor editor)
         {
             super(""); //$NON-NLS-1$
             setSystem(true);
             this.editor = editor;
         }
 
-        public void setArgs(HighlightArgs args)
+        void setArgs(HighlightArgs args)
         {
             this.args = args;
         }
@@ -466,7 +479,7 @@ public class HandlyXtextEditorCallback
             HighlightArgs args = this.args;
             if (args == null)
                 return Status.OK_STATUS;
-            SourceFile sourceFile = args.sourceFile;
+            ISourceFile sourceFile = args.sourceFile;
             ISelection selection = args.selection;
             ISourceElement selectedElement = null;
             if (selection instanceof ITextSelection)
@@ -524,8 +537,8 @@ public class HandlyXtextEditorCallback
             return Status.OK_STATUS;
         }
 
-        private void setEditorHighlightRange(final HighlightArgs args,
-            final int offset, final int length)
+        private void setEditorHighlightRange(HighlightArgs args, int offset,
+            int length)
         {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
             {
@@ -537,7 +550,7 @@ public class HandlyXtextEditorCallback
             });
         }
 
-        private void resetEditorHighlightRange(final HighlightArgs args)
+        private void resetEditorHighlightRange(HighlightArgs args)
         {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
             {
@@ -559,45 +572,40 @@ public class HandlyXtextEditorCallback
 
     private static class HighlightArgs
     {
-        public final SourceFile sourceFile;
-        public final ISelection selection;
+        final ISourceFile sourceFile;
+        final ISelection selection;
 
         /*
          * @param sourceFile not null
          * @param selection not null
          */
-        public HighlightArgs(SourceFile sourceFile, ISelection selection)
+        HighlightArgs(ISourceFile sourceFile, ISelection selection)
         {
             this.sourceFile = sourceFile;
             this.selection = selection;
         }
     }
 
-    /*
-     * Multiple XtextEditor instances may simultaneously be opened on a given
-     * source file, each with its own underlying document, but only one of them
-     * can be designated the working copy editor and connected to the source
-     * file's working copy. This class is used for tracking the source file's
-     * working copy editor. The success flag indicates whether the working copy
-     * of the source file was created successfully by the working copy editor.
-     * (A common reason for failure is that the editor input doesn't exist.)
-     *
-     * @see #getWorkingCopyEditor(SourceFile)
-     */
-    private static class WorkingCopyInfo
+    private static class EditorInfo
     {
-        public final SourceFile sourceFile;
-        public final boolean success;
+        IPartListener partListener;
+        ISelectionChangedListener selectionChangedListener;
+        HighlightRangeJob highlightRangeJob;
+    }
+
+    private static class WorkingCopyEditorInfo
+    {
+        final XtextEditor editor;
+        final ISourceFile workingCopy;
 
         /*
-         * @param sourceFile not null
-         * @param success whether sourceFile.becomeWorkingCopy was successful,
-         *  so sourceFile.discardWorkingCopy() is to be called
+         * @param editor not null
+         * @param workingCopy may be null
          */
-        public WorkingCopyInfo(SourceFile sourceFile, boolean success)
+        WorkingCopyEditorInfo(XtextEditor editor, ISourceFile workingCopy)
         {
-            this.sourceFile = sourceFile;
-            this.success = success;
+            this.editor = editor;
+            this.workingCopy = workingCopy;
         }
     }
 }

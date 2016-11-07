@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
-import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
-import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
@@ -37,7 +37,6 @@ public class WorkingCopyNotificationTest
     extends WorkspaceTestCase
 {
     private CompilationUnit workingCopy;
-    private IBuffer buffer;
     private JavaModelListener listener = new JavaModelListener();
 
     @Override
@@ -47,7 +46,6 @@ public class WorkingCopyNotificationTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        buffer = TextFileBuffer.forFile(workingCopy.getFile());
         workingCopy.getJavaModel().addElementChangeListener(listener);
     }
 
@@ -56,8 +54,6 @@ public class WorkingCopyNotificationTest
     {
         if (workingCopy != null)
             workingCopy.getJavaModel().removeElementChangeListener(listener);
-        if (buffer != null)
-            buffer.release();
         super.tearDown();
     }
 
@@ -115,7 +111,8 @@ public class WorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "Y"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertNull(listener.delta);
 
@@ -145,7 +142,8 @@ public class WorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new DeleteEdit(
                     r.getOffset(), r.getLength()));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertNull(listener.delta);
 
@@ -164,7 +162,8 @@ public class WorkingCopyNotificationTest
                 change = new BufferChange(new InsertEdit(r.getOffset(),
                     "int y;"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertNull(listener.delta);
 
@@ -195,7 +194,8 @@ public class WorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "void f() {}"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertNull(listener.delta);
 
@@ -227,7 +227,8 @@ public class WorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "void f(int y) {}")); // renamed arg
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 assertNull(listener.delta);
 
@@ -247,14 +248,14 @@ public class WorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.hBecomeWorkingCopy(buffer, null);
+        workingCopy.hBecomeWorkingCopy(EMPTY_CONTEXT, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.hDiscardWorkingCopy();
+            workingCopy.hReleaseWorkingCopy();
         }
     }
 }

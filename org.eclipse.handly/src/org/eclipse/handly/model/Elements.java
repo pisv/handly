@@ -582,6 +582,11 @@ public class Elements
      * be shared by multiple clients, so the returned buffer may have unsaved
      * changes if it has been modified by another client.
      * <p>
+     * For working copies, the relationship between a source file and its buffer
+     * does not change over the lifetime of a working copy. Otherwise, a new
+     * buffer may be returned each time this method is invoked.
+     * </p>
+     * <p>
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for releasing it when finished. The buffer will be
      * disposed only after it is released by every owner. The buffer must not
@@ -603,6 +608,11 @@ public class Elements
      * Returns the buffer opened for the source file. Note that buffers may
      * be shared by multiple clients, so the returned buffer may have unsaved
      * changes if it has been modified by another client.
+     * <p>
+     * For working copies, the relationship between a source file and its buffer
+     * does not change over the lifetime of a working copy. Otherwise, a new
+     * buffer may be returned each time this method is invoked.
+     * </p>
      * <p>
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for releasing it when finished. The buffer will be

@@ -138,16 +138,6 @@ public class HandlyXtextDocument
         return reconciledSnapshot.getWrappedSnapshot();
     }
 
-    public void addReconcilingListener(IReconcilingListener listener)
-    {
-        reconcilingListeners.add(listener);
-    }
-
-    public void removeReconcilingListener(IReconcilingListener listener)
-    {
-        reconcilingListeners.remove(listener);
-    }
-
     @Override
     public boolean needsReconciling()
     {
@@ -223,6 +213,16 @@ public class HandlyXtextDocument
         DirtyStateEditorSupport dirtyStateEditorSupport)
     {
         this.dirtyStateEditorSupport = dirtyStateEditorSupport;
+    }
+
+    void addReconcilingListener(IReconcilingListener listener)
+    {
+        reconcilingListeners.add(listener);
+    }
+
+    void removeReconcilingListener(IReconcilingListener listener)
+    {
+        reconcilingListeners.remove(listener);
     }
 
     private PendingChange getAndResetPendingChange()
@@ -325,7 +325,7 @@ public class HandlyXtextDocument
     /**
      * Document reconciling listener protocol.
      */
-    public interface IReconcilingListener
+    interface IReconcilingListener
     {
         /**
          * Called just after a reconciling operation has been performed. Informs

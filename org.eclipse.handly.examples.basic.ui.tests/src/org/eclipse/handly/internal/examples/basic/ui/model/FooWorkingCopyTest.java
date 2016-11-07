@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
+import static org.eclipse.handly.context.Contexts.*;
+
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.buffer.Buffer;
 import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
-import org.eclipse.handly.buffer.TextFileBuffer;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
@@ -24,6 +27,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
@@ -37,7 +41,6 @@ public class FooWorkingCopyTest
     extends WorkspaceTestCase
 {
     private FooFile workingCopy;
-    private IBuffer buffer;
 
     @Override
     protected void setUp() throws Exception
@@ -45,20 +48,11 @@ public class FooWorkingCopyTest
         super.setUp();
         IFooProject fooProject = FooModelCore.create(setUpProject("Test002"));
         workingCopy = (FooFile)fooProject.getFooFile("test.foo");
-        buffer = TextFileBuffer.forFile(workingCopy.getFile());
-    }
-
-    @Override
-    protected void tearDown() throws Exception
-    {
-        if (buffer != null)
-            buffer.release();
-        super.tearDown();
     }
 
     public void test1() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(EMPTY_CONTEXT, new IWorkspaceRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -73,7 +67,8 @@ public class FooWorkingCopyTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "g"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 defs = workingCopy.getDefs();
                 assertEquals(3, defs.length);
@@ -92,7 +87,7 @@ public class FooWorkingCopyTest
 
     public void test2() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(EMPTY_CONTEXT, new IWorkspaceRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -112,7 +107,8 @@ public class FooWorkingCopyTest
                 BufferChange change = new BufferChange(new DeleteEdit(
                     r.getOffset(), r.getLength()));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 vars = workingCopy.getVars();
                 assertEquals(2, vars.length);
@@ -132,7 +128,8 @@ public class FooWorkingCopyTest
                 change = new BufferChange(new InsertEdit(r.getOffset(),
                     var2Text));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 vars = workingCopy.getVars();
                 assertEquals(1, vars.length);
@@ -151,20 +148,27 @@ public class FooWorkingCopyTest
     {
         // working copy for a non-existing source file
         workingCopy.getParent().getResource().delete(true, null);
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        try (
+            IBuffer buffer = new Buffer(
+                "var x; var y; def f() {} def f(x) {} def f(x, y) {}"))
         {
-            @Override
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                assertFalse(workingCopy.getParent().exists());
-                assertTrue(workingCopy.exists());
+            doWithWorkingCopy(of(SourceFile.WORKING_COPY_BUFFER, buffer),
+                new IWorkspaceRunnable()
+                {
+                    @Override
+                    public void run(IProgressMonitor monitor)
+                        throws CoreException
+                    {
+                        assertFalse(workingCopy.getParent().exists());
+                        assertTrue(workingCopy.exists());
 
-                IFooVar[] vars = workingCopy.getVars();
-                assertEquals(2, vars.length);
-                IFooDef[] defs = workingCopy.getDefs();
-                assertEquals(3, defs.length);
-            }
-        });
+                        IFooVar[] vars = workingCopy.getVars();
+                        assertEquals(2, vars.length);
+                        IFooDef[] defs = workingCopy.getDefs();
+                        assertEquals(3, defs.length);
+                    }
+                });
+        }
     }
 
     public void testBug479623() throws Exception
@@ -179,7 +183,8 @@ public class FooWorkingCopyTest
             {
                 while (!stop[0])
                 {
-                    WorkingCopyInfo info = workingCopy.hAcquireWorkingCopy();
+                    WorkingCopyInfo info =
+                        workingCopy.hAcquireExistingWorkingCopy(null);
                     if (info != null)
                     {
                         try
@@ -192,7 +197,7 @@ public class FooWorkingCopyTest
                         }
                         finally
                         {
-                            workingCopy.hDiscardWorkingCopy();
+                            workingCopy.hReleaseWorkingCopy();
                         }
                     }
                 }
@@ -201,7 +206,7 @@ public class FooWorkingCopyTest
         thread.start();
         try
         {
-            doWithWorkingCopy(new IWorkspaceRunnable()
+            doWithWorkingCopy(EMPTY_CONTEXT, new IWorkspaceRunnable()
             {
                 @Override
                 public void run(IProgressMonitor monitor) throws CoreException
@@ -221,7 +226,7 @@ public class FooWorkingCopyTest
     public void testBug480397_2() throws Exception
     {
         // working copy cannot be closed
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(EMPTY_CONTEXT, new IWorkspaceRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -253,21 +258,21 @@ public class FooWorkingCopyTest
             }
         };
         // non-openable elements cannot be closed, in working copy or not
-        doWithWorkingCopy(testRunnable);
+        doWithWorkingCopy(EMPTY_CONTEXT, testRunnable);
         testRunnable.run(null);
     }
 
-    private void doWithWorkingCopy(IWorkspaceRunnable runnable)
-        throws CoreException
+    private void doWithWorkingCopy(IContext context,
+        IWorkspaceRunnable runnable) throws CoreException
     {
-        workingCopy.hBecomeWorkingCopy(buffer, null);
+        workingCopy.hBecomeWorkingCopy(context, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.hDiscardWorkingCopy();
+            workingCopy.hReleaseWorkingCopy();
         }
     }
 }

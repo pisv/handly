@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import static org.eclipse.handly.context.Contexts.of;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +24,14 @@ import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.ChildBuffer;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
-import org.eclipse.handly.buffer.TextFileBuffer;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -50,7 +53,6 @@ public class WorkingCopyTest
     private static final int AST_LEVEL = AST.JLS8;
 
     private CompilationUnit workingCopy;
-    private IBuffer buffer;
     private List<IProblem> problems;
     private IProblemRequestor problemRequestor = new ProblemRequestor();
 
@@ -61,16 +63,7 @@ public class WorkingCopyTest
         IProject project = setUpProject("Test010");
         workingCopy = (CompilationUnit)JavaModelCore.createCompilationUnitFrom(
             project.getFile(new Path("src/X.java")));
-        buffer = TextFileBuffer.forFile(workingCopy.getFile());
         problems = new ArrayList<IProblem>();
-    }
-
-    @Override
-    protected void tearDown() throws Exception
-    {
-        if (buffer != null)
-            buffer.release();
-        super.tearDown();
     }
 
     public void test001() throws Exception
@@ -89,7 +82,8 @@ public class WorkingCopyTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "Y"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 types = workingCopy.getTypes();
                 assertEquals(1, types.length);
@@ -123,7 +117,8 @@ public class WorkingCopyTest
                 BufferChange change = new BufferChange(new DeleteEdit(
                     r.getOffset(), r.getLength()));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 fields = typeX.getFields();
                 assertEquals(1, fields.length);
@@ -138,7 +133,8 @@ public class WorkingCopyTest
                 change = new BufferChange(new InsertEdit(r.getOffset(),
                     "int y;"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 fields = typeX.getFields();
                 assertEquals(0, fields.length);
@@ -169,7 +165,8 @@ public class WorkingCopyTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "void f() {}"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                buffer.applyChange(change, null);
+                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
+                    null);
 
                 methods = typeX.getMethods();
                 assertEquals(1, methods.length);
@@ -313,9 +310,12 @@ public class WorkingCopyTest
                     {
                     });
                 assertFalse(privateCopy.equals(workingCopy));
-                try (IBuffer privateBuffer = new ChildBuffer(buffer))
+                try (
+                    IBuffer buffer = workingCopy.getBuffer();
+                    IBuffer privateBuffer = new ChildBuffer(buffer))
                 {
-                    doWithWorkingCopy(privateCopy, privateBuffer, null,
+                    doWithWorkingCopy(privateCopy, of(
+                        SourceFile.WORKING_COPY_BUFFER, privateBuffer),
                         new IWorkspaceRunnable()
                         {
                             public void run(IProgressMonitor monitor)
@@ -362,22 +362,21 @@ public class WorkingCopyTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        doWithWorkingCopy(workingCopy, buffer, problemRequestor, runnable);
+        doWithWorkingCopy(workingCopy, of(IProblemRequestor.class,
+            problemRequestor), runnable);
     }
 
-    private static void doWithWorkingCopy(CompilationUnit workingCopy,
-        IBuffer buffer, IProblemRequestor problemRequestor,
+    private static void doWithWorkingCopy(CompilationUnit cu, IContext context,
         IWorkspaceRunnable runnable) throws CoreException
     {
-        workingCopy.hBecomeWorkingCopy(buffer, (IBuffer b) ->
-            new JavaWorkingCopyInfo(b, problemRequestor), null);
+        cu.hBecomeWorkingCopy(context, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.hDiscardWorkingCopy();
+            cu.hReleaseWorkingCopy();
         }
     }
 

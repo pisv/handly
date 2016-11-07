@@ -63,9 +63,9 @@ public interface IBodyCache
      * @param elementBodies handle/body relationships to be stored in the cache
      *  (not <code>null</code>)
      */
-    default void putAll(Map<IElement, Object> elementBodies)
+    default void putAll(Map<? extends IElement, Object> elementBodies)
     {
-        for (Map.Entry<IElement, Object> entry : elementBodies.entrySet())
+        for (Map.Entry<? extends IElement, Object> entry : elementBodies.entrySet())
         {
             put(entry.getKey(), entry.getValue());
         }

@@ -102,7 +102,7 @@ public abstract class WorkspaceSourceFile
     }
 
     @Override
-    protected final ISnapshotProvider hFileSnapshotProvider(IContext context)
+    protected final ISnapshotProvider hFileSnapshotProvider()
     {
         return () ->
         {

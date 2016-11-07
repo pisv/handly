@@ -25,7 +25,7 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.ui.IWorkingCopyProvider;
+import org.eclipse.handly.ui.IWorkingCopyManager;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
@@ -45,11 +45,10 @@ import org.eclipse.ui.PlatformUI;
  * viewer activation and forces reconciling on a significant change in the
  * underlying model.
  */
-public abstract class BaseReconciler
+public abstract class WorkingCopyReconciler
     extends AbstractReconciler
-    implements IWorkingCopyProvider
 {
-    private IWorkingCopyProvider provider;
+    private IWorkingCopyManager workingCopyManager;
     private IReconcilingStrategy strategy;
     private volatile ISourceFile workingCopy;
     private volatile boolean active = true;
@@ -65,26 +64,27 @@ public abstract class BaseReconciler
                     return;
 
                 if (isAffectedBy(event))
-                    BaseReconciler.this.elementChanged(event);
+                    WorkingCopyReconciler.this.elementChanged(event);
             }
         };
     private ShellListener activationListener;
 
     /**
      * Creates a new reconciler that reconciles the working copy provided
-     * by the given provider.
+     * by the given manager.
      *
-     * @param provider the working copy provider (not <code>null</code>)
+     * @param workingCopyManager the working copy manager (not <code>null</code>)
      */
-    public BaseReconciler(IWorkingCopyProvider provider)
+    public WorkingCopyReconciler(IWorkingCopyManager workingCopyManager)
     {
-        if (provider == null)
+        if (workingCopyManager == null)
             throw new IllegalArgumentException();
-        this.provider = provider;
+        this.workingCopyManager = workingCopyManager;
         // Just some reasonable defaults that can be overwritten:
         setIsIncrementalReconciler(false);
         setIsAllowedToModifyDocument(false);
-        setReconcilingStrategy(new WorkingCopyReconcilingStrategy(this));
+        setReconcilingStrategy(new WorkingCopyReconcilingStrategy(
+            workingCopyManager));
     }
 
     /**
@@ -122,7 +122,8 @@ public abstract class BaseReconciler
     {
         super.install(textViewer);
 
-        setWorkingCopy(provider.getWorkingCopy());
+        setWorkingCopy(workingCopyManager.getWorkingCopy(
+            textViewer.getDocument()));
 
         addElementChangeListener(elementChangeListener);
 
@@ -141,6 +142,8 @@ public abstract class BaseReconciler
 
         removeElementChangeListener(elementChangeListener);
 
+        setWorkingCopy(null);
+
         super.uninstall();
     }
 
@@ -148,12 +151,6 @@ public abstract class BaseReconciler
     public IReconcilingStrategy getReconcilingStrategy(String contentType)
     {
         return strategy;
-    }
-
-    @Override
-    public ISourceFile getWorkingCopy()
-    {
-        return workingCopy;
     }
 
     @Override
@@ -196,7 +193,7 @@ public abstract class BaseReconciler
     @Override
     protected void reconcilerDocumentChanged(IDocument newDocument)
     {
-        setWorkingCopy(provider.getWorkingCopy());
+        setWorkingCopy(workingCopyManager.getWorkingCopy(newDocument));
         strategy.setDocument(newDocument);
     }
 
@@ -209,7 +206,7 @@ public abstract class BaseReconciler
      */
     protected Object getReconcilerLock()
     {
-        return this; // Null Object
+        return this;
     }
 
     /**
@@ -328,11 +325,21 @@ public abstract class BaseReconciler
         this.active = active;
         if (Display.getCurrent() == null)
             throw new AssertionError(
-                "This method can only be executed by the UI thread"); //$NON-NLS-1$
+                "This method may only be executed by the user-interface thread"); //$NON-NLS-1$
         if (!active)
             setModelChanged(false);
         else if (hasModelChanged())
             forceReconciling();
+    }
+
+    private ISourceFile getWorkingCopy()
+    {
+        return workingCopy;
+    }
+
+    private void setWorkingCopy(ISourceFile workingCopy)
+    {
+        this.workingCopy = workingCopy;
     }
 
     private boolean hasModelChanged()
@@ -343,11 +350,6 @@ public abstract class BaseReconciler
     private void setModelChanged(boolean modelChanged)
     {
         this.modelChanged = modelChanged;
-    }
-
-    private void setWorkingCopy(ISourceFile workingCopy)
-    {
-        this.workingCopy = workingCopy;
     }
 
     private class ActivationListener
