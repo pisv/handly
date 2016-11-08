@@ -132,7 +132,6 @@ public abstract class SourceFile
      * If not set, a default factory is used for obtaining a new working copy info.
      * </li>
      * </ul>
-     * </p>
      * <p>
      * If the source file was already in working copy mode, this method acquires
      * a new independent ownership of the working copy by incrementing an internal
