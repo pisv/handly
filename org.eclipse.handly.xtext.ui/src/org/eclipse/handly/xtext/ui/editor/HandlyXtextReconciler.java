@@ -12,6 +12,7 @@ package org.eclipse.handly.xtext.ui.editor;
 
 import static org.eclipse.xtext.ui.editor.XtextSourceViewerConfiguration.XTEXT_TEMPLATE_POS_CATEGORY;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,9 +35,15 @@ import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.source.ContentAssistantFacade;
 import org.eclipse.jface.text.source.ISourceViewerExtension4;
+import org.eclipse.xtext.ui.editor.IXtextEditorCallback;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver;
 import org.eclipse.xtext.ui.editor.reconciler.XtextReconciler;
+
+import com.google.inject.Binding;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
 
 /**
  * Adapted from <code>org.eclipse.xtext.ui.editor.reconciler.XtextReconciler</code>.
@@ -57,11 +64,13 @@ import org.eclipse.xtext.ui.editor.reconciler.XtextReconciler;
 public class HandlyXtextReconciler
     extends XtextReconciler
 {
-    private final InternalReconciler delegate = new InternalReconciler();
+    private final InternalReconciler delegate;
 
-    public HandlyXtextReconciler()
+    @Inject
+    public HandlyXtextReconciler(Injector injector)
     {
         super(null);
+        delegate = new InternalReconciler(injector);
     }
 
     @Override
@@ -118,9 +127,11 @@ public class HandlyXtextReconciler
         extends Job
         implements IReconciler
     {
+        private Injector injector;
         private boolean isInstalled;
         private boolean shouldInstallCompletionListener;
         private volatile boolean paused;
+        private final AtomicBoolean initialForce = new AtomicBoolean(true);
         private final AtomicBoolean forced = new AtomicBoolean();
         private ITextViewer viewer;
         private final TextInputListener textInputListener =
@@ -129,11 +140,12 @@ public class HandlyXtextReconciler
             new DocumentListener();
         private int delay = 500;
 
-        public InternalReconciler()
+        public InternalReconciler(Injector injector)
         {
             super("Xtext Editor Reconciler"); //$NON-NLS-1$
             setPriority(Job.SHORT);
             setSystem(true);
+            this.injector = injector;
         }
 
         public void setDelay(int delay)
@@ -145,6 +157,9 @@ public class HandlyXtextReconciler
         {
             if (viewer == null || viewer.getDocument() == null)
                 return;
+            if (initialForce.compareAndSet(true, false)
+                && isHandlyXtextEditorCallbackInstalled())
+                return; // ignore call from XtextEditor#createPartControl; see bug 507162 for details
             cancel();
             forced.set(true);
             schedule(delay);
@@ -259,6 +274,30 @@ public class HandlyXtextReconciler
         {
             paused = false;
             schedule(delay);
+        }
+
+        private boolean isHandlyXtextEditorCallbackInstalled()
+        {
+            if (injector == null)
+                return false;
+            List<Binding<IXtextEditorCallback>> bindings =
+                injector.findBindingsByType(TypeLiteral.get(
+                    IXtextEditorCallback.class));
+            for (Binding<IXtextEditorCallback> binding : bindings)
+            {
+                IXtextEditorCallback callback;
+                try
+                {
+                    callback = binding.getProvider().get();
+                }
+                catch (Exception e)
+                {
+                    continue;
+                }
+                if (callback instanceof HandlyXtextEditorCallback)
+                    return true;
+            }
+            return false;
         }
 
         private class DocumentListener
