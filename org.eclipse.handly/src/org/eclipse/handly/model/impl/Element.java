@@ -416,7 +416,7 @@ public abstract class Element
 
     /**
      * Indicates whether to forcibly reopen this element if it is already open
-     * (i.e. already present in the body cache).
+     * (i.e. already present in the body cache). Default value: <code>false</code>.
      */
     static final Property<Boolean> FORCE_OPEN = Property.get(
         Element.class.getName() + ".forceOpen", Boolean.class).withDefault( //$NON-NLS-1$

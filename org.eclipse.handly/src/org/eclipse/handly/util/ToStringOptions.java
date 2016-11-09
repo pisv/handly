@@ -16,7 +16,7 @@ package org.eclipse.handly.util;
 public class ToStringOptions
 {
     /**
-     * Indent policy property.
+     * Indent policy property. Default value: a default indent policy.
      *
      * @see IndentPolicy
      */
@@ -25,14 +25,14 @@ public class ToStringOptions
         IndentPolicy.class).withDefault(new IndentPolicy());
 
     /**
-     * Indent level property. Values are zero-based.
+     * Indent level property. Values are zero-based. Default value: <code>0</code>.
      */
     public static final Property<Integer> INDENT_LEVEL = Property.get(
         ToStringOptions.class.getName() + ".indentLevel", //$NON-NLS-1$
         Integer.class).withDefault(0);
 
     /**
-     * Format style property.
+     * Format style property. Default value: {@link FormatStyle#FULL}.
      *
      * @see FormatStyle
      */

@@ -571,6 +571,7 @@ public class Elements
     /**
      * Indicates whether reconciling has to be performed even if
      * the working copy is already consistent with its buffer.
+     * Default value: <code>false</code>.
      * @see #reconcile(ISourceFile, IContext, IProgressMonitor)
      */
     public static final Property<Boolean> FORCE_RECONCILING = Property.get(
@@ -650,7 +651,7 @@ public class Elements
 
     /**
      * Indicates whether a new buffer should be created if none already exists
-     * for the source file.
+     * for the source file. Default value: <code>true</code>.
      * @see #getBuffer(ISourceFile, IContext, IProgressMonitor)
      */
     public static final Property<Boolean> CREATE_BUFFER = Property.get(

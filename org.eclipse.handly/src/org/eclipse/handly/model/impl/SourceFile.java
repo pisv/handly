@@ -670,7 +670,7 @@ public abstract class SourceFile
 
     /**
      * Indicates whether the structure should be rebuilt when reconciling
-     * is forced.
+     * is forced. Default value: <code>false</code>.
      * @see ReconcileOperation#reconcile(IContext, IProgressMonitor)
      */
     protected static final Property<Boolean> REBUILD_STRUCTURE_IF_FORCED =
@@ -679,6 +679,7 @@ public abstract class SourceFile
     /**
      * Indicates whether reconciling was forced, i.e. the working copy buffer
      * has not been modified since the last time it was reconciled.
+     * Default value: <code>false</code>.
      * @see ReconcileOperation#reconcile(IContext, IProgressMonitor)
      */
     static final Property<Boolean> RECONCILING_FORCED = Property.get(
