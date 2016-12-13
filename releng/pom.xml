@@ -15,7 +15,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.handly</groupId>
   <artifactId>releng</artifactId>
-  <version>0.6.0-SNAPSHOT</version>
+  <version>0.7.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <prerequisites>
     <maven>3.0</maven>
@@ -195,7 +195,7 @@
                 <artifact>
                   <groupId>org.eclipse.handly.targets</groupId>
                   <artifactId>base</artifactId>
-                  <version>0.6.0-SNAPSHOT</version>
+                  <version>0.7.0-SNAPSHOT</version>
                 </artifact>
               </target>
             </configuration>
@@ -218,7 +218,7 @@
                 <artifact>
                   <groupId>org.eclipse.handly.targets</groupId>
                   <artifactId>latest</artifactId>
-                  <version>0.6.0-SNAPSHOT</version>
+                  <version>0.7.0-SNAPSHOT</version>
                 </artifact>
               </target>
             </configuration>

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.handly.ui;singleton:=true
-Bundle-Version: 0.6.0.qualifier
+Bundle-Version: 0.7.0.qualifier
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -10,7 +10,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.10.0,4.0.0)",
  org.eclipse.core.resources;bundle-version="[3.9.0,4.0.0)",
- org.eclipse.handly;bundle-version="[0.6.0,0.7.0)",
+ org.eclipse.handly;bundle-version="[0.7.0,0.8.0)",
  org.eclipse.text;bundle-version="[3.5.0,4.0.0)",
  org.eclipse.jface.text;bundle-version="[3.9.0,4.0.0)",
  org.eclipse.ui;bundle-version="[3.106.0,4.0.0)",
