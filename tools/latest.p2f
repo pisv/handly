@@ -2,12 +2,12 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='12'>
-    <iu id='org.eclipse.sdk.ide' version='4.6.2.M20161124-1400'>
+    <iu id='org.eclipse.sdk.ide' version='4.6.3.M20170301-0400'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='4.4.1.201607150455-r'>
+    <iu id='org.eclipse.egit.feature.group' version='4.6.1.201703071140-r'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
@@ -57,7 +57,7 @@
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.2.2.v20161114-0827'>
+    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.2.3.v20170227-0935'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
