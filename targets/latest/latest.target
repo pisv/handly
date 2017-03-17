@@ -17,7 +17,7 @@
 <repository location="http://download.eclipse.org/cbi/updates/license"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/neon/201612211000"/>
+<repository location="http://download.eclipse.org/releases/neon/201703141400"/>
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.core.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="0.0.0"/>
