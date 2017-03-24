@@ -4,8 +4,8 @@ Handly Contributor Guide
 Welcome to Handly, a technology project at Eclipse,
 and thanks for your interest in this project.
 
-Project description:
---------------------
+Project description
+-------------------
 
 Handly provides basic building blocks for handle-based models,
 with an emphasis on high-level code-centric models that render Eclipse
@@ -23,38 +23,41 @@ implement a preexisting handle-based model API. At the same time, the provided
 uniform meta-level API establishes a common language and makes it possible
 for IDE components to work in a generic way with any Handly-based model.
 
-For more information, visit the project's website.
+For more information, visit the project's website
 
 - https://www.eclipse.org/handly/
 
-Developer resources:
---------------------
+Developer resources
+-------------------
 
-Information regarding source code management and builds.
+Information regarding source code management and builds
 
 - https://projects.eclipse.org/projects/technology.handly/developer
 
-Coding standards, bugs lifecycle, and more.
+Coding standards, bugs lifecycle, and more
 
 - https://wiki.eclipse.org/Handly/Committer_FAQ
 
-Building locally:
------------------
+Building locally
+----------------
 
-The build is based on Maven and Tycho and is easy to run on a local machine.
+The build is based on Maven and Tycho and is easy to run on a local machine:
 
  1. Make sure you have JDK 8 and Maven 3 installed. Both should be on the path.
+
  2. Clone the Handly Git repository and pick the desired branch.
+
  3. Open a shell to the Git workspace and execute
 
     $ cd releng
+
     $ mvn clean install
 
 Once the build completes, the `repository/target` folder in the Git workspace
 will contain a repository of build artifacts.
 
-Setting up a developer workspace:
----------------------------------
+Setting up a developer workspace
+--------------------------------
 
 Handly currently uses `JavaSE-1.8` for compilation. Please add a matching JRE.
 Perfect match (i.e. JDK 1.8) is recommended to avoid build warnings.
@@ -80,54 +83,54 @@ the MWE2 generator of the language infrastructure to work correctly, the Eclipse
 installation and the target platform should contain the same version of Xtext.
 A simple way to ensure that is to install Eclipse using one of the provided
 `.p2f` files that can be found in the Git workspace `tools` folder. These
-`.p2f' files are kept consistent with their namesake `.target` files.
+`.p2f` files are kept consistent with their namesake `.target` files.
 
-Contributing:
--------------
+Contributing
+------------
 
-General process and policy for making a contribution.
+General process and policy for making a contribution
 
-- https://wiki.eclipse.org/Development_Resources/Contributing_via_Git
+- https://wiki.eclipse.org/Development\_Resources/Contributing\_via\_Git
 
-Project-specific details and further references.
+Project-specific details and further references
 
 - https://wiki.eclipse.org/Handly/Committer_FAQ
 
-Contributor License Agreement:
-------------------------------
+Contributor License Agreement
+-----------------------------
 
 Before your contribution can be accepted by the project, you need to create
 and electronically sign the Eclipse Foundation Contributor License Agreement
-(CLA).
+(CLA)
 
 - https://www.eclipse.org/legal/CLA.php
 
-For more information, see CLA FAQ.
+For more information, see CLA FAQ
 
 - https://www.eclipse.org/legal/clafaq.php
 
-Contact:
---------
+Contact
+-------
 
-Contact the project developers via the project's "dev" list.
+Contact the project developers via the project's "dev" list
 
 - https://dev.eclipse.org/mailman/listinfo/handly-dev
 
-Search for bugs:
-----------------
+Search for bugs
+---------------
 
-This project uses Bugzilla to track ongoing development and issues.
+This project uses Bugzilla to track ongoing development and issues
 
 - https://bugs.eclipse.org/bugs/buglist.cgi?product=Handly
 
-Create a new bug:
------------------
+Create a new bug
+----------------
 
-Bug reporting FAQ.
+Bug reporting FAQ
 
-- https://wiki.eclipse.org/Bug_Reporting_FAQ
+- https://wiki.eclipse.org/Bug\_Reporting\_FAQ
 
-Be sure to search for existing bugs before you create another one.
+Be sure to search for existing bugs before you create another one
 
 - https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Handly
 
