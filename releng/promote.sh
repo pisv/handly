@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Copyright (c) 2014, 2016 1C-Soft LLC and others.
+# Copyright (c) 2014, 2017 1C-Soft LLC and others.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
@@ -21,19 +21,18 @@
 # of the working directory where <build-tag> is a parameter of the script.
 # This subdirectory can then be uploaded to Handly downloads area on
 # build.eclipse.org.
-# 
+#
 # To add p2.mirrorsURL and p2.statsURI properties this script uses
 # WTP releng tool addRepoProperties.
 #
 # Requirements:
 # * JAVA_HOME properly set
-# * ECLIPSE_HOME pointing to an Eclipse installation that contains
-#   org.eclipse.wtp.releng.tools.feature (the feature can be installed from
-#   http://download.eclipse.org/webtools/releng/repository/).
-#   If this variable is not set, and the working directory has a subdirectory
-#   named "eclipse", it will be assumed that this subdirectory contains
-#   the required Eclipse installation and ECLIPSE_HOME will be set
-#   to "./eclipse" by default
+# * ECLIPSE_HOME pointing to a directory with an Eclipse native executable launcher.
+#   Make shure that Eclipse installation contains org.eclipse.wtp.releng.tools.feature
+#   (the feature can be installed from http://download.eclipse.org/webtools/releng/repository/).
+#   If this variable is not set, and the working directory has a subdirectory named
+#   "eclipse" (or "Eclipse.app" on macOS), ECLIPSE_HOME will be set to "./eclipse"
+#   (or "./Eclipse.app/Contents/MacOS" on macOS) by default
 # * pwd, curl and unzip utilities
 #
 # Optional:
@@ -43,9 +42,9 @@
 #   This is where you will upload the result subdirectory.
 #   If this variable is not set, "releases" is assumed.
 #   Use "drops" for non-release builds.
-# 
+#
 # Usage: ./promote.sh <hudson-job-name> <hudson-build-number> [<build-tag>]
-#   
+#
 # The optional <build-tag> specifies a label under which the build will be
 # published, e.g. 0.1, 0.1RC1, 0.1.v20141002-1000. If this parameter is omitted,
 # the value from the VERSION file of the specified Hudson build will be used.
@@ -59,6 +58,8 @@ USAGE="Usage: ./promote.sh <hudson-job-name> <hudson-build-number> [<build-tag>]
 if [[ "$ECLIPSE_HOME" == "" ]]; then
     if [[ -d "./eclipse" ]]; then
         ECLIPSE_HOME="./eclipse"
+    elif [[ -d "./Eclipse.app" ]]; then
+        ECLIPSE_HOME="./Eclipse.app/Contents/MacOS"
     else
         echo "ECLIPSE_HOME must be set"
         exit -1
@@ -85,7 +86,7 @@ if [[ "$3" != "" ]]; then
         echo "Directory '$REPO_VERSION' already exists"
         echo "Remove it or run this script with a different <build-tag>"
         exit -1
-    fi    
+    fi
 else
     echo "<build-tag> is not specified; will use build VERSION value"
 fi
