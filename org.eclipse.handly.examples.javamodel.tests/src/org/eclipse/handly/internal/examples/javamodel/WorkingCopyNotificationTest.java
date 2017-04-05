@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -152,7 +152,7 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "  X[*]: {CHILDREN}\n" +
+                    "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    x[-]: {}"
                 );
                 //@formatter:on
@@ -172,7 +172,7 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "  X[*]: {CHILDREN}\n" +
+                    "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    y[+]: {}"
                 );
                 //@formatter:on
@@ -204,7 +204,7 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "  X[*]: {CHILDREN}\n" +
+                    "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    f()[+]: {}\n" +
                     "    f(int)[-]: {}"
                 );
@@ -237,7 +237,7 @@ public class WorkingCopyNotificationTest
                 //@formatter:off
                 listener.assertDelta(
                     "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "  X[*]: {CHILDREN}\n" +
+                    "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    f(int)[*]: {CONTENT}"
                 );
                 //@formatter:on
