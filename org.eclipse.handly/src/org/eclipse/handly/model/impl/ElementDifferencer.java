@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 
@@ -95,7 +96,7 @@ public class ElementDifferencer
      */
     public IElement getElement()
     {
-        return builder.getDelta().hElement();
+        return getDelta().hElement();
     }
 
     /**
@@ -107,13 +108,23 @@ public class ElementDifferencer
     {
         if (built)
             throw new IllegalStateException("Delta has already been built"); //$NON-NLS-1$
+        built = true;
         IElement element = getElement();
         recordNewPositions(element, 0);
         findAdditions(element, 0);
         findDeletions();
         findChangesInPositioning(element, 0);
-        trimDelta(builder.getDelta());
-        built = true;
+        trimDelta(getDelta());
+    }
+
+    /**
+     * Returns the delta builder used by this differencer.
+     *
+     * @return the delta builder (never <code>null</code>)
+     */
+    public ElementDelta.Builder getDeltaBuilder()
+    {
+        return builder;
     }
 
     /**
@@ -121,9 +132,9 @@ public class ElementDifferencer
      *
      * @return the root of the delta tree (never <code>null</code>)
      */
-    public IElementDelta getDelta()
+    public ElementDelta getDelta()
     {
-        return builder.getDelta();
+        return getDeltaBuilder().getDelta();
     }
 
     /**
@@ -135,13 +146,26 @@ public class ElementDifferencer
      */
     public boolean isEmptyDelta()
     {
-        return builder.isEmptyDelta();
+        return getDeltaBuilder().isEmptyDelta();
     }
 
     @Override
     public String toString()
     {
         return getDelta().toString();
+    }
+
+    /**
+     * Remembers the given body for the given element. This method is called
+     * by the framework and is not intended to be invoked by clients. Subclasses
+     * may extend this method.
+     *
+     * @param body never <code>null</code>
+     * @param element never <code>null</code>
+     */
+    protected void recordBody(Object body, IElement element)
+    {
+        oldBodies.put(element, body);
     }
 
     /**
@@ -158,10 +182,11 @@ public class ElementDifferencer
      * @param newBody the new version of the element's body (never <code>null</code>)
      * @param element the element whose bodies are to be compared (never <code>null</code>)
      */
-    protected void findContentChange(Object newBody, Object oldBody,
+    protected void findContentChange(Object oldBody, Object newBody,
         IElement element)
     {
-        ((Body)newBody).findContentChange((Body)oldBody, element, builder);
+        ((Body)newBody).findContentChange((Body)oldBody, element,
+            getDeltaBuilder());
     }
 
     private void initialize()
@@ -193,7 +218,7 @@ public class ElementDifferencer
             return;
         }
 
-        oldBodies.put(element, body);
+        recordBody(body, element);
 
         IElement[] children = ((Element)element).hChildren(body);
         insertPositions(children, false);
@@ -211,17 +236,16 @@ public class ElementDifferencer
         if (depth >= maxDepth)
             return;
 
-        Object body;
+        IElement[] children;
         try
         {
-            body = ((Element)newElement).hBody();
+            children = Elements.getChildren(newElement);
         }
         catch (CoreException e)
         {
             return;
         }
 
-        IElement[] children = ((Element)newElement).hChildren(body);
         insertPositions(children, true);
         for (IElement child : children)
         {
@@ -258,7 +282,7 @@ public class ElementDifferencer
         Object oldBody = getOldBody(newElement);
         if (oldBody == null && depth < maxDepth)
         {
-            builder.added(newElement);
+            getDeltaBuilder().added(newElement);
             added(newElement);
         }
         else
@@ -269,7 +293,7 @@ public class ElementDifferencer
         if (depth >= maxDepth)
         {
             // mark element as changed
-            builder.changed(newElement, F_CONTENT);
+            getDeltaBuilder().changed(newElement, F_CONTENT);
             return;
         }
 
@@ -285,7 +309,7 @@ public class ElementDifferencer
                 return;
             }
 
-            findContentChange(newBody, oldBody, newElement);
+            findContentChange(oldBody, newBody, newElement);
 
             for (IElement child : ((Element)newElement).hChildren(newBody))
             {
@@ -303,7 +327,7 @@ public class ElementDifferencer
         while (iter.hasNext())
         {
             IElement element = iter.next();
-            builder.removed(element);
+            getDeltaBuilder().removed(element);
             removed(element);
         }
     }
@@ -319,20 +343,20 @@ public class ElementDifferencer
 
         if (!isPositionedCorrectly(element))
         {
-            builder.changed(element, F_REORDER);
+            getDeltaBuilder().changed(element, F_REORDER);
         }
 
-        Object body;
+        IElement[] children;
         try
         {
-            body = ((Element)element).hBody();
+            children = Elements.getChildren(element);
         }
         catch (CoreException e)
         {
             return;
         }
 
-        for (IElement child : ((Element)element).hChildren(body))
+        for (IElement child : children)
         {
             findChangesInPositioning(child, depth + 1);
         }

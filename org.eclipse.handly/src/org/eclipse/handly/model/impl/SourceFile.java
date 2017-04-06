@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -810,13 +810,7 @@ public abstract class SourceFile
         protected void reconcile(IContext context, IProgressMonitor monitor)
             throws CoreException
         {
-            ElementDelta.Factory deltaFactory = hModel().getModelContext().get(
-                ElementDelta.Factory.class);
-            if (deltaFactory == null)
-                deltaFactory = element -> new ElementDelta(element);
-            ElementDelta rootDelta = deltaFactory.newDelta(SourceFile.this);
-            ElementDifferencer differ = new ElementDifferencer(
-                new ElementDelta.Builder(rootDelta));
+            ElementDifferencer differ = createDifferencer();
 
             doReconcile(context, monitor);
 
@@ -829,6 +823,21 @@ public abstract class SourceFile
                             ElementChangeEvent.POST_RECONCILE,
                             differ.getDelta()));
             }
+        }
+
+        /**
+         * Creates an element differencer for this operation's source file.
+         *
+         * @return a new element differencer (never <code>null</code>)
+         */
+        protected ElementDifferencer createDifferencer()
+        {
+            ElementDelta.Factory deltaFactory = hModel().getModelContext().get(
+                ElementDelta.Factory.class);
+            if (deltaFactory == null)
+                deltaFactory = element -> new ElementDelta(element);
+            ElementDelta rootDelta = deltaFactory.newDelta(SourceFile.this);
+            return new ElementDifferencer(new ElementDelta.Builder(rootDelta));
         }
 
         /**
