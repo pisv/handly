@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,11 +82,11 @@ public class LruCache<K, V>
     {
         LruCache<K, V> newCache = newInstance(spaceLimit);
         // Preserve order of entries by copying from oldest to newest
-        LruCacheEntry<K, V> qEntry = entryQueueTail;
-        while (qEntry != null)
+        LruCacheEntry<K, V> entry = entryQueueTail;
+        while (entry != null)
         {
-            newCache.privateAdd(qEntry.key, qEntry.value, qEntry.space);
-            qEntry = qEntry.previous;
+            newCache.privateAdd(entry.key, entry.value, entry.space);
+            entry = entry.previous;
         }
         return newCache;
     }
@@ -144,7 +144,11 @@ public class LruCache<K, V>
     /**
      * Returns an enumeration that iterates over all the keys
      * currently in the cache.
-     */
+     * <p>
+     * Modifications to the cache must not be performed while using
+     * the enumeration. Doing so will lead to undefined behavior.
+     * </p>
+      */
     public Enumeration<K> keys()
     {
         return new Enumeration<K>()
@@ -168,6 +172,10 @@ public class LruCache<K, V>
     /**
      * Returns an enumeration that iterates over all the keys and values
      * currently in the cache.
+     * <p>
+     * Modifications to the cache must not be performed while using
+     * the enumeration. Doing so will lead to undefined behavior.
+     * </p>
      */
     public ICacheEnumeration<K, V> keysAndValues()
     {
@@ -198,6 +206,33 @@ public class LruCache<K, V>
                 return current.value;
             }
         };
+    }
+
+    /**
+     * Returns an enumeration of the values in the cache with the most
+     * recently used first.
+     * <p>
+     * Once the enumeration is created, elements which are later added
+     * to the cache are not returned by the enumeration. However, elements
+     * returned from the enumeration could have been closed by the cache.
+     * </p>
+     */
+    public Enumeration<V> elements()
+    {
+        if (entryQueue == null)
+            return new LruCacheEnumerator<>(null);
+        LruEnumeratorElement<V> head = new LruEnumeratorElement<>(
+            entryQueue.value);
+        LruCacheEntry<K, V> currentEntry = entryQueue.next;
+        LruEnumeratorElement<V> currentElement = head;
+        while (currentEntry != null)
+        {
+            currentElement.next = new LruEnumeratorElement<>(
+                currentEntry.value);
+            currentElement = currentElement.next;
+            currentEntry = currentEntry.next;
+        }
+        return new LruCacheEnumerator<>(head);
     }
 
     /**
@@ -520,10 +555,6 @@ public class LruCache<K, V>
      * in the cache know their key. For this reason, hash table lookups don't
      * have to be made at each step of the iteration.
      * </p>
-     * <p>
-     * Modifications to the cache must not be performed while using
-     * the enumeration. Doing so will lead to unspecified behavior.
-     * </p>
      */
     public interface ICacheEnumeration<K, V>
         extends Enumeration<K>
@@ -546,7 +577,7 @@ public class LruCache<K, V>
         /**
          * Key of this entry
          */
-        public K key;
+        public final K key;
 
         /**
          * Value of this entry
@@ -591,6 +622,42 @@ public class LruCache<K, V>
         public String toString()
         {
             return "LruCacheEntry [" + key + " -> " + value + ']'; //$NON-NLS-1$ //$NON-NLS-2$
+        }
+    }
+
+    static class LruEnumeratorElement<V>
+    {
+        final V value;
+        LruEnumeratorElement<V> next;
+
+        LruEnumeratorElement(V value)
+        {
+            this.value = value;
+        }
+    }
+
+    static class LruCacheEnumerator<V>
+        implements Enumeration<V>
+    {
+        LruEnumeratorElement<V> next;
+
+        LruCacheEnumerator(LruEnumeratorElement<V> head)
+        {
+            next = head;
+        }
+
+        @Override
+        public boolean hasMoreElements()
+        {
+            return next != null;
+        }
+
+        @Override
+        public V nextElement()
+        {
+            LruEnumeratorElement<V> current = next;
+            next = current.next;
+            return current.value;
         }
     }
 }
