@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -187,16 +187,80 @@ public abstract class Element
     }
 
     /**
-     * Closes this element, removing any previously registered handle/body
-     * relationships for it and its existing descendants.
+     * Closes this element iff the current state of this element permits closing.
+     * <p>
+     * Closing of an element removes its body from the body cache. In general,
+     * closing of a parent element also closes its children. If the current state
+     * of an open child element does not permit closing, the child element
+     * remains open, which generally does not prevent its parent from closing.
+     * Closing of an element which is not open has no effect.
+     * </p>
+     * <p>
+     * Shortcut to <code>hClose(EMPTY_CONTEXT)</code>.
+     * </p>
      *
-     * @return <code>true</code> if this element was successfully closed;
-     *  <code>false</code> if the current state of this element does not
-     *  permit closing (e.g., a working copy)
+     * @see #hClose(IContext)
      */
-    public final boolean hClose()
+    public final void hClose()
     {
-        return hClose(true);
+        hClose(EMPTY_CONTEXT);
+    }
+
+    /**
+     * Closing hint.
+     */
+    public enum CloseHint
+    {
+        /**
+         * Closing due to cache overflow.
+         */
+        CACHE_OVERFLOW,
+        /**
+         * Closing due to parent closing.
+         */
+        PARENT_CLOSING
+    }
+
+    /**
+     * Close hint property.
+     * @see #hClose(IContext)
+     */
+    public static final Property<CloseHint> CLOSE_HINT = Property.get(
+        Element.class.getName() + ".closeHint", //$NON-NLS-1$
+        CloseHint.class);
+
+    /**
+     * Closes this element iff the current state of this element permits closing
+     * according to options specified in the given context.
+     * <p>
+     * Closing of an element removes its body from the body cache. In general,
+     * closing of a parent element also closes its children. If the current state
+     * of an open child element does not permit closing, the child element
+     * remains open, which generally does not prevent its parent from closing.
+     * Closing of an element which is not open has no effect.
+     * </p>
+     * <p>
+     * Implementations are encouraged to support the following standard options,
+     * which may be specified in the given context:
+     * </p>
+     * <ul>
+     * <li>
+     * {@link #CLOSE_HINT} - Closing hint.
+     * </li>
+     * </ul>
+     * <p>
+     * If the current state of this element permits closing, this implementation
+     * invokes {@link #hRemove(IContext)} method, which closes this element.
+     * </p>
+     *
+     * @param context the operation context (not <code>null</code>)
+     */
+    public void hClose(IContext context)
+    {
+        CloseHint hint = context.get(CLOSE_HINT);
+        if (hint != CloseHint.PARENT_CLOSING && !hIsOpenable())
+            return;
+        hRemove(context);
     }
 
     @Override
@@ -596,31 +660,40 @@ public abstract class Element
     }
 
     /**
-     * Closes this element, removing any previously registered handle/body
-     * relationships for it and its existing descendants.
+     * Removes this element from the body cache according to options specified
+     * in the given context. In general, not only removes the cached body for this
+     * element but also attempts to close this element's children. Does nothing
+     * if the cache contained no body for this element. Performs atomically.
+     * <p>
+     * This is a low-level operation, which removes this element's body and
+     * thus closes this element even if the current state of this element does
+     * not permit closing. Consider using a higher-level {@link #hClose()} method.
+     * <p>
+     * If there is a cached body for this element, this implementation invokes
+     * {@link #hRemoving(Object)} method to notify this element of the upcoming
+     * removal of its body, calls <code>hClose(of(CLOSE_HINT, PARENT_CLOSING))</code>
+     * for each of this element's children, then removes the cached body for
+     * this element, all while holding the element manager lock.
+     * </p>
      *
-     * @param external <code>false</code> if this is a recursive call,
-     *  <code>true</code> otherwise
-     * @return <code>true</code> if this element was successfully closed;
-     *  <code>false</code> if the current state of this element does not
-     *  permit closing (e.g., a working copy)
+     * @param context the operation context (not <code>null</code>)
      */
-    protected boolean hClose(boolean external)
+    protected void hRemove(IContext context)
     {
-        if (external && !hIsOpenable())
-            return false;
         hElementManager().remove(this);
-        return true;
     }
 
     /**
      * The cached body for this element is going to be removed from the cache.
      * Do any necessary cleanup.
+     * <p>
+     * This method is called internally; it is not intended to be invoked by clients.
+     * This method is called under the element manager lock.
+     * </p>
      *
      * @param body the cached body for this element (never <code>null</code>)
      */
     protected void hRemoving(Object body)
     {
-        // Does nothing. Subclasses may override
     }
 }

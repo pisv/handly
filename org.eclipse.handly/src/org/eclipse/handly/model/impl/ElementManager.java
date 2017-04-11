@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,16 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.model.impl.Element.CLOSE_HINT;
+import static org.eclipse.handly.model.impl.Element.CloseHint.PARENT_CLOSING;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.handly.buffer.IBuffer;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceFile;
 
@@ -30,7 +36,7 @@ public class ElementManager
 {
     private static final ISourceFile[] NO_WORKING_COPIES = new ISourceFile[0];
 
-    private IBodyCache cache;
+    protected final IBodyCache cache;
 
     // Temporary cache of newly opened elements
     private ThreadLocal<Map<IElement, Object>> temporaryCache =
@@ -53,14 +59,14 @@ public class ElementManager
     }
 
     /**
-     * Returns the source files that are currently in working copy mode.
+     * Returns the working copies currently managed by this manager.
      * Performs atomically.
      * <p>
      * Note that the result may immediately become stale if other threads can
      * create or destroy working copies that are managed by this manager.
      * </p>
      *
-     * @return the source files that are currently in working copy mode
+     * @return the working copies currently managed by this manager
      *  (never <code>null</code>)
      */
     public final synchronized ISourceFile[] getWorkingCopies()
@@ -69,19 +75,22 @@ public class ElementManager
     }
 
     /**
-     * Attempts to close the given element. If the current state of the element
-     * does not permit closing (e.g., a working copy), it will stay open. Closing
-     * of an element usually involves closing its children and removal of its body
-     * from the cache.
+     * Attempts to close the given element according to options specified in the
+     * given context. If the current state of an open element does not permit
+     * closing (e.g., a working copy), it remains open. Closing of an element
+     * generally involves closing its children and removal of its body from the
+     * cache.
      * <p>
      * This method is called internally; it is not intended to be invoked by clients.
+     * This method is called under the element manager lock.
      * </p>
      *
      * @param element the element that needs closing (never <code>null</code>)
+     * @param context the operation context (never <code>null</code>)
      */
-    protected void close(IElement element)
+    protected void close(IElement element, IContext context)
     {
-        ((Element)element).hClose(false);
+        ((Element)element).hClose(context);
     }
 
     /**
@@ -147,13 +156,20 @@ public class ElementManager
     synchronized void put(Element element, Map<IElement, Object> newElements)
     {
         // remove existing children as they are replaced with the new children contained in newElements
-        remove(element);
+        Object body = cache.peek(element);
+        if (body != null)
+        {
+            for (IElement child : element.hChildren(body))
+            {
+                close(child, of(CLOSE_HINT, PARENT_CLOSING));
+            }
+        }
 
         cache.putAll(newElements);
 
         if (element instanceof SourceFile)
         {
-            WorkingCopyInfo info = workingCopyInfos.get((SourceFile)element);
+            WorkingCopyInfo info = workingCopyInfos.get(element);
             if (info != null && !info.created) // case of wc creation
                 info.created = true;
         }
@@ -188,7 +204,7 @@ public class ElementManager
      * contained no body for the element. Performs atomically.
      *
      * @param element the element whose body is to be removed from the body cache
-     * @see #close(IElement)
+     * @see #close(IElement, IContext)
      */
     synchronized void remove(Element element)
     {
@@ -198,7 +214,7 @@ public class ElementManager
             element.hRemoving(body);
             for (IElement child : element.hChildren(body))
             {
-                close(child);
+                close(child, of(CLOSE_HINT, PARENT_CLOSING));
             }
             cache.remove(element);
         }
@@ -380,7 +396,7 @@ public class ElementManager
                     infoToDispose = info;
 
                     workingCopyInfos.remove(sourceFile);
-                    remove(sourceFile);
+                    sourceFile.hRemove(EMPTY_CONTEXT);
                 }
                 return info;
             }

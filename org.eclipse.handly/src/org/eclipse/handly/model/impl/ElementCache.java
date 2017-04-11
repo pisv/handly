@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@
 package org.eclipse.handly.model.impl;
 
 import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.model.impl.Element.CLOSE_HINT;
+import static org.eclipse.handly.model.impl.Element.CloseHint.CACHE_OVERFLOW;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.INDENT_POLICY;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
@@ -99,7 +101,9 @@ public class ElementCache
     @Override
     protected boolean close(LruCacheEntry<IElement, Object> entry)
     {
-        return ((Element)entry.key).hClose();
+        ((Element)entry.key).hClose(of(CLOSE_HINT, CACHE_OVERFLOW));
+        // closing of an element removes it from the cache, so...
+        return false; // ...no need to remove the cache entry after close
     }
 
     @Override

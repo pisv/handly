@@ -375,6 +375,17 @@ public abstract class SourceFile
         }
     }
 
+    @Override
+    public void hClose(IContext context)
+    {
+        synchronized (hElementManager())
+        {
+            if (hIsWorkingCopy())
+                return;
+            super.hClose(context);
+        }
+    }
+
     /**
      * Returns a reconcile operation for this source file.
      * <p>
@@ -635,14 +646,6 @@ public abstract class SourceFile
         if (hIsWorkingCopy())
             return; // don't open ancestors for a working copy
         super.hGenerateAncestorBodies(context, monitor);
-    }
-
-    @Override
-    protected boolean hClose(boolean external)
-    {
-        if (hIsWorkingCopy())
-            return false; // a working copy cannot be removed
-        return super.hClose(external);
     }
 
     @Override

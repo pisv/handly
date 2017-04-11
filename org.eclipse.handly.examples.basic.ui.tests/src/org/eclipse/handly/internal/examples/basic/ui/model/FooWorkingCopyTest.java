@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -252,9 +252,9 @@ public class FooWorkingCopyTest
             {
                 IFooDef def = workingCopy.getDef("f", 0);
                 assertTrue(def.exists());
-                assertFalse("non-openable elements cannot be closed",
-                    ((Element)def).hClose());
-                assertNotNull(((Element)def).hPeekAtBody());
+                ((Element)def).hClose();
+                assertNotNull("non-openable elements cannot be closed",
+                    ((Element)def).hPeekAtBody());
             }
         };
         // non-openable elements cannot be closed, in working copy or not
