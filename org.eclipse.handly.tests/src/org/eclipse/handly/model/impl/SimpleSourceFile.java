@@ -47,13 +47,20 @@ class SimpleSourceFile
     }
 
     @Override
+    public boolean hIsWorkingCopy()
+    {
+        return false;
+    }
+
+    @Override
     public IModelManager hModelManager()
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
+    protected void hBuildSourceStructure(IContext context,
+        IProgressMonitor monitor)
     {
     }
 }

@@ -644,7 +644,7 @@ public abstract class Element
                 if (monitor.isCanceled())
                     throw new OperationCanceledException();
 
-                hBuildStructure0(context, new SubProgressMonitor(monitor, 1));
+                hBuildStructure(context, new SubProgressMonitor(monitor, 1));
 
                 Object body = context.get(NEW_ELEMENTS).get(this);
                 if (body == null)
@@ -659,12 +659,6 @@ public abstract class Element
         {
             monitor.done();
         }
-    }
-
-    void hBuildStructure0(IContext context, IProgressMonitor monitor)
-        throws CoreException
-    {
-        hBuildStructure(context, monitor);
     }
 
     /**

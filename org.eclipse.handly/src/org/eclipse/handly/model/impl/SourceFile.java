@@ -319,7 +319,7 @@ public abstract class SourceFile
     }
 
     @Override
-    public final boolean hIsWorkingCopy()
+    public boolean hIsWorkingCopy()
     {
         return hWorkingCopyInfo() != null;
     }
@@ -459,65 +459,6 @@ public abstract class SourceFile
             ElementChangeEvent.POST_CHANGE, builder.getDelta()));
     }
 
-    @Override
-    protected void hValidateExistence(IContext context) throws CoreException
-    {
-        if (!hIsWorkingCopy())
-        {
-            if (!hFileExists())
-                throw hDoesNotExistException();
-        }
-    }
-
-    @Override
-    void hBuildStructure0(IContext context, IProgressMonitor monitor)
-        throws CoreException
-    {
-        if (!context.containsKey(SOURCE_CONTENTS) && !context.containsKey(
-            SOURCE_AST))
-        {
-            if (hIsWorkingCopy())
-                throw new AssertionError();
-            // NOTE: source files that are not working copies must reflect
-            // the structure of the underlying file rather than the buffer
-            NonExpiringSnapshot snapshot;
-            try (ISnapshotProvider provider = hFileSnapshotProvider())
-            {
-                try
-                {
-                    snapshot = new NonExpiringSnapshot(provider);
-                }
-                catch (IllegalStateException e)
-                {
-                    Throwable cause = e.getCause();
-                    if (cause instanceof CoreException)
-                        throw (CoreException)cause;
-                    throw new CoreException(Activator.createErrorStatus(
-                        e.getMessage(), e));
-                }
-            }
-            context = with(of(SOURCE_CONTENTS, snapshot.getContents()), of(
-                SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), context);
-        }
-
-        super.hBuildStructure0(context, monitor);
-
-        Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
-        Object body = newElements.get(this);
-        if (body instanceof SourceElementBody)
-        {
-            SourceElementBody thisBody = (SourceElementBody)body;
-
-            String source = context.get(SOURCE_CONTENTS);
-            if (source != null)
-                thisBody.setFullRange(new TextRange(0, source.length()));
-
-            ISnapshot snapshot = context.get(SOURCE_SNAPSHOT);
-            if (snapshot != null)
-                setSnapshot(thisBody, snapshot, newElements);
-        }
-    }
-
     /**
      * Returns whether the underlying file exists.
      *
@@ -575,6 +516,74 @@ public abstract class SourceFile
     protected abstract IBuffer hFileBuffer(IContext context,
         IProgressMonitor monitor) throws CoreException;
 
+    @Override
+    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
+        throws CoreException
+    {
+        if (!context.containsKey(SOURCE_CONTENTS) && !context.containsKey(
+            SOURCE_AST))
+        {
+            if (hIsWorkingCopy())
+                throw new AssertionError();
+            // NOTE: source files that are not working copies must reflect
+            // the structure of the underlying file rather than the buffer
+            NonExpiringSnapshot snapshot;
+            try (ISnapshotProvider provider = hFileSnapshotProvider())
+            {
+                try
+                {
+                    snapshot = new NonExpiringSnapshot(provider);
+                }
+                catch (IllegalStateException e)
+                {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof CoreException)
+                        throw (CoreException)cause;
+                    throw new CoreException(Activator.createErrorStatus(
+                        e.getMessage(), e));
+                }
+            }
+            context = with(of(SOURCE_CONTENTS, snapshot.getContents()), of(
+                SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), context);
+        }
+
+        hBuildSourceStructure(context, monitor);
+
+        Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
+        Object body = newElements.get(this);
+        if (body instanceof SourceElementBody)
+        {
+            SourceElementBody thisBody = (SourceElementBody)body;
+
+            String source = context.get(SOURCE_CONTENTS);
+            if (source != null)
+                thisBody.setFullRange(new TextRange(0, source.length()));
+
+            ISnapshot snapshot = context.get(SOURCE_SNAPSHOT);
+            if (snapshot != null)
+                setSnapshot(thisBody, snapshot, newElements);
+        }
+    }
+
+    /**
+     * Specifies the source AST.
+     * @see #hBuildSourceStructure(IContext, IProgressMonitor)
+     */
+    protected static final Property<Object> SOURCE_AST = Property.get(
+        SourceFile.class.getName() + ".sourceAst", Object.class); //$NON-NLS-1$
+    /**
+     * Specifies the source string.
+     * @see #hBuildSourceStructure(IContext, IProgressMonitor)
+     */
+    protected static final Property<String> SOURCE_CONTENTS = Property.get(
+        SourceFile.class.getName() + ".sourceContents", String.class); //$NON-NLS-1$
+    /**
+     * Specifies the source snapshot.
+     * @see #hBuildSourceStructure(IContext, IProgressMonitor)
+     */
+    protected static final Property<ISnapshot> SOURCE_SNAPSHOT = Property.get(
+        SourceFile.class.getName() + ".sourceSnapshot", ISnapshot.class); //$NON-NLS-1$
+
     /**
      * Creates and initializes bodies for this element and for each
      * of its descendant elements according to options specified in the
@@ -616,28 +625,18 @@ public abstract class SourceFile
      * @throws CoreException if this method fails
      * @throws OperationCanceledException if this method is canceled
      */
-    @Override
-    protected abstract void hBuildStructure(IContext context,
+    protected abstract void hBuildSourceStructure(IContext context,
         IProgressMonitor monitor) throws CoreException;
 
-    /**
-     * Specifies the source AST.
-     * @see #hBuildStructure(IContext, IProgressMonitor)
-     */
-    protected static final Property<Object> SOURCE_AST = Property.get(
-        SourceFile.class.getName() + ".sourceAst", Object.class); //$NON-NLS-1$
-    /**
-     * Specifies the source string.
-     * @see #hBuildStructure(IContext, IProgressMonitor)
-     */
-    protected static final Property<String> SOURCE_CONTENTS = Property.get(
-        SourceFile.class.getName() + ".sourceContents", String.class); //$NON-NLS-1$
-    /**
-     * Specifies the source snapshot.
-     * @see #hBuildStructure(IContext, IProgressMonitor)
-     */
-    protected static final Property<ISnapshot> SOURCE_SNAPSHOT = Property.get(
-        SourceFile.class.getName() + ".sourceSnapshot", ISnapshot.class); //$NON-NLS-1$
+    @Override
+    protected void hValidateExistence(IContext context) throws CoreException
+    {
+        if (!hIsWorkingCopy())
+        {
+            if (!hFileExists())
+                throw hDoesNotExistException();
+        }
+    }
 
     @Override
     protected void hGenerateAncestorBodies(IContext context,

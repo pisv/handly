@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -259,8 +259,8 @@ public class CompilationUnit
     }
 
     @Override
-    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
-        throws CoreException
+    protected void hBuildSourceStructure(IContext context,
+        IProgressMonitor monitor) throws CoreException
     {
         Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
         SourceElementBody body = new SourceElementBody();
