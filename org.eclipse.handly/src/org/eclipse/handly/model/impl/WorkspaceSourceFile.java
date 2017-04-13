@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.ICoreTextFileBufferProvider;
 import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.context.IContext;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.TextFileSnapshot;
 
@@ -43,7 +44,7 @@ public abstract class WorkspaceSourceFile
      *  or <code>null</code> if the element has no parent
      * @param file the workspace file underlying the element (not <code>null</code>)
      */
-    public WorkspaceSourceFile(Element parent, IFile file)
+    public WorkspaceSourceFile(IElement parent, IFile file)
     {
         super(parent, file.getName());
         this.file = file;

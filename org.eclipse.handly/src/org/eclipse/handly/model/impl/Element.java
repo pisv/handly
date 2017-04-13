@@ -55,7 +55,7 @@ public abstract class Element
     extends PlatformObject
     implements IElementImpl, IModelManager.Provider
 {
-    private final Element parent;
+    private final IElement parent;
     private final String name;
 
     /**
@@ -67,7 +67,7 @@ public abstract class Element
      * @param name the name of the element,
      *  or <code>null</code> if the element has no name
      */
-    public Element(Element parent, String name)
+    public Element(IElement parent, String name)
     {
         this.parent = parent;
         this.name = name;
@@ -127,7 +127,7 @@ public abstract class Element
     }
 
     @Override
-    public final Element hParent()
+    public final IElement hParent()
     {
         return parent;
     }
@@ -143,7 +143,7 @@ public abstract class Element
     {
         if (hFindBody() != null)
             return true;
-        if (parent != null && !parent.hExists())
+        if (parent != null && !Elements.exists(parent))
             return false;
         try
         {
@@ -299,11 +299,11 @@ public abstract class Element
      */
     protected void hToStringAncestors(StringBuilder builder, IContext context)
     {
-        if (parent != null && parent.hParent() != null)
+        if (parent != null && Elements.getParent(parent) != null)
         {
             builder.append(" [in "); //$NON-NLS-1$
-            parent.hToStringBody(builder, NO_BODY, context);
-            parent.hToStringAncestors(builder, context);
+            builder.append(Elements.toString(parent, with(of(FORMAT_STYLE,
+                MEDIUM), of(INDENT_LEVEL, 0), context)));
             builder.append(']');
         }
     }
@@ -584,10 +584,18 @@ public abstract class Element
      */
     protected final Element hOpenableParent()
     {
-        Element result = parent;
-        while (result != null && !result.hIsOpenable())
-            result = result.parent;
-        return result;
+        IElement p = parent;
+        while (p != null)
+        {
+            if (p instanceof Element)
+            {
+                Element e = (Element)p;
+                if (e.hIsOpenable())
+                    return e;
+            }
+            p = Elements.getParent(p);
+        }
+        return null;
     }
 
     /**

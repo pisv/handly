@@ -64,7 +64,7 @@ public abstract class SourceFile
      * @param name the name of the element, or <code>null</code>
      *  if the element has no name
      */
-    public SourceFile(Element parent, String name)
+    public SourceFile(IElement parent, String name)
     {
         super(parent, name);
     }

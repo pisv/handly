@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,9 +13,9 @@ package org.eclipse.handly.internal.examples.javamodel;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.StructureHelper;
 import org.eclipse.handly.util.TextRange;
@@ -120,7 +120,7 @@ class CompilatonUnitStructureBuilder
         helper.addChild(parentBody, handle, body);
     }
 
-    private void buildStructure(Element parent, Body parentBody,
+    private void buildStructure(IJavaElement parent, Body parentBody,
         AbstractTypeDeclaration type)
     {
         Type handle = new Type(parent, type.getName().getIdentifier());

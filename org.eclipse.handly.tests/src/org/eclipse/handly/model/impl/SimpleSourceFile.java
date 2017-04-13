@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.handly.model.impl;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.context.IContext;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IModel;
 
 /**
@@ -33,7 +34,7 @@ class SimpleSourceFile
      * @param file the workspace file underlying the element (not <code>null</code>)
      * @param model the model the element belongs to
      */
-    public SimpleSourceFile(Element parent, IFile file, IModel model)
+    public SimpleSourceFile(IElement parent, IFile file, IModel model)
     {
         super(parent, file);
         this.model = model;
