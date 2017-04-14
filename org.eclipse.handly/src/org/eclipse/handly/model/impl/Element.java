@@ -83,7 +83,7 @@ public abstract class Element
         if (!(obj instanceof Element))
             return false;
         Element other = (Element)obj;
-        if (!hElementType().equals(other.hElementType()))
+        if (!other.hCanEqual(this))
             return false;
         if (!hModel().equals(other.hModel()))
             return false;
@@ -353,14 +353,27 @@ public abstract class Element
     }
 
     /**
-     * Returns an opaque object representing the <i>type</i> of this element.
-     * Equal elements must have equal types.
+     * Returns whether this element can equal the given object. If this method
+     * returns <code>false</code>, the <code>equals</code> method must also
+     * return <code>false</code> for the same argument object.
+     * <p>
+     * This implementation compares run-time classes of the objects; as such,
+     * it doesn't allow creating a subclass whose instances can equal superclass
+     * instances. Clients may override this method and implement a less
+     * discriminating technique using <code>instanceof</code> check,
+     * as described in http://www.artima.com/pins1ed/object-equality.html.
+     * For example, if a <code>ResolvedSourceType</code> can equal a
+     * <code>SourceType</code>, the <code>SourceType</code> should override
+     * <code>hCanEqual</code> and return <code>obj instanceof SourceType</code>.
+     * </p>
      *
-     * @return the type of this element (never <code>null</code>)
+     * @param obj not <code>null</code>
+     * @return <code>true</code> if this element can equal the given object;
+     *  <code>false</code> otherwise
      */
-    protected Object hElementType()
+    protected boolean hCanEqual(Object obj)
     {
-        return getClass();
+        return getClass() == obj.getClass();
     }
 
     /**
