@@ -211,7 +211,7 @@ public class ElementDifferencer
         Object body;
         try
         {
-            body = ((Element)element).hBody();
+            body = ((IElementImplExtension)element).hBody();
         }
         catch (CoreException e)
         {
@@ -220,7 +220,7 @@ public class ElementDifferencer
 
         recordBody(body, element);
 
-        IElement[] children = ((Element)element).hChildren(body);
+        IElement[] children = ((IElementImplExtension)element).hChildren(body);
         insertPositions(children, false);
         for (IElement child : children)
         {
@@ -302,7 +302,7 @@ public class ElementDifferencer
             Object newBody;
             try
             {
-                newBody = ((Element)newElement).hBody();
+                newBody = ((IElementImplExtension)newElement).hBody();
             }
             catch (CoreException e)
             {
@@ -311,7 +311,8 @@ public class ElementDifferencer
 
             findContentChange(oldBody, newBody, newElement);
 
-            for (IElement child : ((Element)newElement).hChildren(newBody))
+            for (IElement child : ((IElementImplExtension)newElement).hChildren(
+                newBody))
             {
                 findAdditions(child, depth + 1);
             }

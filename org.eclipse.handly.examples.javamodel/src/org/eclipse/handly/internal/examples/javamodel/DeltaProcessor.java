@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,8 +32,8 @@ import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementDelta;
+import org.eclipse.handly.model.impl.IElementImplExtension;
 import org.eclipse.jdt.core.IClasspathEntry;
 
 /**
@@ -605,12 +605,12 @@ class DeltaProcessor
 
     private static Body findBody(IJavaElement element)
     {
-        return (Body)((Element)element).hFindBody();
+        return (Body)((IElementImplExtension)element).hFindBody();
     }
 
     private static void close(IJavaElement element)
     {
-        ((Element)element).hClose();
+        ((IElementImplExtension)element).hClose();
     }
 
     private static IResource getResource(IPath fullPath, int resourceType)

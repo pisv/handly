@@ -12,8 +12,8 @@ package org.eclipse.handly.model.impl;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
-import static org.eclipse.handly.model.impl.Element.CLOSE_HINT;
-import static org.eclipse.handly.model.impl.Element.CloseHint.PARENT_CLOSING;
+import static org.eclipse.handly.model.impl.IElementImplExtension.CLOSE_HINT;
+import static org.eclipse.handly.model.impl.IElementImplExtension.CloseHint.PARENT_CLOSING;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -90,7 +90,7 @@ public class ElementManager
      */
     protected void close(IElement element, IContext context)
     {
-        ((Element)element).hClose(context);
+        ((IElementImplExtension)element).hClose(context);
     }
 
     /**

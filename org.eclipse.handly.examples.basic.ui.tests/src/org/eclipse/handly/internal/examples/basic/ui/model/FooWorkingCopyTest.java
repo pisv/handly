@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
-import static org.eclipse.handly.context.Contexts.*;
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+import static org.eclipse.handly.context.Contexts.of;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
@@ -26,7 +27,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
-import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.IElementImplExtension;
 import org.eclipse.handly.model.impl.SourceFile;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.util.TextRange;
@@ -252,9 +253,9 @@ public class FooWorkingCopyTest
             {
                 IFooDef def = workingCopy.getDef("f", 0);
                 assertTrue(def.exists());
-                ((Element)def).hClose();
+                ((IElementImplExtension)def).hClose();
                 assertNotNull("non-openable elements cannot be closed",
-                    ((Element)def).hPeekAtBody());
+                    ((IElementImplExtension)def).hPeekAtBody());
             }
         };
         // non-openable elements cannot be closed, in working copy or not

@@ -53,7 +53,7 @@ import org.eclipse.handly.util.ToStringOptions.FormatStyle;
  */
 public abstract class Element
     extends PlatformObject
-    implements IElementImpl, IModelManager.Provider
+    implements IElementImplExtension, IModelManager.Provider
 {
     private final IElement parent;
     private final String name;
@@ -162,99 +162,87 @@ public abstract class Element
         return hChildren(hBody());
     }
 
-    /**
-     * Returns the cached body for this element, or <code>null</code>
-     * if none.
-     *
-     * @return the cached body for this element, or <code>null</code>
-     *  if none
-     */
+    @Override
+    public IElement[] hChildren(Object body)
+    {
+        return ((Body)body).getChildren();
+    }
+
+    @Override
     public Object hFindBody()
     {
         return hElementManager().get(this);
     }
 
-    /**
-     * Returns the cached body for this element without disturbing
-     * cache ordering, or <code>null</code> if none.
-     *
-     * @return the cached body for this element, or <code>null</code>
-     *  if none
-     */
+    @Override
     public Object hPeekAtBody()
     {
         return hElementManager().peek(this);
     }
 
     /**
-     * Closes this element iff the current state of this element permits closing.
+     * {@inheritDoc}
      * <p>
-     * Closing of an element removes its body from the body cache. In general,
-     * closing of a parent element also closes its children. If the current state
-     * of an open child element does not permit closing, the child element
-     * remains open, which generally does not prevent its parent from closing.
-     * Closing of an element which is not open has no effect.
+     * This implementation creates and initializes bodies for this element,
+     * its ancestors and its children as necessary and then atomically puts
+     * them into the body cache.
      * </p>
-     * <p>
-     * Shortcut to <code>hClose(EMPTY_CONTEXT)</code>.
-     * </p>
-     *
-     * @see #hClose(IContext)
+     * @throws CoreException {@inheritDoc}
+     * @throws OperationCanceledException {@inheritDoc}
      */
-    public final void hClose()
+    @Override
+    public Object hOpen(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
-        hClose(EMPTY_CONTEXT);
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+        ElementManager elementManager = hElementManager();
+        boolean hadTemporaryCache = elementManager.hasTemporaryCache();
+        try
+        {
+            Map<IElement, Object> newElements =
+                elementManager.getTemporaryCache();
+            hGenerateBodies(with(of(NEW_ELEMENTS, newElements), context),
+                monitor);
+            Object body = newElements.get(this);
+            if (body == null)
+            {
+                // the openable parent did not create a body for this element
+                throw hDoesNotExistException();
+            }
+            if (monitor.isCanceled())
+                throw new OperationCanceledException();
+            if (!hadTemporaryCache)
+            {
+                if (context.getOrDefault(FORCE_OPEN))
+                    elementManager.put(this, newElements);
+                else
+                {
+                    Object existingBody = elementManager.putIfAbsent(this,
+                        newElements);
+                    if (existingBody != null)
+                        body = existingBody;
+                }
+            }
+            return body;
+        }
+        finally
+        {
+            if (!hadTemporaryCache)
+            {
+                elementManager.resetTemporaryCache();
+            }
+        }
     }
 
     /**
-     * Closing hint.
-     */
-    public enum CloseHint
-    {
-        /**
-         * Closing due to cache overflow.
-         */
-        CACHE_OVERFLOW,
-        /**
-         * Closing due to parent closing.
-         */
-        PARENT_CLOSING
-    }
-
-    /**
-     * Close hint property.
-     * @see #hClose(IContext)
-     */
-    public static final Property<CloseHint> CLOSE_HINT = Property.get(
-        Element.class.getName() + ".closeHint", //$NON-NLS-1$
-        CloseHint.class);
-
-    /**
-     * Closes this element iff the current state of this element permits closing
-     * according to options specified in the given context.
-     * <p>
-     * Closing of an element removes its body from the body cache. In general,
-     * closing of a parent element also closes its children. If the current state
-     * of an open child element does not permit closing, the child element
-     * remains open, which generally does not prevent its parent from closing.
-     * Closing of an element which is not open has no effect.
-     * </p>
-     * <p>
-     * Implementations are encouraged to support the following standard options,
-     * which may be specified in the given context:
-     * </p>
-     * <ul>
-     * <li>
-     * {@link #CLOSE_HINT} - Closing hint.
-     * </li>
-     * </ul>
+     * {@inheritDoc}
      * <p>
      * If the current state of this element permits closing, this implementation
      * invokes {@link #hRemove(IContext)} method, which closes this element.
      * </p>
-     *
-     * @param context the operation context (not <code>null</code>)
      */
+    @Override
     public void hClose(IContext context)
     {
         CloseHint hint = context.get(CLOSE_HINT);
@@ -442,128 +430,6 @@ public abstract class Element
      */
     protected abstract void hBuildStructure(IContext context,
         IProgressMonitor monitor) throws CoreException;
-
-    /**
-     * Returns the cached body for this element. If this element is not
-     * already present in the body cache, its body will be created,
-     * initialized, and put in the cache.
-     *
-     * @return the cached body for this element (never <code>null</code>)
-     * @throws CoreException if this element does not exist or if an
-     *  exception occurs while accessing its corresponding resource
-     */
-    protected final Object hBody() throws CoreException
-    {
-        return hBody(EMPTY_CONTEXT, null);
-    }
-
-    /**
-     * Returns the cached body for this element. If this element is not
-     * already present in the body cache, its body will be created,
-     * initialized, and put in the cache.
-     *
-     * @param context the operation context (not <code>null</code>)
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @return the cached body for this element (never <code>null</code>)
-     * @throws CoreException if this element does not exist or if an
-     *  exception occurs while accessing its corresponding resource
-     * @throws OperationCanceledException if this method is canceled
-     */
-    protected final Object hBody(IContext context, IProgressMonitor monitor)
-        throws CoreException
-    {
-        Object body = hFindBody();
-        if (body != null)
-            return body;
-        return hOpen(context, monitor);
-    }
-
-    /**
-     * Given a body, returns the immediate children of this element.
-     *
-     * @param body the body corresponding to this element
-     *  (never <code>null</code>)
-     * @return the immediate children of this element (not <code>null</code>)
-     */
-    protected IElement[] hChildren(Object body)
-    {
-        return ((Body)body).getChildren();
-    }
-
-    /**
-     * Indicates whether to forcibly reopen this element if it is already open
-     * (i.e. already present in the body cache). Default value: <code>false</code>.
-     */
-    static final Property<Boolean> FORCE_OPEN = Property.get(
-        Element.class.getName() + ".forceOpen", Boolean.class).withDefault( //$NON-NLS-1$
-            false);
-
-    /**
-     * Creates and initializes bodies for this element, its ancestors and its
-     * children as necessary and then atomically puts them into the body cache.
-     * Returns the cached body for this element.
-     * <p>
-     * The following context options influence the operation's behavior:
-     * </p>
-     * <ul>
-     * <li>
-     * {@link #FORCE_OPEN} - Indicates whether to forcibly reopen this element
-     * if it is already open (i.e. already present in the body cache).
-     * </li>
-     * </ul>
-     *
-     * @param context the operation context (not <code>null</code>)
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @return the cached body for this element (never <code>null</code>)
-     * @throws CoreException if this element does not exist or if an
-     *  exception occurs while accessing its corresponding resource
-     * @throws OperationCanceledException if this method is canceled
-     */
-    final Object hOpen(IContext context, IProgressMonitor monitor)
-        throws CoreException
-    {
-        if (monitor == null)
-            monitor = new NullProgressMonitor();
-        ElementManager elementManager = hElementManager();
-        boolean hadTemporaryCache = elementManager.hasTemporaryCache();
-        try
-        {
-            Map<IElement, Object> newElements =
-                elementManager.getTemporaryCache();
-            hGenerateBodies(with(of(NEW_ELEMENTS, newElements), context),
-                monitor);
-            Object body = newElements.get(this);
-            if (body == null)
-            {
-                // the openable parent did not create a body for this element
-                throw hDoesNotExistException();
-            }
-            if (monitor.isCanceled())
-                throw new OperationCanceledException();
-            if (!hadTemporaryCache)
-            {
-                if (context.getOrDefault(FORCE_OPEN))
-                    elementManager.put(this, newElements);
-                else
-                {
-                    Object existingBody = elementManager.putIfAbsent(this,
-                        newElements);
-                    if (existingBody != null)
-                        body = existingBody;
-                }
-            }
-            return body;
-        }
-        finally
-        {
-            if (!hadTemporaryCache)
-            {
-                elementManager.resetTemporaryCache();
-            }
-        }
-    }
 
     /**
      * Returns whether this element is "openable".

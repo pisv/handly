@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,8 +36,8 @@ import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.ElementDelta;
+import org.eclipse.handly.model.impl.IElementImplExtension;
 
 /**
  * This class is used by the <code>FooModelManager</code> to convert
@@ -420,12 +420,12 @@ class FooDeltaProcessor
 
     private static Body findBody(IFooElement element)
     {
-        return (Body)((Element)element).hFindBody();
+        return (Body)((IElementImplExtension)element).hFindBody();
     }
 
     private static void close(IFooElement element)
     {
-        ((Element)element).hClose();
+        ((IElementImplExtension)element).hClose();
     }
 
     private static IResource getResource(IPath fullPath, int resourceType)

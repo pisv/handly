@@ -13,8 +13,8 @@
 package org.eclipse.handly.model.impl;
 
 import static org.eclipse.handly.context.Contexts.of;
-import static org.eclipse.handly.model.impl.Element.CLOSE_HINT;
-import static org.eclipse.handly.model.impl.Element.CloseHint.CACHE_OVERFLOW;
+import static org.eclipse.handly.model.impl.IElementImplExtension.CLOSE_HINT;
+import static org.eclipse.handly.model.impl.IElementImplExtension.CloseHint.CACHE_OVERFLOW;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.INDENT_POLICY;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
@@ -95,13 +95,14 @@ public class ElementCache
      */
     protected int getChildCount(IElement element, Object body)
     {
-        return ((Element)element).hChildren(body).length;
+        return ((IElementImplExtension)element).hChildren(body).length;
     }
 
     @Override
     protected boolean close(LruCacheEntry<IElement, Object> entry)
     {
-        ((Element)entry.key).hClose(of(CLOSE_HINT, CACHE_OVERFLOW));
+        ((IElementImplExtension)entry.key).hClose(of(CLOSE_HINT,
+            CACHE_OVERFLOW));
         // closing of an element removes it from the cache, so...
         return false; // ...no need to remove the cache entry after close
     }

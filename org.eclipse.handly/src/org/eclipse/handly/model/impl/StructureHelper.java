@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,15 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 
 /**
- * A helper class for building the structure of {@link Element#hIsOpenable()
- * openable} elements that have non-openable children. Typically, this class
- * is utilized for building the structure of source files.
+ * A helper class for building a subtree of elements. Typically, this class
+ * is used when building the entire structure of a source file.
  * <p>
  * The structure is being created as calls to {@link #addChild(Body, IElement,
  * Object)} are made on the helper. Make sure to complete initialization of each
@@ -37,8 +34,6 @@ import org.eclipse.handly.model.IElement;
  * Clients can use this class as it stands or subclass it
  * as circumstances warrant.
  * </p>
- *
- * @see Element#hBuildStructure(IContext, IProgressMonitor)
  */
 public class StructureHelper
 {
@@ -74,8 +69,7 @@ public class StructureHelper
      * @param parentBody the body of the parent element (not <code>null</code>)
      * @param child the handle for the child element (not <code>null</code>)
      * @param childBody the body for the child element, or <code>null</code>
-     *  if no body is to be associated with the child element (e.g. if the
-     *  child is an {@link Element#hIsOpenable() openable} element)
+     *  if no body is to be associated with the child element
      */
     public void addChild(Body parentBody, IElement child, Object childBody)
     {
@@ -118,19 +112,20 @@ public class StructureHelper
     /**
      * Allows to make distinctions among elements which would otherwise be equal.
      * <p>
-     * If the given element is a <code>SourceConstruct</code> which is equal to
-     * an already {@link #addChild added} element, this implementation increments
-     * its {@link SourceConstruct#hOccurrenceCount() occurrence count} until
-     * it is no longer equal to any previously added element.
+     * If the given element is a source construct which is equal to an already
+     * {@link #addChild added} element, this implementation increments its
+     * {@link ISourceConstructImplExtension#hOccurrenceCount() occurrence count}
+     * until it is no longer equal to any previously added element.
      * </p>
      *
      * @param element the given element (never <code>null</code>)
      */
     protected void resolveDuplicates(IElement element)
     {
-        if (!(element instanceof SourceConstruct))
+        if (!(element instanceof ISourceConstructImplExtension))
             return;
-        SourceConstruct sc = (SourceConstruct)element;
+        ISourceConstructImplExtension sc =
+            (ISourceConstructImplExtension)element;
         while (newElements.containsKey(sc))
             sc.hIncrementOccurrenceCount();
     }

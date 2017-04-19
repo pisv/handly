@@ -20,7 +20,7 @@ import org.eclipse.handly.model.IElement;
  */
 public abstract class SourceConstruct
     extends SourceElement
-    implements ISourceConstructImpl
+    implements ISourceConstructImplExtension
 {
     private int occurrenceCount = 1;
 
@@ -48,29 +48,14 @@ public abstract class SourceConstruct
             && occurrenceCount == ((SourceConstruct)obj).occurrenceCount;
     }
 
-    /**
-     * Returns the count used to uniquely identify this element in the case
-     * that a duplicate named element exists. The occurrence count starts at 1
-     * (thus the first occurrence is occurrence 1, not occurrence 0).
-     *
-     * @return the occurrence count for this element
-     */
+    @Override
     public final int hOccurrenceCount()
     {
         return occurrenceCount;
     }
 
-    /**
-     * Increments the occurrence count of this element.
-     * <p>
-     * This method is intended to be used only when building structure of
-     * a source file to distinguish source constructs with duplicate names.
-     * </p>
-     *
-     * @see #hOccurrenceCount()
-     * @see StructureHelper
-     */
-    public final void hIncrementOccurrenceCount()
+    @Override
+    public void hIncrementOccurrenceCount()
     {
         occurrenceCount++;
     }
