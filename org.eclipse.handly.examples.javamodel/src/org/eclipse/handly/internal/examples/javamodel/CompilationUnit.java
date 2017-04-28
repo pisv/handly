@@ -197,7 +197,7 @@ public class CompilationUnit
     }
 
     @Override
-    protected void hValidateExistence(IContext context) throws CoreException
+    public void hValidateExistence(IContext context) throws CoreException
     {
         super.hValidateExistence(context);
 
@@ -259,7 +259,7 @@ public class CompilationUnit
     }
 
     @Override
-    protected void hBuildSourceStructure(IContext context,
+    public void hBuildSourceStructure(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
         Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
@@ -278,14 +278,14 @@ public class CompilationUnit
     }
 
     @Override
-    protected IContext hWorkingCopyContext(IContext context)
+    public IContext hWorkingCopyContext(IContext context)
     {
         return of(IProblemRequestor.class, context.get(
             IProblemRequestor.class));
     }
 
     @Override
-    protected ReconcileOperation hReconcileOperation()
+    public ReconcileOperation hReconcileOperation()
     {
         return new CuReconcileOperation();
     }
@@ -293,6 +293,11 @@ public class CompilationUnit
     private class CuReconcileOperation
         extends NotifyingReconcileOperation
     {
+        CuReconcileOperation()
+        {
+            super(CompilationUnit.this);
+        }
+
         @Override
         protected void reconcile(IContext context, IProgressMonitor monitor)
             throws CoreException

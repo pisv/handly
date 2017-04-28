@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -133,19 +133,13 @@ public class FooModel
     }
 
     @Override
-    protected void hToStringName(StringBuilder builder, IContext context)
-    {
-        builder.append("FooModel"); //$NON-NLS-1$
-    }
-
-    @Override
-    protected void hValidateExistence(IContext context)
+    public void hValidateExistence(IContext context)
     {
         // always exists
     }
 
     @Override
-    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
+    public void hBuildStructure(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
@@ -160,5 +154,11 @@ public class FooModel
         Body body = new Body();
         body.setChildren(fooProjects.toArray(Body.NO_CHILDREN));
         context.get(NEW_ELEMENTS).put(this, body);
+    }
+
+    @Override
+    public void hToStringName(StringBuilder builder, IContext context)
+    {
+        builder.append("FooModel"); //$NON-NLS-1$
     }
 }

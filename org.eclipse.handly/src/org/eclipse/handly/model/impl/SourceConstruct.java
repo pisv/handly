@@ -10,17 +10,18 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
 
 /**
- * Common superclass for source constructs.
+ * This class provides a skeletal implementation of the {@link
+ * ISourceConstructImplExtension} interface to minimize the effort required
+ * to implement that interface. Clients might as well "mix in" {@link
+ * ISourceConstructImplSupport} directly if extending this class is not
+ * possible/desirable for some reason.
  */
 public abstract class SourceConstruct
-    extends SourceElement
-    implements ISourceConstructImplExtension
+    extends Element
+    implements ISourceConstructImplSupport
 {
     private int occurrenceCount = 1;
 
@@ -40,15 +41,6 @@ public abstract class SourceConstruct
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
-        if (!(obj instanceof SourceConstruct))
-            return false;
-        return super.equals(obj)
-            && occurrenceCount == ((SourceConstruct)obj).occurrenceCount;
-    }
-
-    @Override
     public final int hOccurrenceCount()
     {
         return occurrenceCount;
@@ -58,53 +50,5 @@ public abstract class SourceConstruct
     public void hIncrementOccurrenceCount()
     {
         occurrenceCount++;
-    }
-
-    @Override
-    public final boolean hExists()
-    {
-        try
-        {
-            hBody();
-            return true;
-        }
-        catch (CoreException e)
-        {
-            return false;
-        }
-    }
-
-    @Override
-    protected final boolean hIsOpenable()
-    {
-        // Source constructs are never openable
-        return false;
-    }
-
-    @Override
-    protected final void hValidateExistence(IContext context)
-        throws CoreException
-    {
-        // The openable parent builds the whole structure and determines child existence
-        throw new AssertionError("This method should not be called"); //$NON-NLS-1$
-    }
-
-    @Override
-    protected final void hBuildStructure(IContext context,
-        IProgressMonitor monitor) throws CoreException
-    {
-        // The openable parent builds the whole structure
-        throw new AssertionError("This method should not be called"); //$NON-NLS-1$
-    }
-
-    @Override
-    protected void hToStringName(StringBuilder builder, IContext context)
-    {
-        super.hToStringName(builder, context);
-        if (occurrenceCount > 1)
-        {
-            builder.append('#');
-            builder.append(occurrenceCount);
-        }
     }
 }

@@ -28,7 +28,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.IElementImplExtension;
-import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.impl.ISourceFileImplSupport;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
@@ -153,8 +153,8 @@ public class FooWorkingCopyTest
             IBuffer buffer = new Buffer(
                 "var x; var y; def f() {} def f(x) {} def f(x, y) {}"))
         {
-            doWithWorkingCopy(of(SourceFile.WORKING_COPY_BUFFER, buffer),
-                new IWorkspaceRunnable()
+            doWithWorkingCopy(of(ISourceFileImplSupport.WORKING_COPY_BUFFER,
+                buffer), new IWorkspaceRunnable()
                 {
                     @Override
                     public void run(IProgressMonitor monitor)

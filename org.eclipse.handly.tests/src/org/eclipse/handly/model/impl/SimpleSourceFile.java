@@ -59,7 +59,7 @@ class SimpleSourceFile
     }
 
     @Override
-    protected void hBuildSourceStructure(IContext context,
+    public void hBuildSourceStructure(IContext context,
         IProgressMonitor monitor)
     {
     }

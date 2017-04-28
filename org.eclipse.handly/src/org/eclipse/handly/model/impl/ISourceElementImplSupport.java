@@ -12,7 +12,6 @@ package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.Elements;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -20,37 +19,27 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * Common superclass for source elements.
+ * This "trait-like" interface provides a skeletal implementation of {@link
+ * ISourceElementImpl} to minimize the effort required to implement that
+ * interface.
+ * <p>
+ * In general, the members first defined in this interface are not intended
+ * to be referenced outside the subtype hierarchy.
+ * </p>
  *
- * @see SourceFile
- * @see SourceConstruct
+ * @noextend This interface is not intended to be extended by clients.
  */
-public abstract class SourceElement
-    extends Element
-    implements ISourceElementImpl
+public interface ISourceElementImplSupport
+    extends IElementImplSupport, ISourceElementImpl
 {
-    /**
-     * Constructs a handle for a source element with the given parent element
-     * and the given name.
-     *
-     * @param parent the parent of the element,
-     *  or <code>null</code> if the element has no parent
-     * @param name the name of the element, or <code>null</code>
-     *  if the element has no name
-     */
-    public SourceElement(IElement parent, String name)
-    {
-        super(parent, name);
-    }
-
     @Override
-    public ISourceElementInfo hSourceElementInfo() throws CoreException
+    default ISourceElementInfo hSourceElementInfo() throws CoreException
     {
         return (ISourceElementInfo)hBody();
     }
 
     @Override
-    public ISourceElement hSourceElementAt(int position, ISnapshot base)
+    default ISourceElement hSourceElementAt(int position, ISnapshot base)
         throws CoreException
     {
         ISourceElementInfo info = hSourceElementInfo();
@@ -72,7 +61,7 @@ public abstract class SourceElement
      * @throws CoreException if an exception occurs while accessing
      *  the element's corresponding resource
      */
-    protected ISourceElement hSourceElementAt(int position,
+    default ISourceElement hSourceElementAt(int position,
         ISourceElementInfo info) throws CoreException
     {
         ISnapshot snapshot = info.getSnapshot();
@@ -99,7 +88,7 @@ public abstract class SourceElement
      *  source range; <code>false</code> otherwise
      * @throws StaleSnapshotException if snapshot inconsistency is detected
      */
-    protected static boolean checkInRange(int position, ISnapshot base,
+    static boolean checkInRange(int position, ISnapshot base,
         ISourceElementInfo info)
     {
         ISnapshot snapshot = info.getSnapshot();

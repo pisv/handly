@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.handly.model.impl;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.handly.model.IElement;
@@ -230,6 +231,20 @@ public class SourceElementBody
         for (int i = 0; i < length; i++)
             names.add(properties[i].name);
         return names;
+    }
+
+    void setSnapshot(ISnapshot snapshot, Map<IElement, Object> newElements)
+    {
+        setSnapshot(snapshot);
+        for (IElement child : getChildren())
+        {
+            Object childBody = newElements.get(child);
+            if (childBody instanceof SourceElementBody)
+            {
+                ((SourceElementBody)childBody).setSnapshot(snapshot,
+                    newElements);
+            }
+        }
     }
 
     private static class InternalProperty

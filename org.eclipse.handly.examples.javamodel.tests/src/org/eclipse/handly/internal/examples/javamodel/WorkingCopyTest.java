@@ -31,7 +31,7 @@ import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
-import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.impl.ISourceFileImplSupport;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -315,8 +315,8 @@ public class WorkingCopyTest
                     IBuffer privateBuffer = new ChildBuffer(buffer))
                 {
                     doWithWorkingCopy(privateCopy, of(
-                        SourceFile.WORKING_COPY_BUFFER, privateBuffer),
-                        new IWorkspaceRunnable()
+                        ISourceFileImplSupport.WORKING_COPY_BUFFER,
+                        privateBuffer), new IWorkspaceRunnable()
                         {
                             public void run(IProgressMonitor monitor)
                                 throws CoreException

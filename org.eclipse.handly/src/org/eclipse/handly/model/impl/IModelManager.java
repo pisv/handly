@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ package org.eclipse.handly.model.impl;
 import org.eclipse.handly.model.IModel;
 
 /**
- * The central point for an {@link Element} to access information and services
+ * The central point for an element to access information and services
  * related to the model as a whole.
  * <p>
  * An instance of the model manager is safe for use by multiple threads.
@@ -37,8 +37,7 @@ public interface IModelManager
     ElementManager getElementManager();
 
     /**
-     * Provides access to the model manager. This interface is implemented
-     * by all {@link Element}s.
+     * Provides access to the model manager.
      * <p>
      * The same manager instance must be returned each time the provider
      * is invoked.
@@ -46,6 +45,7 @@ public interface IModelManager
      * <p>
      * An instance of the provider is safe for use by multiple threads.
      * </p>
+     * @see IElementImplSupport
      */
     interface Provider
     {

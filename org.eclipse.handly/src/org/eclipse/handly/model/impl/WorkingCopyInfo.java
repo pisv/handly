@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.Property;
 
 /**
- * Holds information related to a working copy of a {@link SourceFile}.
+ * Holds information related to a working copy of a source file.
  * <p>
  * Concrete subclasses of this abstract class are expected to be safe
  * for use by multiple threads.
@@ -41,7 +41,7 @@ import org.eclipse.handly.util.Property;
  */
 public abstract class WorkingCopyInfo
 {
-    private final SourceFile sourceFile;
+    private final ISourceFileImplSupport sourceFile;
     private final IBuffer buffer;
     private IContext context = EMPTY_CONTEXT;
     final InitTask initTask = new InitTask();
@@ -59,7 +59,7 @@ public abstract class WorkingCopyInfo
      * @param sourceFile the working copy's source file (not <code>null</code>)
      * @param buffer the working copy's buffer (not <code>null</code>)
      */
-    public WorkingCopyInfo(SourceFile sourceFile, IBuffer buffer)
+    public WorkingCopyInfo(ISourceFileImplSupport sourceFile, IBuffer buffer)
     {
         if ((this.sourceFile = sourceFile) == null)
             throw new IllegalArgumentException();
@@ -72,7 +72,7 @@ public abstract class WorkingCopyInfo
      *
      * @return the working copy's source file (never <code>null</code>)
      */
-    public final SourceFile getSourceFile()
+    public final ISourceFileImplSupport getSourceFile()
     {
         return sourceFile;
     }
@@ -259,21 +259,22 @@ public abstract class WorkingCopyInfo
      * @see #reconcile0(IContext, IProgressMonitor)
      * @noreference This property is for internal use only.
      */
-    protected static final Property<Object> SOURCE_AST = SourceFile.SOURCE_AST;
+    protected static final Property<Object> SOURCE_AST =
+        ISourceFileImplSupport.SOURCE_AST;
     /**
      * Specifies the source string for reconciling.
      * @see #reconcile0(IContext, IProgressMonitor)
      * @noreference This property is for internal use only.
      */
     protected static final Property<String> SOURCE_CONTENTS =
-        SourceFile.SOURCE_CONTENTS;
+        ISourceFileImplSupport.SOURCE_CONTENTS;
     /**
      * Specifies the source snapshot for reconciling.
      * @see #reconcile0(IContext, IProgressMonitor)
      * @noreference This property is for internal use only.
      */
     protected static final Property<ISnapshot> SOURCE_SNAPSHOT =
-        SourceFile.SOURCE_SNAPSHOT;
+        ISourceFileImplSupport.SOURCE_SNAPSHOT;
     /**
      * Indicates whether reconciling was forced, i.e. the working copy buffer
      * has not been modified since the last time it was reconciled.
@@ -281,7 +282,7 @@ public abstract class WorkingCopyInfo
      * @noreference This property is for internal use only.
      */
     protected static final Property<Boolean> RECONCILING_FORCED =
-        SourceFile.RECONCILING_FORCED;
+        ISourceFileImplSupport.ReconcileOperation.RECONCILING_FORCED;
 
     /**
      * Clients should not be exposed to working copy info if it has not been
@@ -325,7 +326,7 @@ public abstract class WorkingCopyInfo
          *  created working copy info (not <code>null</code>)
          * @return a new working copy info (never <code>null</code>)
          */
-        WorkingCopyInfo newWorkingCopyInfo(SourceFile sourceFile,
+        WorkingCopyInfo newWorkingCopyInfo(ISourceFileImplSupport sourceFile,
             IBuffer buffer);
     }
 

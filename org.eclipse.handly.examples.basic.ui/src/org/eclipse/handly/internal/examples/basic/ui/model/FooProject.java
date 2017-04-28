@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -143,14 +143,14 @@ public class FooProject
     }
 
     @Override
-    protected void hValidateExistence(IContext context) throws CoreException
+    public void hValidateExistence(IContext context) throws CoreException
     {
         if (!project.hasNature(NATURE_ID))
             throw hDoesNotExistException();
     }
 
     @Override
-    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
+    public void hBuildStructure(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         IResource[] members = project.members();

@@ -30,7 +30,7 @@ import org.eclipse.handly.model.ISourceFile;
  * An instance of this class is safe for use by multiple threads.
  * </p>
  *
- * @see Element#hElementManager()
+ * @see IElementImplSupport#hElementManager()
  */
 public class ElementManager
 {
@@ -42,7 +42,8 @@ public class ElementManager
     private ThreadLocal<Map<IElement, Object>> temporaryCache =
         new ThreadLocal<>();
 
-    private Map<SourceFile, WorkingCopyInfo> workingCopyInfos = new HashMap<>();
+    private Map<ISourceFileImplSupport, WorkingCopyInfo> workingCopyInfos =
+        new HashMap<>();
 
     /**
      * Constructs an element manager with the given body cache.
@@ -106,7 +107,7 @@ public class ElementManager
      * @return the corresponding body for the given element, or
      *  <code>null</code> if no body is registered for the element
      */
-    synchronized Object get(Element element)
+    synchronized Object get(IElementImplSupport element)
     {
         Map<IElement, Object> tempCache = temporaryCache.get();
         if (tempCache != null)
@@ -132,7 +133,7 @@ public class ElementManager
      * @return the corresponding body for the given element, or
      *  <code>null</code> if no body is registered for the element
      */
-    synchronized Object peek(Element element)
+    synchronized Object peek(IElementImplSupport element)
     {
         Map<IElement, Object> tempCache = temporaryCache.get();
         if (tempCache != null)
@@ -153,7 +154,8 @@ public class ElementManager
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
      *  it must contain a body for the given element
      */
-    synchronized void put(Element element, Map<IElement, Object> newElements)
+    synchronized void put(IElementImplSupport element,
+        Map<IElement, Object> newElements)
     {
         // remove existing children as they are replaced with the new children contained in newElements
         Object body = cache.peek(element);
@@ -167,7 +169,7 @@ public class ElementManager
 
         cache.putAll(newElements);
 
-        if (element instanceof SourceFile)
+        if (element instanceof ISourceFileImplSupport)
         {
             WorkingCopyInfo info = workingCopyInfos.get(element);
             if (info != null && !info.created) // case of wc creation
@@ -187,7 +189,7 @@ public class ElementManager
      * @return the previous body for the given element, or <code>null</code>
      *  if the body cache did not previously contain a body for the element
      */
-    synchronized Object putIfAbsent(Element element,
+    synchronized Object putIfAbsent(IElementImplSupport element,
         Map<IElement, Object> newElements)
     {
         Object existingBody = cache.peek(element);
@@ -206,7 +208,7 @@ public class ElementManager
      * @param element the element whose body is to be removed from the body cache
      * @see #close(IElement, IContext)
      */
-    synchronized void remove(Element element)
+    synchronized void remove(IElementImplSupport element)
     {
         Object body = cache.peek(element);
         if (body != null)
@@ -281,10 +283,11 @@ public class ElementManager
      * @return the previous working copy info associated with the given
      *  source file, or <code>null</code> if there was no working copy info
      *  for the source file
-     * @see #releaseWorkingCopyInfo(SourceFile)
+     * @see #releaseWorkingCopyInfo(ISourceFileImplSupport)
      */
-    WorkingCopyInfo putWorkingCopyInfoIfAbsent(SourceFile sourceFile,
-        IBuffer buffer, WorkingCopyInfo.Factory factory)
+    WorkingCopyInfo putWorkingCopyInfoIfAbsent(
+        ISourceFileImplSupport sourceFile, IBuffer buffer,
+        WorkingCopyInfo.Factory factory)
     {
         if (sourceFile == null)
             throw new IllegalArgumentException();
@@ -350,9 +353,10 @@ public class ElementManager
      * @param sourceFile the source file whose working copy info is to be returned
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file has no working copy info
-     * @see #releaseWorkingCopyInfo(SourceFile)
+     * @see #releaseWorkingCopyInfo(ISourceFileImplSupport)
      */
-    synchronized WorkingCopyInfo getWorkingCopyInfo(SourceFile sourceFile)
+    synchronized WorkingCopyInfo getWorkingCopyInfo(
+        ISourceFileImplSupport sourceFile)
     {
         WorkingCopyInfo info = workingCopyInfos.get(sourceFile);
         if (info != null)
@@ -368,7 +372,8 @@ public class ElementManager
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file has no working copy info
      */
-    synchronized WorkingCopyInfo peekAtWorkingCopyInfo(SourceFile sourceFile)
+    synchronized WorkingCopyInfo peekAtWorkingCopyInfo(
+        ISourceFileImplSupport sourceFile)
     {
         return workingCopyInfos.get(sourceFile);
     }
@@ -383,7 +388,7 @@ public class ElementManager
      * @return the working copy info for the given source file,
      *  or <code>null</code> if the source file had no working copy info
      */
-    WorkingCopyInfo releaseWorkingCopyInfo(SourceFile sourceFile)
+    WorkingCopyInfo releaseWorkingCopyInfo(ISourceFileImplSupport sourceFile)
     {
         WorkingCopyInfo infoToDispose = null;
         try

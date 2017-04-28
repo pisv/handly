@@ -91,7 +91,7 @@ public class FooFile
     }
 
     @Override
-    protected void hBuildSourceStructure(IContext context,
+    public void hBuildSourceStructure(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
         Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);

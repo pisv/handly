@@ -10,26 +10,17 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import static org.eclipse.handly.model.Elements.CREATE_BUFFER;
-
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.buffer.IBuffer;
-import org.eclipse.handly.buffer.ICoreTextFileBufferProvider;
-import org.eclipse.handly.buffer.TextFileBuffer;
-import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.snapshot.ISnapshotProvider;
-import org.eclipse.handly.snapshot.TextFileSnapshot;
 
 /**
- * A skeletal implementation for workspace source files. Such source files
- * always have an underlying {@link IFile}. Clients that don't find this
- * implementation useful may extend {@link SourceFile} directly.
+ * This class provides a skeletal implementation of the {@link ISourceFileImpl}
+ * interface for workspace source files. Such files always have an underlying
+ * {@link IFile}. This class is just an implementation convenience. Clients might
+ * as well implement a workspace source file by extending {@link SourceFile} or
+ * "mixing in" {@link ISourceFileImplSupport} directly if extending this class
+ * is not possible/desirable for some reason.
  */
 public abstract class WorkspaceSourceFile
     extends SourceFile
@@ -65,60 +56,5 @@ public abstract class WorkspaceSourceFile
     public final IFile hFile()
     {
         return file;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (!(o instanceof WorkspaceSourceFile))
-            return false;
-        return file.equals(((WorkspaceSourceFile)o).file) && super.equals(o);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return file.hashCode();
-    }
-
-    @Override
-    protected boolean hFileExists()
-    {
-        return file.exists();
-    }
-
-    @Override
-    protected final IBuffer hFileBuffer(IContext context,
-        IProgressMonitor monitor) throws CoreException
-    {
-        ICoreTextFileBufferProvider provider =
-            ICoreTextFileBufferProvider.forLocation(file.getFullPath(),
-                LocationKind.IFILE, ITextFileBufferManager.DEFAULT);
-        if (!context.getOrDefault(CREATE_BUFFER)
-            && provider.getBuffer() == null)
-        {
-            return null;
-        }
-        return new TextFileBuffer(provider, monitor);
-    }
-
-    @Override
-    protected final ISnapshotProvider hFileSnapshotProvider()
-    {
-        return () ->
-        {
-            TextFileSnapshot result = new TextFileSnapshot(file,
-                TextFileSnapshot.Layer.FILESYSTEM);
-            if (!result.exists())
-            {
-                throw new IllegalStateException(hDoesNotExistException());
-            }
-            if (result.getContents() == null && !result.getStatus().isOK())
-            {
-                throw new IllegalStateException(new CoreException(
-                    result.getStatus()));
-            }
-            return result;
-        };
     }
 }

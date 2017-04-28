@@ -72,13 +72,13 @@ class SimpleElement
     }
 
     @Override
-    protected void hValidateExistence(IContext context) throws CoreException
+    public void hValidateExistence(IContext context) throws CoreException
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected void hBuildStructure(IContext context, IProgressMonitor monitor)
+    public void hBuildStructure(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         throw new UnsupportedOperationException();

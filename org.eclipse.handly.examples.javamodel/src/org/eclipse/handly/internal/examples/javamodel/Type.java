@@ -19,6 +19,7 @@ import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
+import org.eclipse.handly.model.impl.ISourceElementImplSupport;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.TextRange;
@@ -130,7 +131,7 @@ public class Type
     }
 
     @Override
-    protected ISourceElement hSourceElementAt(int position,
+    public ISourceElement hSourceElementAt(int position,
         ISourceElementInfo info) throws CoreException
     {
         ISnapshot snapshot = info.getSnapshot();
@@ -142,7 +143,8 @@ public class Type
             {
                 ISourceElementInfo childInfo = Elements.getSourceElementInfo(
                     child);
-                if (checkInRange(position, snapshot, childInfo))
+                if (ISourceElementImplSupport.checkInRange(position, snapshot,
+                    childInfo))
                 {
                     // check multi-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=465410)
                     ISourceElement candidate = null;
@@ -164,8 +166,9 @@ public class Type
                             childInfo = Elements.getSourceElementInfo(child);
                         }
                     }
-                    while (child != null && checkInRange(position, snapshot,
-                        childInfo));
+                    while (child != null
+                        && ISourceElementImplSupport.checkInRange(position,
+                            snapshot, childInfo));
                     // position in field's type: use first field
                     return candidate;
                 }
@@ -182,7 +185,7 @@ public class Type
     }
 
     @Override
-    protected void hToStringBody(StringBuilder builder, Object body,
+    public void hToStringBody(StringBuilder builder, Object body,
         IContext context)
     {
         if (body != null && body != NO_BODY)

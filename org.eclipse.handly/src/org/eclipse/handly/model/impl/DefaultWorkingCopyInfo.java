@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,8 @@ public class DefaultWorkingCopyInfo
      * @param sourceFile the working copy's source file (not <code>null</code>)
      * @param buffer the working copy's buffer (not <code>null</code>)
      */
-    public DefaultWorkingCopyInfo(SourceFile sourceFile, IBuffer buffer)
+    public DefaultWorkingCopyInfo(ISourceFileImplSupport sourceFile,
+        IBuffer buffer)
     {
         super(sourceFile, buffer);
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.xtext.ui.Activator;
-import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.impl.ISourceFileImplSupport;
 import org.eclipse.handly.model.impl.WorkingCopyInfo;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.jface.text.IDocument;
@@ -63,7 +63,8 @@ public class XtextWorkingCopyInfo
      * @param buffer the working copy's buffer (not <code>null</code>,
      *  must provide a <code>HandlyXtextDocument</code>)
      */
-    public XtextWorkingCopyInfo(SourceFile sourceFile, IBuffer buffer)
+    public XtextWorkingCopyInfo(ISourceFileImplSupport sourceFile,
+        IBuffer buffer)
     {
         super(sourceFile, buffer);
         IDocument document = buffer.getDocument();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.impl.SourceFile;
+import org.eclipse.handly.model.impl.ISourceFileImplSupport;
 import org.eclipse.handly.ui.IWorkingCopyManager;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
@@ -169,9 +169,10 @@ public abstract class SourceFileDocumentProvider
         throws CoreException
     {
         ISourceFile sourceFile = getSourceFile(element);
-        if (sourceFile instanceof SourceFile)
+        if (sourceFile instanceof ISourceFileImplSupport)
         {
-            ((SourceFile)sourceFile).hBecomeWorkingCopy(EMPTY_CONTEXT, null);
+            ((ISourceFileImplSupport)sourceFile).hBecomeWorkingCopy(
+                EMPTY_CONTEXT, null);
             return sourceFile;
         }
         return null;
@@ -188,7 +189,7 @@ public abstract class SourceFileDocumentProvider
     protected void releaseWorkingCopy(ISourceFile workingCopy, Object element,
         FileInfo info)
     {
-        ((SourceFile)workingCopy).hReleaseWorkingCopy();
+        ((ISourceFileImplSupport)workingCopy).hReleaseWorkingCopy();
     }
 
     protected static class SourceFileInfo
