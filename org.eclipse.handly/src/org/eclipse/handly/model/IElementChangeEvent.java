@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,6 @@ package org.eclipse.handly.model;
  * Describes a change to the structure or contents of a tree of elements
  * of a Handly-based model. The changes to the elements are described by
  * the associated delta object carried by this event.
- *
- * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IElementChangeEvent
 {

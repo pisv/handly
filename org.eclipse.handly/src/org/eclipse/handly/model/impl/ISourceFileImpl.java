@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,8 @@ import org.eclipse.handly.model.ISourceFile;
 
 /**
  * All {@link ISourceFile}s must implement this interface.
+ *
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface ISourceFileImpl
     extends ISourceElementImpl, ISourceFile
@@ -89,15 +91,16 @@ public interface ISourceFileImpl
      * be shared by multiple clients, so the returned buffer may have unsaved
      * changes if it has been modified by another client.
      * <p>
-     * For working copies, the relationship between a source file and its buffer
-     * does not change over the lifetime of a working copy. Otherwise, a new
-     * buffer may be returned each time this method is invoked.
-     * </p>
-     * <p>
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for releasing it when finished. The buffer will be
      * disposed only after it is released by every owner. The buffer must not
      * be accessed by clients which don't own it.
+     * </p>
+     * <p>
+     * A new object may be returned, even for the same underlying buffer,
+     * each time this method is invoked. For working copies, the relationship
+     * between the source file and the underlying working copy buffer does not
+     * change over the lifetime of a working copy.
      * </p>
      * <p>
      * Implementations are encouraged to support the following standard options,

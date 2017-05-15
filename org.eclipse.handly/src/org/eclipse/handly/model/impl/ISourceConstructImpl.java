@@ -16,6 +16,8 @@ import org.eclipse.handly.model.ISourceConstruct;
 
 /**
  * All {@link ISourceConstruct}s must implement this interface.
+ *
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface ISourceConstructImpl
     extends ISourceElementImpl, ISourceConstruct

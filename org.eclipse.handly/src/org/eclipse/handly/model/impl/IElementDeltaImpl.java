@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@ import org.eclipse.handly.model.IElementDeltaConstants;
 
 /**
  * All {@link IElementDelta}s must implement this interface.
+ *
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface IElementDeltaImpl
     extends IElementDelta

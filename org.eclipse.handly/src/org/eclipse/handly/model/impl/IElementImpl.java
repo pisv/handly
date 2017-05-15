@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,8 @@ import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
  * All {@link IElement}s must implement this interface.
+ *
+ * @noextend This interface is not intended to be extended by clients.
  */
 public interface IElementImpl
     extends IElement
@@ -88,10 +90,6 @@ public interface IElementImpl
 
     /**
      * Returns the model that owns this element. This is a handle-only method.
-     * <p>
-     * Note that the relationship between an element and its owing model does
-     * not change over the lifetime of an element.
-     * </p>
      *
      * @return the element's model (never <code>null</code>)
      */
