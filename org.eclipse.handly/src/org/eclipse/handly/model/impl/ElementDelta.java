@@ -1149,19 +1149,22 @@ public class ElementDelta
                 delta = findDelta(element);
             }
 
-            switch (delta.hKind())
+            if (delta != null)
             {
-            case ADDED:
-            case REMOVED:
-                break; // do nothing
-            case CHANGED:
-                delta.hSetFlags(delta.hFlags() | F_MARKERS);
-                delta.hSetMarkerDeltas(markerDeltas);
-                break;
-            default: // empty delta
-                delta.hSetKind(CHANGED);
-                delta.hSetFlags(delta.hFlags() | F_MARKERS);
-                delta.hSetMarkerDeltas(markerDeltas);
+                switch (delta.hKind())
+                {
+                case ADDED:
+                case REMOVED:
+                    break; // do nothing
+                case CHANGED:
+                    delta.hSetFlags(delta.hFlags() | F_MARKERS);
+                    delta.hSetMarkerDeltas(markerDeltas);
+                    break;
+                default: // empty delta
+                    delta.hSetKind(CHANGED);
+                    delta.hSetFlags(delta.hFlags() | F_MARKERS);
+                    delta.hSetMarkerDeltas(markerDeltas);
+                }
             }
             return this;
         }
@@ -1191,19 +1194,22 @@ public class ElementDelta
                 delta = findDelta(element);
             }
 
-            switch (delta.hKind())
+            if (delta != null)
             {
-            case ADDED:
-            case REMOVED:
-                break; // do nothing
-            case CHANGED:
-                delta.hSetFlags(delta.hFlags() | F_CONTENT);
-                delta.hAddResourceDelta(resourceDelta);
-                break;
-            default: // empty delta
-                delta.hSetKind(CHANGED);
-                delta.hSetFlags(delta.hFlags() | F_CONTENT);
-                delta.hAddResourceDelta(resourceDelta);
+                switch (delta.hKind())
+                {
+                case ADDED:
+                case REMOVED:
+                    break; // do nothing
+                case CHANGED:
+                    delta.hSetFlags(delta.hFlags() | F_CONTENT);
+                    delta.hAddResourceDelta(resourceDelta);
+                    break;
+                default: // empty delta
+                    delta.hSetKind(CHANGED);
+                    delta.hSetFlags(delta.hFlags() | F_CONTENT);
+                    delta.hAddResourceDelta(resourceDelta);
+                }
             }
             return this;
         }
