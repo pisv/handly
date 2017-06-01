@@ -84,14 +84,13 @@ public interface IElementImplSupport
      * an interface, but clients can implement <code>equals</code> by
      * delegating to this default method.
      * <p>
-     * By default, two elements that implement this interface are equal
-     * if they are identical or if they {@link #hCanEqual(Object) can equal} to
-     * each other and have equal parents and names. This method is specialized
-     * in {@link ISourceConstructImplSupport} and {@link ISourceFileImplSupport}
-     * to also take into consideration the elements' occurrence count and
-     * underlying <code>IFile</code> respectively. This method is not intended
-     * to be replaced by clients; if necessary, clients should override
-     * <code>hashCode</code> directly.
+     * By default, two elements that implement this interface are equal if they
+     * are identical or if they {@link #hCanEqual(Object) can equal} each other
+     * and both have equal parents and names. This method is specialized in
+     * {@link ISourceConstructImplSupport} and {@link ISourceFileImplSupport}
+     * to also compare occurrence counts and underlying <code>IFile</code>s
+     * respectively. This method is not intended to be replaced by clients;
+     * if necessary, clients should override <code>equals</code> directly.
      * <p>
      *
      * @param obj the object with which to compare
@@ -136,7 +135,7 @@ public interface IElementImplSupport
      * This implementation compares run-time classes of the objects; as such,
      * it doesn't allow creating a subclass whose instances can equal superclass
      * instances. Clients may provide their own implementation for this method
-     * and implement a less discriminating technique such as <code>instanceof</code>
+     * and use a less discriminating technique such as <code>instanceof</code>
      * check.
      * </p>
      * <p>
