@@ -57,10 +57,18 @@ public interface IElementImplSupport
      * A default implementation of {@link #hashCode()} cannot be provided in
      * an interface, but clients can implement <code>hashCode</code> by
      * delegating to this default method.
+     * <p>
+     * By default, the hash code for an element is a combination of its
+     * name and parent's hash code. This method is specialized in {@link
+     * ISourceFileImplSupport} to return hash code of the underlying
+     * <code>IFile</code> if the source file has an underlying file in the
+     * workspace. This method is not intended to be replaced by clients;
+     * if necessary, clients should override <code>hashCode</code> directly.
+     * </p>
      *
      * @return a hash code value
      */
-    default int hHashCode()
+    default int hDefaultHashCode()
     {
         final int prime = 31;
         int result = 1;
@@ -75,12 +83,22 @@ public interface IElementImplSupport
      * A default implementation of {@link #equals(Object)} cannot be provided in
      * an interface, but clients can implement <code>equals</code> by
      * delegating to this default method.
+     * <p>
+     * By default, two elements that implement this interface are equal
+     * if they are identical or if they {@link #hCanEqual(Object) can equal} to
+     * each other and have equal parents and names. This method is specialized
+     * in {@link ISourceConstructImplSupport} and {@link ISourceFileImplSupport}
+     * to also take into consideration the elements' occurrence count and
+     * underlying <code>IFile</code> respectively. This method is not intended
+     * to be replaced by clients; if necessary, clients should override
+     * <code>hashCode</code> directly.
+     * <p>
      *
      * @param obj the object with which to compare
      * @return <code>true</code> if this object is the same as the obj argument,
      *  <code>false</code> otherwise
      */
-    default boolean hEquals(Object obj)
+    default boolean hDefaultEquals(Object obj)
     {
         if (this == obj)
             return true;
@@ -90,8 +108,6 @@ public interface IElementImplSupport
             return false;
         IElementImplSupport other = (IElementImplSupport)obj;
         if (!other.hCanEqual(this))
-            return false;
-        if (!hModel().equals(other.hModel()))
             return false;
         IElement parent = hParent();
         if (parent == null)
@@ -119,13 +135,14 @@ public interface IElementImplSupport
      * <p>
      * This implementation compares run-time classes of the objects; as such,
      * it doesn't allow creating a subclass whose instances can equal superclass
-     * instances. Clients may override this method and implement a less
-     * discriminating technique using <code>instanceof</code> check,
-     * as described in http://www.artima.com/pins1ed/object-equality.html.
-     * For example, if a <code>ResolvedSourceType</code> can equal a
-     * <code>SourceType</code>, the <code>SourceType</code> should override
-     * <code>hCanEqual</code> and return <code>obj instanceof SourceType</code>.
+     * instances. Clients may provide their own implementation for this method
+     * and implement a less discriminating technique such as <code>instanceof</code>
+     * check.
      * </p>
+     * <p>
+     * For details, see <a href="http://www.artima.com/pins1ed/object-equality.html">
+     * http://www.artima.com/pins1ed/object-equality.html</a>.
+     * <p>
      *
      * @param obj not <code>null</code>
      * @return <code>true</code> if this element can equal the given object;

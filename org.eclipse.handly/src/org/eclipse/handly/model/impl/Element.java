@@ -47,13 +47,13 @@ public abstract class Element
     @Override
     public boolean equals(Object obj)
     {
-        return hEquals(obj);
+        return hDefaultEquals(obj);
     }
 
     @Override
     public int hashCode()
     {
-        return hHashCode();
+        return hDefaultHashCode();
     }
 
     @Override

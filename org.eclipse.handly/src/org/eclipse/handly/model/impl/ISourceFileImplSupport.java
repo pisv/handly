@@ -65,21 +65,21 @@ public interface ISourceFileImplSupport
     extends ISourceElementImplSupport, ISourceFileImpl
 {
     @Override
-    default int hHashCode()
+    default int hDefaultHashCode()
     {
         IFile file = hFile();
         if (file != null)
             return file.hashCode();
-        return ISourceElementImplSupport.super.hHashCode();
+        return ISourceElementImplSupport.super.hDefaultHashCode();
     }
 
     @Override
-    default boolean hEquals(Object obj)
+    default boolean hDefaultEquals(Object obj)
     {
         if (!(obj instanceof ISourceFileImplSupport))
             return false;
         IFile file = hFile();
-        return ISourceElementImplSupport.super.hEquals(obj) && (file == null
+        return ISourceElementImplSupport.super.hDefaultEquals(obj) && (file == null
             || file.equals(((ISourceFileImplSupport)obj).hFile()));
     }
 

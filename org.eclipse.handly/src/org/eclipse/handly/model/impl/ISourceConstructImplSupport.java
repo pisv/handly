@@ -30,11 +30,11 @@ public interface ISourceConstructImplSupport
     extends ISourceElementImplSupport, ISourceConstructImplExtension
 {
     @Override
-    default boolean hEquals(Object obj)
+    default boolean hDefaultEquals(Object obj)
     {
         if (!(obj instanceof ISourceConstructImplSupport))
             return false;
-        return ISourceElementImplSupport.super.hEquals(obj)
+        return ISourceElementImplSupport.super.hDefaultEquals(obj)
             && hOccurrenceCount() == ((ISourceConstructImplSupport)obj).hOccurrenceCount();
     }
 
