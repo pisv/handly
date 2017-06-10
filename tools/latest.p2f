@@ -2,7 +2,7 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='12'>
-    <iu id='org.eclipse.sdk.ide' version='4.7.0.I20170524-2000'>
+    <iu id='org.eclipse.sdk.ide' version='4.7.0.I20170531-2000'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/oxygen'/>
       </repositories>
@@ -57,7 +57,7 @@
         <repository location='http://download.eclipse.org/releases/oxygen'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.3.0.v20170529-1557'>
+    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.3.0.v20170605-1616'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/oxygen'/>
       </repositories>
