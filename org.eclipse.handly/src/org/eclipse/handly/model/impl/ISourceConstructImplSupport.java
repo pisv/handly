@@ -30,6 +30,13 @@ public interface ISourceConstructImplSupport
     extends ISourceElementImplSupport, ISourceConstructImplExtension
 {
     @Override
+    default int hDefaultHashCode()
+    {
+        return ISourceElementImplSupport.super.hDefaultHashCode() * 31
+            + hOccurrenceCount();
+    }
+
+    @Override
     default boolean hDefaultEquals(Object obj)
     {
         if (!(obj instanceof ISourceConstructImplSupport))

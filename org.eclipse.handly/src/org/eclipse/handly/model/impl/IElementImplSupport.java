@@ -60,9 +60,10 @@ public interface IElementImplSupport
      * <p>
      * By default, the hash code for an element is a combination of its
      * name and parent's hash code. This method is specialized in {@link
-     * ISourceFileImplSupport} to return hash code of the underlying
-     * <code>IFile</code> if the source file has an underlying file in the
-     * workspace. This method is not intended to be replaced by clients;
+     * ISourceConstructImplSupport} to include the element's occurrence count,
+     * and also in {@link ISourceFileImplSupport} to return hash code of the
+     * underlying <code>IFile</code> if the source file has an underlying file
+     * in the workspace. This method is not intended to be replaced by clients;
      * if necessary, clients should override <code>hashCode</code> directly.
      * </p>
      *
