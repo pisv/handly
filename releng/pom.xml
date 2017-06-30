@@ -185,6 +185,12 @@
   <profiles>
     <profile>
       <id>base.target</id>
+      <activation>
+        <property>
+          <name>target</name>
+          <value>base</value>
+        </property>
+      </activation>
       <build>
         <plugins>
           <plugin>
@@ -206,7 +212,9 @@
     <profile>
       <id>latest.target</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>!target</name>
+        </property>
       </activation>
       <build>
         <plugins>
@@ -264,6 +272,17 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <properties>
+        <tycho.testArgLine>-XstartOnFirstThread</tycho.testArgLine>
+      </properties>
     </profile>
   </profiles>
 </project>
