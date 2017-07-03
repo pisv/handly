@@ -2,69 +2,69 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='13'>
-    <iu id='org.eclipse.sdk.ide' version='4.5.2.M20160212-1500'>
+    <iu id='org.eclipse.sdk.ide' version='4.6.3.M20170301-0400'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='4.1.1.201511131810-r'>
+    <iu id='org.eclipse.egit.feature.group' version='4.6.1.201703071140-r'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='1.6.2.20150902-0002'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.7.0.20160603-1933'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtext.sdk.feature.group" version="2.8.4.v201508050135">
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.10.0.v201605250459'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xtend.sdk.feature.group" version="2.8.4.v201508050135">
+    <iu id='org.eclipse.xtend.sdk.feature.group' version='2.10.0.v201605250459'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xpand.sdk.feature.group" version="2.1.0.v201505260349">
+    <iu id='org.eclipse.xpand.sdk.feature.group' version='2.2.0.v201605260315'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe.sdk.feature.group" version="1.3.11.v201508030321">
+    <iu id='org.eclipse.emf.mwe.sdk.feature.group' version='1.3.20.v201605261103'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.8.1.v201508030321">
+    <iu id='org.eclipse.emf.mwe2.runtime.sdk.feature.group' version='2.9.0.v201605261103'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.8.1.v201508030411">
+    <iu id='org.eclipse.emf.mwe2.language.sdk.feature.group' version='2.9.0.v201605261103'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.emf.sdk.feature.group" version="2.11.2.v20160208-0841">
+    <iu id='org.eclipse.emf.sdk.feature.group' version='2.12.0.v20160526-0356'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.xsd.sdk.feature.group" version="2.11.0.v20160208-0841">
+    <iu id='org.eclipse.xsd.sdk.feature.group' version='2.12.0.v20160526-0356'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.gef.sdk.feature.group" version="3.10.1.201508170204">
+    <iu id='org.eclipse.gef.sdk.feature.group' version='3.11.0.201606061308'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
-    <iu id="org.eclipse.uml2.sdk.feature.group" version="5.1.2.v20160201-0816">
+    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.2.3.v20170227-0935'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/mars'/>
+        <repository location='http://download.eclipse.org/releases/neon'/>
       </repositories>
     </iu>
   </ius>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 Codasip Ltd and others.
+ * Copyright (c) 2015, 2017 Codasip Ltd and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,21 +40,22 @@ public class JavaElementAdapterFactory
         return ADAPTER_LIST;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Object element,
-        @SuppressWarnings("rawtypes") Class adapterType)
+    public <T> T getAdapter(Object element,
+        Class<T> adapterType)
     {
         if (adapterType == IResource.class)
         {
-            return getResource((IJavaElement)element);
+            return (T)getResource((IJavaElement)element);
         }
         else if (adapterType == IPersistableElement.class)
         {
-            return new PersistableJavaElementFactory((IJavaElement)element);
+            return (T)new PersistableJavaElementFactory((IJavaElement)element);
         }
         else if (adapterType == IContainmentAdapter.class)
         {
-            return CONTAINMENT_ADAPTER;
+            return (T)CONTAINMENT_ADAPTER;
         }
         return null;
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,8 +42,7 @@ public class AdapterUtil
         if (object instanceof IAdaptable)
         {
             IAdaptable adaptable = (IAdaptable)object;
-            @SuppressWarnings("unchecked")
-            T adapter = (T)adaptable.getAdapter(adapterType);
+            T adapter = adaptable.getAdapter(adapterType);
             if (adapter != null)
                 return adapter;
         }
@@ -51,8 +50,7 @@ public class AdapterUtil
         // consult the platform's adapter manager for an adapter
         if (!(object instanceof PlatformObject))
         {
-            @SuppressWarnings("unchecked")
-            T adapter = (T)Platform.getAdapterManager().getAdapter(object,
+            T adapter = Platform.getAdapterManager().getAdapter(object,
                 adapterType);
             if (adapter != null)
                 return adapter;

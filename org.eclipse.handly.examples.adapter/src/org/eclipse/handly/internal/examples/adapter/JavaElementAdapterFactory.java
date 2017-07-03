@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,15 +25,16 @@ public class JavaElementAdapterFactory
     private static final Class<?>[] ADAPTER_LIST = new Class<?>[] {
         IElement.class, ICorrespondingElementProvider.class };
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Object adaptableObject,
-        @SuppressWarnings("rawtypes") Class adapterType)
+    public <T> T getAdapter(Object adaptableObject,
+        Class<T> adapterType)
     {
         if (adapterType == ICorrespondingElementProvider.class)
-            return this;
+            return (T)this;
         if (adaptableObject instanceof IJavaElement
             && adapterType == IElement.class)
-            return JavaElement.create((IJavaElement)adaptableObject);
+            return (T)JavaElement.create((IJavaElement)adaptableObject);
         return null;
     }
 

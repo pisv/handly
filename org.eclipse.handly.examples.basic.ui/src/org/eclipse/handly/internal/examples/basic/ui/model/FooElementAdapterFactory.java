@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,13 +26,14 @@ public class FooElementAdapterFactory
     private static final Class<?>[] ADAPTER_LIST = new Class<?>[] {
         IResource.class };
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Object adaptableObject,
-        @SuppressWarnings("rawtypes") Class adapterType)
+    public <T> T getAdapter(Object adaptableObject,
+        Class<T> adapterType)
     {
         IFooElement element = (IFooElement)adaptableObject;
         if (adapterType == IResource.class)
-            return getResource(element);
+            return (T)getResource(element);
         return null;
     }
 
