@@ -278,10 +278,10 @@ public class CompilationUnit
     }
 
     @Override
-    public IContext hWorkingCopyContext(IContext context)
+    public IContext hNewWorkingCopyContext(IContext context)
     {
-        return of(IProblemRequestor.class, context.get(
-            IProblemRequestor.class));
+        return with(context.getOrDefault(WORKING_COPY_CONTEXT), of(
+            IProblemRequestor.class, context.get(IProblemRequestor.class)));
     }
 
     @Override
@@ -324,8 +324,8 @@ public class CompilationUnit
         {
             if (problems == null || problems.length == 0)
                 return;
-            reportProblems(hWorkingCopyInfo().getContext().get(
-                IProblemRequestor.class), problems);
+            reportProblems(hWorkingCopyContext().get(IProblemRequestor.class),
+                problems);
         }
 
         private void reportProblems(IProblemRequestor requestor,

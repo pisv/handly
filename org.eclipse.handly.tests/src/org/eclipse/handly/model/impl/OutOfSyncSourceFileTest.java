@@ -52,7 +52,8 @@ public class OutOfSyncSourceFileTest
             false);
         file = setUpProject("Test001").getFile("file.txt");
         localFile = file.getLocation().toFile();
-        sourceFile = new SimpleSourceFile(null, file, null);
+        sourceFile = new SimpleSourceFile(null, file.getName(), file,
+            new SimpleModelManager());
     }
 
     @Override

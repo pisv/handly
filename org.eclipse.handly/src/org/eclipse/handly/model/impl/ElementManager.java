@@ -263,13 +263,12 @@ public class ElementManager
 
     /**
      * If the given source file is not already associated with a working copy
-     * info, uses the given factory to create a working copy info holding the
-     * given working copy buffer, associates the source file with the created
-     * info, and acquires a new independent ownership of the working copy buffer.
-     * Otherwise, returns the working copy info already associated with the
-     * source file; the given buffer and factory are ignored. Increments the
-     * reference count of the working copy info associated with the source file.
-     * Performs atomically.
+     * info, associates the source file with the given working copy info and
+     * acquires a new independent ownership of the working copy buffer held by
+     * the info. Otherwise, returns the working copy info already associated
+     * with the source file; the given info is ignored. Increments the reference
+     * count of the working copy info associated with the source file. Performs
+     * atomically.
      * <p>
      * Each successful call to this method must ultimately be followed
      * by exactly one call to <code>releaseWorkingCopyInfo</code>.
@@ -277,40 +276,24 @@ public class ElementManager
      *
      * @param sourceFile the source file with which a working copy info
      *  is to be associated (not <code>null</code>)
-     * @param buffer the working copy buffer (not <code>null</code>)
-     * @param factory the working copy info factory, or <code>null</code>
-     *  if a default factory is to be used
+     * @param info the new working copy info (not <code>null</code>)
      * @return the previous working copy info associated with the given
      *  source file, or <code>null</code> if there was no working copy info
      *  for the source file
      * @see #releaseWorkingCopyInfo(ISourceFileImplSupport)
      */
     WorkingCopyInfo putWorkingCopyInfoIfAbsent(
-        ISourceFileImplSupport sourceFile, IBuffer buffer,
-        WorkingCopyInfo.Factory factory)
+        ISourceFileImplSupport sourceFile, WorkingCopyInfo info)
     {
         if (sourceFile == null)
             throw new IllegalArgumentException();
-        if (buffer == null)
+        if (info == null)
             throw new IllegalArgumentException();
-
-        final WorkingCopyInfo info;
-        if (factory == null)
-            info = new DefaultWorkingCopyInfo(sourceFile, buffer);
-        else
-            info = factory.newWorkingCopyInfo(sourceFile, buffer);
-        if (info.refCount != 0)
-            throw new AssertionError();
-        if (info.getSourceFile() != sourceFile)
-            throw new AssertionError();
-        boolean disposeInfo = true;
-        boolean releaseBuffer = false;
+        IBuffer buffer = info.getBuffer();
+        buffer.addRef();
+        boolean releaseBuffer = true;
         try
         {
-            if (info.getBuffer() != buffer)
-                throw new AssertionError();
-            buffer.addRef();
-            releaseBuffer = true;
             synchronized (this)
             {
                 WorkingCopyInfo oldInfo = workingCopyInfos.get(sourceFile);
@@ -318,25 +301,19 @@ public class ElementManager
                     oldInfo.refCount++;
                 else
                 {
+                    if (info.refCount != 0)
+                        throw new IllegalArgumentException();
                     workingCopyInfos.put(sourceFile, info);
                     info.refCount = 1;
-                    releaseBuffer = disposeInfo = false;
+                    releaseBuffer = false;
                 }
                 return oldInfo;
             }
         }
         finally
         {
-            try
-            {
-                if (disposeInfo)
-                    info.dispose();
-            }
-            finally
-            {
-                if (releaseBuffer)
-                    buffer.release();
-            }
+            if (releaseBuffer)
+                buffer.release();
         }
     }
 

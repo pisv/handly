@@ -13,69 +13,56 @@ package org.eclipse.handly.model.impl;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.Elements.FORCE_RECONCILING;
+import static org.eclipse.handly.model.impl.IReconcileStrategy.RECONCILING_FORCED;
+import static org.eclipse.handly.model.impl.IReconcileStrategy.SOURCE_AST;
+import static org.eclipse.handly.model.impl.IReconcileStrategy.SOURCE_CONTENTS;
+import static org.eclipse.handly.model.impl.IReconcileStrategy.SOURCE_SNAPSHOT;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 
 /**
- * Default implementation of working copy info.
+ * Default implementation of {@link IWorkingCopyCallback}.
  * <p>
  * Clients can use this class as it stands or subclass it
  * as circumstances warrant.
  * </p>
- *
- * @see WorkingCopyInfo
  */
-public class DefaultWorkingCopyInfo
-    extends WorkingCopyInfo
+public class DefaultWorkingCopyCallback
+    extends WorkingCopyCallback
 {
     private final Object reconcilingLock = new Object();
     private volatile ISnapshot reconciledSnapshot;
 
-    /**
-     * Constructs a new working copy info and associates it with the given
-     * source file and buffer. Does not <code>addRef</code> the given buffer.
-     * <p>
-     * Clients should explicitly {@link #dispose} the working copy info
-     * after it is no longer needed.
-     * </p>
-     *
-     * @param sourceFile the working copy's source file (not <code>null</code>)
-     * @param buffer the working copy's buffer (not <code>null</code>)
-     */
-    public DefaultWorkingCopyInfo(ISourceFileImplSupport sourceFile,
-        IBuffer buffer)
+    @Override
+    public final boolean needsReconciling()
     {
-        super(sourceFile, buffer);
+        return !getWorkingCopyInfo().getBuffer().getSnapshot().isEqualTo(
+            reconciledSnapshot);
     }
 
     @Override
-    protected final boolean needsReconciling()
-    {
-        return !getBuffer().getSnapshot().isEqualTo(reconciledSnapshot);
-    }
-
-    @Override
-    protected final void reconcile(IContext context, IProgressMonitor monitor)
+    public final void reconcile(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         if (context.containsKey(SOURCE_AST))
-            throw new IllegalArgumentException(); // just to be safe that we don't pass SOURCE_AST to #reconcile0 accidentally
+            throw new IllegalArgumentException(); // just to be safe that we don't pass SOURCE_AST to the reconcile strategy accidentally
 
         synchronized (reconcilingLock)
         {
             boolean needsReconciling = needsReconciling();
             if (needsReconciling || context.getOrDefault(FORCE_RECONCILING))
             {
+                IWorkingCopyInfo info = getWorkingCopyInfo();
                 NonExpiringSnapshot snapshot = new NonExpiringSnapshot(
-                    getBuffer());
-                reconcile0(with(of(SOURCE_CONTENTS, snapshot.getContents()), of(
-                    SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), of(
-                        RECONCILING_FORCED, !needsReconciling), context),
+                    info.getBuffer());
+                info.getReconcileStrategy().reconcile(with(of(//
+                    SOURCE_CONTENTS, snapshot.getContents()), of(
+                        SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), of(
+                            RECONCILING_FORCED, !needsReconciling), context),
                     monitor);
                 reconciledSnapshot = snapshot.getWrappedSnapshot();
             }

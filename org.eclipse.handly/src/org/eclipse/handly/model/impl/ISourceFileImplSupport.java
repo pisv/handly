@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.Elements.CREATE_BUFFER;
@@ -33,6 +32,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.ICoreTextFileBufferProvider;
 import org.eclipse.handly.buffer.TextFileBuffer;
+import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.IElement;
@@ -45,9 +45,9 @@ import org.eclipse.handly.util.TextRange;
 
 /**
  * This "trait-like" interface provides a skeletal implementation of {@link
- * ISourceFileImpl} to minimize the effort required to implement that interface.
- * Clients may "mix in" this interface directly or extend the class
- * {@link SourceFile} (or {@link WorkspaceSourceFile}).
+ * ISourceFileImplExtension} to minimize the effort required to implement
+ * that interface. Clients may "mix in" this interface directly or extend
+ * the class {@link SourceFile} (or {@link WorkspaceSourceFile}).
  * <p>
  * In general, the members first defined in this interface are not intended
  * to be referenced outside the subtype hierarchy.
@@ -62,7 +62,7 @@ import org.eclipse.handly.util.TextRange;
  * @noextend This interface is not intended to be extended by clients.
  */
 public interface ISourceFileImplSupport
-    extends ISourceElementImplSupport, ISourceFileImpl
+    extends ISourceElementImplSupport, ISourceFileImplExtension
 {
     @Override
     default int hDefaultHashCode()
@@ -79,8 +79,9 @@ public interface ISourceFileImplSupport
         if (!(obj instanceof ISourceFileImplSupport))
             return false;
         IFile file = hFile();
-        return ISourceElementImplSupport.super.hDefaultEquals(obj) && (file == null
-            || file.equals(((ISourceFileImplSupport)obj).hFile()));
+        return ISourceElementImplSupport.super.hDefaultEquals(obj)
+            && (file == null || file.equals(
+                ((ISourceFileImplSupport)obj).hFile()));
     }
 
     /**
@@ -102,9 +103,8 @@ public interface ISourceFileImplSupport
         monitor.beginTask("", 100); //$NON-NLS-1$
         try
         {
-            WorkingCopyInfo info = hAcquireExistingWorkingCopy(
-                new SubProgressMonitor(monitor, 10));
-            if (info == null)
+            if (!hAcquireExistingWorkingCopy(new SubProgressMonitor(monitor,
+                10)))
             {
                 return hFileBuffer(context, new SubProgressMonitor(monitor,
                     90));
@@ -113,6 +113,13 @@ public interface ISourceFileImplSupport
             {
                 try
                 {
+                    WorkingCopyInfo info =
+                        hElementManager().peekAtWorkingCopyInfo(this);
+
+                    if (info == null)
+                        throw new AssertionError(
+                            "This method probably needs to be overridden"); //$NON-NLS-1$
+
                     IBuffer buffer = info.getBuffer();
                     buffer.addRef();
                     return buffer;
@@ -129,179 +136,39 @@ public interface ISourceFileImplSupport
         }
     }
 
-    /**
-     * Specifies the working copy buffer.
-     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
-     */
-    Property<IBuffer> WORKING_COPY_BUFFER = Property.get(
-        ISourceFileImplSupport.class.getName() + ".workingCopyBuffer", //$NON-NLS-1$
-        IBuffer.class);
-
-    /**
-     * Specifies the working copy info factory.
-     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
-     */
-    Property<WorkingCopyInfo.Factory> WORKING_COPY_INFO_FACTORY = Property.get(
-        ISourceFileImplSupport.class.getName() + ".workingCopyInfoFactory", //$NON-NLS-1$
-        WorkingCopyInfo.Factory.class);
-
-    /**
-     * If this source file is not already in working copy mode, switches it
-     * into a working copy, associates it with a working copy buffer via a new
-     * working copy info, and acquires an independent ownership of the working
-     * copy (and, hence, of the working copy buffer). Performs atomically.
-     * <p>
-     * In working copy mode the source file's structure and properties
-     * shall no longer correspond to the underlying resource contents
-     * and must no longer be updated by a resource delta processor.
-     * Instead, the source file's structure and properties can be explicitly
-     * {@link #hReconcile(IContext, IProgressMonitor) reconciled} with the
-     * current contents of the working copy buffer.
-     * </p>
-     * <p>
-     * This method supports the following options, which may be specified
-     * in the given context:
-     * </p>
-     * <ul>
-     * <li>
-     * {@link #WORKING_COPY_BUFFER} - Specifies the working copy buffer.
-     * If not set, a default buffer is associated with the working copy.
-     * </li>
-     * <li>
-     * {@link #WORKING_COPY_INFO_FACTORY} - Specifies the working copy info factory.
-     * If not set, a default factory is used for obtaining a new working copy info.
-     * </li>
-     * </ul>
-     * <p>
-     * If the source file was already in working copy mode, this method acquires
-     * a new independent ownership of the working copy by incrementing an internal
-     * counter and returns the info associated with the working copy; the given
-     * context is ignored. The returned info is owned by the working copy and
-     * must not be explicitly disposed by the client.
-     * </p>
-     * <p>
-     * Each successful call to this method must ultimately be followed
-     * by exactly one call to <code>hReleaseWorkingCopy</code>.
-     * </p>
-     *
-     * @param context the operation context (not <code>null</code>)
-     * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
-     * @return the working copy info previously associated with
-     *  this source file, or <code>null</code> if there was no
-     *  working copy info for this source file
-     * @throws CoreException if the working copy could not be created successfully
-     * @throws OperationCanceledException if this method is canceled
-     * @see #hReleaseWorkingCopy()
-     * @see #hAcquireExistingWorkingCopy(IProgressMonitor)
-     */
-    default WorkingCopyInfo hBecomeWorkingCopy(IContext context,
+    @Override
+    default boolean hBecomeWorkingCopy(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
         if (context == null)
             throw new IllegalArgumentException();
+
         IBuffer buffer = context.get(WORKING_COPY_BUFFER);
         if (buffer == null)
-        {
             try (IBuffer defaultBuffer = hFileBuffer(context, monitor))
             {
                 return hBecomeWorkingCopy(with(of(WORKING_COPY_BUFFER,
                     defaultBuffer), context), monitor);
             }
-        }
-        WorkingCopyProvider provider = new WorkingCopyProvider(this)
-        {
-            @Override
-            protected WorkingCopyInfo doAcquireWorkingCopy()
-            {
-                return hElementManager().putWorkingCopyInfoIfAbsent(
-                    ISourceFileImplSupport.this, buffer, context.get(
-                        WORKING_COPY_INFO_FACTORY));
-            }
 
-            @Override
-            protected boolean isCanceled()
-            {
-                if (monitor == null)
-                    return false;
-                return monitor.isCanceled();
-            }
-        };
-        WorkingCopyInfo oldInfo = provider.acquireWorkingCopy();
-        if (oldInfo == null)
-        {
-            boolean success = false;
-            try
-            {
-                WorkingCopyInfo newInfo =
-                    hElementManager().peekAtWorkingCopyInfo(this);
-                newInfo.initTask.execute(context, monitor);
-                success = true;
-            }
-            finally
-            {
-                if (!success)
-                    hReleaseWorkingCopy();
-            }
-        }
-        return oldInfo;
+        IWorkingCopyCallback callback = context.get(WORKING_COPY_CALLBACK);
+        if (callback == null)
+            callback = new DefaultWorkingCopyCallback();
+
+        WorkingCopyInfo info = new WorkingCopyInfo(buffer,
+            hNewWorkingCopyContext(context), new ReconcileStrategy(this),
+            callback);
+
+        return WorkingCopyHelper.becomeWorkingCopy(this, info, monitor);
     }
 
-    /**
-     * If this source file is in working copy mode, acquires a new independent
-     * ownership of the working copy by incrementing an internal counter and
-     * returns the info associated with the working copy. The returned info is
-     * owned by the working copy and must not be explicitly disposed by the client.
-     * Returns <code>null</code> if this source file is not a working copy.
-     * Performs atomically.
-     * <p>
-     * Each successful call to this method that did not return <code>null</code>
-     * must ultimately be followed by exactly one call to <code>hReleaseWorkingCopy</code>.
-     * </p>
-     *
-     * @return the working copy info for this source file,
-     *  or <code>null</code> if this source file is not a working copy
-     * @see #hReleaseWorkingCopy()
-     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
-     */
-    default WorkingCopyInfo hAcquireExistingWorkingCopy(
-        IProgressMonitor monitor)
+    @Override
+    default boolean hAcquireExistingWorkingCopy(IProgressMonitor monitor)
     {
-        WorkingCopyProvider provider = new WorkingCopyProvider(this)
-        {
-            @Override
-            protected WorkingCopyInfo doAcquireWorkingCopy()
-            {
-                return hElementManager().getWorkingCopyInfo(
-                    ISourceFileImplSupport.this);
-            }
-
-            @Override
-            protected boolean isCanceled()
-            {
-                if (monitor == null)
-                    return false;
-                return monitor.isCanceled();
-            }
-        };
-        return provider.acquireWorkingCopy();
+        return WorkingCopyHelper.acquireExistingWorkingCopy(this, monitor);
     }
 
-    /**
-     * Relinquishes an independent ownership of the working copy by decrementing
-     * an internal counter. If there are no remaining owners of the working copy,
-     * switches this source file from working copy mode back to its original mode
-     * and releases the working copy buffer. Performs atomically.
-     * <p>
-     * Each independent ownership of the working copy must ultimately end
-     * with exactly one call to this method. Clients that do not own the
-     * working copy must not call this method.
-     * </p>
-     *
-     * @return <code>true</code> if this source file was switched from
-     *  working copy mode back to its original mode, <code>false</code>
-     *  otherwise
-     */
+    @Override
     default boolean hReleaseWorkingCopy()
     {
         WorkingCopyInfo info = hElementManager().releaseWorkingCopyInfo(this);
@@ -316,52 +183,43 @@ public interface ISourceFileImplSupport
         return false;
     }
 
-    /**
-     * If this source file is in working copy mode, returns the working copy info
-     * without acquiring an independent ownership of the working copy. The
-     * returned info is owned by the working copy and must not be explicitly
-     * disposed by the client. Returns <code>null</code> if this source file
-     * is not a working copy.
-     * <p>
-     * Note that if this method is invoked by a client that does not own the
-     * working copy, the returned info may get disposed from another thread.
-     * </p>
-     *
-     * @return the working copy info for this source file,
-     *  or <code>null</code> if this source file is not a working copy
-     * @see #hAcquireExistingWorkingCopy(IProgressMonitor)
-     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
-     */
-    default WorkingCopyInfo hWorkingCopyInfo()
+    @Override
+    default IContext hWorkingCopyContext()
     {
         WorkingCopyInfo info = hElementManager().peekAtWorkingCopyInfo(this);
         if (info == null)
             return null;
         if (info.created)
-            return info;
+            return info.getContext();
         // special case: wc creation is in progress on the current thread
         if (this.equals(ReconcileOperation.CURRENTLY_RECONCILED.get()))
-            return info;
+            return info.getContext();
         return null;
     }
 
     @Override
     default boolean hIsWorkingCopy()
     {
-        return hWorkingCopyInfo() != null;
+        return hWorkingCopyContext() != null;
     }
 
     @Override
     default boolean hNeedsReconciling()
     {
-        WorkingCopyInfo info = hAcquireExistingWorkingCopy(null);
-        if (info == null)
+        if (!hAcquireExistingWorkingCopy(null))
             return false;
         else
         {
             try
             {
-                return info.needsReconciling();
+                WorkingCopyInfo info = hElementManager().peekAtWorkingCopyInfo(
+                    this);
+
+                if (info == null)
+                    throw new AssertionError(
+                        "This method probably needs to be overridden"); //$NON-NLS-1
+
+                return info.callback.needsReconciling();
             }
             finally
             {
@@ -379,16 +237,22 @@ public interface ISourceFileImplSupport
         monitor.beginTask("", 100); //$NON-NLS-1$
         try
         {
-            WorkingCopyInfo info = hAcquireExistingWorkingCopy(
-                new SubProgressMonitor(monitor, 10));
-            if (info == null)
+            if (!hAcquireExistingWorkingCopy(new SubProgressMonitor(monitor,
+                10)))
                 return; // not a working copy
             else
             {
                 try
                 {
-                    info.reconcile(context, new SubProgressMonitor(monitor,
-                        90));
+                    WorkingCopyInfo info =
+                        hElementManager().peekAtWorkingCopyInfo(this);
+
+                    if (info == null)
+                        throw new AssertionError(
+                            "This method probably needs to be overriden"); //$NON-NLS-1$
+
+                    info.callback.reconcile(context, new SubProgressMonitor(
+                        monitor, 90));
                 }
                 finally
                 {
@@ -430,7 +294,13 @@ public interface ISourceFileImplSupport
      * source file. The given operation context is propagated from the
      * {@link #hBecomeWorkingCopy} method.
      * <p>
-     * This implementation returns an empty context.
+     * The returned context is composed of the context explicitly {@link
+     * ISourceFileImplExtension#WORKING_COPY_CONTEXT specified} when creating
+     * the working copy and an intrinsic context of the working copy itself,
+     * in that order.
+     * </p>
+     * <p>
+     * This implementation returns <code>context.getOrDefault(WORKING_COPY_CONTEXT)</code>.
      * </p>
      * <p>
      * This method is called internally; it is not intended to be invoked by
@@ -440,9 +310,9 @@ public interface ISourceFileImplSupport
      * @param context the operation context (never <code>null</code>)
      * @return the working copy context (not <code>null</code>)
      */
-    default IContext hWorkingCopyContext(IContext context)
+    default IContext hNewWorkingCopyContext(IContext context)
     {
-        return EMPTY_CONTEXT;
+        return context.getOrDefault(WORKING_COPY_CONTEXT);
     }
 
     /**
@@ -469,14 +339,17 @@ public interface ISourceFileImplSupport
             ElementDelta.Factory.class);
         if (deltaFactory == null)
             deltaFactory = element -> new ElementDelta(element);
-        ElementDelta rootDelta = deltaFactory.newDelta(hRoot());
-        ElementDelta.Builder builder = new ElementDelta.Builder(rootDelta);
+
+        ElementDelta.Builder builder = new ElementDelta.Builder(
+            deltaFactory.newDelta(hRoot()));
+
         if (hFileExists())
             builder.changed(this, F_WORKING_COPY);
         else if (hIsWorkingCopy())
             builder.added(this, F_WORKING_COPY);
         else
             builder.removed(this, F_WORKING_COPY);
+
         notificationManager.fireElementChangeEvent(new ElementChangeEvent(
             ElementChangeEvent.POST_CHANGE, builder.getDelta()));
     }
@@ -601,7 +474,7 @@ public interface ISourceFileImplSupport
             if (!hFileExists())
                 throw hDoesNotExistException();
         }
-   }
+    }
 
     @Override
     default void hGenerateAncestorBodies(IContext context,
@@ -982,18 +855,80 @@ public interface ISourceFileImplSupport
     }
 }
 
-abstract class WorkingCopyProvider
+abstract class WorkingCopyHelper
 {
+    static boolean becomeWorkingCopy(ISourceFileImplSupport sourceFile,
+        WorkingCopyInfo info, IProgressMonitor monitor) throws CoreException
+    {
+        WorkingCopyHelper helper = new WorkingCopyHelper(sourceFile)
+        {
+            @Override
+            WorkingCopyInfo doAcquireWorkingCopy()
+            {
+                return sourceFile.hElementManager().putWorkingCopyInfoIfAbsent(
+                    sourceFile, info);
+            }
+
+            @Override
+            boolean isCanceled()
+            {
+                if (monitor == null)
+                    return false;
+                return monitor.isCanceled();
+            }
+        };
+        WorkingCopyInfo existingInfo = helper.acquireWorkingCopy();
+        if (existingInfo == null)
+        {
+            boolean success = false;
+            try
+            {
+                info.initTask.execute(monitor);
+                success = true;
+            }
+            finally
+            {
+                if (!success)
+                    sourceFile.hReleaseWorkingCopy();
+            }
+        }
+        return existingInfo == null;
+    }
+
+    static boolean acquireExistingWorkingCopy(ISourceFileImplSupport sourceFile,
+        IProgressMonitor monitor)
+    {
+        WorkingCopyHelper helper = new WorkingCopyHelper(sourceFile)
+        {
+            @Override
+            WorkingCopyInfo doAcquireWorkingCopy()
+            {
+                return sourceFile.hElementManager().getWorkingCopyInfo(
+                    sourceFile);
+            }
+
+            @Override
+            boolean isCanceled()
+            {
+                if (monitor == null)
+                    return false;
+                return monitor.isCanceled();
+            }
+        };
+        WorkingCopyInfo existingInfo = helper.acquireWorkingCopy();
+        return existingInfo != null;
+    }
+
     private final ISourceFileImplSupport sourceFile;
 
-    public WorkingCopyProvider(ISourceFileImplSupport sourceFile)
+    private WorkingCopyHelper(ISourceFileImplSupport sourceFile)
     {
         if (sourceFile == null)
             throw new IllegalArgumentException();
         this.sourceFile = sourceFile;
     }
 
-    public WorkingCopyInfo acquireWorkingCopy()
+    WorkingCopyInfo acquireWorkingCopy()
     {
         for (;;)
         {
@@ -1017,9 +952,9 @@ abstract class WorkingCopyProvider
         }
     }
 
-    protected abstract WorkingCopyInfo doAcquireWorkingCopy();
+    abstract WorkingCopyInfo doAcquireWorkingCopy();
 
-    protected boolean isCanceled()
+    boolean isCanceled()
     {
         return false;
     }
@@ -1042,5 +977,44 @@ abstract class WorkingCopyProvider
             }
         }
         return false;
+    }
+}
+
+class ReconcileStrategy
+    implements IReconcileStrategy
+{
+    private final ISourceFileImplSupport sourceFile;
+
+    ReconcileStrategy(ISourceFileImplSupport sourceFile)
+    {
+        if (sourceFile == null)
+            throw new IllegalArgumentException();
+        this.sourceFile = sourceFile;
+    }
+
+    @Override
+    public void reconcile(IContext context, IProgressMonitor monitor)
+        throws CoreException
+    {
+        Context context2 = new Context();
+
+        context2.bind(
+            ISourceFileImplSupport.ReconcileOperation.RECONCILING_FORCED).to(
+                context.getOrDefault(RECONCILING_FORCED));
+
+        if (context.containsKey(SOURCE_AST))
+            context2.bind(ISourceFileImplSupport.SOURCE_AST).to(context.get(
+                SOURCE_AST));
+
+        if (context.containsKey(SOURCE_CONTENTS))
+            context2.bind(ISourceFileImplSupport.SOURCE_CONTENTS).to(
+                context.get(SOURCE_CONTENTS));
+
+        if (context.containsKey(SOURCE_SNAPSHOT))
+            context2.bind(ISourceFileImplSupport.SOURCE_SNAPSHOT).to(
+                context.get(SOURCE_SNAPSHOT));
+
+        sourceFile.hReconcileOperation().reconcile(with(context2, context),
+            monitor);
     }
 }

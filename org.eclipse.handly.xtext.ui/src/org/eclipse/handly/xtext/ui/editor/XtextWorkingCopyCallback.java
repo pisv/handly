@@ -11,28 +11,29 @@
 package org.eclipse.handly.xtext.ui.editor;
 
 import static org.eclipse.handly.model.Elements.FORCE_RECONCILING;
+import static org.eclipse.handly.model.impl.IReconcileStrategy.RECONCILING_FORCED;
+import static org.eclipse.handly.model.impl.IReconcileStrategy.SOURCE_AST;
+import static org.eclipse.handly.model.impl.IReconcileStrategy.SOURCE_CONTENTS;
+import static org.eclipse.handly.model.impl.IReconcileStrategy.SOURCE_SNAPSHOT;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.xtext.ui.Activator;
-import org.eclipse.handly.model.impl.ISourceFileImplSupport;
-import org.eclipse.handly.model.impl.WorkingCopyInfo;
+import org.eclipse.handly.model.impl.IWorkingCopyCallback;
+import org.eclipse.handly.model.impl.IWorkingCopyInfo;
+import org.eclipse.handly.model.impl.WorkingCopyCallback;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.xtext.resource.XtextResource;
 
 /**
- * Xtext-specific implementation of working copy info. Reconciles the working
- * copy when the underlying {@link HandlyXtextDocument} is reconciled.
- *
- * @see WorkingCopyInfo
+ * Xtext-specific implementation of {@link IWorkingCopyCallback}. Reconciles the
+ * working copy when the underlying {@link HandlyXtextDocument} is reconciled.
  */
-public class XtextWorkingCopyInfo
-    extends WorkingCopyInfo
+public class XtextWorkingCopyCallback
+    extends WorkingCopyCallback
 {
     private final HandlyXtextDocument.IReconcilingListener reconcilingListener =
         new HandlyXtextDocument.IReconcilingListener()
@@ -47,53 +48,33 @@ public class XtextWorkingCopyInfo
                 context.bind(SOURCE_CONTENTS).to(snapshot.getContents());
                 context.bind(SOURCE_SNAPSHOT).to(snapshot.getWrappedSnapshot());
                 context.bind(RECONCILING_FORCED).to(forced);
-                reconcile0(context, monitor);
+                getWorkingCopyInfo().getReconcileStrategy().reconcile(context,
+                    monitor);
             }
         };
 
-    /**
-     * Constructs a new working copy info and associates it with the given
-     * source file and buffer. Does not <code>addRef</code> the given buffer.
-     * <p>
-     * Clients should explicitly {@link #dispose} the working copy info
-     * after it is no longer needed.
-     * </p>
-     *
-     * @param sourceFile the working copy's source file (not <code>null</code>)
-     * @param buffer the working copy's buffer (not <code>null</code>,
-     *  must provide a <code>HandlyXtextDocument</code>)
-     */
-    public XtextWorkingCopyInfo(ISourceFileImplSupport sourceFile,
-        IBuffer buffer)
-    {
-        super(sourceFile, buffer);
-        IDocument document = buffer.getDocument();
-        if (!(document instanceof HandlyXtextDocument))
-            throw new IllegalArgumentException();
-    }
-
     @Override
-    protected void onInit() throws CoreException
+    public void onInit(IWorkingCopyInfo info) throws CoreException
     {
-        super.onInit();
+        super.onInit(info);
         getDocument().addReconcilingListener(reconcilingListener);
     }
 
     @Override
-    protected void onDispose()
+    public void onDispose()
     {
         getDocument().removeReconcilingListener(reconcilingListener);
         super.onDispose();
     }
 
     @Override
-    protected final boolean needsReconciling()
+    public final boolean needsReconciling()
     {
         return getDocument().needsReconciling();
     }
 
     @Override
-    protected final void reconcile(IContext context, IProgressMonitor monitor)
+    public final void reconcile(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         try
@@ -114,6 +95,6 @@ public class XtextWorkingCopyInfo
 
     protected final HandlyXtextDocument getDocument()
     {
-        return (HandlyXtextDocument)getBuffer().getDocument();
+        return (HandlyXtextDocument)getWorkingCopyInfo().getBuffer().getDocument();
     }
 }

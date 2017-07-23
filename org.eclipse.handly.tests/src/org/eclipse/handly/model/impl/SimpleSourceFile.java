@@ -11,56 +11,58 @@
 package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.IModel;
 
 /**
  * A simple source file for tests.
  * Test clients can instantiate this class directly or subclass it.
  */
 class SimpleSourceFile
-    extends WorkspaceSourceFile
+    extends SourceFile
 {
-    private final IModel model;
+    private final IFile file;
+    private final IModelManager manager;
 
     /**
-     * Constructs a handle for a source file with the given parent element and
-     * the given underlying workspace file.
+     * Constructs a handle for a source file with the given parameters.
      *
      * @param parent the parent of the element,
      *  or <code>null</code> if the element has no parent
-     * @param file the workspace file underlying the element (not <code>null</code>)
-     * @param model the model the element belongs to
+     * @param name the name of the element, or <code>null</code>
+     *  if the element has no name
+     * @param file the workspace file underlying the element, or <code>null</code>
+     *  if the element has no underlying workspace file
+     * @param manager the model manager for the element (not <code>null</code>)
      */
-    public SimpleSourceFile(IElement parent, IFile file, IModel model)
+    public SimpleSourceFile(IElement parent, String name, IFile file,
+        IModelManager manager)
     {
-        super(parent, file);
-        this.model = model;
-    }
-
-    @Override
-    public IModel hModel()
-    {
-        return model;
-    }
-
-    @Override
-    public boolean hIsWorkingCopy()
-    {
-        return false;
+        super(parent, name);
+        this.file = file;
+        if ((this.manager = manager) == null)
+            throw new IllegalArgumentException();
     }
 
     @Override
     public IModelManager hModelManager()
     {
-        throw new UnsupportedOperationException();
+        return manager;
+    }
+
+    @Override
+    public IResource hResource()
+    {
+        return file;
     }
 
     @Override
     public void hBuildSourceStructure(IContext context,
-        IProgressMonitor monitor)
+        IProgressMonitor monitor) throws CoreException
     {
+        context.get(NEW_ELEMENTS).put(this, new SourceElementBody());
     }
 }

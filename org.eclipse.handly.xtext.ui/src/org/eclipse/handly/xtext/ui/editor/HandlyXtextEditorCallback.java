@@ -33,7 +33,7 @@ import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.impl.ISourceFileImplSupport;
+import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.ui.texteditor.TextEditorBuffer;
 import org.eclipse.handly.util.TextRange;
@@ -177,16 +177,14 @@ public class HandlyXtextEditorCallback
         throws CoreException
     {
         ISourceFile sourceFile = getSourceFile(editor);
-        if (sourceFile instanceof ISourceFileImplSupport)
+        if (sourceFile instanceof ISourceFileImplExtension)
         {
             try (TextEditorBuffer buffer = new TextEditorBuffer(editor))
             {
-                ((ISourceFileImplSupport)sourceFile).hBecomeWorkingCopy(with(of(
-                    ISourceFileImplSupport.WORKING_COPY_BUFFER, buffer), of(
-                        ISourceFileImplSupport.WORKING_COPY_INFO_FACTORY, (
-                            ISourceFileImplSupport sf,
-                            IBuffer b) -> new XtextWorkingCopyInfo(sf, b))),
-                    null);
+                ((ISourceFileImplExtension)sourceFile).hBecomeWorkingCopy(with(
+                    of(ISourceFileImplExtension.WORKING_COPY_BUFFER, buffer),
+                    of(ISourceFileImplExtension.WORKING_COPY_CALLBACK,
+                        new XtextWorkingCopyCallback())), null);
                 return sourceFile;
             }
         }
@@ -196,7 +194,7 @@ public class HandlyXtextEditorCallback
     protected void releaseWorkingCopy(XtextEditor editor,
         ISourceFile workingCopy)
     {
-        ((ISourceFileImplSupport)workingCopy).hReleaseWorkingCopy();
+        ((ISourceFileImplExtension)workingCopy).hReleaseWorkingCopy();
     }
 
     private boolean isActive(XtextEditor editor)

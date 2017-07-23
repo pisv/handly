@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.BufferChange;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
@@ -104,8 +105,10 @@ public class FooWorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "g")); // rename f() to g()
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertDelta(null, listener.delta);
 
@@ -144,8 +147,10 @@ public class FooWorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new DeleteEdit(
                     r.getOffset(), r.getLength())); // delete 'var y;'
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertDelta(null, listener.delta);
 
@@ -162,8 +167,10 @@ public class FooWorkingCopyNotificationTest
                 change = // insert 'var y;' before 'var x;'
                     new BufferChange(new InsertEdit(r.getOffset(), varYText));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertDelta(null, listener.delta);
 
@@ -195,8 +202,10 @@ public class FooWorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "def f(y) {}")); // instead of 'def f(x) {}'
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertDelta(null, listener.delta);
 

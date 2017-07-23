@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
+import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.SaveMode;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IField;
@@ -111,8 +112,10 @@ public class WorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "Y"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertNull(listener.delta);
 
@@ -142,8 +145,10 @@ public class WorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new DeleteEdit(
                     r.getOffset(), r.getLength()));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertNull(listener.delta);
 
@@ -162,8 +167,10 @@ public class WorkingCopyNotificationTest
                 change = new BufferChange(new InsertEdit(r.getOffset(),
                     "int y;"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertNull(listener.delta);
 
@@ -194,8 +201,10 @@ public class WorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "void f() {}"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertNull(listener.delta);
 
@@ -227,8 +236,10 @@ public class WorkingCopyNotificationTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "void f(int y) {}")); // renamed arg
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 assertNull(listener.delta);
 

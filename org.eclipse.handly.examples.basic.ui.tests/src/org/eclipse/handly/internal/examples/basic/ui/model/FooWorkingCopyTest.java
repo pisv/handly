@@ -28,8 +28,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooVar;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.IElementImplExtension;
-import org.eclipse.handly.model.impl.ISourceFileImplSupport;
-import org.eclipse.handly.model.impl.WorkingCopyInfo;
+import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
@@ -68,8 +67,10 @@ public class FooWorkingCopyTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "g"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 defs = workingCopy.getDefs();
                 assertEquals(3, defs.length);
@@ -108,8 +109,10 @@ public class FooWorkingCopyTest
                 BufferChange change = new BufferChange(new DeleteEdit(
                     r.getOffset(), r.getLength()));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 vars = workingCopy.getVars();
                 assertEquals(2, vars.length);
@@ -129,8 +132,10 @@ public class FooWorkingCopyTest
                 change = new BufferChange(new InsertEdit(r.getOffset(),
                     var2Text));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 vars = workingCopy.getVars();
                 assertEquals(1, vars.length);
@@ -153,7 +158,7 @@ public class FooWorkingCopyTest
             IBuffer buffer = new Buffer(
                 "var x; var y; def f() {} def f(x) {} def f(x, y) {}"))
         {
-            doWithWorkingCopy(of(ISourceFileImplSupport.WORKING_COPY_BUFFER,
+            doWithWorkingCopy(of(ISourceFileImplExtension.WORKING_COPY_BUFFER,
                 buffer), new IWorkspaceRunnable()
                 {
                     @Override
@@ -169,58 +174,6 @@ public class FooWorkingCopyTest
                         assertEquals(3, defs.length);
                     }
                 });
-        }
-    }
-
-    public void testBug479623() throws Exception
-    {
-        // concurrent creation/acquisition of working copy
-        final boolean[] stop = new boolean[1];
-        final boolean[] failure = new boolean[1];
-        Thread thread = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                while (!stop[0])
-                {
-                    WorkingCopyInfo info =
-                        workingCopy.hAcquireExistingWorkingCopy(null);
-                    if (info != null)
-                    {
-                        try
-                        {
-                            if (!info.isInitialized())
-                            {
-                                failure[0] = true;
-                                return;
-                            }
-                        }
-                        finally
-                        {
-                            workingCopy.hReleaseWorkingCopy();
-                        }
-                    }
-                }
-            }
-        });
-        thread.start();
-        try
-        {
-            doWithWorkingCopy(EMPTY_CONTEXT, new IWorkspaceRunnable()
-            {
-                @Override
-                public void run(IProgressMonitor monitor) throws CoreException
-                {
-                }
-            });
-            assertFalse(failure[0]);
-            assertTrue(thread.isAlive());
-        }
-        finally
-        {
-            stop[0] = true;
-            thread.join();
         }
     }
 

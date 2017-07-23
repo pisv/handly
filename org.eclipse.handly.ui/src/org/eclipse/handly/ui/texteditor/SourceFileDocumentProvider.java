@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.model.impl.ISourceFileImplSupport;
+import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 import org.eclipse.handly.ui.IWorkingCopyManager;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
@@ -169,9 +169,9 @@ public abstract class SourceFileDocumentProvider
         throws CoreException
     {
         ISourceFile sourceFile = getSourceFile(element);
-        if (sourceFile instanceof ISourceFileImplSupport)
+        if (sourceFile instanceof ISourceFileImplExtension)
         {
-            ((ISourceFileImplSupport)sourceFile).hBecomeWorkingCopy(
+            ((ISourceFileImplExtension)sourceFile).hBecomeWorkingCopy(
                 EMPTY_CONTEXT, null);
             return sourceFile;
         }
@@ -189,7 +189,7 @@ public abstract class SourceFileDocumentProvider
     protected void releaseWorkingCopy(ISourceFile workingCopy, Object element,
         FileInfo info)
     {
-        ((ISourceFileImplSupport)workingCopy).hReleaseWorkingCopy();
+        ((ISourceFileImplExtension)workingCopy).hReleaseWorkingCopy();
     }
 
     protected static class SourceFileInfo

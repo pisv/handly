@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ public class NotificationManagerTest
     extends TestCase
 {
     private static final ElementDelta NULL_DELTA = new ElementDelta(
-        new SimpleElement(null, null, new SimpleModel()));
+        new SimpleElement(null, null, new SimpleModelManager()));
     private static final IElementChangeEvent POST_CHANGE =
         new ElementChangeEvent(ElementChangeEvent.POST_CHANGE, NULL_DELTA);
     private static final IElementChangeEvent POST_RECONCILE =

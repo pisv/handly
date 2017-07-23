@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.IModel;
 
 /**
  * A simple element for tests.
@@ -24,21 +23,22 @@ import org.eclipse.handly.model.IModel;
 class SimpleElement
     extends Element
 {
-    private final IModel model;
+    private final IModelManager manager;
 
     /**
-     * Constructs a handle for an element with the given parent element
-     * and the given name.
+     * Constructs a handle for an element with the given parameters.
      *
      * @param parent the parent of the element,
      *  or <code>null</code> if the element has no parent
-     * @param name the name of the element
-     * @param model the model the element belongs to
+     * @param name the name of the element,
+     *  or <code>null</code> if the element has no name
+     * @param manager the model manager for the element (not <code>null</code>)
      */
-    public SimpleElement(IElement parent, String name, IModel model)
+    public SimpleElement(IElement parent, String name, IModelManager manager)
     {
         super(parent, name);
-        this.model = model;
+        if ((this.manager = manager) == null)
+            throw new IllegalArgumentException();
     }
 
     /**
@@ -50,23 +50,17 @@ class SimpleElement
      */
     public SimpleElement getChild(String name)
     {
-        return new SimpleElement(this, name, model);
-    }
-
-    @Override
-    public IModel hModel()
-    {
-        return model;
-    }
-
-    @Override
-    public IResource hResource()
-    {
-        throw new UnsupportedOperationException();
+        return new SimpleElement(this, name, manager);
     }
 
     @Override
     public IModelManager hModelManager()
+    {
+        return manager;
+    }
+
+    @Override
+    public IResource hResource()
     {
         throw new UnsupportedOperationException();
     }

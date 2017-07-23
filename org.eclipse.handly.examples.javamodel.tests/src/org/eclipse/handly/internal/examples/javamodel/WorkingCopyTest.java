@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
-import org.eclipse.handly.model.impl.ISourceFileImplSupport;
+import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -82,8 +82,10 @@ public class WorkingCopyTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "Y"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 types = workingCopy.getTypes();
                 assertEquals(1, types.length);
@@ -117,8 +119,10 @@ public class WorkingCopyTest
                 BufferChange change = new BufferChange(new DeleteEdit(
                     r.getOffset(), r.getLength()));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 fields = typeX.getFields();
                 assertEquals(1, fields.length);
@@ -133,8 +137,10 @@ public class WorkingCopyTest
                 change = new BufferChange(new InsertEdit(r.getOffset(),
                     "int y;"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 fields = typeX.getFields();
                 assertEquals(0, fields.length);
@@ -165,8 +171,10 @@ public class WorkingCopyTest
                 BufferChange change = new BufferChange(new ReplaceEdit(
                     r.getOffset(), r.getLength(), "void f() {}"));
                 change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                workingCopy.hWorkingCopyInfo().getBuffer().applyChange(change,
-                    null);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
 
                 methods = typeX.getMethods();
                 assertEquals(1, methods.length);
@@ -315,7 +323,7 @@ public class WorkingCopyTest
                     IBuffer privateBuffer = new ChildBuffer(buffer))
                 {
                     doWithWorkingCopy(privateCopy, of(
-                        ISourceFileImplSupport.WORKING_COPY_BUFFER,
+                        ISourceFileImplExtension.WORKING_COPY_BUFFER,
                         privateBuffer), new IWorkspaceRunnable()
                         {
                             public void run(IProgressMonitor monitor)
