@@ -575,9 +575,13 @@ public class ElementDelta
      * <p>
      * Note that after calling <code>hInsertSubTree(delta)</code>
      * there is no guarantee that
+     * </p>
      * <pre>hDeltaFor(d.hElement()) == d</pre>
+     * <p>
      * or even that
+     * </p>
      * <pre>hDeltaFor(d.hElement()) != null</pre>
+     * <p>
      * for any delta <code>d</code> in the subtree <code>delta</code>.
      * </p>
      * <p>
@@ -900,9 +904,13 @@ public class ElementDelta
      * <p>
      * Note that after calling <code>addAffectedChild(delta)</code>
      * there is no guarantee that
+     * </p>
      * <pre>hDeltaFor(d.hElement()) == d</pre>
+     * <p>
      * or even that
+     * </p>
      * <pre>hDeltaFor(d.hElement()) != null</pre>
+     * <p>
      * for any delta <code>d</code> in the subtree <code>delta</code>.
      * </p>
      *
