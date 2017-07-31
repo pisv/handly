@@ -67,6 +67,8 @@ import org.eclipse.handly.util.ToStringOptions.FormatStyle;
  * Clients can use this class as it stands or subclass it as circumstances
  * warrant. Clients that subclass this class should consider registering
  * an appropriate {@link ElementDelta.Factory} in the model context.
+ * Subclasses that introduce new fields should consider extending
+ * the {@link #hCopyFrom} method.
  * </p>
  */
 public class ElementDelta
@@ -195,7 +197,7 @@ public class ElementDelta
      * Returns the delta for the given element in this delta subtree,
      * or <code>null</code> if no delta is found for the given element.
      *
-     * @param element the element to search delta for or <code>null</code>
+     * @param element the element to search delta for (may be <code>null</code>)
      * @return the delta for the given element, or <code>null</code> if none
      */
     public ElementDelta hDeltaFor(IElement element)
@@ -568,26 +570,174 @@ public class ElementDelta
 
     /**
      * Creates a delta tree for the given delta, and then adds the tree
-     * as an affected child of this delta.
+     * as an affected child of this delta. Doesn't modify the given delta
+     * in any way.
+     * <p>
+     * Note that after calling <code>hInsertSubTree(delta)</code>
+     * there is no guarantee that
+     * <pre>hDeltaFor(d.hElement()) == d</pre>
+     * or even that
+     * <pre>hDeltaFor(d.hElement()) != null</pre>
+     * for any delta <code>d</code> in the subtree <code>delta</code>.
+     * </p>
+     * <p>
+     * For example, if this delta tree already contains a delta for
+     * <code>d.hElement()</code>, the existing child delta will be {@link
+     * #hMergeWith(ElementDelta) merged} with <code>d</code>, which may even
+     * result in a logically empty delta, i.e. no delta for the element.
+     * </p>
      *
      * @param delta the delta to insert (not <code>null</code>)
      */
-    protected void hInsert(ElementDelta delta)
+    protected void hInsertSubTree(ElementDelta delta)
     {
-        if (delta == null)
-            throw new IllegalArgumentException();
-        if (!Elements.equalsAndSameParent(delta.element, element))
+        addAffectedChild(createDeltaTree(delta));
+    }
+
+    /**
+     * Merges this delta with the given delta. Doesn't modify the given delta
+     * in any way.
+     * <p>
+     * It is the caller's responsibility to ensure that the given delta pertains
+     * to the same element as this delta.
+     * </p>
+     * <p>
+     * This implementation implements merge behavior in terms of calls to
+     * {@link #hCopyFrom}.
+     * </p>
+     *
+     * @param delta the delta to merge with (not <code>null</code>)
+     */
+    protected void hMergeWith(ElementDelta delta)
+    {
+        switch (hKind())
         {
-            addAffectedChild(createDeltaTree(delta));
+        case ADDED:
+            switch (delta.hKind())
+            {
+            case ADDED: // element was added then added -> it is added
+            case CHANGED: // element was added then changed -> it is added
+                return;
+            case REMOVED: // element was added then removed -> noop
+                hCopyFrom(hNewDelta(hElement()), true);
+                return;
+            }
+            break;
+        case REMOVED:
+            switch (delta.hKind())
+            {
+            case ADDED: // element was removed then added -> it is changed
+                ElementDelta newDelta = hNewDelta(hElement());
+                newDelta.hSetKind(CHANGED);
+                newDelta.hSetFlags(F_CONTENT);
+                hCopyFrom(newDelta, true);
+                return;
+            case CHANGED: // element was removed then changed -> it is removed
+            case REMOVED: // element was removed then removed -> it is removed
+                return;
+            }
+            break;
+        case CHANGED:
+            switch (delta.hKind())
+            {
+            case ADDED: // element was changed then added -> it is added
+            case REMOVED: // element was changed then removed -> it is removed
+                hCopyFrom(delta, true);
+                return;
+            case CHANGED: // element was changed then changed -> it is changed
+                hCopyFrom(delta, false);
+                return;
+            }
+            break;
+        default:
+            hCopyFrom(delta, true);
+            return;
+        }
+    }
+
+    /**
+     * Implements "=" (assignment) and "+=" (augmented assignment) operations
+     * for this delta. Doesn't modify the given delta in any way.
+     * <p>
+     * It is the caller's responsibility to ensure that the given delta pertains
+     * to the same element as this delta.
+     * </p>
+     * <p>
+     * Subclasses that introduce new fields should consider extending this method.
+     * </p>
+      *
+     * @param delta the delta to copy data from (not <code>null</code>)
+     * @param init <code>true</code> if this delta needs to be completely
+     *  (re-)initialized with data from the given delta; <code>false</code>
+     *  if this delta needs to be augmented with data from the given delta
+     */
+    protected void hCopyFrom(ElementDelta delta, boolean init)
+    {
+        if (init)
+        {
+            hSetKind(delta.hKind());
+            hSetFlags(delta.hFlags());
+            hSetMovedFromElement(delta.hMovedFromElement());
+            hSetMovedToElement(delta.hMovedToElement());
+            hSetAffectedChildren(delta.hAffectedChildren());
+            hSetMarkerDeltas(delta.hMarkerDeltas());
+            hSetResourceDeltas(delta.hResourceDeltas());
         }
         else
         {
-            // the element being changed is the root delta's element
-            hSetKind(delta.hKind());
-            hSetFlags(delta.hFlags());
-            hSetMovedToElement(delta.hMovedToElement());
-            hSetMovedFromElement(delta.hMovedFromElement());
+            for (ElementDelta child : delta.hAffectedChildren())
+            {
+                addAffectedChild(child);
+            }
+
+            // update flags
+            long newFlags = delta.hFlags();
+            long existingFlags = hFlags();
+            //@formatter:off
+            // case of fine grained delta (this delta) and delta coming from
+            // DeltaProcessor (delta): ensure F_CONTENT is not propagated from delta
+            if ((existingFlags & F_FINE_GRAINED) != 0 &&
+                (newFlags & F_FINE_GRAINED) == 0) newFlags &= ~F_CONTENT;
+            //@formatter:on
+            hSetFlags(existingFlags | newFlags);
+
+            // add marker deltas if needed
+            if (delta.markerDeltas != null)
+            {
+                if (markerDeltas != null)
+                    throw new AssertionError(
+                        "Merge of marker deltas is not supported"); //$NON-NLS-1$
+
+                hSetMarkerDeltas(delta.hMarkerDeltas());
+            }
+
+            // add resource deltas if needed
+            if (delta.resourceDeltas != null)
+            {
+                if (resourceDeltas != null)
+                    throw new AssertionError(
+                        "Merge of resource deltas is not supported"); //$NON-NLS-1$
+
+                hSetResourceDeltas(delta.hResourceDeltas());
+            }
         }
+    }
+
+    /**
+     * Sets the affected children.
+     * <p>
+     * This is a low-level mutator method. In particular, it is the caller's
+     * responsibility to set appropriate flags.
+     * </p>
+     *
+     * @param children the affected children (not <code>null</code>)
+     */
+    protected void hSetAffectedChildren(ElementDelta[] children)
+    {
+        if (children == null)
+            throw new IllegalArgumentException();
+        affectedChildren = children;
+        childIndex = null;
     }
 
     /**
@@ -595,8 +745,7 @@ public class ElementDelta
      */
     protected void hClearAffectedChildren()
     {
-        affectedChildren = NO_CHILDREN;
-        childIndex = null;
+        hSetAffectedChildren(NO_CHILDREN);
     }
 
     /**
@@ -627,13 +776,13 @@ public class ElementDelta
     }
 
     /**
-     * Returns a collection of the parents of the given element up to (but
-     * not including) the element of this delta in bottom-up order.
+     * Returns the list of the parents of the given element up to
+     * (but not including) the element of this delta in bottom-up order.
      * If the given element is not a descendant of this delta's element,
      * <code>null</code> is returned.
      *
      * @param child the given element (not <code>null</code>)
-     * @return the collection of the parents of the given element up to
+     * @return the list of the parents of the given element up to
      *  (but not including) the element of this delta in bottom-up order,
      *  or <code>null</code> if the given element is not a descendant of
      *  this delta's element
@@ -681,11 +830,12 @@ public class ElementDelta
     }
 
     /**
-     * Returns the delta for the given key in this delta subtree,
+     * Returns the descendant delta for the given key,
      * or <code>null</code> if no delta is found for the given key.
      *
      * @param key the key to search delta for (not <code>null</code>)
-     * @return the delta for the given key, or <code>null</code> if none
+     * @return the descendant delta for the given key,
+     *  or <code>null</code> if none
      */
     private ElementDelta findDescendant(Key key)
     {
@@ -704,8 +854,8 @@ public class ElementDelta
     }
 
     /**
-     * Given a delta key, returns the index of the delta in the collection
-     * of affected children, or <code>null</code> if no child delta is found
+     * Given a delta key, returns the index of the delta in the list of
+     * affected children, or <code>null</code> if no child delta is found
      * for the given key.
      *
      * @param key the key to search child delta for (not <code>null</code>)
@@ -739,17 +889,27 @@ public class ElementDelta
     }
 
     /**
-     * Adds the given delta to the collection of affected children.
-     * If the given delta is already in the collection, walks down
-     * this delta tree.
+     * Adds the given delta as an affected child of this delta. If this delta
+     * already contains a child delta for the same element as the given delta,
+     * {@link #hMergeWith(ElementDelta) merges} the existing child delta with
+     * the given delta. Doesn't modify the given delta in any way.
+     * <p>
+     * It is the caller's responsibility to ensure that the given delta can be
+     * a direct child of this delta.
+     * </p>
+     * <p>
+     * Note that after calling <code>addAffectedChild(delta)</code>
+     * there is no guarantee that
+     * <pre>hDeltaFor(d.hElement()) == d</pre>
+     * or even that
+     * <pre>hDeltaFor(d.hElement()) != null</pre>
+     * for any delta <code>d</code> in the subtree <code>delta</code>.
+     * </p>
      *
-     * @param child the child delta to add (not <code>null</code>)
+     * @param child the delta to add as an affected child (not <code>null</code>)
      */
     private void addAffectedChild(ElementDelta child)
     {
-        if (child == null)
-            throw new IllegalArgumentException();
-
         switch (hKind())
         {
         case ADDED:
@@ -780,97 +940,24 @@ public class ElementDelta
         else
         {
             ElementDelta existingChild = affectedChildren[index];
-            switch (existingChild.hKind())
-            {
-            case ADDED:
-                switch (child.hKind())
-                {
-                case ADDED: // child was added then added -> it is added
-                case CHANGED: // child was added then changed -> it is added
-                    return;
-                case REMOVED: // child was added then removed -> noop
-                    removeExistingChild(key, index);
-                    return;
-                }
-                break;
-            case REMOVED:
-                switch (child.hKind())
-                {
-                case ADDED: // child was removed then added -> it is changed
-                    child.hSetKind(CHANGED);
-                    affectedChildren[index] = child;
-                    return;
-                case CHANGED: // child was removed then changed -> it is removed
-                case REMOVED: // child was removed then removed -> it is removed
-                    return;
-                }
-                break;
-            case CHANGED:
-                switch (child.hKind())
-                {
-                case ADDED: // child was changed then added -> it is added
-                case REMOVED: // child was changed then removed -> it is removed
-                    affectedChildren[index] = child;
-                    return;
-                case CHANGED: // child was changed then changed -> it is changed
-                    for (ElementDelta childsChild : child.affectedChildren)
-                    {
-                        existingChild.addAffectedChild(childsChild);
-                    }
-
-                    // update flags
-                    boolean childHadContentFlag = (child.hFlags()
-                        & F_CONTENT) != 0;
-                    boolean existingChildHadChildrenFlag =
-                        (existingChild.hFlags() & F_CHILDREN) != 0;
-                    existingChild.hSetFlags(existingChild.hFlags()
-                        | child.hFlags());
-
-                    // remove F_CONTENT if existing child had F_CHILDREN flag set
-                    // (case of fine grained delta (existing child) and
-                    // delta coming from DeltaProcessor (child))
-                    if (childHadContentFlag && existingChildHadChildrenFlag)
-                    {
-                        existingChild.hSetFlags(existingChild.hFlags()
-                            & ~F_CONTENT);
-                    }
-
-                    // add marker deltas if needed
-                    if (child.markerDeltas != null)
-                    {
-                        if (existingChild.markerDeltas != null)
-                            throw new AssertionError(
-                                "Merge of marker deltas is not supported"); //$NON-NLS-1$
-
-                        existingChild.hSetMarkerDeltas(child.hMarkerDeltas());
-                    }
-
-                    // add resource deltas if needed
-                    if (child.resourceDeltas != null)
-                    {
-                        if (existingChild.resourceDeltas != null)
-                            throw new AssertionError(
-                                "Merge of resource deltas is not supported"); //$NON-NLS-1$
-
-                        existingChild.hSetResourceDeltas(
-                            child.hResourceDeltas());
-                    }
-
-                    return;
-                }
-                break;
-            default:
-                // unknown -> existing child becomes the child with the existing child's flags
-                affectedChildren[index] = child;
-                child.hSetFlags(child.hFlags() | existingChild.hFlags());
-            }
+            boolean wasEmpty = existingChild.hIsEmpty();
+            existingChild.hMergeWith(child);
+            if (!wasEmpty && existingChild.hIsEmpty())
+                removeExistingChild(key, index);
         }
     }
 
     /**
-     * Adds a new child delta to the collection of affected children.
+     * Adds the given delta as a new affected child of this delta without
+     * any checks.
+     * <p>
+     * It is the caller's responsibility to ensure that this delta doesn't
+     * already contain a child delta for the same element as the given delta
+     * and the given delta can be a direct child of this delta.
+     * </p>
      *
-     * @param child the child delta to add (not <code>null</code>)
+     * @param child the delta to add as a new affected child
+     *  (not <code>null</code>)
      */
     private void addNewChild(ElementDelta child)
     {
@@ -882,12 +969,12 @@ public class ElementDelta
     }
 
     /**
-     * Removes the specified child delta from the collection of affected children.
+     * Removes the specified child delta from the list of affected children.
      *
      * @param key
      *  the key of the child delta (not <code>null</code>)
      * @param index
-     *  the index of the child delta in the collection of affected children
+     *  the index of the child delta in the list of affected children
      */
     private void removeExistingChild(Key key, int index)
     {
@@ -1062,17 +1149,7 @@ public class ElementDelta
          */
         public Builder removed(IElement element, long flags)
         {
-            ElementDelta delta = rootDelta.hNewDelta(element);
-            insert(delta);
-            ElementDelta actualDelta = findDelta(element);
-            if (actualDelta != null)
-            {
-                actualDelta.hSetKind(REMOVED);
-                actualDelta.hSetFlags(flags);
-                actualDelta.hClearAffectedChildren();
-                actualDelta.hSetResourceDeltas(null);
-                actualDelta.hSetMarkerDeltas(null);
-            }
+            insert(newRemoved(element, flags));
             return this;
         }
 
@@ -1216,7 +1293,10 @@ public class ElementDelta
 
         private void insert(ElementDelta delta)
         {
-            rootDelta.hInsert(delta);
+            if (!Elements.equalsAndSameParent(rootDelta.element, delta.element))
+                rootDelta.hInsertSubTree(delta);
+            else
+                rootDelta.hMergeWith(delta);
         }
 
         /**
