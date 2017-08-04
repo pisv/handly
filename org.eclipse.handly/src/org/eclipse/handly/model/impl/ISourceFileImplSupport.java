@@ -643,6 +643,10 @@ public interface ISourceFileImplSupport
                 + ".rebuildStructureIfForced", //$NON-NLS-1$
                 Boolean.class).withDefault(false);
 
+        static final Property<Boolean> INITIAL_RECONCILE = Property.get(
+            ReconcileOperation.class.getName() + ".initialReconcile", //$NON-NLS-1$
+            Boolean.class).withDefault(false);
+
         static final Property<Boolean> RECONCILING_FORCED = Property.get(
             ReconcileOperation.class.getName() + ".reconcilingForced", //$NON-NLS-1$
             Boolean.class).withDefault(false);
@@ -713,8 +717,10 @@ public interface ISourceFileImplSupport
          * </li>
          * </ul>
          * <p>
-         * Subclasses may override this method, but must call the <b>super</b>
-         * implementation.
+         * Subclasses may override this method, but must make sure to call
+         * {@link #reconcileStructure} if {@link #shouldReconcileStructure}
+         * returns <code>true</code>. A simple way to ensure that is to invoke
+         * the <b>super</b> implementation.
          * </p>
          *
          * @param context the operation context (not <code>null</code>)
@@ -726,34 +732,110 @@ public interface ISourceFileImplSupport
         protected void reconcile(IContext context, IProgressMonitor monitor)
             throws CoreException
         {
+            if (shouldReconcileStructure(context))
+            {
+                reconcileStructure(context, monitor);
+            }
+        }
+
+        /**
+         * Returns whether the structure of the working copy needs to be
+         * reconciled by rebuilding it according to options specified in the
+         * given context.
+         * <p>
+         * Subclasses may override this method but must return <code>true</code>
+         * whenever the <b>super</b> implementation returns <code>true</code>;
+         * they may return <code>true</code> when the <b>super</b> implementation
+         * returns <code>false</code>.
+         * </p>
+         *
+         * @param context the operation context (not <code>null</code>)
+         * @return <code>true</code> if the working copy structure needs to be
+         *  reconciled; <code>false</code> otherwise
+         * @see #reconcile(IContext, IProgressMonitor)
+         * @see #reconcileStructure(IContext, IProgressMonitor)
+         */
+        protected boolean shouldReconcileStructure(IContext context)
+        {
+            return context.getOrDefault(INITIAL_RECONCILE)
+                || !context.getOrDefault(RECONCILING_FORCED)
+                || context.getOrDefault(REBUILD_STRUCTURE_IF_FORCED);
+        }
+
+        /**
+         * Reconciles the structure of the working copy by rebuilding it
+         * according to options specified in the given context.
+         * <p>
+         * The following context options influence rebuilding of the structure
+         * of the working copy and, if simultaneously present, must be mutually
+         * consistent:
+         * </p>
+         * <ul>
+         * <li>
+         * {@link #SOURCE_AST} - Specifies the AST to use when building the
+         * structure. The AST is safe to read in the dynamic context of this
+         * method call, but must not be modified.
+         * </li>
+         * <li>
+         * {@link #SOURCE_CONTENTS} - Specifies the source string to use when
+         * building the structure.
+         * </li>
+         * </ul>
+         * <p>
+         * At least one of <code>SOURCE_AST</code> or <code>SOURCE_CONTENTS</code>
+         * must have a non-null value in the given context.
+         * </p>
+         * <p>
+         * The given context may provide additional data that this method can use,
+         * including the following:
+         * </p>
+         * <ul>
+         * <li>
+         * {@link #SOURCE_SNAPSHOT} - Specifies the source snapshot from which
+         * <code>SOURCE_AST</code> was created or <code>SOURCE_CONTENTS</code>
+         * was obtained. The snapshot may expire.
+         * </li>
+         * </ul>
+         * <p>
+         * Subclasses may override this method, but must make sure to call
+         * the <b>super</b> implementation.
+         * </p>
+         *
+         * @param context the operation context (not <code>null</code>)
+         * @param monitor a progress monitor, or <code>null</code>
+         *  if progress reporting is not desired
+         * @throws CoreException if the working copy cannot be reconciled
+         * @throws OperationCanceledException if this method is canceled
+         * @see #reconcile(IContext, IProgressMonitor)
+         * @see #shouldReconcileStructure(IContext)
+         */
+        protected void reconcileStructure(IContext context,
+            IProgressMonitor monitor) throws CoreException
+        {
             if (context.get(SOURCE_AST) == null && context.get(
                 SOURCE_CONTENTS) == null)
             {
                 throw new IllegalArgumentException();
             }
-            WorkingCopyInfo info =
-                sourceFile.hElementManager().peekAtWorkingCopyInfo(sourceFile);
-            boolean create = !info.created; // case of wc creation
-            if (create || !context.getOrDefault(RECONCILING_FORCED)
-                || context.getOrDefault(REBUILD_STRUCTURE_IF_FORCED))
+            if (CURRENTLY_RECONCILED.get() != null)
+                throw new AssertionError(); // should never happen
+            CURRENTLY_RECONCILED.set(sourceFile);
+            try
             {
-                if (CURRENTLY_RECONCILED.get() != null)
-                    throw new AssertionError(); // should never happen
-                CURRENTLY_RECONCILED.set(sourceFile);
-                try
-                {
-                    sourceFile.hOpen(with(of(FORCE_OPEN, true), context),
-                        monitor);
-                }
-                finally
-                {
-                    CURRENTLY_RECONCILED.set(null);
-                }
+                sourceFile.hOpen(with(of(FORCE_OPEN, true), context), monitor);
             }
-            if (create)
+            finally
             {
+                CURRENTLY_RECONCILED.set(null);
+            }
+            if (context.getOrDefault(INITIAL_RECONCILE))
+            {
+                WorkingCopyInfo info =
+                    sourceFile.hElementManager().peekAtWorkingCopyInfo(
+                        sourceFile);
                 if (!info.created)
                     throw new AssertionError(); // should never happen
+
                 sourceFile.hWorkingCopyModeChanged(); // notify about wc creation
             }
         }
@@ -790,30 +872,32 @@ public interface ISourceFileImplSupport
         /**
          * {@inheritDoc}
          * <p>
-         * This implementation invokes <code>doReconcile(context, monitor)</code>,
-         * builds the resulting delta using an element {@link #createDifferencer()
+         * If <code>shouldReconcileStructure</code> returns <code>true</code>,
+         * this implementation invokes <code>reconcileStructure</code>, builds
+         * the resulting delta using an element {@link #createDifferencer()
          * differencer}, and sends out a <code>POST_RECONCILE</code> event
          * using the notification manager registered in the model context.
          * </p>
-         * @see #createDifferencer()
-         * @see #doReconcile(IContext, IProgressMonitor)
          */
         @Override
         protected void reconcile(IContext context, IProgressMonitor monitor)
             throws CoreException
         {
-            ElementDifferencer differ = createDifferencer();
-
-            doReconcile(context, monitor);
-
-            differ.buildDelta();
-            if (!differ.isEmptyDelta())
+            if (shouldReconcileStructure(context))
             {
-                sourceFile.hModel().getModelContext().get(
-                    INotificationManager.class).fireElementChangeEvent(
-                        new ElementChangeEvent(
-                            ElementChangeEvent.POST_RECONCILE,
-                            differ.getDelta()));
+                ElementDifferencer differ = createDifferencer();
+
+                reconcileStructure(context, monitor);
+
+                differ.buildDelta();
+                if (!differ.isEmptyDelta())
+                {
+                    sourceFile.hModel().getModelContext().get(
+                        INotificationManager.class).fireElementChangeEvent(
+                            new ElementChangeEvent(
+                                ElementChangeEvent.POST_RECONCILE,
+                                differ.getDelta()));
+                }
             }
         }
 
@@ -831,26 +915,6 @@ public interface ISourceFileImplSupport
                 deltaFactory = element -> new ElementDelta(element);
             ElementDelta rootDelta = deltaFactory.newDelta(sourceFile);
             return new ElementDifferencer(new ElementDelta.Builder(rootDelta));
-        }
-
-        /**
-         * This implementation calls {@link ReconcileOperation#reconcile(
-         * IContext, IProgressMonitor) super.reconcile(..)}.
-         * <p>
-         * Subclasses may override this method, but must call its <b>super</b>
-         * implementation.
-         * </p>
-         *
-         * @param context the operation context (not <code>null</code>)
-         * @param monitor a progress monitor, or <code>null</code>
-         *  if progress reporting is not desired
-         * @throws CoreException if the working copy cannot be reconciled
-         * @throws OperationCanceledException if this method is canceled
-         */
-        protected void doReconcile(IContext context, IProgressMonitor monitor)
-            throws CoreException
-        {
-            super.reconcile(context, monitor);
         }
     }
 }
@@ -996,7 +1060,19 @@ class ReconcileStrategy
     public void reconcile(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
+        if (context.get(SOURCE_AST) == null && context.get(
+            SOURCE_CONTENTS) == null)
+        {
+            throw new IllegalArgumentException();
+        }
+
         Context context2 = new Context();
+
+        WorkingCopyInfo info =
+            sourceFile.hElementManager().peekAtWorkingCopyInfo(sourceFile);
+        context2.bind(
+            ISourceFileImplSupport.ReconcileOperation.INITIAL_RECONCILE).to(
+                !info.created);
 
         context2.bind(
             ISourceFileImplSupport.ReconcileOperation.RECONCILING_FORCED).to(
