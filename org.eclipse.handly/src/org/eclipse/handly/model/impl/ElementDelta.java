@@ -569,8 +569,9 @@ public class ElementDelta
     }
 
     /**
-     * Creates a delta tree for the given delta, and then adds the tree
-     * as an affected child of this delta. Doesn't modify the given delta
+     * Based on the given delta, creates a delta tree that can be directly
+     * parented by this delta, and then {@link #hAddAffectedChild adds} the
+     * tree as an affected child of this delta. Doesn't modify the given delta
      * in any way.
      * <p>
      * Note that after calling <code>hInsertSubTree(delta)</code>
@@ -595,7 +596,71 @@ public class ElementDelta
      */
     protected void hInsertSubTree(ElementDelta delta)
     {
-        addAffectedChild(createDeltaTree(delta));
+        hAddAffectedChild(createDeltaTree(delta));
+    }
+
+    /**
+     * Adds the given delta as an affected child of this delta. If this delta
+     * already contains a child delta for the same element as the given delta,
+     * {@link #hMergeWith(ElementDelta) merges} the existing child delta with
+     * the given delta. Doesn't modify the given delta in any way.
+     * <p>
+     * It is the caller's responsibility to ensure that the given delta can be
+     * directly parented by this delta.
+     * </p>
+     * <p>
+     * Note that after calling <code>hAddAffectedChild(delta)</code>
+     * there is no guarantee that
+     * </p>
+     * <pre>hDeltaFor(d.hElement()) == d</pre>
+     * <p>
+     * or even that
+     * </p>
+     * <pre>hDeltaFor(d.hElement()) != null</pre>
+     * <p>
+     * for any delta <code>d</code> in the subtree <code>delta</code>.
+     * </p>
+     *
+     * @param child the delta to add as an affected child (not <code>null</code>)
+     * @see #hInsertSubTree(ElementDelta)
+     */
+    protected void hAddAffectedChild(ElementDelta child)
+    {
+        switch (hKind())
+        {
+        case ADDED:
+        case REMOVED:
+            // no need to add a child if this parent is added or removed
+            return;
+        case CHANGED:
+            hSetFlags(hFlags() | F_CHILDREN);
+            break;
+        default:
+            hSetKind(CHANGED);
+            hSetFlags(hFlags() | F_CHILDREN);
+        }
+
+        // if a child delta is added to a source file delta or below,
+        // it's a fine grained delta
+        if (element instanceof ISourceElement)
+        {
+            hSetFlags(hFlags() | F_FINE_GRAINED);
+        }
+
+        Key key = new Key(child.element);
+        Integer index = indexOfChild(key);
+        if (index == null) // new affected child
+        {
+            addNewChild(child);
+        }
+        else
+        {
+            ElementDelta existingChild = affectedChildren[index];
+            boolean wasEmpty = existingChild.hIsEmpty();
+            existingChild.hMergeWith(child);
+            if (!wasEmpty && existingChild.hIsEmpty())
+                removeExistingChild(key, index);
+        }
     }
 
     /**
@@ -691,7 +756,7 @@ public class ElementDelta
         {
             for (ElementDelta child : delta.hAffectedChildren())
             {
-                addAffectedChild(child);
+                hAddAffectedChild(child);
             }
 
             // update flags
@@ -747,7 +812,7 @@ public class ElementDelta
     /**
      * Clears the collection of affected children.
      */
-    protected void hClearAffectedChildren()
+    void hClearAffectedChildren()
     {
         hSetAffectedChildren(NO_CHILDREN);
     }
@@ -767,13 +832,13 @@ public class ElementDelta
         {
             IContext context = of(FORMAT_STYLE, SHORT);
             throw new IllegalArgumentException(MessageFormat.format(
-                "Delta {0} cannot be rooted under {1}", delta.hToString( //$NON-NLS-1$
+                "Delta {0} cannot be rooted in {1}", delta.hToString( //$NON-NLS-1$
                     context), hToString(context)));
         }
         for (IElement ancestor : ancestors)
         {
             ElementDelta ancestorDelta = hNewDelta(ancestor);
-            ancestorDelta.addAffectedChild(childDelta);
+            ancestorDelta.hAddAffectedChild(childDelta);
             childDelta = ancestorDelta;
         }
         return childDelta;
@@ -890,69 +955,6 @@ public class ElementDelta
             }
         }
         return childIndex.get(key);
-    }
-
-    /**
-     * Adds the given delta as an affected child of this delta. If this delta
-     * already contains a child delta for the same element as the given delta,
-     * {@link #hMergeWith(ElementDelta) merges} the existing child delta with
-     * the given delta. Doesn't modify the given delta in any way.
-     * <p>
-     * It is the caller's responsibility to ensure that the given delta can be
-     * a direct child of this delta.
-     * </p>
-     * <p>
-     * Note that after calling <code>addAffectedChild(delta)</code>
-     * there is no guarantee that
-     * </p>
-     * <pre>hDeltaFor(d.hElement()) == d</pre>
-     * <p>
-     * or even that
-     * </p>
-     * <pre>hDeltaFor(d.hElement()) != null</pre>
-     * <p>
-     * for any delta <code>d</code> in the subtree <code>delta</code>.
-     * </p>
-     *
-     * @param child the delta to add as an affected child (not <code>null</code>)
-     */
-    private void addAffectedChild(ElementDelta child)
-    {
-        switch (hKind())
-        {
-        case ADDED:
-        case REMOVED:
-            // no need to add a child if this parent is added or removed
-            return;
-        case CHANGED:
-            hSetFlags(hFlags() | F_CHILDREN);
-            break;
-        default:
-            hSetKind(CHANGED);
-            hSetFlags(hFlags() | F_CHILDREN);
-        }
-
-        // if a child delta is added to a source file delta or below,
-        // it's a fine grained delta
-        if (element instanceof ISourceElement)
-        {
-            hSetFlags(hFlags() | F_FINE_GRAINED);
-        }
-
-        Key key = new Key(child.element);
-        Integer index = indexOfChild(key);
-        if (index == null) // new affected child
-        {
-            addNewChild(child);
-        }
-        else
-        {
-            ElementDelta existingChild = affectedChildren[index];
-            boolean wasEmpty = existingChild.hIsEmpty();
-            existingChild.hMergeWith(child);
-            if (!wasEmpty && existingChild.hIsEmpty())
-                removeExistingChild(key, index);
-        }
     }
 
     /**
