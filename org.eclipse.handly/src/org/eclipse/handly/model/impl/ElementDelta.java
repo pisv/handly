@@ -810,14 +810,6 @@ public class ElementDelta
     }
 
     /**
-     * Clears the collection of affected children.
-     */
-    void hClearAffectedChildren()
-    {
-        hSetAffectedChildren(NO_CHILDREN);
-    }
-
-    /**
      * Based on the given delta, creates a delta tree to add as an affected
      * child of this delta. Returns the root of the created delta tree.
      *

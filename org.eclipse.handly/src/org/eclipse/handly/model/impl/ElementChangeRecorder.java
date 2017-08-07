@@ -14,145 +14,182 @@ package org.eclipse.handly.model.impl;
 
 import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_REORDER;
-import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.IElementDelta;
 
 /**
- * Builds a delta tree between the version of an input element at the time the
- * differencer was created and the current version of the element. Performs
- * this operation by locally caching the contents of the element when the
- * differencer is constructed. When {@link #buildDelta()} is called,
- * creates a delta over the cached contents and the new contents.
+ * Builds a delta tree between two versions of an input element.
+ * <p>
+ * This implementation caches locally the contents of the element tree rooted
+ * at the input element at the time the recorder begins recording. When {@link
+ * #endRecording()} is called, creates a delta over the cached contents and the
+ * new contents.
+ * </p>
  * <p>
  * Clients can use this class as it stands or subclass it as circumstances
  * warrant.
  * </p>
- *
- * @see IElementDelta
  */
-public class ElementDifferencer
+public class ElementChangeRecorder
 {
-    private final ElementDelta.Builder builder;
+    private IElement inputElement;
+    private ElementDelta.Builder deltaBuilder;
+    private int maxDepth;
 
-    /*
-     * The maximum depth in the element children we should look into
-     */
-    private final int maxDepth;
-
-    /*
-     * The old handle to body relationships
-     */
     private Map<IElement, Object> oldBodies;
-
     private Map<IElement, ListItem> oldPositions;
     private Map<IElement, ListItem> newPositions;
     private Set<IElement> added;
     private Set<IElement> removed;
-    private boolean built;
+
+    private boolean recording;
 
     /**
-     * Constructs an element differencer with the given element delta builder.
+     * Returns whether this change recorder is recording.
      *
-     * @param builder an element delta builder (not <code>null</code>)
+     * @return <code>true</code> if this change recorder is recording
+     *  or <code>false</code> otherwise
      */
-    public ElementDifferencer(ElementDelta.Builder builder)
+    public final boolean isRecording()
     {
-        this(builder, Integer.MAX_VALUE);
+        return recording;
     }
 
     /**
-     * Constructs an element differencer with the given element delta builder.
-     * The differencer will look only <code>maxDepth</code> levels deep.
+     * Begins recording any changes in the element tree rooted at the given
+     * input element, reporting the changes to a new instance of a default
+     * delta builder. The delta builder is rooted at the given input element.
      *
-     * @param builder an element delta builder (not <code>null</code>)
-     * @param maxDepth the maximum depth in the element children
-     *  the differencer should look into
+     * @param inputElement not <code>null</code>
      */
-    public ElementDifferencer(ElementDelta.Builder builder, int maxDepth)
+    public final void beginRecording(IElement inputElement)
     {
-        if (builder == null)
+        beginRecording(inputElement, null);
+    }
+
+    /**
+     * Begins recording any changes in the element tree rooted at the given
+     * input element, reporting the changes to the given delta builder. The
+     * delta builder may be <code>null</code>, in which case a new instance
+     * of a default delta builder rooted at the given input element will be
+     * used.
+     *
+     * @param inputElement not <code>null</code>
+     * @param deltaBuilder may be <code>null</code>
+     */
+    public final void beginRecording(IElement inputElement,
+        ElementDelta.Builder deltaBuilder)
+    {
+        beginRecording(inputElement, deltaBuilder, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Begins recording any changes in the element tree rooted at the given
+     * input element for the specified maximum depth, reporting the changes
+     * to the given delta builder. The delta builder may be <code>null</code>,
+     * in which case a new instance of a default delta builder rooted at the
+     * given input element will be used.
+     *
+     * @param inputElement not <code>null</code>
+     * @param deltaBuilder may be <code>null</code>
+     * @param maxDepth the maximum depth of the input element's subtree
+     *  the recorder should look into
+     */
+    public void beginRecording(IElement inputElement,
+        ElementDelta.Builder deltaBuilder, int maxDepth)
+    {
+        if (inputElement == null)
             throw new IllegalArgumentException();
 
-        this.builder = builder;
+        if (deltaBuilder == null)
+            deltaBuilder = newDeltaBuilder(inputElement);
+
+        this.inputElement = inputElement;
+        this.deltaBuilder = deltaBuilder;
         this.maxDepth = maxDepth;
+
         initialize();
-        recordBody(getElement(), 0);
+        recordBody(inputElement, 0);
+
+        recording = true;
     }
 
     /**
-     * Returns the input element of this differencer.
+     * Ends the current recording and returns the changes between the version of
+     * the input element at the time the recording was started and the current
+     * version of the element.
      *
-     * @return the input element (never <code>null</code>)
+     * @return a delta builder with the reported changes
+     *  (never <code>null</code>)
+     * @throws IllegalStateException if this recorder is not recording
      */
-    public IElement getElement()
+    public ElementDelta.Builder endRecording()
     {
-        return getDelta().hElement();
-    }
-
-    /**
-     * Builds the delta tree between the old content of the input element and
-     * its new content. This method may only be called once on a differencer
-     * instance.
-     */
-    public void buildDelta()
-    {
-        if (built)
-            throw new IllegalStateException("Delta has already been built"); //$NON-NLS-1$
-        built = true;
-        IElement element = getElement();
-        recordNewPositions(element, 0);
-        findAdditions(element, 0);
+        if (!recording)
+            throw new IllegalStateException("No recording to end"); //$NON-NLS-1$
+        recording = false;
+        recordNewPositions(inputElement, 0);
+        findAdditions(inputElement, 0);
         findDeletions();
-        findChangesInPositioning(element, 0);
-        trimDelta(getDelta());
+        findChangesInPositioning(inputElement, 0);
+        return deltaBuilder;
     }
 
     /**
-     * Returns the delta builder used by this differencer.
+     * Returns the current input element.
      *
-     * @return the delta builder (never <code>null</code>)
+     * @return the current input element
      */
-    public ElementDelta.Builder getDeltaBuilder()
+    protected final IElement getInputElement()
     {
-        return builder;
+        return inputElement;
     }
 
     /**
-     * Returns the root of the built delta tree.
+     * Returns the current delta builder.
      *
-     * @return the root of the delta tree (never <code>null</code>)
+     * @return the current delta builder
      */
-    public ElementDelta getDelta()
+    protected final ElementDelta.Builder getDeltaBuilder()
     {
-        return getDeltaBuilder().getDelta();
+        return deltaBuilder;
     }
 
     /**
-     * Returns whether the built delta tree is empty,
-     * i.e. represents an unchanged element.
+     * Returns the current max depth.
      *
-     * @return <code>true</code> if the delta is empty,
-     *  and <code>false</code> otherwise
+     * @return the current max depth
      */
-    public boolean isEmptyDelta()
+    protected final int getMaxDepth()
     {
-        return getDeltaBuilder().isEmptyDelta();
+        return maxDepth;
     }
 
-    @Override
-    public String toString()
+    /**
+     * Returns a new instance of a default delta builder rooted at the given
+     * element.
+     *
+     * @param element never <code>null</code>
+     * @return a new instance of a default delta builder
+     *  (never <code>null</code>)
+     */
+    protected ElementDelta.Builder newDeltaBuilder(IElement element)
     {
-        return getDelta().toString();
+        ElementDelta.Factory deltaFactory = Elements.getModel(
+            element).getModelContext().get(ElementDelta.Factory.class);
+        ElementDelta delta;
+        if (deltaFactory != null)
+            delta = deltaFactory.newDelta(element);
+        else
+            delta = new ElementDelta(element);
+        return new ElementDelta.Builder(delta);
     }
 
     /**
@@ -185,8 +222,7 @@ public class ElementDifferencer
     protected void findContentChange(Object oldBody, Object newBody,
         IElement element)
     {
-        ((Body)newBody).findContentChange((Body)oldBody, element,
-            getDeltaBuilder());
+        ((Body)newBody).findContentChange((Body)oldBody, element, deltaBuilder);
     }
 
     private void initialize()
@@ -194,8 +230,8 @@ public class ElementDifferencer
         oldBodies = new HashMap<IElement, Object>(20);
         oldPositions = new HashMap<IElement, ListItem>(20);
         newPositions = new HashMap<IElement, ListItem>(20);
-        oldPositions.put(getElement(), new ListItem(null, null));
-        newPositions.put(getElement(), new ListItem(null, null));
+        oldPositions.put(inputElement, new ListItem(null, null));
+        newPositions.put(inputElement, new ListItem(null, null));
         added = new HashSet<IElement>(5);
         removed = new HashSet<IElement>(5);
     }
@@ -277,41 +313,34 @@ public class ElementDifferencer
     /*
      * Finds elements which have been added or changed.
      */
-    private void findAdditions(IElement newElement, int depth)
+    private void findAdditions(IElement element, int depth)
     {
-        Object oldBody = getOldBody(newElement);
+        Object oldBody = removeOldBody(element);
         if (oldBody == null && depth < maxDepth)
         {
-            getDeltaBuilder().added(newElement);
-            added(newElement);
+            deltaBuilder.added(element);
+            added(element);
         }
-        else
-        {
-            removeOldBody(newElement);
-        }
-
-        if (depth >= maxDepth)
+        else if (depth >= maxDepth)
         {
             // mark element as changed
-            getDeltaBuilder().changed(newElement, F_CONTENT);
-            return;
+            deltaBuilder.changed(element, F_CONTENT);
         }
-
-        if (oldBody != null)
+        else // oldBody != null
         {
             Object newBody;
             try
             {
-                newBody = ((IElementImplExtension)newElement).hBody();
+                newBody = ((IElementImplExtension)element).hBody();
             }
             catch (CoreException e)
             {
                 return;
             }
 
-            findContentChange(oldBody, newBody, newElement);
+            findContentChange(oldBody, newBody, element);
 
-            for (IElement child : ((IElementImplExtension)newElement).hChildren(
+            for (IElement child : ((IElementImplExtension)element).hChildren(
                 newBody))
             {
                 findAdditions(child, depth + 1);
@@ -320,15 +349,13 @@ public class ElementDifferencer
     }
 
     /*
-     * Adds removed deltas for any handles left in the 'oldBodies' map.
+     * Adds removed deltas for any elements left in the 'oldBodies' map.
      */
     private void findDeletions()
     {
-        Iterator<IElement> iter = oldBodies.keySet().iterator();
-        while (iter.hasNext())
+        for (IElement element : oldBodies.keySet())
         {
-            IElement element = iter.next();
-            getDeltaBuilder().removed(element);
+            deltaBuilder.removed(element);
             removed(element);
         }
     }
@@ -344,7 +371,7 @@ public class ElementDifferencer
 
         if (!isPositionedCorrectly(element))
         {
-            getDeltaBuilder().changed(element, F_REORDER);
+            deltaBuilder.changed(element, F_REORDER);
         }
 
         IElement[] children;
@@ -360,24 +387,6 @@ public class ElementDifferencer
         for (IElement child : children)
         {
             findChangesInPositioning(child, depth + 1);
-        }
-    }
-
-    /*
-     * Trims deletion deltas to only report the highest level of deletion.
-     */
-    private static void trimDelta(ElementDelta delta)
-    {
-        if (delta.hKind() == REMOVED)
-        {
-            delta.hClearAffectedChildren();
-        }
-        else
-        {
-            for (ElementDelta child : delta.hAffectedChildren())
-            {
-                trimDelta(child);
-            }
         }
     }
 
@@ -439,14 +448,9 @@ public class ElementDifferencer
             return oldPrevious.equals(newPrevious);
     }
 
-    private Object getOldBody(IElement element)
+    private Object removeOldBody(IElement element)
     {
-        return oldBodies.get(element);
-    }
-
-    private void removeOldBody(IElement element)
-    {
-        oldBodies.remove(element);
+        return oldBodies.remove(element);
     }
 
     private ListItem getOldPosition(IElement element)

@@ -874,8 +874,8 @@ public interface ISourceFileImplSupport
          * <p>
          * If <code>shouldReconcileStructure</code> returns <code>true</code>,
          * this implementation invokes <code>reconcileStructure</code>, builds
-         * the resulting delta using an element {@link #createDifferencer()
-         * differencer}, and sends out a <code>POST_RECONCILE</code> event
+         * the resulting delta using an element {@link #newChangeRecorder()
+         * change recorder}, and sends out a <code>POST_RECONCILE</code> event
          * using the notification manager registered in the model context.
          * </p>
          */
@@ -885,36 +885,32 @@ public interface ISourceFileImplSupport
         {
             if (shouldReconcileStructure(context))
             {
-                ElementDifferencer differ = createDifferencer();
+                ElementChangeRecorder recorder = newChangeRecorder();
+                recorder.beginRecording(sourceFile);
 
                 reconcileStructure(context, monitor);
 
-                differ.buildDelta();
-                if (!differ.isEmptyDelta())
+                ElementDelta.Builder builder = recorder.endRecording();
+                if (!builder.isEmptyDelta())
                 {
                     sourceFile.hModel().getModelContext().get(
                         INotificationManager.class).fireElementChangeEvent(
                             new ElementChangeEvent(
                                 ElementChangeEvent.POST_RECONCILE,
-                                differ.getDelta()));
+                                builder.getDelta()));
                 }
             }
         }
 
         /**
-         * Creates an element differencer for this operation's source file.
+         * Returns a new instance of element change recorder for this operation.
          *
-         * @return a new element differencer (never <code>null</code>)
+         * @return a new instance of element change recorder
+         *  (never <code>null</code>)
          */
-        protected ElementDifferencer createDifferencer()
+        protected ElementChangeRecorder newChangeRecorder()
         {
-            ElementDelta.Factory deltaFactory =
-                sourceFile.hModel().getModelContext().get(
-                    ElementDelta.Factory.class);
-            if (deltaFactory == null)
-                deltaFactory = element -> new ElementDelta(element);
-            ElementDelta rootDelta = deltaFactory.newDelta(sourceFile);
-            return new ElementDifferencer(new ElementDelta.Builder(rootDelta));
+            return new ElementChangeRecorder();
         }
     }
 }
