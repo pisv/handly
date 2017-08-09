@@ -182,18 +182,6 @@ public class ElementDelta
     }
 
     /**
-     * Returns whether this delta is empty,
-     * i.e. represents an unchanged element.
-     *
-     * @return <code>true</code> if this delta is empty,
-     *  and <code>false</code> otherwise
-     */
-    public boolean hIsEmpty()
-    {
-        return hKind() == 0;
-    }
-
-    /**
      * Returns the delta for the given element in this delta subtree,
      * or <code>null</code> if no delta is found for the given element.
      *
@@ -1053,6 +1041,7 @@ public class ElementDelta
      * Facility for building a delta tree.
      */
     public static class Builder
+        implements IElementDeltaBuilder
     {
         private final ElementDelta rootDelta;
 
@@ -1069,11 +1058,13 @@ public class ElementDelta
         }
 
         /**
-         * Returns the root of the delta tree.
-         * Always returns the same instance for this builder.
-         *
-         * @return the root of delta tree (never <code>null</code>)
+         * {@inheritDoc}
+         * <p>
+         * This implementation always returns the root delta instance
+         * specified in the constructor.
+         * </p>
          */
+        @Override
         public ElementDelta getDelta()
         {
             return rootDelta;
@@ -1103,82 +1094,40 @@ public class ElementDelta
             return rootDelta.hDeltaFor(element);
         }
 
-        /**
-         * Has the same effect as <code>added(element, 0)</code>.
-         *
-         * @param element the added element (not <code>null</code>)
-         * @return the receiver (i.e. a reference to this object)
-         * @see #added(IElement, long)
-         */
+        @Override
         public Builder added(IElement element)
         {
             return added(element, 0);
         }
 
-        /**
-         * Inserts an <code>ADDED</code> delta for the given element into
-         * the delta tree being built.
-         *
-         * @param element the added element (not <code>null</code>)
-         * @param flags delta flags (see {@link ElementDelta#hFlags})
-         * @return the receiver (i.e. a reference to this object)
-         */
+        @Override
         public Builder added(IElement element, long flags)
         {
             insert(newAdded(element, flags));
             return this;
         }
 
-        /**
-         * Has the same effect as <code>removed(element, 0)</code>.
-         *
-         * @param element the removed element (not <code>null</code>)
-         * @return the receiver (i.e. a reference to this object)
-         * @see #removed(IElement, long)
-         */
+        @Override
         public Builder removed(IElement element)
         {
             return removed(element, 0);
         }
 
-        /**
-         * Inserts a <code>REMOVED</code> delta for the given element into
-         * the delta tree being built.
-         *
-         * @param element the removed element (not <code>null</code>)
-         * @param flags delta flags (see {@link ElementDelta#hFlags})
-         * @return the receiver (i.e. a reference to this object)
-         */
+        @Override
         public Builder removed(IElement element, long flags)
         {
             insert(newRemoved(element, flags));
             return this;
         }
 
-        /**
-         * Inserts a <code>CHANGED</code> delta for the given element into
-         * the delta tree being built.
-         *
-         * @param element the changed element (not <code>null</code>)
-         * @param flags delta flags (see {@link ElementDelta#hFlags})
-         * @return the receiver (i.e. a reference to this object)
-         */
+        @Override
         public Builder changed(IElement element, long flags)
         {
             insert(newChanged(element, flags));
             return this;
         }
 
-        /**
-         * Inserts a new "moved from" (<code>REMOVED</code>) delta for the
-         * given element into the delta tree being built.
-         *
-         * @param movedFromElement the element before it was moved to its
-         *  current location (not <code>null</code>)
-         * @param movedToElement the element in its new location
-         *  (not <code>null</code>)
-         * @return the receiver (i.e. a reference to this object)
-         */
+        @Override
         public Builder movedFrom(IElement movedFromElement,
             IElement movedToElement)
         {
@@ -1186,16 +1135,7 @@ public class ElementDelta
             return this;
         }
 
-        /**
-         * Inserts a new "moved to" (<code>ADDED</code>) delta for the
-         * given element into the delta tree being built.
-         *
-         * @param movedToElement the element in its new location
-         *  (not <code>null</code>)
-         * @param movedFromElement the element before it was moved to its
-         *  current location (not <code>null</code>)
-         * @return the receiver (i.e. a reference to this object)
-         */
+        @Override
         public Builder movedTo(IElement movedToElement,
             IElement movedFromElement)
         {
@@ -1203,18 +1143,7 @@ public class ElementDelta
             return this;
         }
 
-        /**
-         * Inserts a <code>CHANGED</code> delta with the specified marker
-         * deltas for the given element into the delta tree being built.
-         * Does nothing if the delta tree already contains an <code>ADDED</code>
-         * or <code>REMOVED</code> delta for the given element.
-         *
-         * @param element the element with changed markers
-         *  (not <code>null</code>)
-         * @param markerDeltas the marker deltas for the element
-         *  (not <code>null</code>, not empty)
-         * @return the receiver (i.e. a reference to this object)
-         */
+        @Override
         public Builder markersChanged(IElement element,
             IMarkerDelta[] markerDeltas)
         {
@@ -1248,18 +1177,7 @@ public class ElementDelta
             return this;
         }
 
-        /**
-         * Inserts a <code>CHANGED</code> delta with the specified resource
-         * delta for the given element into the delta tree being built.
-         * Does nothing if the delta tree already contains an <code>ADDED</code>
-         * or <code>REMOVED</code> delta for the given element.
-         *
-         * @param element the element with resource change
-         *  (not <code>null</code>)
-         * @param resourceDelta the resource delta for the element
-         *  (not <code>null</code>)
-         * @return the receiver (i.e. a reference to this object)
-         */
+        @Override
         public Builder addResourceDelta(IElement element,
             IResourceDelta resourceDelta)
         {

@@ -138,7 +138,7 @@ public class SourceElementBody
 
     @Override
     public void findContentChange(Body oldBody, IElement element,
-        ElementDelta.Builder builder)
+        IElementDeltaBuilder builder)
     {
         Set<String> newPropertyNames = getPropertyNames();
         Set<String> oldPropertyNames =

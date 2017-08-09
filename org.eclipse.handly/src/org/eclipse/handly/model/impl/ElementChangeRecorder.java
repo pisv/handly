@@ -25,12 +25,12 @@ import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 
 /**
- * Builds a delta tree between two versions of an input element.
+ * Records changes in the state of an element tree between two discrete points
+ * in time and produces an element delta representing the changes.
  * <p>
- * This implementation caches locally the contents of the element tree rooted
- * at the input element at the time the recorder begins recording. When {@link
- * #endRecording()} is called, creates a delta over the cached contents and the
- * new contents.
+ * This implementation caches locally the state of the element tree at the time
+ * the recorder begins recording. When {@link #endRecording()} is called,
+ * creates a delta over the cached state and the new state.
  * </p>
  * <p>
  * Clients can use this class as it stands or subclass it as circumstances
@@ -40,7 +40,7 @@ import org.eclipse.handly.model.IElement;
 public class ElementChangeRecorder
 {
     private IElement inputElement;
-    private ElementDelta.Builder deltaBuilder;
+    private IElementDeltaBuilder deltaBuilder;
     private int maxDepth;
 
     private Map<IElement, Object> oldBodies;
@@ -85,7 +85,7 @@ public class ElementChangeRecorder
      * @param deltaBuilder may be <code>null</code>
      */
     public final void beginRecording(IElement inputElement,
-        ElementDelta.Builder deltaBuilder)
+        IElementDeltaBuilder deltaBuilder)
     {
         beginRecording(inputElement, deltaBuilder, Integer.MAX_VALUE);
     }
@@ -103,7 +103,7 @@ public class ElementChangeRecorder
      *  the recorder should look into
      */
     public void beginRecording(IElement inputElement,
-        ElementDelta.Builder deltaBuilder, int maxDepth)
+        IElementDeltaBuilder deltaBuilder, int maxDepth)
     {
         if (inputElement == null)
             throw new IllegalArgumentException();
@@ -122,15 +122,15 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Ends the current recording and returns the changes between the version of
-     * the input element at the time the recording was started and the current
-     * version of the element.
+     * Ends the current recording and returns a delta builder with
+     * the consolidated changes between the state of the element tree
+     * at the time the recording was started and its current state.
      *
-     * @return a delta builder with the reported changes
+     * @return a delta builder with the consolidated changes
      *  (never <code>null</code>)
      * @throws IllegalStateException if this recorder is not recording
      */
-    public ElementDelta.Builder endRecording()
+    public IElementDeltaBuilder endRecording()
     {
         if (!recording)
             throw new IllegalStateException("No recording to end"); //$NON-NLS-1$
@@ -157,7 +157,7 @@ public class ElementChangeRecorder
      *
      * @return the current delta builder
      */
-    protected final ElementDelta.Builder getDeltaBuilder()
+    protected final IElementDeltaBuilder getDeltaBuilder()
     {
         return deltaBuilder;
     }
@@ -180,7 +180,7 @@ public class ElementChangeRecorder
      * @return a new instance of a default delta builder
      *  (never <code>null</code>)
      */
-    protected ElementDelta.Builder newDeltaBuilder(IElement element)
+    protected IElementDeltaBuilder newDeltaBuilder(IElement element)
     {
         ElementDelta.Factory deltaFactory = Elements.getModel(
             element).getModelContext().get(ElementDelta.Factory.class);

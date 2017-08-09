@@ -34,10 +34,23 @@ public interface IElementDeltaImpl
     IElement hElement();
 
     /**
+     * Returns whether this delta is empty,
+     * i.e. represents an unchanged element.
+     *
+     * @return <code>true</code> if this delta is empty,
+     *  <code>false</code> otherwise
+     */
+    default boolean hIsEmpty()
+    {
+        return hKind() == 0;
+    }
+
+    /**
      * Returns the kind of this delta - one of
      * {@link IElementDeltaConstants#ADDED ADDED},
      * {@link IElementDeltaConstants#REMOVED REMOVED},
      * or {@link IElementDeltaConstants#CHANGED CHANGED}.
+     * Returns <code>0</code> if, and only if, the delta is empty.
      *
      * @return the kind of this delta
      */

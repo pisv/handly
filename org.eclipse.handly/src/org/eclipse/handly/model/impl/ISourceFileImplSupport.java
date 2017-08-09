@@ -35,7 +35,9 @@ import org.eclipse.handly.buffer.TextFileBuffer;
 import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
+import org.eclipse.handly.model.ElementDeltas;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
@@ -890,14 +892,13 @@ public interface ISourceFileImplSupport
 
                 reconcileStructure(context, monitor);
 
-                ElementDelta.Builder builder = recorder.endRecording();
-                if (!builder.isEmptyDelta())
+                IElementDelta delta = recorder.endRecording().getDelta();
+                if (!ElementDeltas.isNullOrEmpty(delta))
                 {
                     sourceFile.hModel().getModelContext().get(
                         INotificationManager.class).fireElementChangeEvent(
                             new ElementChangeEvent(
-                                ElementChangeEvent.POST_RECONCILE,
-                                builder.getDelta()));
+                                ElementChangeEvent.POST_RECONCILE, delta));
                 }
             }
         }

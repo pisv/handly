@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,10 +71,37 @@ public class ElementDeltas
     }
 
     /**
+     * Returns whether the delta is empty,
+     * i.e. represents an unchanged element.
+     *
+     * @param delta not <code>null</code>
+     * @return <code>true</code> if the delta is empty,
+     *  <code>false</code> otherwise
+     */
+    public static boolean isEmpty(IElementDelta delta)
+    {
+        return ((IElementDeltaImpl)delta).hIsEmpty();
+    }
+
+    /**
+     * Returns whether the delta is <code>null</code> or empty.
+     * Convenience method.
+     *
+     * @param delta may be <code>null</code>
+     * @return <code>true</code> if the delta is <code>null</code> or empty,
+     *  <code>false</code> otherwise
+     */
+    public static boolean isNullOrEmpty(IElementDelta delta)
+    {
+        return delta == null || isEmpty(delta);
+    }
+
+    /**
      * Returns the kind of the delta - one of
      * {@link IElementDeltaConstants#ADDED ADDED},
      * {@link IElementDeltaConstants#REMOVED REMOVED},
      * or {@link IElementDeltaConstants#CHANGED CHANGED}.
+     * Returns <code>0</code> if, and only if, the delta is empty.
      *
      * @param delta not <code>null</code>
      * @return the kind of the delta

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,10 +41,23 @@ public interface IElementDeltaExtension
     }
 
     /**
+     * Returns whether this delta is empty,
+     * i.e. represents an unchanged element.
+     *
+     * @return <code>true</code> if this delta is empty,
+     *  <code>false</code> otherwise
+     */
+    default boolean isEmpty()
+    {
+        return ElementDeltas.isEmpty(this);
+    }
+
+    /**
      * Returns the kind of this delta - one of
      * {@link IElementDeltaConstants#ADDED ADDED},
      * {@link IElementDeltaConstants#REMOVED REMOVED},
      * or {@link IElementDeltaConstants#CHANGED CHANGED}.
+     * Returns <code>0</code> if, and only if, the delta is empty.
      *
      * @return the kind of this delta
      */
