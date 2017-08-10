@@ -188,7 +188,7 @@ public class ElementDelta
      * @param element the element to search delta for (may be <code>null</code>)
      * @return the delta for the given element, or <code>null</code> if none
      */
-    public ElementDelta hDeltaFor(IElement element)
+    public final ElementDelta hFindDelta(IElement element)
     {
         if (element == null)
             return null;
@@ -528,22 +528,32 @@ public class ElementDelta
 
     /**
      * Adds the child resource delta to the collection of resource deltas.
-     * <p>
-     * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set appropriate flags.
-     * </p>
      *
-     * @param child the resource delta to add (not <code>null</code>)
+     * @param resourceDelta the resource delta to add (not <code>null</code>)
      */
-    protected void hAddResourceDelta(IResourceDelta child)
+    protected void hAddResourceDelta(IResourceDelta resourceDelta)
     {
-        if (child == null)
+        if (resourceDelta == null)
             throw new IllegalArgumentException();
+
+        switch (hKind())
+        {
+        case ADDED:
+        case REMOVED:
+            // no need to add a child if this parent is added or removed
+            return;
+        case CHANGED:
+            hSetFlags(hFlags() | F_CONTENT);
+            break;
+        default:
+            hSetKind(CHANGED);
+            hSetFlags(hFlags() | F_CONTENT);
+        }
 
         if (resourceDeltas == null)
         {
             resourceDeltas = new IResourceDelta[5];
-            resourceDeltas[resourceDeltasCounter++] = child;
+            resourceDeltas[resourceDeltasCounter++] = resourceDelta;
             return;
         }
         if (resourceDeltas.length == resourceDeltasCounter)
@@ -553,7 +563,7 @@ public class ElementDelta
                 new IResourceDelta[resourceDeltasCounter * 2]), 0,
                 resourceDeltasCounter);
         }
-        resourceDeltas[resourceDeltasCounter++] = child;
+        resourceDeltas[resourceDeltasCounter++] = resourceDelta;
     }
 
     /**
@@ -742,21 +752,15 @@ public class ElementDelta
         }
         else
         {
+            if (hKind() == 0)
+                hSetKind(delta.hKind());
+            else if (hKind() != delta.hKind())
+                throw new IllegalArgumentException();
+
             for (ElementDelta child : delta.hAffectedChildren())
             {
                 hAddAffectedChild(child);
             }
-
-            // update flags
-            long newFlags = delta.hFlags();
-            long existingFlags = hFlags();
-            //@formatter:off
-            // case of fine grained delta (this delta) and delta coming from
-            // DeltaProcessor (delta): ensure F_CONTENT is not propagated from delta
-            if ((existingFlags & F_FINE_GRAINED) != 0 &&
-                (newFlags & F_FINE_GRAINED) == 0) newFlags &= ~F_CONTENT;
-            //@formatter:on
-            hSetFlags(existingFlags | newFlags);
 
             // add marker deltas if needed
             if (delta.markerDeltas != null)
@@ -769,14 +773,21 @@ public class ElementDelta
             }
 
             // add resource deltas if needed
-            if (delta.resourceDeltas != null)
+            for (int i = 0; i < delta.resourceDeltasCounter; i++)
             {
-                if (resourceDeltas != null)
-                    throw new AssertionError(
-                        "Merge of resource deltas is not supported"); //$NON-NLS-1$
-
-                hSetResourceDeltas(delta.hResourceDeltas());
+                hAddResourceDelta(delta.resourceDeltas[i]);
             }
+
+            // update flags
+            long newFlags = delta.hFlags();
+            long existingFlags = hFlags();
+            //@formatter:off
+            // case of fine grained delta (this delta) and delta coming from
+            // DeltaProcessor (delta): ensure F_CONTENT is not propagated from delta
+            if ((existingFlags & F_FINE_GRAINED) != 0 &&
+                (newFlags & F_FINE_GRAINED) == 0) newFlags &= ~F_CONTENT;
+            //@formatter:on
+            hSetFlags(existingFlags | newFlags);
         }
     }
 
@@ -1070,30 +1081,6 @@ public class ElementDelta
             return rootDelta;
         }
 
-        /**
-         * Returns whether the delta tree is empty,
-         * i.e. represents an unchanged element.
-         *
-         * @return <code>true</code> if the delta is empty,
-         *  and <code>false</code> otherwise
-         */
-        public boolean isEmptyDelta()
-        {
-            return rootDelta.hIsEmpty();
-        }
-
-        /**
-         * Returns the delta for the given element in the delta tree,
-         * or <code>null</code> if no delta is found for the element.
-         *
-         * @param element the element to search delta for or <code>null</code>
-         * @return the delta for the given element, or <code>null</code> if none
-         */
-        public ElementDelta findDelta(IElement element)
-        {
-            return rootDelta.hDeltaFor(element);
-        }
-
         @Override
         public Builder added(IElement element)
         {
@@ -1150,30 +1137,9 @@ public class ElementDelta
             if (markerDeltas == null || markerDeltas.length == 0)
                 throw new IllegalArgumentException();
 
-            ElementDelta delta = findDelta(element);
-            if (delta == null)
-            {
-                changed(element, 0);
-                delta = findDelta(element);
-            }
-
-            if (delta != null)
-            {
-                switch (delta.hKind())
-                {
-                case ADDED:
-                case REMOVED:
-                    break; // do nothing
-                case CHANGED:
-                    delta.hSetFlags(delta.hFlags() | F_MARKERS);
-                    delta.hSetMarkerDeltas(markerDeltas);
-                    break;
-                default: // empty delta
-                    delta.hSetKind(CHANGED);
-                    delta.hSetFlags(delta.hFlags() | F_MARKERS);
-                    delta.hSetMarkerDeltas(markerDeltas);
-                }
-            }
+            ElementDelta delta = newChanged(element, F_MARKERS);
+            delta.hSetMarkerDeltas(markerDeltas);
+            insert(delta);
             return this;
         }
 
@@ -1184,30 +1150,9 @@ public class ElementDelta
             if (resourceDelta == null)
                 throw new IllegalArgumentException();
 
-            ElementDelta delta = findDelta(element);
-            if (delta == null)
-            {
-                changed(element, 0);
-                delta = findDelta(element);
-            }
-
-            if (delta != null)
-            {
-                switch (delta.hKind())
-                {
-                case ADDED:
-                case REMOVED:
-                    break; // do nothing
-                case CHANGED:
-                    delta.hSetFlags(delta.hFlags() | F_CONTENT);
-                    delta.hAddResourceDelta(resourceDelta);
-                    break;
-                default: // empty delta
-                    delta.hSetKind(CHANGED);
-                    delta.hSetFlags(delta.hFlags() | F_CONTENT);
-                    delta.hAddResourceDelta(resourceDelta);
-                }
-            }
+            ElementDelta delta = newChanged(element, F_CONTENT);
+            delta.hAddResourceDelta(resourceDelta);
+            insert(delta);
             return this;
         }
 

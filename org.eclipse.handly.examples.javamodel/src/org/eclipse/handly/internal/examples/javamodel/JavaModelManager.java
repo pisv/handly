@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
+import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.handly.model.impl.ElementManager;
@@ -109,11 +111,11 @@ public class JavaModelManager
         {
             deltaState.reset();
         }
-        if (!deltaProcessor.isEmptyDelta())
+        IElementDelta delta = deltaProcessor.getDelta();
+        if (!ElementDeltas.isEmpty(delta))
         {
             getNotificationManager().fireElementChangeEvent(
-                new ElementChangeEvent(ElementChangeEvent.POST_CHANGE,
-                    deltaProcessor.getDelta()));
+                new ElementChangeEvent(ElementChangeEvent.POST_CHANGE, delta));
         }
     }
 

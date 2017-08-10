@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.examples.basic.ui.Activator;
+import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementManager;
 import org.eclipse.handly.model.impl.IModelManager;
@@ -90,11 +92,11 @@ public class FooModelManager
         {
             Activator.log(e.getStatus());
         }
-        if (!deltaProcessor.isEmptyDelta())
+        IElementDelta delta = deltaProcessor.getDelta();
+        if (!ElementDeltas.isEmpty(delta))
         {
             getNotificationManager().fireElementChangeEvent(
-                new ElementChangeEvent(ElementChangeEvent.POST_CHANGE,
-                    deltaProcessor.getDelta()));
+                new ElementChangeEvent(ElementChangeEvent.POST_CHANGE, delta));
         }
     }
 

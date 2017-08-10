@@ -61,17 +61,6 @@ class FooDeltaProcessor
         return builder.getDelta();
     }
 
-    /**
-     * Returns whether Foo elements were affected by the resource change.
-     *
-     * @return <code>true</code> if no Foo elements were affected,
-     *  and <code>false</code> otherwise
-     */
-    public boolean isEmptyDelta()
-    {
-        return builder.isEmptyDelta();
-    }
-
     @Override
     public boolean visit(IResourceDelta delta) throws CoreException
     {

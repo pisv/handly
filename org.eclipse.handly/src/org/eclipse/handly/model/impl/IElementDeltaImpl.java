@@ -42,15 +42,16 @@ public interface IElementDeltaImpl
      */
     default boolean hIsEmpty()
     {
-        return hKind() == 0;
+        return hKind() == IElementDeltaConstants.NO_CHANGE;
     }
 
     /**
-     * Returns the kind of this delta - one of
+     * Returns the kind of this delta. Normally, one of
      * {@link IElementDeltaConstants#ADDED ADDED},
      * {@link IElementDeltaConstants#REMOVED REMOVED},
      * or {@link IElementDeltaConstants#CHANGED CHANGED}.
-     * Returns <code>0</code> if, and only if, the delta is empty.
+     * Returns {@link IElementDeltaConstants#NO_CHANGE NO_CHANGE}
+     * if, and only if, the delta is empty.
      *
      * @return the kind of this delta
      */

@@ -97,11 +97,12 @@ public class ElementDeltas
     }
 
     /**
-     * Returns the kind of the delta - one of
+     * Returns the kind of the delta. Normally, one of
      * {@link IElementDeltaConstants#ADDED ADDED},
      * {@link IElementDeltaConstants#REMOVED REMOVED},
      * or {@link IElementDeltaConstants#CHANGED CHANGED}.
-     * Returns <code>0</code> if, and only if, the delta is empty.
+     * Returns {@link IElementDeltaConstants#NO_CHANGE NO_CHANGE}
+     * if, and only if, the delta is empty.
      *
      * @param delta not <code>null</code>
      * @return the kind of the delta

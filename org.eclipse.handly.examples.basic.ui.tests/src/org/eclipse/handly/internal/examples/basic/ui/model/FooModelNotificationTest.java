@@ -87,7 +87,7 @@ public class FooModelNotificationTest
         assertDelta(newDeltaBuilder().changed(fooProject1,
             F_CONTENT).getDelta(), listener.delta);
         assertNull(listener.delta.hResourceDeltas());
-        ElementDelta projectDelta = listener.delta.hDeltaFor(fooProject1);
+        ElementDelta projectDelta = listener.delta.hFindDelta(fooProject1);
         assertEquals(1, projectDelta.hResourceDeltas().length);
         IResourceDelta resourceDelta = projectDelta.hResourceDeltas()[0];
         assertEquals(IResourceDelta.REMOVED, resourceDelta.getKind());
@@ -98,7 +98,7 @@ public class FooModelNotificationTest
         assertDelta(newDeltaBuilder().changed(fooProject1,
             F_CONTENT).getDelta(), listener.delta);
         assertNull(listener.delta.hResourceDeltas());
-        projectDelta = listener.delta.hDeltaFor(fooProject1);
+        projectDelta = listener.delta.hFindDelta(fooProject1);
         assertEquals(1, projectDelta.hResourceDeltas().length);
         resourceDelta = projectDelta.hResourceDeltas()[0];
         assertEquals(IResourceDelta.CHANGED, resourceDelta.getKind());
