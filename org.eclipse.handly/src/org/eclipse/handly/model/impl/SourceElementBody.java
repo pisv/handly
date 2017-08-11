@@ -10,15 +10,19 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_FINE_GRAINED;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.IElementDeltaConstants;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.ISourceElementInfo;
+import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
@@ -140,6 +144,23 @@ public class SourceElementBody
     public void findContentChange(Body oldBody, IElement element,
         IElementDeltaBuilder builder)
     {
+        if (element instanceof ISourceFile)
+        {
+            if (!Objects.equals(getFullRange(),
+                ((SourceElementBody)oldBody).getFullRange()))
+            {
+                builder.changed(element, F_CONTENT | F_FINE_GRAINED);
+                return;
+            }
+            ISnapshot snapshot = getSnapshot();
+            ISnapshot oldSnapshot = ((SourceElementBody)oldBody).getSnapshot();
+            if (!((snapshot == oldSnapshot) || (snapshot != null
+                && snapshot.isEqualTo(oldSnapshot))))
+            {
+                builder.changed(element, F_CONTENT | F_FINE_GRAINED);
+                return;
+            }
+        }
         Set<String> newPropertyNames = getPropertyNames();
         Set<String> oldPropertyNames =
             ((SourceElementBody)oldBody).getPropertyNames();
@@ -154,7 +175,7 @@ public class SourceElementBody
                 propertyName);
             if (isPropertyChanged(propertyName, newValue, oldValue))
             {
-                builder.changed(element, IElementDeltaConstants.F_CONTENT);
+                builder.changed(element, F_CONTENT | F_FINE_GRAINED);
                 return;
             }
         }

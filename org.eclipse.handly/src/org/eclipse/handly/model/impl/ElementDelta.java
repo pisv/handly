@@ -29,6 +29,7 @@ import static org.eclipse.handly.model.IElementDeltaConstants.F_REORDER;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_SYNC;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
+import static org.eclipse.handly.model.IElementDeltaConstants.NO_CHANGE;
 import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.INDENT_LEVEL;
@@ -393,7 +394,7 @@ public class ElementDelta
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
-            builder.append("UNDERLYING_RESOURCE"); //$NON-NLS-1$
+            builder.append("UNDERLYING RESOURCE"); //$NON-NLS-1$
             prev = true;
         }
         if ((flags & F_MARKERS) != 0)
@@ -752,7 +753,10 @@ public class ElementDelta
         }
         else
         {
-            if (hKind() == 0)
+            if (delta.hKind() == NO_CHANGE)
+                return;
+
+            if (hKind() == NO_CHANGE)
                 hSetKind(delta.hKind());
             else if (hKind() != delta.hKind())
                 throw new IllegalArgumentException();
@@ -779,15 +783,7 @@ public class ElementDelta
             }
 
             // update flags
-            long newFlags = delta.hFlags();
-            long existingFlags = hFlags();
-            //@formatter:off
-            // case of fine grained delta (this delta) and delta coming from
-            // DeltaProcessor (delta): ensure F_CONTENT is not propagated from delta
-            if ((existingFlags & F_FINE_GRAINED) != 0 &&
-                (newFlags & F_FINE_GRAINED) == 0) newFlags &= ~F_CONTENT;
-            //@formatter:on
-            hSetFlags(existingFlags | newFlags);
+            hSetFlags(hFlags() | delta.hFlags());
         }
     }
 

@@ -12,6 +12,7 @@ package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_FINE_GRAINED;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
 
@@ -116,9 +117,9 @@ public class FooWorkingCopyNotificationTest
 
                 assertFalse(def.exists());
 
-                assertDelta(newDeltaBuilder(workingCopy).added(
-                    workingCopy.getDef("g", 0)).removed(def).getDelta(),
-                    listener.delta);
+                assertDelta(newDeltaBuilder(workingCopy).changed(workingCopy,
+                    F_CONTENT | F_FINE_GRAINED).added(workingCopy.getDef("g",
+                        0)).removed(def).getDelta(), listener.delta);
             }
         });
     }
@@ -156,8 +157,9 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(null);
 
-                assertDelta(newDeltaBuilder(workingCopy).removed(
-                    varY).getDelta(), listener.delta);
+                assertDelta(newDeltaBuilder(workingCopy).changed(workingCopy,
+                    F_CONTENT | F_FINE_GRAINED).removed(varY).getDelta(),
+                    listener.delta);
 
                 listener.delta = null;
 
@@ -176,7 +178,8 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(null);
 
-                assertDelta(newDeltaBuilder(workingCopy).added(varY).getDelta(),
+                assertDelta(newDeltaBuilder(workingCopy).changed(workingCopy,
+                    F_CONTENT | F_FINE_GRAINED).added(varY).getDelta(),
                     listener.delta);
             }
         });
@@ -211,8 +214,9 @@ public class FooWorkingCopyNotificationTest
 
                 workingCopy.reconcile(null);
 
-                assertDelta(newDeltaBuilder(workingCopy).changed(def,
-                    F_CONTENT).getDelta(), listener.delta); // 'parameterNames' property changed
+                assertDelta(newDeltaBuilder(workingCopy).changed(workingCopy,
+                    F_CONTENT | F_FINE_GRAINED).changed(def, F_CONTENT
+                        | F_FINE_GRAINED).getDelta(), listener.delta); // 'parameterNames' property changed
             }
         });
     }

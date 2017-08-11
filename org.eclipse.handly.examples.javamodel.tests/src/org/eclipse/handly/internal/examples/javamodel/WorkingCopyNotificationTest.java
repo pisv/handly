@@ -82,7 +82,7 @@ public class WorkingCopyNotificationTest
                     "  Test010[*]: {CHILDREN}\n" +
                     "    src[*]: {CHILDREN}\n" +
                     "      <default>[*]: {CHILDREN}\n" +
-                    "        [Working copy] X.java[*]: {CONTENT | UNDERLYING_RESOURCE}"
+                    "        [Working copy] X.java[*]: {CONTENT | UNDERLYING RESOURCE}"
                 );
                 //@formatter:on
             }
@@ -123,7 +123,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
                     "  Y[+]: {}\n" +
                     "  X[-]: {}"
                 );
@@ -156,7 +156,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
                     "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    x[-]: {}"
                 );
@@ -178,7 +178,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
                     "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    y[+]: {}"
                 );
@@ -212,7 +212,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
                     "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    f()[+]: {}\n" +
                     "    f(int)[-]: {}"
@@ -247,11 +247,51 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
                     "  X[*]: {CHILDREN | FINE GRAINED}\n" +
-                    "    f(int)[*]: {CONTENT}"
+                    "    f(int)[*]: {CONTENT | FINE GRAINED}"
                 );
                 //@formatter:on
+            }
+        });
+    }
+
+    public void test006() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                listener.delta = null;
+
+                BufferChange change = new BufferChange(new InsertEdit(0, "\n"));
+                change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    buffer.applyChange(change, null);
+                }
+
+                assertNull(listener.delta);
+
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
+
+                listener.assertDelta(
+                    "[Working copy] X.java[*]: {CONTENT | FINE GRAINED}");
+            }
+        });
+    }
+
+    public void test007() throws Exception
+    {
+        doWithWorkingCopy(new IWorkspaceRunnable()
+        {
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                listener.delta = null;
+
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
+
+                assertNull(listener.delta);
             }
         });
     }
