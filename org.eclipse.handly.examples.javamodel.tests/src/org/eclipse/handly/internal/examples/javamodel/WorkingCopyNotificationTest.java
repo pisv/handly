@@ -123,7 +123,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
                     "  Y[+]: {}\n" +
                     "  X[-]: {}"
                 );
@@ -156,7 +156,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
                     "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    x[-]: {}"
                 );
@@ -178,7 +178,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
                     "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    y[+]: {}"
                 );
@@ -212,7 +212,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
                     "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    f()[+]: {}\n" +
                     "    f(int)[-]: {}"
@@ -247,7 +247,7 @@ public class WorkingCopyNotificationTest
 
                 //@formatter:off
                 listener.assertDelta(
-                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
+                    "[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
                     "  X[*]: {CHILDREN | FINE GRAINED}\n" +
                     "    f(int)[*]: {CONTENT | FINE GRAINED}"
                 );
@@ -275,8 +275,7 @@ public class WorkingCopyNotificationTest
 
                 workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
 
-                listener.assertDelta(
-                    "[Working copy] X.java[*]: {CONTENT | FINE GRAINED}");
+                assertNull(listener.delta); // only changes to the structure of the working copy are reported
             }
         });
     }
