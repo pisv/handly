@@ -139,6 +139,29 @@ public class ElementDeltas
     }
 
     /**
+     * Returns whether the delta designates a structural change,
+     * i.e. a change that affects or might affect the element tree
+     * as opposed to just the element itself.
+     *
+     * @param delta may be <code>null</code>
+     * @return <code>true</code> if the delta designates a structural change,
+     *  <code>false</code> otherwise
+     */
+    public static boolean isStructuralChange(IElementDelta delta)
+    {
+        if (isNullOrEmpty(delta))
+            return false;
+        if (getKind(delta) != IElementDeltaConstants.CHANGED)
+            return true; // added or removed
+        long flags = getFlags(delta);
+        if ((flags & IElementDeltaConstants.F_CHILDREN) != 0)
+            return true;
+        // check for possible structural change
+        return (flags & (IElementDeltaConstants.F_CONTENT
+            | IElementDeltaConstants.F_FINE_GRAINED)) == IElementDeltaConstants.F_CONTENT;
+    }
+
+    /**
      * Returns deltas for the affected (added, removed, or changed) children.
      *
      * @param delta not <code>null</code>
