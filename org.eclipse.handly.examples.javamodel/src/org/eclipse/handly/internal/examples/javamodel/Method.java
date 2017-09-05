@@ -114,7 +114,7 @@ public class Method
     }
 
     @Override
-    public void hToStringName(StringBuilder builder, IContext context)
+    public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append(getElementName());
         builder.append('(');
@@ -137,7 +137,7 @@ public class Method
                 builder.append(", "); //$NON-NLS-1$
         }
         builder.append(')');
-        int occurenceCount = hOccurrenceCount();
+        int occurenceCount = getOccurrenceCount_();
         if (occurenceCount > 1)
         {
             builder.append('#');
@@ -146,7 +146,7 @@ public class Method
     }
 
     @Override
-    public void hToStringBody(StringBuilder builder, Object body,
+    public void toStringBody_(StringBuilder builder, Object body,
         IContext context)
     {
         if (body != null && body != NO_BODY)
@@ -159,7 +159,7 @@ public class Method
                 builder.append(' ');
             }
         }
-        hToStringName(builder, context);
+        toStringName_(builder, context);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

@@ -48,19 +48,19 @@ class SimpleSourceFile
     }
 
     @Override
-    public IModelManager hModelManager()
+    public IModelManager getModelManager_()
     {
         return manager;
     }
 
     @Override
-    public IResource hResource()
+    public IResource getResource_()
     {
         return file;
     }
 
     @Override
-    public void hBuildSourceStructure(IContext context,
+    public void buildSourceStructure_(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
         context.get(NEW_ELEMENTS).put(this, new SourceElementBody());

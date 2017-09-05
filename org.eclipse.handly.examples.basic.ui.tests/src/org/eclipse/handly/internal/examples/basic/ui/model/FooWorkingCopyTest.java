@@ -185,13 +185,13 @@ public class FooWorkingCopyTest
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                workingCopy.hClose();
+                workingCopy.close_();
                 assertNotNull("working copy must remain in the cache",
-                    workingCopy.hPeekAtBody());
+                    workingCopy.peekAtBody_());
 
-                workingCopy.getParent().hClose();
+                workingCopy.getParent().close_();
                 assertNotNull("working copy must remain in the cache",
-                    workingCopy.hPeekAtBody());
+                    workingCopy.peekAtBody_());
             }
         });
     }
@@ -206,9 +206,9 @@ public class FooWorkingCopyTest
             {
                 IFooDef def = workingCopy.getDef("f", 0);
                 assertTrue(def.exists());
-                ((IElementImplExtension)def).hClose();
+                ((IElementImplExtension)def).close_();
                 assertNotNull("non-openable elements cannot be closed",
-                    ((IElementImplExtension)def).hPeekAtBody());
+                    ((IElementImplExtension)def).peekAtBody_());
             }
         };
         // non-openable elements cannot be closed, in working copy or not
@@ -219,14 +219,14 @@ public class FooWorkingCopyTest
     private void doWithWorkingCopy(IContext context,
         IWorkspaceRunnable runnable) throws CoreException
     {
-        workingCopy.hBecomeWorkingCopy(context, null);
+        workingCopy.becomeWorkingCopy_(context, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.hReleaseWorkingCopy();
+            workingCopy.releaseWorkingCopy_();
         }
     }
 }

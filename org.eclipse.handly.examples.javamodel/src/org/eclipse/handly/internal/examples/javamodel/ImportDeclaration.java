@@ -36,9 +36,9 @@ public class ImportDeclaration
     }
 
     @Override
-    public void hToStringName(StringBuilder builder, IContext context)
+    public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append("import "); //$NON-NLS-1$
-        super.hToStringName(builder, context);
+        super.toStringName_(builder, context);
     }
 }

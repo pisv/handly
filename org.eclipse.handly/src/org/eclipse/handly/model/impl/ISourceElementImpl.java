@@ -41,7 +41,7 @@ public interface ISourceElementImpl
      *  i.e. this element's current structure and properties are based on
      *  a different snapshot
      */
-    ISourceElement hSourceElementAt(int position, ISnapshot base)
+    ISourceElement getSourceElementAt_(int position, ISnapshot base)
         throws CoreException;
 
     /**
@@ -51,5 +51,5 @@ public interface ISourceElementImpl
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    ISourceElementInfo hSourceElementInfo() throws CoreException;
+    ISourceElementInfo getSourceElementInfo_() throws CoreException;
 }

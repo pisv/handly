@@ -114,7 +114,7 @@ public class StructureHelper
      * <p>
      * If the given element is a source construct which is equal to an already
      * {@link #addChild added} element, this implementation increments its
-     * {@link ISourceConstructImplExtension#hOccurrenceCount() occurrence count}
+     * {@link ISourceConstructImplExtension#getOccurrenceCount_() occurrence count}
      * until it is no longer equal to any previously added element.
      * </p>
      *
@@ -127,6 +127,6 @@ public class StructureHelper
         ISourceConstructImplExtension sc =
             (ISourceConstructImplExtension)element;
         while (newElements.containsKey(sc))
-            sc.hIncrementOccurrenceCount();
+            sc.incrementOccurrenceCount_();
     }
 }

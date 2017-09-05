@@ -59,21 +59,21 @@ public class ImportContainer
     }
 
     @Override
-    public String hToString(IContext context)
+    public String toString_(IContext context)
     {
         FormatStyle style = context.getOrDefault(FORMAT_STYLE);
         if (style == FULL || style == LONG)
         {
             StringBuilder builder = new StringBuilder();
-            hToStringChildren(builder, hPeekAtBody(), with(of(FORMAT_STYLE,
+            toStringChildren_(builder, peekAtBody_(), with(of(FORMAT_STYLE,
                 SHORT), context));
             return builder.toString();
         }
-        return super.hToString(context);
+        return super.toString_(context);
     }
 
     @Override
-    public void hToStringName(StringBuilder builder, IContext context)
+    public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append("<import container>"); //$NON-NLS-1$
     }

@@ -83,13 +83,13 @@ public class CompilationUnit
     @Override
     public PackageFragment getParent()
     {
-        return (PackageFragment)hParent();
+        return (PackageFragment)getParent_();
     }
 
     @Override
     public IFile getFile()
     {
-        return hFile();
+        return getFile_();
     }
 
     @Override
@@ -141,13 +141,13 @@ public class CompilationUnit
     public IJavaSourceElement getElementAt(int position, ISnapshot base)
         throws CoreException
     {
-        return (IJavaSourceElement)hSourceElementAt(position, base);
+        return (IJavaSourceElement)getSourceElementAt_(position, base);
     }
 
     @Override
     public boolean isWorkingCopy()
     {
-        return hIsWorkingCopy();
+        return isWorkingCopy_();
     }
 
     private static final Property<AstHolder> AST_HOLDER = Property.get(
@@ -174,7 +174,7 @@ public class CompilationUnit
         context.bind(FORCE_RECONCILING).to((reconcileFlags
             & FORCE_PROBLEM_DETECTION) != 0);
 
-        hReconcile(context, monitor);
+        reconcile_(context, monitor);
 
         if (astLevel != NO_AST)
             return context.get(AST_HOLDER).ast;
@@ -184,7 +184,7 @@ public class CompilationUnit
     @Override
     public IBuffer getBuffer() throws CoreException
     {
-        return hBuffer(EMPTY_CONTEXT, null);
+        return getBuffer_(EMPTY_CONTEXT, null);
     }
 
     @Override
@@ -197,9 +197,9 @@ public class CompilationUnit
     }
 
     @Override
-    public void hValidateExistence(IContext context) throws CoreException
+    public void validateExistence_(IContext context) throws CoreException
     {
-        super.hValidateExistence(context);
+        super.validateExistence_(context);
 
         IStatus status = validateCompilationUnitName();
         if (status.getSeverity() == IStatus.ERROR)
@@ -259,7 +259,7 @@ public class CompilationUnit
     }
 
     @Override
-    public void hBuildSourceStructure(IContext context,
+    public void buildSourceStructure_(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
         Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
@@ -278,14 +278,14 @@ public class CompilationUnit
     }
 
     @Override
-    public IContext hNewWorkingCopyContext(IContext context)
+    public IContext newWorkingCopyContext_(IContext context)
     {
         return with(context.getOrDefault(WORKING_COPY_CONTEXT), of(
             IProblemRequestor.class, context.get(IProblemRequestor.class)));
     }
 
     @Override
-    public ReconcileOperation hReconcileOperation()
+    public ReconcileOperation getReconcileOperation_()
     {
         return new CuReconcileOperation();
     }
@@ -324,8 +324,8 @@ public class CompilationUnit
         {
             if (problems == null || problems.length == 0)
                 return;
-            reportProblems(hWorkingCopyContext().get(IProblemRequestor.class),
-                problems);
+            reportProblems(getWorkingCopyContext_().get(
+                IProblemRequestor.class), problems);
         }
 
         private void reportProblems(IProblemRequestor requestor,

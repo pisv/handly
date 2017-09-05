@@ -41,7 +41,7 @@ public interface IElementImpl
      *
      * @return the element name, or <code>null</code> if this element has no name
      */
-    String hName();
+    String getName_();
 
     /**
      * Returns the element directly containing this element,
@@ -51,7 +51,7 @@ public interface IElementImpl
      * @return the parent element, or <code>null</code> if this element has
      *  no parent
      */
-    IElement hParent();
+    IElement getParent_();
 
     /**
      * Returns the root element containing this element.
@@ -60,9 +60,9 @@ public interface IElementImpl
      *
      * @return the root element (never <code>null</code>)
      */
-    default IElement hRoot()
+    default IElement getRoot_()
     {
-        IElement parent = hParent();
+        IElement parent = getParent_();
         if (parent == null)
             return this;
         else
@@ -78,9 +78,9 @@ public interface IElementImpl
      * @return the closest ancestor of this element that has the given type,
      *  or <code>null</code> if no such ancestor can be found
      */
-    default <T> T hAncestor(Class<T> ancestorType)
+    default <T> T getAncestor_(Class<T> ancestorType)
     {
-        IElement parent = hParent();
+        IElement parent = getParent_();
         if (parent == null)
             return null;
         if (ancestorType.isInstance(parent))
@@ -93,7 +93,7 @@ public interface IElementImpl
      *
      * @return the element's model (never <code>null</code>)
      */
-    IModel hModel();
+    IModel getModel_();
 
     /**
      * Returns the innermost resource enclosing this element, or <code>null</code>
@@ -108,7 +108,7 @@ public interface IElementImpl
      * @return the innermost resource enclosing this element, or <code>null</code>
      *  if this element is not enclosed in a workspace resource
      */
-    IResource hResource();
+    IResource getResource_();
 
     /**
      * Returns a file system location for this element. The resulting URI is
@@ -118,9 +118,9 @@ public interface IElementImpl
      * @return a file system location for this element,
      *  or <code>null</code> if no location can be determined
      */
-    default URI hLocationURI()
+    default URI getLocationURI_()
     {
-        IResource resource = hResource();
+        IResource resource = getResource_();
         if (resource != null)
             return resource.getLocationURI();
         return null;
@@ -140,7 +140,7 @@ public interface IElementImpl
      * @return <code>true</code> if this element exists in the model, and
      *  <code>false</code> if this element does not exist
      */
-    boolean hExists();
+    boolean exists_();
 
     /**
      * Returns the immediate children of this element. Unless otherwise specified
@@ -151,7 +151,7 @@ public interface IElementImpl
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    IElement[] hChildren() throws CoreException;
+    IElement[] getChildren_() throws CoreException;
 
     /**
      * Returns the immediate children of this element that have the given type.
@@ -165,9 +165,9 @@ public interface IElementImpl
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    default <T> T[] hChildren(Class<T> childType) throws CoreException
+    default <T> T[] getChildren_(Class<T> childType) throws CoreException
     {
-        IElement[] children = hChildren();
+        IElement[] children = getChildren_();
         List<T> list = new ArrayList<T>(children.length);
         for (IElement child : children)
         {
@@ -203,7 +203,7 @@ public interface IElementImpl
      * @param context not <code>null</code>
      * @return a string representation of this element (never <code>null</code>)
      */
-    String hToString(IContext context);
+    String toString_(IContext context);
 
     /**
      * Returns a string representation of this element in a form suitable for
@@ -223,11 +223,11 @@ public interface IElementImpl
      * @param context not <code>null</code>
      * @return a string representation of this element (never <code>null</code>)
      */
-    default String hToDisplayString(IContext context)
+    default String toDisplayString_(IContext context)
     {
         FormatStyle style = context.getOrDefault(FORMAT_STYLE);
         if (style != FormatStyle.SHORT && style != FormatStyle.MEDIUM)
             context = with(of(FORMAT_STYLE, FormatStyle.MEDIUM), context);
-        return hToString(context);
+        return toString_(context);
     }
 }

@@ -30,7 +30,7 @@ import org.eclipse.handly.model.ISourceFile;
  * An instance of this class is safe for use by multiple threads.
  * </p>
  *
- * @see IElementImplSupport#hElementManager()
+ * @see IElementImplSupport#getElementManager_()
  */
 public class ElementManager
 {
@@ -91,7 +91,7 @@ public class ElementManager
      */
     protected void close(IElement element, IContext context)
     {
-        ((IElementImplExtension)element).hClose(context);
+        ((IElementImplExtension)element).close_(context);
     }
 
     /**
@@ -161,7 +161,7 @@ public class ElementManager
         Object body = cache.peek(element);
         if (body != null)
         {
-            for (IElement child : element.hChildren(body))
+            for (IElement child : element.getChildren_(body))
             {
                 close(child, of(CLOSE_HINT, PARENT_CLOSING));
             }
@@ -213,8 +213,8 @@ public class ElementManager
         Object body = cache.peek(element);
         if (body != null)
         {
-            element.hRemoving(body);
-            for (IElement child : element.hChildren(body))
+            element.removing_(body);
+            for (IElement child : element.getChildren_(body))
             {
                 close(child, of(CLOSE_HINT, PARENT_CLOSING));
             }
@@ -378,7 +378,7 @@ public class ElementManager
                     infoToDispose = info;
 
                     workingCopyInfos.remove(sourceFile);
-                    sourceFile.hRemove(EMPTY_CONTEXT);
+                    sourceFile.remove_(EMPTY_CONTEXT);
                 }
                 return info;
             }

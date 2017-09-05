@@ -42,7 +42,7 @@ public abstract class WorkspaceSourceFile
     }
 
     @Override
-    public final IResource hResource()
+    public final IResource getResource_()
     {
         return file;
     }
@@ -53,7 +53,7 @@ public abstract class WorkspaceSourceFile
      * @return the underlying <code>IFile</code> (never <code>null</code>)
      */
     @Override
-    public final IFile hFile()
+    public final IFile getFile_()
     {
         return file;
     }

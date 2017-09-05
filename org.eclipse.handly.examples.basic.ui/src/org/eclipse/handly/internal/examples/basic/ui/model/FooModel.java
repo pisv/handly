@@ -121,25 +121,25 @@ public class FooModel
     }
 
     @Override
-    public IResource hResource()
+    public IResource getResource_()
     {
         return workspace.getRoot();
     }
 
     @Override
-    public boolean hExists()
+    public boolean exists_()
     {
         return true; // always exists
     }
 
     @Override
-    public void hValidateExistence(IContext context)
+    public void validateExistence_(IContext context)
     {
         // always exists
     }
 
     @Override
-    public void hBuildStructure(IContext context, IProgressMonitor monitor)
+    public void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
@@ -157,7 +157,7 @@ public class FooModel
     }
 
     @Override
-    public void hToStringName(StringBuilder builder, IContext context)
+    public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append("FooModel"); //$NON-NLS-1$
     }

@@ -95,13 +95,13 @@ public class ElementCache
      */
     protected int getChildCount(IElement element, Object body)
     {
-        return ((IElementImplExtension)element).hChildren(body).length;
+        return ((IElementImplExtension)element).getChildren_(body).length;
     }
 
     @Override
     protected boolean close(LruCacheEntry<IElement, Object> entry)
     {
-        ((IElementImplExtension)entry.key).hClose(of(CLOSE_HINT,
+        ((IElementImplExtension)entry.key).close_(of(CLOSE_HINT,
             CACHE_OVERFLOW));
         // closing of an element removes it from the cache, so...
         return false; // ...no need to remove the cache entry after close

@@ -67,7 +67,7 @@ public class ElementDeltas
      */
     public static IElement getElement(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hElement();
+        return ((IElementDeltaImpl)delta).getElement_();
     }
 
     /**
@@ -80,7 +80,7 @@ public class ElementDeltas
      */
     public static boolean isEmpty(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hIsEmpty();
+        return ((IElementDeltaImpl)delta).isEmpty_();
     }
 
     /**
@@ -109,7 +109,7 @@ public class ElementDeltas
      */
     public static int getKind(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hKind();
+        return ((IElementDeltaImpl)delta).getKind_();
     }
 
     /**
@@ -135,7 +135,7 @@ public class ElementDeltas
      */
     public static long getFlags(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hFlags();
+        return ((IElementDeltaImpl)delta).getFlags_();
     }
 
     /**
@@ -171,7 +171,7 @@ public class ElementDeltas
      */
     public static IElementDelta[] getAffectedChildren(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hAffectedChildren();
+        return ((IElementDeltaImpl)delta).getAffectedChildren_();
     }
 
     /**
@@ -184,7 +184,7 @@ public class ElementDeltas
      */
     public static IElementDelta[] getAddedChildren(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hAddedChildren();
+        return ((IElementDeltaImpl)delta).getAddedChildren_();
     }
 
     /**
@@ -197,7 +197,7 @@ public class ElementDeltas
      */
     public static IElementDelta[] getRemovedChildren(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hRemovedChildren();
+        return ((IElementDeltaImpl)delta).getRemovedChildren_();
     }
 
     /**
@@ -210,7 +210,7 @@ public class ElementDeltas
      */
     public static IElementDelta[] getChangedChildren(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hChangedChildren();
+        return ((IElementDeltaImpl)delta).getChangedChildren_();
     }
 
     /**
@@ -225,7 +225,7 @@ public class ElementDeltas
      */
     public static IElement getMovedFromElement(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hMovedFromElement();
+        return ((IElementDeltaImpl)delta).getMovedFromElement_();
     }
 
     /**
@@ -239,7 +239,7 @@ public class ElementDeltas
      */
     public static IElement getMovedToElement(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hMovedToElement();
+        return ((IElementDeltaImpl)delta).getMovedToElement_();
     }
 
     /**
@@ -261,7 +261,7 @@ public class ElementDeltas
      */
     public static IMarkerDelta[] getMarkerDeltas(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hMarkerDeltas();
+        return ((IElementDeltaImpl)delta).getMarkerDeltas_();
     }
 
     /**
@@ -283,7 +283,7 @@ public class ElementDeltas
      */
     public static IResourceDelta[] getResourceDeltas(IElementDelta delta)
     {
-        return ((IElementDeltaImpl)delta).hResourceDeltas();
+        return ((IElementDeltaImpl)delta).getResourceDeltas_();
     }
 
     /**
@@ -312,7 +312,7 @@ public class ElementDeltas
      */
     public static String toString(IElementDelta delta, IContext context)
     {
-        return ((IElementDeltaImpl)delta).hToString(context);
+        return ((IElementDeltaImpl)delta).toString_(context);
     }
 
     private ElementDeltas()

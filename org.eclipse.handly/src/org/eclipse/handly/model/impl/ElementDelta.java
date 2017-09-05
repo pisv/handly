@@ -69,7 +69,7 @@ import org.eclipse.handly.util.ToStringOptions.FormatStyle;
  * warrant. Clients that subclass this class should consider registering
  * an appropriate {@link ElementDelta.Factory} in the model context.
  * Subclasses that introduce new fields should consider extending
- * the {@link #hCopyFrom} method.
+ * the {@link #copyFrom_} method.
  * </p>
  */
 public class ElementDelta
@@ -110,67 +110,67 @@ public class ElementDelta
     }
 
     @Override
-    public final IElement hElement()
+    public final IElement getElement_()
     {
         return element;
     }
 
     @Override
-    public final int hKind()
+    public final int getKind_()
     {
         return kind;
     }
 
     @Override
-    public final long hFlags()
+    public final long getFlags_()
     {
         return flags;
     }
 
     @Override
-    public final ElementDelta[] hAffectedChildren()
+    public final ElementDelta[] getAffectedChildren_()
     {
         return affectedChildren;
     }
 
     @Override
-    public final ElementDelta[] hAddedChildren()
+    public final ElementDelta[] getAddedChildren_()
     {
         return getChildrenOfKind(ADDED);
     }
 
     @Override
-    public final ElementDelta[] hRemovedChildren()
+    public final ElementDelta[] getRemovedChildren_()
     {
         return getChildrenOfKind(REMOVED);
     }
 
     @Override
-    public final ElementDelta[] hChangedChildren()
+    public final ElementDelta[] getChangedChildren_()
     {
         return getChildrenOfKind(CHANGED);
     }
 
     @Override
-    public final IElement hMovedFromElement()
+    public final IElement getMovedFromElement_()
     {
         return movedFromElement;
     }
 
     @Override
-    public final IElement hMovedToElement()
+    public final IElement getMovedToElement_()
     {
         return movedToElement;
     }
 
     @Override
-    public final IMarkerDelta[] hMarkerDeltas()
+    public final IMarkerDelta[] getMarkerDeltas_()
     {
         return markerDeltas;
     }
 
     @Override
-    public final IResourceDelta[] hResourceDeltas()
+    public final IResourceDelta[] getResourceDeltas_()
     {
         if (resourceDeltas != null
             && resourceDeltas.length != resourceDeltasCounter)
@@ -189,7 +189,7 @@ public class ElementDelta
      * @param element the element to search delta for (may be <code>null</code>)
      * @return the delta for the given element, or <code>null</code> if none
      */
-    public final ElementDelta hFindDelta(IElement element)
+    public final ElementDelta findDelta_(IElement element)
     {
         if (element == null)
             return null;
@@ -201,11 +201,11 @@ public class ElementDelta
     @Override
     public String toString()
     {
-        return hToString(EMPTY_CONTEXT);
+        return toString_(EMPTY_CONTEXT);
     }
 
     @Override
-    public String hToString(IContext context)
+    public String toString_(IContext context)
     {
         StringBuilder builder = new StringBuilder();
         IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
@@ -214,9 +214,9 @@ public class ElementDelta
         builder.append(Elements.toString(element, with(of(FORMAT_STYLE, SHORT),
             of(INDENT_LEVEL, 0), context)));
         builder.append('[');
-        hToStringKind(builder, context);
+        toStringKind_(builder, context);
         builder.append("]: {"); //$NON-NLS-1$
-        hToStringFlags(builder, context);
+        toStringFlags_(builder, context);
         builder.append('}');
         FormatStyle style = context.getOrDefault(FORMAT_STYLE);
         if (style == FULL || style == LONG)
@@ -224,13 +224,13 @@ public class ElementDelta
             if (affectedChildren.length > 0)
             {
                 indentPolicy.appendLine(builder);
-                hToStringChildren(builder, with(of(INDENT_LEVEL, //
+                toStringChildren_(builder, with(of(INDENT_LEVEL, //
                     indentLevel + 1), context));
             }
             if (resourceDeltasCounter > 0)
             {
                 indentPolicy.appendLine(builder);
-                hToStringResourceDeltas(builder, with(of(INDENT_LEVEL,
+                toStringResourceDeltas_(builder, with(of(INDENT_LEVEL,
                     indentLevel + 1), context));
             }
         }
@@ -240,21 +240,21 @@ public class ElementDelta
     /**
      * Debugging purposes.
      */
-    protected void hToStringChildren(StringBuilder builder, IContext context)
+    protected void toStringChildren_(StringBuilder builder, IContext context)
     {
         IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
         for (int i = 0; i < affectedChildren.length; i++)
         {
             if (i > 0)
                 indentPolicy.appendLine(builder);
-            builder.append(affectedChildren[i].hToString(context));
+            builder.append(affectedChildren[i].toString_(context));
         }
     }
 
     /**
      * Debugging purposes.
      */
-    protected void hToStringResourceDeltas(StringBuilder builder,
+    protected void toStringResourceDeltas_(StringBuilder builder,
         IContext context)
     {
         IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
@@ -290,9 +290,9 @@ public class ElementDelta
     /**
      * Debugging purposes.
      */
-    protected void hToStringKind(StringBuilder builder, IContext context)
+    protected void toStringKind_(StringBuilder builder, IContext context)
     {
-        switch (hKind())
+        switch (getKind_())
         {
         case ADDED:
             builder.append('+');
@@ -317,10 +317,10 @@ public class ElementDelta
      * @return <code>true</code> if a flag was appended to the builder,
      *  <code>false</code> if the builder was not modified by this method
      */
-    protected boolean hToStringFlags(StringBuilder builder, IContext context)
+    protected boolean toStringFlags_(StringBuilder builder, IContext context)
     {
         boolean prev = false;
-        long flags = hFlags();
+        long flags = getFlags_();
         if ((flags & F_CHILDREN) != 0)
         {
             if (prev)
@@ -340,7 +340,7 @@ public class ElementDelta
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_FROM("); //$NON-NLS-1$
-            builder.append(Elements.toString(hMovedFromElement(), with(of(
+            builder.append(Elements.toString(getMovedFromElement_(), with(of(
                 FORMAT_STYLE, MEDIUM), of(INDENT_LEVEL, 0), context)));
             builder.append(')');
             prev = true;
@@ -350,7 +350,7 @@ public class ElementDelta
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
             builder.append("MOVED_TO("); //$NON-NLS-1$
-            builder.append(Elements.toString(hMovedToElement(), with(of(
+            builder.append(Elements.toString(getMovedToElement_(), with(of(
                 FORMAT_STYLE, MEDIUM), of(INDENT_LEVEL, 0), context)));
             builder.append(')');
             prev = true;
@@ -428,7 +428,7 @@ public class ElementDelta
      * @return a new, initially empty delta for the given element
      *  (never <code>null</code>)
      */
-    protected ElementDelta hNewDelta(IElement element)
+    protected ElementDelta newDelta_(IElement element)
     {
         Factory factory = Elements.getModel(element).getModelContext().get(
             Factory.class);
@@ -443,7 +443,7 @@ public class ElementDelta
      * @return <code>true</code> if the child index needs to be used,
      *  <code>false</code> otherwise
      */
-    protected boolean hNeedsChildIndex()
+    protected boolean needsChildIndex_()
     {
         return affectedChildren.length >= 3;
     }
@@ -453,7 +453,7 @@ public class ElementDelta
      *
      * @param kind
      */
-    protected void hSetKind(int kind)
+    protected void setKind_(int kind)
     {
         this.kind = kind;
     }
@@ -463,7 +463,7 @@ public class ElementDelta
      *
      * @param flags
      */
-    protected void hSetFlags(long flags)
+    protected void setFlags_(long flags)
     {
         this.flags = flags;
     }
@@ -478,7 +478,7 @@ public class ElementDelta
      *
      * @param movedFromElement
      */
-    protected void hSetMovedFromElement(IElement movedFromElement)
+    protected void setMovedFromElement_(IElement movedFromElement)
     {
         this.movedFromElement = movedFromElement;
     }
@@ -492,7 +492,7 @@ public class ElementDelta
      *
      * @param movedToElement
      */
-    protected void hSetMovedToElement(IElement movedToElement)
+    protected void setMovedToElement_(IElement movedToElement)
     {
         this.movedToElement = movedToElement;
     }
@@ -506,7 +506,7 @@ public class ElementDelta
      *
      * @param markerDeltas
      */
-    protected void hSetMarkerDeltas(IMarkerDelta[] markerDeltas)
+    protected void setMarkerDeltas_(IMarkerDelta[] markerDeltas)
     {
         this.markerDeltas = markerDeltas;
     }
@@ -520,7 +520,7 @@ public class ElementDelta
      *
      * @param resourceDeltas
      */
-    protected void hSetResourceDeltas(IResourceDelta[] resourceDeltas)
+    protected void setResourceDeltas_(IResourceDelta[] resourceDeltas)
     {
         this.resourceDeltas = resourceDeltas;
         this.resourceDeltasCounter = (resourceDeltas != null)
@@ -532,23 +532,23 @@ public class ElementDelta
      *
      * @param resourceDelta the resource delta to add (not <code>null</code>)
      */
-    protected void hAddResourceDelta(IResourceDelta resourceDelta)
+    protected void addResourceDelta_(IResourceDelta resourceDelta)
     {
         if (resourceDelta == null)
             throw new IllegalArgumentException();
 
-        switch (hKind())
+        switch (getKind_())
         {
         case ADDED:
         case REMOVED:
             // no need to add a child if this parent is added or removed
             return;
         case CHANGED:
-            hSetFlags(hFlags() | F_CONTENT);
+            setFlags_(getFlags_() | F_CONTENT);
             break;
         default:
-            hSetKind(CHANGED);
-            hSetFlags(hFlags() | F_CONTENT);
+            setKind_(CHANGED);
+            setFlags_(getFlags_() | F_CONTENT);
         }
 
         if (resourceDeltas == null)
@@ -569,81 +569,81 @@ public class ElementDelta
 
     /**
      * Based on the given delta, creates a delta tree that can be directly
-     * parented by this delta, and then {@link #hAddAffectedChild adds} the
+     * parented by this delta, and then {@link #addAffectedChild_ adds} the
      * tree as an affected child of this delta. Doesn't modify the given delta
      * in any way.
      * <p>
-     * Note that after calling <code>hInsertSubTree(delta)</code>
+     * Note that after calling <code>insertSubTree_(delta)</code>
      * there is no guarantee that
      * </p>
-     * <pre>hDeltaFor(d.hElement()) == d</pre>
+     * <pre>findDelta_(d.getElement_()) == d</pre>
      * <p>
      * or even that
      * </p>
-     * <pre>hDeltaFor(d.hElement()) != null</pre>
+     * <pre>findDelta_(d.getElement_()) != null</pre>
      * <p>
      * for any delta <code>d</code> in the subtree <code>delta</code>.
      * </p>
      * <p>
      * For example, if this delta tree already contains a delta for
-     * <code>d.hElement()</code>, the existing child delta will be {@link
-     * #hMergeWith(ElementDelta) merged} with <code>d</code>, which may even
+     * <code>d.getElement_()</code>, the existing child delta will be {@link
+     * #mergeWith_(ElementDelta) merged} with <code>d</code>, which may even
      * result in a logically empty delta, i.e. no delta for the element.
      * </p>
      *
      * @param delta the delta to insert (not <code>null</code>)
      */
-    protected void hInsertSubTree(ElementDelta delta)
+    protected void insertSubTree_(ElementDelta delta)
     {
-        hAddAffectedChild(createDeltaTree(delta));
+        addAffectedChild_(createDeltaTree(delta));
     }
 
     /**
      * Adds the given delta as an affected child of this delta. If this delta
      * already contains a child delta for the same element as the given delta,
-     * {@link #hMergeWith(ElementDelta) merges} the existing child delta with
+     * {@link #mergeWith_(ElementDelta) merges} the existing child delta with
      * the given delta. Doesn't modify the given delta in any way.
      * <p>
      * It is the caller's responsibility to ensure that the given delta can be
      * directly parented by this delta.
      * </p>
      * <p>
-     * Note that after calling <code>hAddAffectedChild(delta)</code>
+     * Note that after calling <code>addAffectedChild_(delta)</code>
      * there is no guarantee that
      * </p>
-     * <pre>hDeltaFor(d.hElement()) == d</pre>
+     * <pre>findDelta_(d.getElement_()) == d</pre>
      * <p>
      * or even that
      * </p>
-     * <pre>hDeltaFor(d.hElement()) != null</pre>
+     * <pre>findDelta_(d.getElement_()) != null</pre>
      * <p>
      * for any delta <code>d</code> in the subtree <code>delta</code>.
      * </p>
      *
      * @param child the delta to add as an affected child (not <code>null</code>)
-     * @see #hInsertSubTree(ElementDelta)
+     * @see #insertSubTree_(ElementDelta)
      */
-    protected void hAddAffectedChild(ElementDelta child)
+    protected void addAffectedChild_(ElementDelta child)
     {
-        switch (hKind())
+        switch (getKind_())
         {
         case ADDED:
         case REMOVED:
             // no need to add a child if this parent is added or removed
             return;
         case CHANGED:
-            hSetFlags(hFlags() | F_CHILDREN);
+            setFlags_(getFlags_() | F_CHILDREN);
             break;
         default:
-            hSetKind(CHANGED);
-            hSetFlags(hFlags() | F_CHILDREN);
+            setKind_(CHANGED);
+            setFlags_(getFlags_() | F_CHILDREN);
         }
 
         // if a child delta is added to a source file delta or below,
         // it's a fine grained delta
         if (element instanceof ISourceElement)
         {
-            hSetFlags(hFlags() | F_FINE_GRAINED);
+            setFlags_(getFlags_() | F_FINE_GRAINED);
         }
 
         Key key = new Key(child.element);
@@ -655,9 +655,9 @@ public class ElementDelta
         else
         {
             ElementDelta existingChild = affectedChildren[index];
-            boolean wasEmpty = existingChild.hIsEmpty();
-            existingChild.hMergeWith(child);
-            if (!wasEmpty && existingChild.hIsEmpty())
+            boolean wasEmpty = existingChild.isEmpty_();
+            existingChild.mergeWith_(child);
+            if (!wasEmpty && existingChild.isEmpty_())
                 removeExistingChild(key, index);
         }
     }
@@ -671,34 +671,34 @@ public class ElementDelta
      * </p>
      * <p>
      * This implementation implements merge behavior in terms of calls to
-     * {@link #hCopyFrom}.
+     * {@link #copyFrom_}.
      * </p>
      *
      * @param delta the delta to merge with (not <code>null</code>)
      */
-    protected void hMergeWith(ElementDelta delta)
+    protected void mergeWith_(ElementDelta delta)
     {
-        switch (hKind())
+        switch (getKind_())
         {
         case ADDED:
-            switch (delta.hKind())
+            switch (delta.getKind_())
             {
             case ADDED: // element was added then added -> it is added
             case CHANGED: // element was added then changed -> it is added
                 return;
             case REMOVED: // element was added then removed -> noop
-                hCopyFrom(hNewDelta(hElement()), true);
+                copyFrom_(newDelta_(getElement_()), true);
                 return;
             }
             break;
         case REMOVED:
-            switch (delta.hKind())
+            switch (delta.getKind_())
             {
             case ADDED: // element was removed then added -> it is changed
-                ElementDelta newDelta = hNewDelta(hElement());
-                newDelta.hSetKind(CHANGED);
-                newDelta.hSetFlags(F_CONTENT);
-                hCopyFrom(newDelta, true);
+                ElementDelta newDelta = newDelta_(getElement_());
+                newDelta.setKind_(CHANGED);
+                newDelta.setFlags_(F_CONTENT);
+                copyFrom_(newDelta, true);
                 return;
             case CHANGED: // element was removed then changed -> it is removed
             case REMOVED: // element was removed then removed -> it is removed
@@ -706,19 +706,19 @@ public class ElementDelta
             }
             break;
         case CHANGED:
-            switch (delta.hKind())
+            switch (delta.getKind_())
             {
             case ADDED: // element was changed then added -> it is added
             case REMOVED: // element was changed then removed -> it is removed
-                hCopyFrom(delta, true);
+                copyFrom_(delta, true);
                 return;
             case CHANGED: // element was changed then changed -> it is changed
-                hCopyFrom(delta, false);
+                copyFrom_(delta, false);
                 return;
             }
             break;
         default:
-            hCopyFrom(delta, true);
+            copyFrom_(delta, true);
             return;
         }
     }
@@ -739,31 +739,31 @@ public class ElementDelta
      *  (re-)initialized with data from the given delta; <code>false</code>
      *  if this delta needs to be augmented with data from the given delta
      */
-    protected void hCopyFrom(ElementDelta delta, boolean init)
+    protected void copyFrom_(ElementDelta delta, boolean init)
     {
         if (init)
         {
-            hSetKind(delta.hKind());
-            hSetFlags(delta.hFlags());
-            hSetMovedFromElement(delta.hMovedFromElement());
-            hSetMovedToElement(delta.hMovedToElement());
-            hSetAffectedChildren(delta.hAffectedChildren());
-            hSetMarkerDeltas(delta.hMarkerDeltas());
-            hSetResourceDeltas(delta.hResourceDeltas());
+            setKind_(delta.getKind_());
+            setFlags_(delta.getFlags_());
+            setMovedFromElement_(delta.getMovedFromElement_());
+            setMovedToElement_(delta.getMovedToElement_());
+            setAffectedChildren_(delta.getAffectedChildren_());
+            setMarkerDeltas_(delta.getMarkerDeltas_());
+            setResourceDeltas_(delta.getResourceDeltas_());
         }
         else
         {
-            if (delta.hKind() == NO_CHANGE)
+            if (delta.getKind_() == NO_CHANGE)
                 return;
 
-            if (hKind() == NO_CHANGE)
-                hSetKind(delta.hKind());
-            else if (hKind() != delta.hKind())
+            if (getKind_() == NO_CHANGE)
+                setKind_(delta.getKind_());
+            else if (getKind_() != delta.getKind_())
                 throw new IllegalArgumentException();
 
-            for (ElementDelta child : delta.hAffectedChildren())
+            for (ElementDelta child : delta.getAffectedChildren_())
             {
-                hAddAffectedChild(child);
+                addAffectedChild_(child);
             }
 
             // add marker deltas if needed
@@ -773,17 +773,17 @@ public class ElementDelta
                     throw new AssertionError(
                         "Merge of marker deltas is not supported"); //$NON-NLS-1$
 
-                hSetMarkerDeltas(delta.hMarkerDeltas());
+                setMarkerDeltas_(delta.getMarkerDeltas_());
             }
 
             // add resource deltas if needed
             for (int i = 0; i < delta.resourceDeltasCounter; i++)
             {
-                hAddResourceDelta(delta.resourceDeltas[i]);
+                addResourceDelta_(delta.resourceDeltas[i]);
             }
 
             // update flags
-            hSetFlags(hFlags() | delta.hFlags());
+            setFlags_(getFlags_() | delta.getFlags_());
         }
     }
 
@@ -796,7 +796,7 @@ public class ElementDelta
      *
      * @param children the affected children (not <code>null</code>)
      */
-    protected void hSetAffectedChildren(ElementDelta[] children)
+    protected void setAffectedChildren_(ElementDelta[] children)
     {
         if (children == null)
             throw new IllegalArgumentException();
@@ -819,13 +819,13 @@ public class ElementDelta
         {
             IContext context = of(FORMAT_STYLE, SHORT);
             throw new IllegalArgumentException(MessageFormat.format(
-                "Delta {0} cannot be rooted in {1}", delta.hToString( //$NON-NLS-1$
-                    context), hToString(context)));
+                "Delta {0} cannot be rooted in {1}", delta.toString_( //$NON-NLS-1$
+                    context), toString_(context)));
         }
         for (IElement ancestor : ancestors)
         {
-            ElementDelta ancestorDelta = hNewDelta(ancestor);
-            ancestorDelta.hAddAffectedChild(childDelta);
+            ElementDelta ancestorDelta = newDelta_(ancestor);
+            ancestorDelta.addAffectedChild_(childDelta);
             childDelta = ancestorDelta;
         }
         return childDelta;
@@ -878,7 +878,7 @@ public class ElementDelta
         ArrayList<ElementDelta> children = new ArrayList<>(length);
         for (ElementDelta child : affectedChildren)
         {
-            if (child.hKind() == kind)
+            if (child.getKind_() == kind)
                 children.add(child);
         }
 
@@ -921,7 +921,7 @@ public class ElementDelta
     private Integer indexOfChild(Key key)
     {
         int length = affectedChildren.length;
-        if (!hNeedsChildIndex())
+        if (!needsChildIndex_())
         {
             for (int i = 0; i < length; i++)
             {
@@ -978,7 +978,7 @@ public class ElementDelta
         affectedChildren = removeAndShrinkArray(affectedChildren, index);
         if (childIndex != null)
         {
-            if (!hNeedsChildIndex())
+            if (!needsChildIndex_())
                 childIndex = null;
             else
             {
@@ -1134,7 +1134,7 @@ public class ElementDelta
                 throw new IllegalArgumentException();
 
             ElementDelta delta = newChanged(element, F_MARKERS);
-            delta.hSetMarkerDeltas(markerDeltas);
+            delta.setMarkerDeltas_(markerDeltas);
             insert(delta);
             return this;
         }
@@ -1147,7 +1147,7 @@ public class ElementDelta
                 throw new IllegalArgumentException();
 
             ElementDelta delta = newChanged(element, F_CONTENT);
-            delta.hAddResourceDelta(resourceDelta);
+            delta.addResourceDelta_(resourceDelta);
             insert(delta);
             return this;
         }
@@ -1155,9 +1155,9 @@ public class ElementDelta
         private void insert(ElementDelta delta)
         {
             if (!Elements.equalsAndSameParent(rootDelta.element, delta.element))
-                rootDelta.hInsertSubTree(delta);
+                rootDelta.insertSubTree_(delta);
             else
-                rootDelta.hMergeWith(delta);
+                rootDelta.mergeWith_(delta);
         }
 
         /**
@@ -1171,9 +1171,9 @@ public class ElementDelta
          */
         private ElementDelta newAdded(IElement element, long flags)
         {
-            ElementDelta delta = rootDelta.hNewDelta(element);
-            delta.hSetKind(ADDED);
-            delta.hSetFlags(flags);
+            ElementDelta delta = rootDelta.newDelta_(element);
+            delta.setKind_(ADDED);
+            delta.setFlags_(flags);
             return delta;
         }
 
@@ -1188,9 +1188,9 @@ public class ElementDelta
          */
         private ElementDelta newRemoved(IElement element, long flags)
         {
-            ElementDelta delta = rootDelta.hNewDelta(element);
-            delta.hSetKind(REMOVED);
-            delta.hSetFlags(flags);
+            ElementDelta delta = rootDelta.newDelta_(element);
+            delta.setKind_(REMOVED);
+            delta.setFlags_(flags);
             return delta;
         }
 
@@ -1205,9 +1205,9 @@ public class ElementDelta
          */
         private ElementDelta newChanged(IElement element, long flags)
         {
-            ElementDelta delta = rootDelta.hNewDelta(element);
-            delta.hSetKind(CHANGED);
-            delta.hSetFlags(flags);
+            ElementDelta delta = rootDelta.newDelta_(element);
+            delta.setKind_(CHANGED);
+            delta.setFlags_(flags);
             return delta;
         }
 
@@ -1228,7 +1228,7 @@ public class ElementDelta
             ElementDelta delta = newRemoved(movedFromElement, F_MOVED_TO);
             if (movedToElement == null)
                 throw new IllegalArgumentException();
-            delta.hSetMovedToElement(movedToElement);
+            delta.setMovedToElement_(movedToElement);
             return delta;
         }
 
@@ -1249,7 +1249,7 @@ public class ElementDelta
             ElementDelta delta = newAdded(movedToElement, F_MOVED_FROM);
             if (movedFromElement == null)
                 throw new IllegalArgumentException();
-            delta.hSetMovedFromElement(movedFromElement);
+            delta.setMovedFromElement_(movedFromElement);
             return delta;
         }
     }

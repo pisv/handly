@@ -247,7 +247,7 @@ public class ElementChangeRecorder
         Object body;
         try
         {
-            body = ((IElementImplExtension)element).hBody();
+            body = ((IElementImplExtension)element).getBody_();
         }
         catch (CoreException e)
         {
@@ -256,7 +256,8 @@ public class ElementChangeRecorder
 
         recordBody(body, element);
 
-        IElement[] children = ((IElementImplExtension)element).hChildren(body);
+        IElement[] children = ((IElementImplExtension)element).getChildren_(
+            body);
         insertPositions(children, false);
         for (IElement child : children)
         {
@@ -331,7 +332,7 @@ public class ElementChangeRecorder
             Object newBody;
             try
             {
-                newBody = ((IElementImplExtension)element).hBody();
+                newBody = ((IElementImplExtension)element).getBody_();
             }
             catch (CoreException e)
             {
@@ -340,7 +341,7 @@ public class ElementChangeRecorder
 
             findContentChange(oldBody, newBody, element);
 
-            for (IElement child : ((IElementImplExtension)element).hChildren(
+            for (IElement child : ((IElementImplExtension)element).getChildren_(
                 newBody))
             {
                 findAdditions(child, depth + 1);

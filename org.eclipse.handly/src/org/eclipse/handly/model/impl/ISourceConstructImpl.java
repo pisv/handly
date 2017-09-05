@@ -23,8 +23,8 @@ public interface ISourceConstructImpl
     extends ISourceElementImpl, ISourceConstruct
 {
     @Override
-    default IResource hResource()
+    default IResource getResource_()
     {
-        return Elements.getResource(hParent());
+        return Elements.getResource(getParent_());
     }
 }

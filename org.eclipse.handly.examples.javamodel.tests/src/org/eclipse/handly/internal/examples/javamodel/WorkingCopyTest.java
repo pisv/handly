@@ -377,14 +377,14 @@ public class WorkingCopyTest
     private static void doWithWorkingCopy(CompilationUnit cu, IContext context,
         IWorkspaceRunnable runnable) throws CoreException
     {
-        cu.hBecomeWorkingCopy(context, null);
+        cu.becomeWorkingCopy_(context, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            cu.hReleaseWorkingCopy();
+            cu.releaseWorkingCopy_();
         }
     }
 

@@ -92,7 +92,7 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "  Test004[*]: {CONTENT | CLASSPATH_CHANGED}\n" +
+            "  Test004[*]: {CONTENT | CLASSPATH CHANGED}\n" +
             "    ResourceDelta(/Test004/.classpath)[*]"
         );
         //@formatter:on
@@ -104,7 +104,7 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "  Test004[*]: {CONTENT | CLASSPATH_CHANGED}\n" +
+            "  Test004[*]: {CONTENT | CLASSPATH CHANGED}\n" +
             "    ResourceDelta(/Test004/.classpath)[*]"
         );
         //@formatter:on
@@ -126,7 +126,7 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "  Test004[*]: {CHILDREN | CONTENT | CLASSPATH_CHANGED}\n" +
+            "  Test004[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" +
             "    src-gen[-]: {}\n" +
             "    ResourceDelta(/Test004/.classpath)[*]"
         );
@@ -164,7 +164,7 @@ public class JavaProjectNotificationTest
         //@formatter:off
         listener.assertDelta(
             "Java Model[*]: {CHILDREN}\n" +
-            "  Test004[*]: {CHILDREN | CONTENT | CLASSPATH_CHANGED}\n" +
+            "  Test004[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" +
             "    src[-]: {MOVED_TO(src2 [in Test004])}\n" +
             "    src2[+]: {MOVED_FROM(src [in Test004])}\n" +
             "    ResourceDelta(/Test004/.classpath)[*]"

@@ -299,14 +299,14 @@ public class WorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.hBecomeWorkingCopy(EMPTY_CONTEXT, null);
+        workingCopy.becomeWorkingCopy_(EMPTY_CONTEXT, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.hReleaseWorkingCopy();
+            workingCopy.releaseWorkingCopy_();
         }
     }
 }

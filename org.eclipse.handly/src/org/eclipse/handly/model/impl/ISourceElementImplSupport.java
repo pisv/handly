@@ -33,19 +33,19 @@ public interface ISourceElementImplSupport
     extends IElementImplSupport, ISourceElementImpl
 {
     @Override
-    default ISourceElementInfo hSourceElementInfo() throws CoreException
+    default ISourceElementInfo getSourceElementInfo_() throws CoreException
     {
-        return (ISourceElementInfo)hBody();
+        return (ISourceElementInfo)getBody_();
     }
 
     @Override
-    default ISourceElement hSourceElementAt(int position, ISnapshot base)
+    default ISourceElement getSourceElementAt_(int position, ISnapshot base)
         throws CoreException
     {
-        ISourceElementInfo info = hSourceElementInfo();
+        ISourceElementInfo info = getSourceElementInfo_();
         if (!checkInRange(position, base, info))
             return null;
-        return hSourceElementAt(position, info);
+        return getSourceElementAt_(position, info);
     }
 
     /**
@@ -61,7 +61,7 @@ public interface ISourceElementImplSupport
      * @throws CoreException if an exception occurs while accessing
      *  the element's corresponding resource
      */
-    default ISourceElement hSourceElementAt(int position,
+    default ISourceElement getSourceElementAt_(int position,
         ISourceElementInfo info) throws CoreException
     {
         ISnapshot snapshot = info.getSnapshot();

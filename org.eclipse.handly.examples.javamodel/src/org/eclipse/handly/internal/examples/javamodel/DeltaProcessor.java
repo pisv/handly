@@ -594,12 +594,12 @@ class DeltaProcessor
 
     private static Body findBody(IJavaElement element)
     {
-        return (Body)((IElementImplExtension)element).hFindBody();
+        return (Body)((IElementImplExtension)element).findBody_();
     }
 
     private static void close(IJavaElement element)
     {
-        ((IElementImplExtension)element).hClose();
+        ((IElementImplExtension)element).close_();
     }
 
     private static IResource getResource(IPath fullPath, int resourceType)

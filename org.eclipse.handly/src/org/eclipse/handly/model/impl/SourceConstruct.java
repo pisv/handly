@@ -41,13 +41,13 @@ public abstract class SourceConstruct
     }
 
     @Override
-    public final int hOccurrenceCount()
+    public final int getOccurrenceCount_()
     {
         return occurrenceCount;
     }
 
     @Override
-    public void hIncrementOccurrenceCount()
+    public void incrementOccurrenceCount_()
     {
         occurrenceCount++;
     }

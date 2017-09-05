@@ -59,7 +59,7 @@ public class Elements
      */
     public static String getName(IElement element)
     {
-        return ((IElementImpl)element).hName();
+        return ((IElementImpl)element).getName_();
     }
 
     /**
@@ -73,7 +73,7 @@ public class Elements
      */
     public static IElement getParent(IElement element)
     {
-        return ((IElementImpl)element).hParent();
+        return ((IElementImpl)element).getParent_();
     }
 
     /**
@@ -86,7 +86,7 @@ public class Elements
      */
     public static IElement getRoot(IElement element)
     {
-        return ((IElementImpl)element).hRoot();
+        return ((IElementImpl)element).getRoot_();
     }
 
     /**
@@ -101,7 +101,7 @@ public class Elements
      */
     public static <T> T getAncestor(IElement element, Class<T> ancestorType)
     {
-        return ((IElementImpl)element).hAncestor(ancestorType);
+        return ((IElementImpl)element).getAncestor_(ancestorType);
     }
 
     /**
@@ -112,7 +112,7 @@ public class Elements
      */
     public static IModel getModel(IElement element)
     {
-        return ((IElementImpl)element).hModel();
+        return ((IElementImpl)element).getModel_();
     }
 
     /**
@@ -131,7 +131,7 @@ public class Elements
      */
     public static IResource getResource(IElement element)
     {
-        return ((IElementImpl)element).hResource();
+        return ((IElementImpl)element).getResource_();
     }
 
     /**
@@ -145,7 +145,7 @@ public class Elements
      */
     public static URI getLocationURI(IElement element)
     {
-        return ((IElementImpl)element).hLocationURI();
+        return ((IElementImpl)element).getLocationURI_();
     }
 
     /**
@@ -165,7 +165,7 @@ public class Elements
      */
     public static boolean exists(IElement element)
     {
-        return ((IElementImpl)element).hExists();
+        return ((IElementImpl)element).exists_();
     }
 
     /**
@@ -180,7 +180,7 @@ public class Elements
      */
     public static IElement[] getChildren(IElement element) throws CoreException
     {
-        return ((IElementImpl)element).hChildren();
+        return ((IElementImpl)element).getChildren_();
     }
 
     /**
@@ -199,7 +199,7 @@ public class Elements
     public static <T> T[] getChildren(IElement element, Class<T> childType)
         throws CoreException
     {
-        return ((IElementImpl)element).hChildren(childType);
+        return ((IElementImpl)element).getChildren_(childType);
     }
 
     /**
@@ -229,7 +229,7 @@ public class Elements
      */
     public static String toString(IElement element, IContext context)
     {
-        return ((IElementImpl)element).hToString(context);
+        return ((IElementImpl)element).toString_(context);
     }
 
     /**
@@ -253,7 +253,7 @@ public class Elements
      */
     public static String toDisplayString(IElement element, IContext context)
     {
-        return ((IElementImpl)element).hToDisplayString(context);
+        return ((IElementImpl)element).toDisplayString_(context);
     }
 
     /**
@@ -293,7 +293,7 @@ public class Elements
     public static ISourceElement getSourceElementAt(ISourceElement context,
         int position, ISnapshot base) throws CoreException
     {
-        return ((ISourceElementImpl)context).hSourceElementAt(position, base);
+        return ((ISourceElementImpl)context).getSourceElementAt_(position, base);
     }
 
     /**
@@ -345,7 +345,7 @@ public class Elements
     public static ISourceElementInfo getSourceElementInfo(
         ISourceElement element) throws CoreException
     {
-        return ((ISourceElementImpl)element).hSourceElementInfo();
+        return ((ISourceElementImpl)element).getSourceElementInfo_();
     }
 
     /**
@@ -489,7 +489,7 @@ public class Elements
      */
     public static IFile getFile(ISourceFile sourceFile)
     {
-        return ((ISourceFileImpl)sourceFile).hFile();
+        return ((ISourceFileImpl)sourceFile).getFile_();
     }
 
     /**
@@ -501,7 +501,7 @@ public class Elements
      */
     public static boolean isWorkingCopy(ISourceFile sourceFile)
     {
-        return ((ISourceFileImpl)sourceFile).hIsWorkingCopy();
+        return ((ISourceFileImpl)sourceFile).isWorkingCopy_();
     }
 
     /**
@@ -515,7 +515,7 @@ public class Elements
      */
     public static boolean needsReconciling(ISourceFile sourceFile)
     {
-        return ((ISourceFileImpl)sourceFile).hNeedsReconciling();
+        return ((ISourceFileImpl)sourceFile).needsReconciling_();
     }
 
     /**
@@ -561,7 +561,7 @@ public class Elements
     public static void reconcile(ISourceFile sourceFile, IContext context,
         IProgressMonitor monitor) throws CoreException
     {
-        ((ISourceFileImpl)sourceFile).hReconcile(context, monitor);
+        ((ISourceFileImpl)sourceFile).reconcile_(context, monitor);
     }
 
     /**
@@ -644,7 +644,7 @@ public class Elements
     public static IBuffer getBuffer(ISourceFile sourceFile, IContext context,
         IProgressMonitor monitor) throws CoreException
     {
-        return ((ISourceFileImpl)sourceFile).hBuffer(context, monitor);
+        return ((ISourceFileImpl)sourceFile).getBuffer_(context, monitor);
     }
 
     /**

@@ -19,7 +19,7 @@ interface IJavaElementInternal
     extends IModelManager.Provider
 {
     @Override
-    default IModelManager hModelManager()
+    default IModelManager getModelManager_()
     {
         return JavaModelManager.INSTANCE;
     }

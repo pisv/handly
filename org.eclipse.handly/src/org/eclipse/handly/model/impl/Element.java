@@ -47,29 +47,29 @@ public abstract class Element
     @Override
     public boolean equals(Object obj)
     {
-        return hDefaultEquals(obj);
+        return defaultEquals_(obj);
     }
 
     @Override
     public int hashCode()
     {
-        return hDefaultHashCode();
+        return defaultHashCode_();
     }
 
     @Override
     public String toString()
     {
-        return hToString(EMPTY_CONTEXT);
+        return toString_(EMPTY_CONTEXT);
     }
 
     @Override
-    public final String hName()
+    public final String getName_()
     {
         return name;
     }
 
     @Override
-    public final IElement hParent()
+    public final IElement getParent_()
     {
         return parent;
     }

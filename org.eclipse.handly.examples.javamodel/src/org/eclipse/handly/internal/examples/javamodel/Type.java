@@ -131,7 +131,7 @@ public class Type
     }
 
     @Override
-    public ISourceElement hSourceElementAt(int position,
+    public ISourceElement getSourceElementAt_(int position,
         ISourceElementInfo info) throws CoreException
     {
         ISnapshot snapshot = info.getSnapshot();
@@ -185,7 +185,7 @@ public class Type
     }
 
     @Override
-    public void hToStringBody(StringBuilder builder, Object body,
+    public void toStringBody_(StringBuilder builder, Object body,
         IContext context)
     {
         if (body != null && body != NO_BODY)
@@ -201,7 +201,7 @@ public class Type
             else
                 builder.append("class "); //$NON-NLS-1$
         }
-        hToStringName(builder, context);
+        toStringName_(builder, context);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

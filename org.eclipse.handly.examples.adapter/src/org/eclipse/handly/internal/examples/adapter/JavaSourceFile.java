@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,19 +54,19 @@ class JavaSourceFile
     }
 
     @Override
-    public IFile hFile()
+    public IFile getFile_()
     {
         return (IFile)getCompilationUnit().getResource();
     }
 
     @Override
-    public boolean hIsWorkingCopy()
+    public boolean isWorkingCopy_()
     {
         return getCompilationUnit().isWorkingCopy();
     }
 
     @Override
-    public boolean hNeedsReconciling()
+    public boolean needsReconciling_()
     {
         try
         {
@@ -80,7 +80,7 @@ class JavaSourceFile
     }
 
     @Override
-    public void hReconcile(IContext context, IProgressMonitor monitor)
+    public void reconcile_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         getCompilationUnit().reconcile(ICompilationUnit.NO_AST,
@@ -89,10 +89,10 @@ class JavaSourceFile
     }
 
     @Override
-    public IBuffer hBuffer(IContext context, IProgressMonitor monitor)
+    public IBuffer getBuffer_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        IFile file = hFile();
+        IFile file = getFile_();
         if (file == null)
             throw new AssertionError("No underlying IFile for " + toString());
         ICoreTextFileBufferProvider provider =

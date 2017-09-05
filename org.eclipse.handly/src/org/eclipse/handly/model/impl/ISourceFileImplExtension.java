@@ -31,7 +31,7 @@ public interface ISourceFileImplExtension
 {
     /**
      * Specifies the working copy buffer.
-     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
+     * @see #becomeWorkingCopy_(IContext, IProgressMonitor)
      */
     Property<IBuffer> WORKING_COPY_BUFFER = Property.get(
         ISourceFileImplExtension.class.getName() + ".workingCopyBuffer", //$NON-NLS-1$
@@ -39,7 +39,7 @@ public interface ISourceFileImplExtension
 
     /**
      * Specifies the working copy callback.
-     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
+     * @see #becomeWorkingCopy_(IContext, IProgressMonitor)
      */
     Property<IWorkingCopyCallback> WORKING_COPY_CALLBACK = Property.get(
         ISourceFileImplExtension.class.getName() + ".workingCopyCallback", //$NON-NLS-1$
@@ -48,7 +48,7 @@ public interface ISourceFileImplExtension
     /**
      * Specifies the working copy context.
      * Default value: <code>EMPTY_CONTEXT</code>.
-     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
+     * @see #becomeWorkingCopy_(IContext, IProgressMonitor)
      */
     Property<IContext> WORKING_COPY_CONTEXT = Property.get(
         ISourceFileImplExtension.class.getName() + ".workingCopyContext", //$NON-NLS-1$
@@ -64,7 +64,7 @@ public interface ISourceFileImplExtension
      * shall no longer correspond to the underlying resource contents
      * and must no longer be updated by a resource delta processor.
      * Instead, the source file's structure and properties can be explicitly
-     * {@link #hReconcile(IContext, IProgressMonitor) reconciled} with the
+     * {@link #reconcile_(IContext, IProgressMonitor) reconciled} with the
      * current contents of the working copy buffer.
      * </p>
      * <p>
@@ -85,7 +85,7 @@ public interface ISourceFileImplExtension
      * <li>
      * {@link #WORKING_COPY_CONTEXT} - Specifies the working copy context.
      * If set, the given context will be associated with the working copy and
-     * can be accessed via {@link #hWorkingCopyContext()} method.
+     * can be accessed via {@link #getWorkingCopyContext_()} method.
      * </li>
      * </ul>
      * <p>
@@ -95,7 +95,7 @@ public interface ISourceFileImplExtension
      * </p>
      * <p>
      * Each call to this method that didn't throw an exception must ultimately
-     * be followed by exactly one call to {@link #hReleaseWorkingCopy()}.
+     * be followed by exactly one call to {@link #releaseWorkingCopy_()}.
      * </p>
      *
      * @param context the operation context (not <code>null</code>)
@@ -105,9 +105,9 @@ public interface ISourceFileImplExtension
      *  or <code>false</code> if it was already in working copy mode
      * @throws CoreException if the working copy could not be created successfully
      * @throws OperationCanceledException if this method is canceled
-     * @see #hAcquireExistingWorkingCopy(IProgressMonitor)
+     * @see #acquireExistingWorkingCopy_(IProgressMonitor)
      */
-    boolean hBecomeWorkingCopy(IContext context, IProgressMonitor monitor)
+    boolean becomeWorkingCopy_(IContext context, IProgressMonitor monitor)
         throws CoreException;
 
     /**
@@ -117,7 +117,7 @@ public interface ISourceFileImplExtension
      * Performs atomically.
      * <p>
      * Each successful call to this method that did not return <code>false</code>
-     * must ultimately be followed by exactly one call to {@link #hReleaseWorkingCopy()}.
+     * must ultimately be followed by exactly one call to {@link #releaseWorkingCopy_()}.
      * </p>
      *
      * @param monitor a progress monitor, or <code>null</code>
@@ -125,9 +125,9 @@ public interface ISourceFileImplExtension
      * @return <code>true</code> if an existing working copy was acquired,
      *  or <code>false</code> if this source file is not a working copy
      * @throws OperationCanceledException if this method is canceled
-     * @see #hBecomeWorkingCopy(IContext, IProgressMonitor)
+     * @see #becomeWorkingCopy_(IContext, IProgressMonitor)
      */
-    boolean hAcquireExistingWorkingCopy(IProgressMonitor monitor);
+    boolean acquireExistingWorkingCopy_(IProgressMonitor monitor);
 
     /**
      * Relinquishes an independent ownership of the working copy by decrementing
@@ -144,7 +144,7 @@ public interface ISourceFileImplExtension
      *  working copy mode back to its original mode, <code>false</code>
      *  otherwise
      */
-    boolean hReleaseWorkingCopy();
+    boolean releaseWorkingCopy_();
 
     /**
      * Returns the context associated with the working copy,
@@ -160,5 +160,5 @@ public interface ISourceFileImplExtension
      * @return the working copy context, or <code>null</code>
      *  if this source file is not a working copy
      */
-    IContext hWorkingCopyContext();
+    IContext getWorkingCopyContext_();
 }

@@ -69,12 +69,12 @@ public interface IElementImplSupport
      *
      * @return a hash code value
      */
-    default int hDefaultHashCode()
+    default int defaultHashCode_()
     {
         final int prime = 31;
         int result = 1;
-        IElement parent = hParent();
-        String name = hName();
+        IElement parent = getParent_();
+        String name = getName_();
         result = prime * result + (parent == null ? 0 : parent.hashCode());
         result = prime * result + (name == null ? 0 : name.hashCode());
         return result;
@@ -86,7 +86,7 @@ public interface IElementImplSupport
      * delegating to this default method.
      * <p>
      * By default, two elements that implement this interface are equal if they
-     * are identical or if they {@link #hCanEqual(Object) can equal} each other
+     * are identical or if they {@link #canEqual_(Object) can equal} each other
      * and both have equal parents and names. This method is specialized in
      * {@link ISourceConstructImplSupport} and {@link ISourceFileImplSupport}
      * to also compare occurrence counts and underlying <code>IFile</code>s
@@ -98,7 +98,7 @@ public interface IElementImplSupport
      * @return <code>true</code> if this object is the same as the obj argument,
      *  <code>false</code> otherwise
      */
-    default boolean hDefaultEquals(Object obj)
+    default boolean defaultEquals_(Object obj)
     {
         if (this == obj)
             return true;
@@ -107,23 +107,23 @@ public interface IElementImplSupport
         if (!(obj instanceof IElementImplSupport))
             return false;
         IElementImplSupport other = (IElementImplSupport)obj;
-        if (!other.hCanEqual(this))
+        if (!other.canEqual_(this))
             return false;
-        IElement parent = hParent();
+        IElement parent = getParent_();
         if (parent == null)
         {
-            if (other.hParent() != null)
+            if (other.getParent_() != null)
                 return false;
         }
-        else if (!parent.equals(other.hParent()))
+        else if (!parent.equals(other.getParent_()))
             return false;
-        String name = hName();
+        String name = getName_();
         if (name == null)
         {
-            if (other.hName() != null)
+            if (other.getName_() != null)
                 return false;
         }
-        else if (!name.equals(other.hName()))
+        else if (!name.equals(other.getName_()))
             return false;
         return true;
     }
@@ -148,15 +148,15 @@ public interface IElementImplSupport
      * @return <code>true</code> if this element can equal the given object;
      *  <code>false</code> otherwise
      */
-    default boolean hCanEqual(Object obj)
+    default boolean canEqual_(Object obj)
     {
         return getClass() == obj.getClass();
     }
 
     @Override
-    default IModel hModel()
+    default IModel getModel_()
     {
-        return hModelManager().getModel();
+        return getModelManager_().getModel();
     }
 
     /**
@@ -166,40 +166,40 @@ public interface IElementImplSupport
      *
      * @return the element manager for this element (never <code>null</code>)
      */
-    default ElementManager hElementManager()
+    default ElementManager getElementManager_()
     {
-        return hModelManager().getElementManager();
+        return getModelManager_().getElementManager();
     }
 
     @Override
-    default IElement[] hChildren(Object body)
+    default IElement[] getChildren_(Object body)
     {
         return ((Body)body).getChildren();
     }
 
     @Override
-    default Object hFindBody()
+    default Object findBody_()
     {
-        return hElementManager().get(this);
+        return getElementManager_().get(this);
     }
 
     @Override
-    default Object hPeekAtBody()
+    default Object peekAtBody_()
     {
-        return hElementManager().peek(this);
+        return getElementManager_().peek(this);
     }
 
     @Override
-    default boolean hExists()
+    default boolean exists_()
     {
-        if (hFindBody() != null)
+        if (findBody_() != null)
             return true;
-        IElement parent = hParent();
+        IElement parent = getParent_();
         if (parent != null && !Elements.exists(parent))
             return false;
         try
         {
-            hValidateExistence(EMPTY_CONTEXT);
+            validateExistence_(EMPTY_CONTEXT);
             return true;
         }
         catch (CoreException e)
@@ -219,9 +219,9 @@ public interface IElementImplSupport
      *
      * @param context the operation context (never <code>null</code>)
      * @throws CoreException if this element shall not exist
-     * @see #hDoesNotExistException()
+     * @see #newDoesNotExistException_()
      */
-    void hValidateExistence(IContext context) throws CoreException;
+    void validateExistence_(IContext context) throws CoreException;
 
     /**
      * Returns a new instance of a generic "element does not exist" exception.
@@ -230,11 +230,11 @@ public interface IElementImplSupport
      *
      * @return a new "element does not exist" exception (never <code>null</code>)
      */
-    default CoreException hDoesNotExistException()
+    default CoreException newDoesNotExistException_()
     {
         return new CoreException(Activator.createErrorStatus(
             MessageFormat.format(Messages.Element_Does_not_exist__0,
-                hToDisplayString(of(FORMAT_STYLE, FULL))), null));
+                toDisplayString_(of(FORMAT_STYLE, FULL))), null));
     }
 
     /**
@@ -248,28 +248,28 @@ public interface IElementImplSupport
      * @throws OperationCanceledException {@inheritDoc}
      */
     @Override
-    default Object hOpen(IContext context, IProgressMonitor monitor)
+    default Object open_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         if (monitor == null)
             monitor = new NullProgressMonitor();
-        ElementManager elementManager = hElementManager();
+        ElementManager elementManager = getElementManager_();
         boolean hadTemporaryCache = elementManager.hasTemporaryCache();
         try
         {
             Map<IElement, Object> newElements =
                 elementManager.getTemporaryCache();
-            hGenerateBodies(with(of(NEW_ELEMENTS, newElements), context),
+            generateBodies_(with(of(NEW_ELEMENTS, newElements), context),
                 monitor);
             Object body = newElements.get(this);
             if (body == null)
             {
                 // the openable parent did not create a body for this element
-                IElementImplSupport openable = hOpenableParent();
+                IElementImplSupport openable = getOpenableParent_();
                 Object openableBody = newElements.get(openable);
                 if (openableBody != null)
-                    openable.hRemoving(openableBody); // give a chance for cleanup
-                throw hDoesNotExistException();
+                    openable.removing_(openableBody); // give a chance for cleanup
+                throw newDoesNotExistException_();
             }
             if (monitor.isCanceled())
                 throw new OperationCanceledException();
@@ -307,23 +307,23 @@ public interface IElementImplSupport
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    default void hGenerateBodies(IContext context, IProgressMonitor monitor)
+    default void generateBodies_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         monitor.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            hGenerateAncestorBodies(context, new SubProgressMonitor(monitor,
+            generateAncestorBodies_(context, new SubProgressMonitor(monitor,
                 1));
 
-            if (hIsOpenable())
+            if (isOpenable_())
             {
-                hValidateExistence(context);
+                validateExistence_(context);
 
                 if (monitor.isCanceled())
                     throw new OperationCanceledException();
 
-                hBuildStructure(context, new SubProgressMonitor(monitor, 1));
+                buildStructure_(context, new SubProgressMonitor(monitor, 1));
 
                 Object body = context.get(NEW_ELEMENTS).get(this);
                 if (body == null)
@@ -351,12 +351,12 @@ public interface IElementImplSupport
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    default void hGenerateAncestorBodies(IContext context,
+    default void generateAncestorBodies_(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
-        IElementImplSupport openableParent = hOpenableParent();
-        if (openableParent != null && openableParent.hFindBody() == null)
-            openableParent.hGenerateBodies(context, monitor);
+        IElementImplSupport openableParent = getOpenableParent_();
+        if (openableParent != null && openableParent.findBody_() == null)
+            openableParent.generateBodies_(context, monitor);
     }
 
     /**
@@ -376,28 +376,28 @@ public interface IElementImplSupport
      * @return <code>true</code> if this element is openable,
      *  <code>false</code> otherwise
      */
-    default boolean hIsOpenable()
+    default boolean isOpenable_()
     {
         return true;
     }
 
     /**
-     * Returns the innermost {@link #hIsOpenable() openable} element
+     * Returns the innermost {@link #isOpenable_() openable} element
      * in the parent chain of this element, or <code>null</code>
      * if this element has no openable parent.
      *
      * @return the innermost openable element in the parent chain of this
      *  element, or <code>null</code> if this element has no openable parent
      */
-    default IElementImplSupport hOpenableParent()
+    default IElementImplSupport getOpenableParent_()
     {
-        IElement parent = hParent();
+        IElement parent = getParent_();
         while (parent != null)
         {
             if (parent instanceof IElementImplSupport)
             {
                 IElementImplSupport p = (IElementImplSupport)parent;
-                if (p.hIsOpenable())
+                if (p.isOpenable_())
                     return p;
             }
             parent = Elements.getParent(parent);
@@ -407,7 +407,7 @@ public interface IElementImplSupport
 
     /**
      * A map containing handle/body relationships.
-     * @see #hBuildStructure(IContext, IProgressMonitor)
+     * @see #buildStructure_(IContext, IProgressMonitor)
      */
     Property<Map<IElement, Object>> NEW_ELEMENTS =
         new Property<Map<IElement, Object>>(IElementImplSupport.class.getName()
@@ -417,7 +417,7 @@ public interface IElementImplSupport
 
     /**
      * Creates and initializes bodies for this element and for each non-{@link
-     * #hIsOpenable() openable} child element (and their non-openable children,
+     * #isOpenable_() openable} child element (and their non-openable children,
      * recursively). Uses the {@link #NEW_ELEMENTS} map in the given context
      * to associate the created bodies with their respective elements.
      *
@@ -427,23 +427,23 @@ public interface IElementImplSupport
      *  the element's corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    void hBuildStructure(IContext context, IProgressMonitor monitor)
+    void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException;
 
     /**
      * {@inheritDoc}
      * <p>
      * If the current state of this element permits closing, this implementation
-     * invokes {@link #hRemove(IContext)} method, which closes this element.
+     * invokes {@link #remove_(IContext)} method, which closes this element.
      * </p>
      */
     @Override
-    default void hClose(IContext context)
+    default void close_(IContext context)
     {
         CloseHint hint = context.get(CLOSE_HINT);
-        if (hint != CloseHint.PARENT_CLOSING && !hIsOpenable())
+        if (hint != CloseHint.PARENT_CLOSING && !isOpenable_())
             return;
-        hRemove(context);
+        remove_(context);
     }
 
     /**
@@ -454,20 +454,20 @@ public interface IElementImplSupport
      * <p>
      * This is a low-level operation, which removes this element's body and
      * thus closes this element even if the current state of this element does
-     * not permit closing. Consider using a higher-level {@link #hClose()} method.
+     * not permit closing. Consider using a higher-level {@link #close_()} method.
      * <p>
      * If there is a cached body for this element, this implementation invokes
-     * {@link #hRemoving(Object)} method to notify this element of the upcoming
-     * removal of its body, calls <code>hClose(of(CLOSE_HINT, PARENT_CLOSING))</code>
+     * {@link #removing_(Object)} method to notify this element of the upcoming
+     * removal of its body, calls <code>close_(of(CLOSE_HINT, PARENT_CLOSING))</code>
      * for each of this element's children, then removes the cached body for
      * this element, all while holding the element manager lock.
      * </p>
      *
      * @param context the operation context (not <code>null</code>)
      */
-    default void hRemove(IContext context)
+    default void remove_(IContext context)
     {
-        hElementManager().remove(this);
+        getElementManager_().remove(this);
     }
 
     /**
@@ -480,12 +480,12 @@ public interface IElementImplSupport
      *
      * @param body the cached body for this element (never <code>null</code>)
      */
-    default void hRemoving(Object body)
+    default void removing_(Object body)
     {
     }
 
     @Override
-    default String hToString(IContext context)
+    default String toString_(IContext context)
     {
         StringBuilder builder = new StringBuilder();
         IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
@@ -493,24 +493,24 @@ public interface IElementImplSupport
         FormatStyle style = context.getOrDefault(FORMAT_STYLE);
         if (style == FULL || style == LONG)
         {
-            Object body = hPeekAtBody();
+            Object body = peekAtBody_();
             indentPolicy.appendIndent(builder, indentLevel);
-            hToStringBody(builder, body, context);
+            toStringBody_(builder, body, context);
             if (style == FULL)
-                hToStringAncestors(builder, context);
-            if (body != null && hChildren(body).length > 0)
+                toStringAncestors_(builder, context);
+            if (body != null && getChildren_(body).length > 0)
             {
                 indentPolicy.appendLine(builder);
-                hToStringChildren(builder, body, with(of(FORMAT_STYLE, LONG),
+                toStringChildren_(builder, body, with(of(FORMAT_STYLE, LONG),
                     of(INDENT_LEVEL, indentLevel + 1), context));
             }
         }
         else
         {
             indentPolicy.appendIndent(builder, indentLevel);
-            hToStringBody(builder, NO_BODY, context);
+            toStringBody_(builder, NO_BODY, context);
             if (style == MEDIUM)
-                hToStringAncestors(builder, context);
+                toStringAncestors_(builder, context);
         }
         return builder.toString();
     }
@@ -518,9 +518,9 @@ public interface IElementImplSupport
     /**
      * Debugging purposes.
      */
-    default void hToStringAncestors(StringBuilder builder, IContext context)
+    default void toStringAncestors_(StringBuilder builder, IContext context)
     {
-        IElement parent = hParent();
+        IElement parent = getParent_();
         if (parent != null && Elements.getParent(parent) != null)
         {
             builder.append(" [in "); //$NON-NLS-1$
@@ -533,13 +533,13 @@ public interface IElementImplSupport
     /**
      * Debugging purposes.
      */
-    default void hToStringChildren(StringBuilder builder, Object body,
+    default void toStringChildren_(StringBuilder builder, Object body,
         IContext context)
     {
         if (body == null)
             return;
         IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
-        IElement[] children = hChildren(body);
+        IElement[] children = getChildren_(body);
         for (int i = 0; i < children.length; i++)
         {
             if (i > 0)
@@ -550,18 +550,18 @@ public interface IElementImplSupport
 
     /**
      * Special-purpose value for the <code>body</code> argument of the
-     * {@link #hToStringBody(StringBuilder, Object, IContext) hToStringBody}
-     * method. Indicates that information about the body is not relevant.
+     * {@link #toStringBody_(StringBuilder, Object, IContext)} method.
+     * Indicates that information about the body is not relevant.
      */
     Object NO_BODY = new Object();
 
     /**
      * Debugging purposes.
      */
-    default void hToStringBody(StringBuilder builder, Object body,
+    default void toStringBody_(StringBuilder builder, Object body,
         IContext context)
     {
-        hToStringName(builder, context);
+        toStringName_(builder, context);
         if (body == null)
             builder.append(" (not open)"); //$NON-NLS-1$
     }
@@ -569,8 +569,8 @@ public interface IElementImplSupport
     /**
      * Debugging purposes.
      */
-    default void hToStringName(StringBuilder builder, IContext context)
+    default void toStringName_(StringBuilder builder, IContext context)
     {
-        builder.append(hName());
+        builder.append(getName_());
     }
 }

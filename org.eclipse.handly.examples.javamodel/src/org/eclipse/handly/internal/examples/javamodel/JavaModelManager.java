@@ -190,7 +190,7 @@ public class JavaModelManager
         PerProjectInfo info = getPerProjectInfo(project, false);
         if (info == null)
         {
-            new JavaProject(javaModel, project).hValidateExistence(
+            new JavaProject(javaModel, project).validateExistence_(
                 EMPTY_CONTEXT);
             info = getPerProjectInfo(project, true);
         }

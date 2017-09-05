@@ -70,9 +70,9 @@ public class FooDef
     }
 
     @Override
-    public void hToStringName(StringBuilder builder, IContext context)
+    public void toStringName_(StringBuilder builder, IContext context)
     {
-        super.hToStringName(builder, context);
+        super.toStringName_(builder, context);
         builder.append('/');
         builder.append(arity);
     }

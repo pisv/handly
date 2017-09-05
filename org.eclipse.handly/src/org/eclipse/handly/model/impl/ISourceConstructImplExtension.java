@@ -27,7 +27,7 @@ public interface ISourceConstructImplExtension
      *
      * @return the occurrence count for this element
      */
-    int hOccurrenceCount();
+    int getOccurrenceCount_();
 
     /**
      * Increments the occurrence count of this element.
@@ -36,5 +36,5 @@ public interface ISourceConstructImplExtension
      * a source file to distinguish source constructs with duplicate names.
      * </p>
      */
-    void hIncrementOccurrenceCount();
+    void incrementOccurrenceCount_();
 }

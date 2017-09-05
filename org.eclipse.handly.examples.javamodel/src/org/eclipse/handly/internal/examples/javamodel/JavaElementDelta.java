@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,54 +38,54 @@ public class JavaElementDelta
     @Override
     public IJavaElement getElement()
     {
-        return (IJavaElement)hElement();
+        return (IJavaElement)getElement_();
     }
 
     @Override
     public JavaElementDelta[] getAffectedChildren()
     {
-        return convert(hAffectedChildren());
+        return convert(getAffectedChildren_());
     }
 
     @Override
     public JavaElementDelta[] getAddedChildren()
     {
-        return convert(hAddedChildren());
+        return convert(getAddedChildren_());
     }
 
     @Override
     public JavaElementDelta[] getRemovedChildren()
     {
-        return convert(hRemovedChildren());
+        return convert(getRemovedChildren_());
     }
 
     @Override
     public JavaElementDelta[] getChangedChildren()
     {
-        return convert(hChangedChildren());
+        return convert(getChangedChildren_());
     }
 
     @Override
     public IJavaElement getMovedFromElement()
     {
-        return (IJavaElement)hMovedFromElement();
+        return (IJavaElement)getMovedFromElement_();
     }
 
     @Override
     public IJavaElement getMovedToElement()
     {
-        return (IJavaElement)hMovedToElement();
+        return (IJavaElement)getMovedToElement_();
     }
 
     @Override
-    protected boolean hToStringFlags(StringBuilder builder, IContext context)
+    protected boolean toStringFlags_(StringBuilder builder, IContext context)
     {
-        boolean prev = super.hToStringFlags(builder, context);
+        boolean prev = super.toStringFlags_(builder, context);
         if ((getFlags() & F_CLASSPATH_CHANGED) != 0)
         {
             if (prev)
                 builder.append(" | "); //$NON-NLS-1$
-            builder.append("CLASSPATH_CHANGED"); //$NON-NLS-1$
+            builder.append("CLASSPATH CHANGED"); //$NON-NLS-1$
             prev = true;
         }
         return prev;

@@ -58,8 +58,8 @@ public class ExternalFooProject
     }
 
     @Override
-    public void hValidateExistence(IContext context) throws CoreException
+    public void validateExistence_(IContext context) throws CoreException
     {
-        throw hDoesNotExistException(); // external project never exists
+        throw newDoesNotExistException_(); // external project never exists
     }
 }

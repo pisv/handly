@@ -31,16 +31,16 @@ public interface ISourceFileImpl
      * if this source file has no underlying file in the workspace.
      * This is a handle-only method.
      * <p>
-     * This method returns the same value as {@link #hResource()},
+     * This method returns the same value as {@link #getResource_()},
      * but saves a downcast.
      * </p>
      *
      * @return the underlying <code>IFile</code>, or <code>null</code>
      *  if this source file has no underlying file in the workspace
      */
-    default IFile hFile()
+    default IFile getFile_()
     {
-        return (IFile)hResource();
+        return (IFile)getResource_();
     }
 
     /**
@@ -49,7 +49,7 @@ public interface ISourceFileImpl
      * @return <code>true</code> if this source file is a working copy,
      *  <code>false</code> otherwise
      */
-    boolean hIsWorkingCopy();
+    boolean isWorkingCopy_();
 
     /**
      * Returns whether this source file needs reconciling.
@@ -59,7 +59,7 @@ public interface ISourceFileImpl
      * @return <code>true</code> if this source file needs reconciling,
      *  <code>false</code> otherwise
      */
-    boolean hNeedsReconciling();
+    boolean needsReconciling_();
 
     /**
      * Makes this working copy consistent with its buffer by updating
@@ -83,7 +83,7 @@ public interface ISourceFileImpl
      * @throws CoreException if this working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
-    void hReconcile(IContext context, IProgressMonitor monitor)
+    void reconcile_(IContext context, IProgressMonitor monitor)
         throws CoreException;
 
     /**
@@ -125,6 +125,6 @@ public interface ISourceFileImpl
      * @throws OperationCanceledException if this method is canceled
      * @see IBuffer
      */
-    IBuffer hBuffer(IContext context, IProgressMonitor monitor)
+    IBuffer getBuffer_(IContext context, IProgressMonitor monitor)
         throws CoreException;
 }

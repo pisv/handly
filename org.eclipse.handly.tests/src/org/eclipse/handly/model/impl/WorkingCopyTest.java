@@ -40,12 +40,12 @@ public class WorkingCopyTest
             {
                 while (!stop[0])
                 {
-                    if (sourceFile.hAcquireExistingWorkingCopy(null))
+                    if (sourceFile.acquireExistingWorkingCopy_(null))
                     {
                         try
                         {
                             WorkingCopyInfo info =
-                                sourceFile.hElementManager().peekAtWorkingCopyInfo(
+                                sourceFile.getElementManager_().peekAtWorkingCopyInfo(
                                     sourceFile);
                             if (!info.isInitialized())
                             {
@@ -55,7 +55,7 @@ public class WorkingCopyTest
                         }
                         finally
                         {
-                            sourceFile.hReleaseWorkingCopy();
+                            sourceFile.releaseWorkingCopy_();
                         }
                     }
                 }
@@ -64,9 +64,9 @@ public class WorkingCopyTest
         thread.start();
         try (Buffer buffer = new Buffer())
         {
-            sourceFile.hBecomeWorkingCopy(of(
+            sourceFile.becomeWorkingCopy_(of(
                 ISourceFileImplExtension.WORKING_COPY_BUFFER, buffer), null);
-            sourceFile.hReleaseWorkingCopy();
+            sourceFile.releaseWorkingCopy_();
             assertFalse(failure[0]);
             assertTrue(thread.isAlive());
         }
@@ -112,7 +112,7 @@ public class WorkingCopyTest
         try (Buffer buffer = new Buffer())
         {
             TestCallback callback1 = new TestCallback();
-            assertTrue(sourceFile.hBecomeWorkingCopy(with(of(
+            assertTrue(sourceFile.becomeWorkingCopy_(with(of(
                 ISourceFileImplExtension.WORKING_COPY_BUFFER, buffer), of(
                     ISourceFileImplExtension.WORKING_COPY_CALLBACK, callback1)),
                 null));
@@ -120,22 +120,22 @@ public class WorkingCopyTest
             assertFalse(callback1.onDispose);
 
             TestCallback callback2 = new TestCallback();
-            assertFalse(sourceFile.hBecomeWorkingCopy(with(of(
+            assertFalse(sourceFile.becomeWorkingCopy_(with(of(
                 ISourceFileImplExtension.WORKING_COPY_BUFFER, buffer), of(
                     ISourceFileImplExtension.WORKING_COPY_CALLBACK, callback2)),
                 null));
-            assertFalse(sourceFile.hReleaseWorkingCopy());
+            assertFalse(sourceFile.releaseWorkingCopy_());
             assertFalse(callback2.onInit);
             assertFalse(callback2.onDispose);
             assertFalse(callback1.onDispose);
 
-            assertTrue(sourceFile.hReleaseWorkingCopy());
+            assertTrue(sourceFile.releaseWorkingCopy_());
             assertTrue(callback1.onDispose);
 
             ThrowingCallback callback3 = new ThrowingCallback();
             try
             {
-                sourceFile.hBecomeWorkingCopy(with(of(
+                sourceFile.becomeWorkingCopy_(with(of(
                     ISourceFileImplExtension.WORKING_COPY_BUFFER, buffer), of(
                         ISourceFileImplExtension.WORKING_COPY_CALLBACK,
                         callback3)), null);

@@ -181,7 +181,7 @@ public class HandlyXtextEditorCallback
         {
             try (TextEditorBuffer buffer = new TextEditorBuffer(editor))
             {
-                ((ISourceFileImplExtension)sourceFile).hBecomeWorkingCopy(with(
+                ((ISourceFileImplExtension)sourceFile).becomeWorkingCopy_(with(
                     of(ISourceFileImplExtension.WORKING_COPY_BUFFER, buffer),
                     of(ISourceFileImplExtension.WORKING_COPY_CALLBACK,
                         new XtextWorkingCopyCallback())), null);
@@ -194,7 +194,7 @@ public class HandlyXtextEditorCallback
     protected void releaseWorkingCopy(XtextEditor editor,
         ISourceFile workingCopy)
     {
-        ((ISourceFileImplExtension)workingCopy).hReleaseWorkingCopy();
+        ((ISourceFileImplExtension)workingCopy).releaseWorkingCopy_();
     }
 
     private boolean isActive(XtextEditor editor)

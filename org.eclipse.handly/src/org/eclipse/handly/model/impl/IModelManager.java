@@ -54,6 +54,6 @@ public interface IModelManager
          *
          * @return the model manager (never <code>null</code>)
          */
-        IModelManager hModelManager();
+        IModelManager getModelManager_();
     }
 }

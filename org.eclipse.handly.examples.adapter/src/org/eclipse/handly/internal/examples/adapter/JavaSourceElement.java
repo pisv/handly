@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ class JavaSourceElement
     }
 
     @Override
-    public ISourceElement hSourceElementAt(int position, ISnapshot base)
+    public ISourceElement getSourceElementAt_(int position, ISnapshot base)
     {
         IJavaElement javaElement = getJavaElement();
         ISourceReference sourceRef = (ISourceReference)javaElement;
@@ -101,7 +101,7 @@ class JavaSourceElement
     }
 
     @Override
-    public ISourceElementInfo hSourceElementInfo() throws CoreException
+    public ISourceElementInfo getSourceElementInfo_() throws CoreException
     {
         // JDT does not provide a strong guarantee that source, sourceRange,
         // nameRange, and children correspond to the same snapshot. Therefore,
@@ -112,7 +112,7 @@ class JavaSourceElement
         final String source = sourceRef.getSource();
         ISourceRange sourceRange = sourceRef.getSourceRange();
         ISourceRange nameRange = sourceRef.getNameRange();
-        final ISourceConstruct[] children = hChildren(ISourceConstruct.class);
+        final ISourceConstruct[] children = getChildren_(ISourceConstruct.class);
         final ISnapshot snapshot = (source == null ? null : new Snapshot()
         {
             @Override

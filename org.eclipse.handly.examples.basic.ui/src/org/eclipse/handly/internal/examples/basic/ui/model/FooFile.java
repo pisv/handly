@@ -63,7 +63,7 @@ public class FooFile
     @Override
     public FooProject getParent()
     {
-        return (FooProject)hParent();
+        return (FooProject)getParent_();
     }
 
     @Override
@@ -91,7 +91,7 @@ public class FooFile
     }
 
     @Override
-    public void hBuildSourceStructure(IContext context,
+    public void buildSourceStructure_(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
         Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
@@ -180,7 +180,7 @@ public class FooFile
      */
     protected URI getResourceUri()
     {
-        return URI.createPlatformResourceURI(hFile().getFullPath().toString(),
+        return URI.createPlatformResourceURI(getFile().getFullPath().toString(),
             true);
     }
 }

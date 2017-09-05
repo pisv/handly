@@ -171,7 +171,7 @@ public abstract class SourceFileDocumentProvider
         ISourceFile sourceFile = getSourceFile(element);
         if (sourceFile instanceof ISourceFileImplExtension)
         {
-            ((ISourceFileImplExtension)sourceFile).hBecomeWorkingCopy(
+            ((ISourceFileImplExtension)sourceFile).becomeWorkingCopy_(
                 EMPTY_CONTEXT, null);
             return sourceFile;
         }
@@ -189,7 +189,7 @@ public abstract class SourceFileDocumentProvider
     protected void releaseWorkingCopy(ISourceFile workingCopy, Object element,
         FileInfo info)
     {
-        ((ISourceFileImplExtension)workingCopy).hReleaseWorkingCopy();
+        ((ISourceFileImplExtension)workingCopy).releaseWorkingCopy_();
     }
 
     protected static class SourceFileInfo

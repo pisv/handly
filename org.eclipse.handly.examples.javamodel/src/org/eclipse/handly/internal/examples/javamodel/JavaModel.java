@@ -96,7 +96,7 @@ public class JavaModel
     @Override
     public IProject[] getNonJavaProjects() throws CoreException
     {
-        return ((JavaModelBody)hBody()).getNonJavaProjects(this);
+        return ((JavaModelBody)getBody_()).getNonJavaProjects(this);
     }
 
     @Override
@@ -127,25 +127,25 @@ public class JavaModel
     }
 
     @Override
-    public IResource hResource()
+    public IResource getResource_()
     {
         return workspace.getRoot();
     }
 
     @Override
-    public boolean hExists()
+    public boolean exists_()
     {
         return true; // always exists
     }
 
     @Override
-    public void hValidateExistence(IContext context) throws CoreException
+    public void validateExistence_(IContext context) throws CoreException
     {
         // always exists
     }
 
     @Override
-    public void hBuildStructure(IContext context, IProgressMonitor monitor)
+    public void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         IProject[] projects = workspace.getRoot().getProjects();
@@ -163,7 +163,7 @@ public class JavaModel
     }
 
     @Override
-    public void hToStringName(StringBuilder builder, IContext context)
+    public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append("Java Model"); //$NON-NLS-1$
     }

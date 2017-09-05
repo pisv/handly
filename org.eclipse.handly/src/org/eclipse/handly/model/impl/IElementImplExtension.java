@@ -29,9 +29,9 @@ public interface IElementImplExtension
     extends IElementImpl
 {
     @Override
-    default IElement[] hChildren() throws CoreException
+    default IElement[] getChildren_() throws CoreException
     {
-        return hChildren(hBody());
+        return getChildren_(getBody_());
     }
 
     /**
@@ -41,7 +41,7 @@ public interface IElementImplExtension
      *  (never <code>null</code>)
      * @return the immediate children of this element (not <code>null</code>)
      */
-    IElement[] hChildren(Object body);
+    IElement[] getChildren_(Object body);
 
     /**
      * Returns the cached body for this element, or <code>null</code>
@@ -50,7 +50,7 @@ public interface IElementImplExtension
      * @return the cached body for this element, or <code>null</code>
      *  if none
      */
-    Object hFindBody();
+    Object findBody_();
 
     /**
      * Returns the cached body for this element without disturbing
@@ -59,25 +59,25 @@ public interface IElementImplExtension
      * @return the cached body for this element, or <code>null</code>
      *  if none
      */
-    Object hPeekAtBody();
+    Object peekAtBody_();
 
     /**
      * Returns the cached body for this element. If this element is not
-     * already present in the body cache, it will be {@link #hOpen(IContext,
-     * IProgressMonitor) opened}. Shortcut to <code>hBody(EMPTY_CONTEXT, null)</code>.
+     * already present in the body cache, it will be {@link #open_(IContext,
+     * IProgressMonitor) opened}. Shortcut to <code>getBody_(EMPTY_CONTEXT, null)</code>.
      *
      * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    default Object hBody() throws CoreException
+    default Object getBody_() throws CoreException
     {
-        return hBody(EMPTY_CONTEXT, null);
+        return getBody_(EMPTY_CONTEXT, null);
     }
 
     /**
      * Returns the cached body for this element. If this element is not
-     * already present in the body cache, it will be {@link #hOpen(IContext,
+     * already present in the body cache, it will be {@link #open_(IContext,
      * IProgressMonitor) opened} according to options specified in the given
      * context.
      *
@@ -89,19 +89,19 @@ public interface IElementImplExtension
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    default Object hBody(IContext context, IProgressMonitor monitor)
+    default Object getBody_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        Object body = hFindBody();
+        Object body = findBody_();
         if (body != null)
             return body;
-        return hOpen(context, monitor);
+        return open_(context, monitor);
     }
 
     /**
      * Indicates whether to forcibly reopen this element if it is already open
      * (i.e. already present in the body cache). Default value: <code>false</code>.
-     * @see #hOpen(IContext, IProgressMonitor)
+     * @see #open_(IContext, IProgressMonitor)
      */
     Property<Boolean> FORCE_OPEN = Property.get(
         IElementImplExtension.class.getName() + ".forceOpen", //$NON-NLS-1$
@@ -129,7 +129,7 @@ public interface IElementImplExtension
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
      */
-    Object hOpen(IContext context, IProgressMonitor monitor)
+    Object open_(IContext context, IProgressMonitor monitor)
         throws CoreException;
 
     /**
@@ -142,14 +142,14 @@ public interface IElementImplExtension
      * Closing of an element which is not open has no effect.
      * </p>
      * <p>
-     * Shortcut to <code>hClose(EMPTY_CONTEXT)</code>.
+     * Shortcut to <code>close_(EMPTY_CONTEXT)</code>.
      * </p>
      *
-     * @see #hClose(IContext)
+     * @see #close_(IContext)
      */
-    default void hClose()
+    default void close_()
     {
-        hClose(EMPTY_CONTEXT);
+        close_(EMPTY_CONTEXT);
     }
 
     /**
@@ -169,7 +169,7 @@ public interface IElementImplExtension
 
     /**
      * Close hint property.
-     * @see #hClose(IContext)
+     * @see #close_(IContext)
      */
     Property<CloseHint> CLOSE_HINT = Property.get(
         IElementImplExtension.class.getName() + ".closeHint", //$NON-NLS-1$
@@ -197,5 +197,5 @@ public interface IElementImplExtension
      *
      * @param context the operation context (not <code>null</code>)
      */
-    void hClose(IContext context);
+    void close_(IContext context);
 }

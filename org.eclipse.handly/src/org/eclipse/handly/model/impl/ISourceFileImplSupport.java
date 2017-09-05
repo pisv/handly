@@ -57,7 +57,7 @@ import org.eclipse.handly.util.TextRange;
  * <p>
  * If a notification manager is registered in the model context,
  * this implementation will take advantage of it to send out working copy
- * notifications. See {@link #hWorkingCopyModeChanged()} and {@link
+ * notifications. See {@link #workingCopyModeChanged_()} and {@link
  * NotifyingReconcileOperation}.
  * </p>
  *
@@ -67,29 +67,29 @@ public interface ISourceFileImplSupport
     extends ISourceElementImplSupport, ISourceFileImplExtension
 {
     @Override
-    default int hDefaultHashCode()
+    default int defaultHashCode_()
     {
-        IFile file = hFile();
+        IFile file = getFile_();
         if (file != null)
             return file.hashCode();
-        return ISourceElementImplSupport.super.hDefaultHashCode();
+        return ISourceElementImplSupport.super.defaultHashCode_();
     }
 
     @Override
-    default boolean hDefaultEquals(Object obj)
+    default boolean defaultEquals_(Object obj)
     {
         if (!(obj instanceof ISourceFileImplSupport))
             return false;
-        IFile file = hFile();
-        return ISourceElementImplSupport.super.hDefaultEquals(obj)
+        IFile file = getFile_();
+        return ISourceElementImplSupport.super.defaultEquals_(obj)
             && (file == null || file.equals(
-                ((ISourceFileImplSupport)obj).hFile()));
+                ((ISourceFileImplSupport)obj).getFile_()));
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation delegates to {@link #hFileBuffer(IContext,
+     * This implementation delegates to {@link #getFileBuffer_(IContext,
      * IProgressMonitor)} if this source file is not a working copy;
      * otherwise, it returns the working copy buffer.
      * </p>
@@ -97,7 +97,7 @@ public interface ISourceFileImplSupport
      * @throws OperationCanceledException {@inheritDoc}
      */
     @Override
-    default IBuffer hBuffer(IContext context, IProgressMonitor monitor)
+    default IBuffer getBuffer_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         if (monitor == null)
@@ -105,10 +105,10 @@ public interface ISourceFileImplSupport
         monitor.beginTask("", 100); //$NON-NLS-1$
         try
         {
-            if (!hAcquireExistingWorkingCopy(new SubProgressMonitor(monitor,
+            if (!acquireExistingWorkingCopy_(new SubProgressMonitor(monitor,
                 10)))
             {
-                return hFileBuffer(context, new SubProgressMonitor(monitor,
+                return getFileBuffer_(context, new SubProgressMonitor(monitor,
                     90));
             }
             else
@@ -116,7 +116,7 @@ public interface ISourceFileImplSupport
                 try
                 {
                     WorkingCopyInfo info =
-                        hElementManager().peekAtWorkingCopyInfo(this);
+                        getElementManager_().peekAtWorkingCopyInfo(this);
 
                     if (info == null)
                         throw new AssertionError(
@@ -128,7 +128,7 @@ public interface ISourceFileImplSupport
                 }
                 finally
                 {
-                    hReleaseWorkingCopy();
+                    releaseWorkingCopy_();
                 }
             }
         }
@@ -139,7 +139,7 @@ public interface ISourceFileImplSupport
     }
 
     @Override
-    default boolean hBecomeWorkingCopy(IContext context,
+    default boolean becomeWorkingCopy_(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
         if (context == null)
@@ -147,9 +147,9 @@ public interface ISourceFileImplSupport
 
         IBuffer buffer = context.get(WORKING_COPY_BUFFER);
         if (buffer == null)
-            try (IBuffer defaultBuffer = hFileBuffer(context, monitor))
+            try (IBuffer defaultBuffer = getFileBuffer_(context, monitor))
             {
-                return hBecomeWorkingCopy(with(of(WORKING_COPY_BUFFER,
+                return becomeWorkingCopy_(with(of(WORKING_COPY_BUFFER,
                     defaultBuffer), context), monitor);
             }
 
@@ -158,37 +158,38 @@ public interface ISourceFileImplSupport
             callback = new DefaultWorkingCopyCallback();
 
         WorkingCopyInfo info = new WorkingCopyInfo(buffer,
-            hNewWorkingCopyContext(context), new ReconcileStrategy(this),
+            newWorkingCopyContext_(context), new ReconcileStrategy(this),
             callback);
 
         return WorkingCopyHelper.becomeWorkingCopy(this, info, monitor);
     }
 
     @Override
-    default boolean hAcquireExistingWorkingCopy(IProgressMonitor monitor)
+    default boolean acquireExistingWorkingCopy_(IProgressMonitor monitor)
     {
         return WorkingCopyHelper.acquireExistingWorkingCopy(this, monitor);
     }
 
     @Override
-    default boolean hReleaseWorkingCopy()
+    default boolean releaseWorkingCopy_()
     {
-        WorkingCopyInfo info = hElementManager().releaseWorkingCopyInfo(this);
+        WorkingCopyInfo info = getElementManager_().releaseWorkingCopyInfo(
+            this);
         if (info == null)
-            throw new IllegalStateException("Not a working copy: " + hToString( //$NON-NLS-1$
+            throw new IllegalStateException("Not a working copy: " + toString_( //$NON-NLS-1$
                 of(FORMAT_STYLE, MEDIUM)));
         if (info.isDisposed() && info.created)
         {
-            hWorkingCopyModeChanged();
+            workingCopyModeChanged_();
             return true;
         }
         return false;
     }
 
     @Override
-    default IContext hWorkingCopyContext()
+    default IContext getWorkingCopyContext_()
     {
-        WorkingCopyInfo info = hElementManager().peekAtWorkingCopyInfo(this);
+        WorkingCopyInfo info = getElementManager_().peekAtWorkingCopyInfo(this);
         if (info == null)
             return null;
         if (info.created)
@@ -200,22 +201,22 @@ public interface ISourceFileImplSupport
     }
 
     @Override
-    default boolean hIsWorkingCopy()
+    default boolean isWorkingCopy_()
     {
-        return hWorkingCopyContext() != null;
+        return getWorkingCopyContext_() != null;
     }
 
     @Override
-    default boolean hNeedsReconciling()
+    default boolean needsReconciling_()
     {
-        if (!hAcquireExistingWorkingCopy(null))
+        if (!acquireExistingWorkingCopy_(null))
             return false;
         else
         {
             try
             {
-                WorkingCopyInfo info = hElementManager().peekAtWorkingCopyInfo(
-                    this);
+                WorkingCopyInfo info =
+                    getElementManager_().peekAtWorkingCopyInfo(this);
 
                 if (info == null)
                     throw new AssertionError(
@@ -225,13 +226,13 @@ public interface ISourceFileImplSupport
             }
             finally
             {
-                hReleaseWorkingCopy();
+                releaseWorkingCopy_();
             }
         }
     }
 
     @Override
-    default void hReconcile(IContext context, IProgressMonitor monitor)
+    default void reconcile_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         if (monitor == null)
@@ -239,7 +240,7 @@ public interface ISourceFileImplSupport
         monitor.beginTask("", 100); //$NON-NLS-1$
         try
         {
-            if (!hAcquireExistingWorkingCopy(new SubProgressMonitor(monitor,
+            if (!acquireExistingWorkingCopy_(new SubProgressMonitor(monitor,
                 10)))
                 return; // not a working copy
             else
@@ -247,7 +248,7 @@ public interface ISourceFileImplSupport
                 try
                 {
                     WorkingCopyInfo info =
-                        hElementManager().peekAtWorkingCopyInfo(this);
+                        getElementManager_().peekAtWorkingCopyInfo(this);
 
                     if (info == null)
                         throw new AssertionError(
@@ -258,7 +259,7 @@ public interface ISourceFileImplSupport
                 }
                 finally
                 {
-                    hReleaseWorkingCopy();
+                    releaseWorkingCopy_();
                 }
             }
         }
@@ -283,9 +284,10 @@ public interface ISourceFileImplSupport
      *
      * @return a reconcile operation for this source file (not <code>null</code>)
      */
-    default ReconcileOperation hReconcileOperation()
+    default ReconcileOperation getReconcileOperation_()
     {
-        if (hModel().getModelContext().get(INotificationManager.class) != null)
+        if (getModel_().getModelContext().get(
+            INotificationManager.class) != null)
             return new NotifyingReconcileOperation(this);
 
         return new ReconcileOperation(this);
@@ -294,7 +296,7 @@ public interface ISourceFileImplSupport
     /**
      * Returns a context to be associated with a new working copy of this
      * source file. The given operation context is propagated from the
-     * {@link #hBecomeWorkingCopy} method.
+     * {@link #becomeWorkingCopy_} method.
      * <p>
      * The returned context is composed of the context explicitly {@link
      * ISourceFileImplExtension#WORKING_COPY_CONTEXT specified} when creating
@@ -312,7 +314,7 @@ public interface ISourceFileImplSupport
      * @param context the operation context (never <code>null</code>)
      * @return the working copy context (not <code>null</code>)
      */
-    default IContext hNewWorkingCopyContext(IContext context)
+    default IContext newWorkingCopyContext_(IContext context)
     {
         return context.getOrDefault(WORKING_COPY_CONTEXT);
     }
@@ -330,24 +332,24 @@ public interface ISourceFileImplSupport
      * clients.
      * </p>
      */
-    default void hWorkingCopyModeChanged()
+    default void workingCopyModeChanged_()
     {
         INotificationManager notificationManager =
-            hModel().getModelContext().get(INotificationManager.class);
+            getModel_().getModelContext().get(INotificationManager.class);
         if (notificationManager == null)
             return;
 
-        ElementDelta.Factory deltaFactory = hModel().getModelContext().get(
+        ElementDelta.Factory deltaFactory = getModel_().getModelContext().get(
             ElementDelta.Factory.class);
         if (deltaFactory == null)
             deltaFactory = element -> new ElementDelta(element);
 
         ElementDelta.Builder builder = new ElementDelta.Builder(
-            deltaFactory.newDelta(hRoot()));
+            deltaFactory.newDelta(getRoot_()));
 
-        if (hFileExists())
+        if (fileExists_())
             builder.changed(this, F_WORKING_COPY);
-        else if (hIsWorkingCopy())
+        else if (isWorkingCopy_())
             builder.added(this, F_WORKING_COPY);
         else
             builder.removed(this, F_WORKING_COPY);
@@ -359,17 +361,17 @@ public interface ISourceFileImplSupport
     /**
      * Returns whether the underlying file exists.
      * <p>
-     * This implementation returns <code>hFile().exists()</code> if this source
-     * file has an underlying <code>IFile</code>; otherwise, it throws an
-     * assertion error.
+     * This implementation returns <code>getFile_().exists()</code> if
+     * this source file has an underlying <code>IFile</code>; otherwise,
+     * it throws an assertion error.
      * </p>
      *
      * @return <code>true</code> if the underlying file exists,
      *  and <code>false</code> otherwise
      */
-    default boolean hFileExists()
+    default boolean fileExists_()
     {
-        IFile file = hFile();
+        IFile file = getFile_();
         if (file == null)
             throw new AssertionError("Please override this method"); //$NON-NLS-1$
         return file.exists();
@@ -385,7 +387,7 @@ public interface ISourceFileImplSupport
      * </p>
      * <p>
      * This implementation returns a snapshot provider for the stored contents
-     * of the underlying {@link #hFile() IFile}; it throws an assertion error
+     * of the underlying {@link #getFile_() IFile}; it throws an assertion error
      * if this source file has no underlying file in the workspace.
      * </p>
      *
@@ -393,9 +395,9 @@ public interface ISourceFileImplSupport
      *  (not <code>null</code>)
      * @see ISnapshotProvider
      */
-    default ISnapshotProvider hFileSnapshotProvider()
+    default ISnapshotProvider getFileSnapshotProvider_()
     {
-        IFile file = hFile();
+        IFile file = getFile_();
         if (file == null)
             throw new AssertionError("Please override this method"); //$NON-NLS-1$
         return () ->
@@ -404,7 +406,7 @@ public interface ISourceFileImplSupport
                 TextFileSnapshot.Layer.FILESYSTEM);
             if (!result.exists())
             {
-                throw new IllegalStateException(hDoesNotExistException());
+                throw new IllegalStateException(newDoesNotExistException_());
             }
             if (result.getContents() == null && !result.getStatus().isOK())
             {
@@ -437,7 +439,7 @@ public interface ISourceFileImplSupport
      * </ul>
      * <p>
      * This implementation returns the buffer opened for the underlying
-     * {@link #hFile() IFile}; it throws an assertion error if this source file
+     * {@link #getFile_() IFile}; it throws an assertion error if this source file
      * has no underlying file in the workspace.
      * </p>
      *
@@ -451,10 +453,10 @@ public interface ISourceFileImplSupport
      * @throws OperationCanceledException if this method is canceled
      * @see IBuffer
      */
-    default IBuffer hFileBuffer(IContext context, IProgressMonitor monitor)
+    default IBuffer getFileBuffer_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        IFile file = hFile();
+        IFile file = getFile_();
         if (file == null)
             throw new AssertionError("Please override this method"); //$NON-NLS-1$
         ICoreTextFileBufferProvider provider =
@@ -469,38 +471,38 @@ public interface ISourceFileImplSupport
     }
 
     @Override
-    default void hValidateExistence(IContext context) throws CoreException
+    default void validateExistence_(IContext context) throws CoreException
     {
-        if (!hIsWorkingCopy())
+        if (!isWorkingCopy_())
         {
-            if (!hFileExists())
-                throw hDoesNotExistException();
+            if (!fileExists_())
+                throw newDoesNotExistException_();
         }
     }
 
     @Override
-    default void hGenerateAncestorBodies(IContext context,
+    default void generateAncestorBodies_(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
-        if (hIsWorkingCopy())
+        if (isWorkingCopy_())
             return; // don't open ancestors for a working copy
-        ISourceElementImplSupport.super.hGenerateAncestorBodies(context,
+        ISourceElementImplSupport.super.generateAncestorBodies_(context,
             monitor);
     }
 
     @Override
-    default void hBuildStructure(IContext context, IProgressMonitor monitor)
+    default void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         if (!context.containsKey(SOURCE_CONTENTS) && !context.containsKey(
             SOURCE_AST))
         {
-            if (hIsWorkingCopy())
+            if (isWorkingCopy_())
                 throw new AssertionError();
             // NOTE: source files that are not working copies must reflect
             // the structure of the underlying file rather than the buffer
             NonExpiringSnapshot snapshot;
-            try (ISnapshotProvider provider = hFileSnapshotProvider())
+            try (ISnapshotProvider provider = getFileSnapshotProvider_())
             {
                 try
                 {
@@ -519,7 +521,7 @@ public interface ISourceFileImplSupport
                 SOURCE_SNAPSHOT, snapshot.getWrappedSnapshot()), context);
         }
 
-        hBuildSourceStructure(context, monitor);
+        buildSourceStructure_(context, monitor);
 
         Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
         Object body = newElements.get(this);
@@ -539,20 +541,20 @@ public interface ISourceFileImplSupport
 
     /**
      * Specifies the source AST.
-     * @see #hBuildSourceStructure(IContext, IProgressMonitor)
+     * @see #buildSourceStructure_(IContext, IProgressMonitor)
      */
     Property<Object> SOURCE_AST = Property.get(
         ISourceFileImplSupport.class.getName() + ".sourceAst", Object.class); //$NON-NLS-1$
     /**
      * Specifies the source string.
-     * @see #hBuildSourceStructure(IContext, IProgressMonitor)
+     * @see #buildSourceStructure_(IContext, IProgressMonitor)
      */
     Property<String> SOURCE_CONTENTS = Property.get(
         ISourceFileImplSupport.class.getName() + ".sourceContents", //$NON-NLS-1$
         String.class);
     /**
      * Specifies the source snapshot.
-     * @see #hBuildSourceStructure(IContext, IProgressMonitor)
+     * @see #buildSourceStructure_(IContext, IProgressMonitor)
      */
     Property<ISnapshot> SOURCE_SNAPSHOT = Property.get(
         ISourceFileImplSupport.class.getName() + ".sourceSnapshot", //$NON-NLS-1$
@@ -599,26 +601,26 @@ public interface ISourceFileImplSupport
      * @throws CoreException if this method fails
      * @throws OperationCanceledException if this method is canceled
      */
-    void hBuildSourceStructure(IContext context, IProgressMonitor monitor)
+    void buildSourceStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException;
 
     @Override
-    default void hClose(IContext context)
+    default void close_(IContext context)
     {
-        synchronized (hElementManager())
+        synchronized (getElementManager_())
         {
-            if (hIsWorkingCopy())
+            if (isWorkingCopy_())
                 return;
-            ISourceElementImplSupport.super.hClose(context);
+            ISourceElementImplSupport.super.close_(context);
         }
     }
 
     @Override
-    default void hToStringName(StringBuilder builder, IContext context)
+    default void toStringName_(StringBuilder builder, IContext context)
     {
-        if (hIsWorkingCopy())
+        if (isWorkingCopy_())
             builder.append("[Working copy] "); //$NON-NLS-1$
-        ISourceElementImplSupport.super.hToStringName(builder, context);
+        ISourceElementImplSupport.super.toStringName_(builder, context);
     }
 
     /**
@@ -628,7 +630,7 @@ public interface ISourceFileImplSupport
      * clients for purposes other than extension or instance creation;
      * instances of this class or a subclass of this class are not intended
      * to be used by clients for purposes other than returning from {@link
-     * ISourceFileImplSupport#hReconcileOperation() hReconcileOperation()}.
+     * ISourceFileImplSupport#getReconcileOperation_() getReconcileOperation_()}.
      * </p>
      *
      * @see NotifyingReconcileOperation
@@ -824,7 +826,7 @@ public interface ISourceFileImplSupport
             CURRENTLY_RECONCILED.set(sourceFile);
             try
             {
-                sourceFile.hOpen(with(of(FORCE_OPEN, true), context), monitor);
+                sourceFile.open_(with(of(FORCE_OPEN, true), context), monitor);
             }
             finally
             {
@@ -833,12 +835,12 @@ public interface ISourceFileImplSupport
             if (context.getOrDefault(INITIAL_RECONCILE))
             {
                 WorkingCopyInfo info =
-                    sourceFile.hElementManager().peekAtWorkingCopyInfo(
+                    sourceFile.getElementManager_().peekAtWorkingCopyInfo(
                         sourceFile);
                 if (!info.created)
                     throw new AssertionError(); // should never happen
 
-                sourceFile.hWorkingCopyModeChanged(); // notify about wc creation
+                sourceFile.workingCopyModeChanged_(); // notify about wc creation
             }
         }
     }
@@ -853,7 +855,7 @@ public interface ISourceFileImplSupport
      * clients for purposes other than extension or instance creation;
      * instances of this class or a subclass of this class are not intended
      * to be used by clients for purposes other than returning from {@link
-     * ISourceFileImplSupport#hReconcileOperation() hReconcileOperation()}.
+     * ISourceFileImplSupport#getReconcileOperation_() getReconcileOperation_()}.
      * </p>
      *
      * @see INotificationManager
@@ -895,7 +897,7 @@ public interface ISourceFileImplSupport
                 IElementDelta delta = recorder.endRecording().getDelta();
                 if (!ElementDeltas.isNullOrEmpty(delta))
                 {
-                    sourceFile.hModel().getModelContext().get(
+                    sourceFile.getModel_().getModelContext().get(
                         INotificationManager.class).fireElementChangeEvent(
                             new ElementChangeEvent(
                                 ElementChangeEvent.POST_RECONCILE, delta));
@@ -926,7 +928,7 @@ abstract class WorkingCopyHelper
             @Override
             WorkingCopyInfo doAcquireWorkingCopy()
             {
-                return sourceFile.hElementManager().putWorkingCopyInfoIfAbsent(
+                return sourceFile.getElementManager_().putWorkingCopyInfoIfAbsent(
                     sourceFile, info);
             }
 
@@ -950,7 +952,7 @@ abstract class WorkingCopyHelper
             finally
             {
                 if (!success)
-                    sourceFile.hReleaseWorkingCopy();
+                    sourceFile.releaseWorkingCopy_();
             }
         }
         return existingInfo == null;
@@ -964,7 +966,7 @@ abstract class WorkingCopyHelper
             @Override
             WorkingCopyInfo doAcquireWorkingCopy()
             {
-                return sourceFile.hElementManager().getWorkingCopyInfo(
+                return sourceFile.getElementManager_().getWorkingCopyInfo(
                     sourceFile);
             }
 
@@ -1006,7 +1008,7 @@ abstract class WorkingCopyHelper
             finally
             {
                 if (!success)
-                    sourceFile.hReleaseWorkingCopy();
+                    sourceFile.releaseWorkingCopy_();
             }
             if (success)
                 return info;
@@ -1066,7 +1068,7 @@ class ReconcileStrategy
         Context context2 = new Context();
 
         WorkingCopyInfo info =
-            sourceFile.hElementManager().peekAtWorkingCopyInfo(sourceFile);
+            sourceFile.getElementManager_().peekAtWorkingCopyInfo(sourceFile);
         context2.bind(
             ISourceFileImplSupport.ReconcileOperation.INITIAL_RECONCILE).to(
                 !info.created);
@@ -1087,7 +1089,7 @@ class ReconcileStrategy
             context2.bind(ISourceFileImplSupport.SOURCE_SNAPSHOT).to(
                 context.get(SOURCE_SNAPSHOT));
 
-        sourceFile.hReconcileOperation().reconcile(with(context2, context),
+        sourceFile.getReconcileOperation_().reconcile(with(context2, context),
             monitor);
     }
 }

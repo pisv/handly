@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,10 +86,10 @@ public class FooModelNotificationTest
         aFolder.delete(true, null);
         assertDelta(newDeltaBuilder().changed(fooProject1,
             F_CONTENT).getDelta(), listener.delta);
-        assertNull(listener.delta.hResourceDeltas());
-        ElementDelta projectDelta = listener.delta.hFindDelta(fooProject1);
-        assertEquals(1, projectDelta.hResourceDeltas().length);
-        IResourceDelta resourceDelta = projectDelta.hResourceDeltas()[0];
+        assertNull(listener.delta.getResourceDeltas_());
+        ElementDelta projectDelta = listener.delta.findDelta_(fooProject1);
+        assertEquals(1, projectDelta.getResourceDeltas_().length);
+        IResourceDelta resourceDelta = projectDelta.getResourceDeltas_()[0];
         assertEquals(IResourceDelta.REMOVED, resourceDelta.getKind());
         assertEquals(aFolder, resourceDelta.getResource());
 
@@ -97,18 +97,18 @@ public class FooModelNotificationTest
         bFile.touch(null);
         assertDelta(newDeltaBuilder().changed(fooProject1,
             F_CONTENT).getDelta(), listener.delta);
-        assertNull(listener.delta.hResourceDeltas());
-        projectDelta = listener.delta.hFindDelta(fooProject1);
-        assertEquals(1, projectDelta.hResourceDeltas().length);
-        resourceDelta = projectDelta.hResourceDeltas()[0];
+        assertNull(listener.delta.getResourceDeltas_());
+        projectDelta = listener.delta.findDelta_(fooProject1);
+        assertEquals(1, projectDelta.getResourceDeltas_().length);
+        resourceDelta = projectDelta.getResourceDeltas_()[0];
         assertEquals(IResourceDelta.CHANGED, resourceDelta.getKind());
         assertEquals(bFile, resourceDelta.getResource());
 
         IProject simpleProject = setUpProject("SimpleProject");
         assertDelta(newDeltaBuilder().changed(fooModel, F_CONTENT).getDelta(),
             listener.delta);
-        assertEquals(1, listener.delta.hResourceDeltas().length);
-        resourceDelta = listener.delta.hResourceDeltas()[0];
+        assertEquals(1, listener.delta.getResourceDeltas_().length);
+        resourceDelta = listener.delta.getResourceDeltas_()[0];
         assertEquals(IResourceDelta.ADDED, resourceDelta.getKind());
         assertEquals(simpleProject, resourceDelta.getResource());
 
@@ -157,13 +157,15 @@ public class FooModelNotificationTest
             return;
         }
         assertNotNull(actual);
-        assertEquals(expected.hElement(), actual.hElement());
-        assertEquals(expected.hKind(), actual.hKind());
-        assertEquals(expected.hFlags(), actual.hFlags());
-        assertEquals(expected.hMovedToElement(), actual.hMovedToElement());
-        assertEquals(expected.hMovedFromElement(), actual.hMovedFromElement());
-        ElementDelta[] expectedChildren = expected.hAffectedChildren();
-        ElementDelta[] actualChildren = actual.hAffectedChildren();
+        assertEquals(expected.getElement_(), actual.getElement_());
+        assertEquals(expected.getKind_(), actual.getKind_());
+        assertEquals(expected.getFlags_(), actual.getFlags_());
+        assertEquals(expected.getMovedToElement_(),
+            actual.getMovedToElement_());
+        assertEquals(expected.getMovedFromElement_(),
+            actual.getMovedFromElement_());
+        ElementDelta[] expectedChildren = expected.getAffectedChildren_();
+        ElementDelta[] actualChildren = actual.getAffectedChildren_();
         assertEquals(expectedChildren.length, actualChildren.length);
         for (int i = 0; i < expectedChildren.length; i++)
             assertDelta(expectedChildren[i], actualChildren[i]);

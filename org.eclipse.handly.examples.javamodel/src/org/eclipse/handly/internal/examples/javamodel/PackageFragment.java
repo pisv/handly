@@ -74,7 +74,7 @@ public class PackageFragment
     @Override
     public PackageFragmentRoot getParent()
     {
-        return (PackageFragmentRoot)hParent();
+        return (PackageFragmentRoot)getParent_();
     }
 
     @Override
@@ -104,7 +104,7 @@ public class PackageFragment
         if (isDefaultPackage())
             return PackageFragmentBody.NO_NON_JAVA_RESOURCES;
         else
-            return ((PackageFragmentBody)hBody()).getNonJavaResources(this);
+            return ((PackageFragmentBody)getBody_()).getNonJavaResources(this);
     }
 
     @Override
@@ -153,7 +153,7 @@ public class PackageFragment
     }
 
     @Override
-    public IResource hResource()
+    public IResource getResource_()
     {
         if (simpleNames.length == 0)
             return getParent().getResource();
@@ -164,18 +164,18 @@ public class PackageFragment
     }
 
     @Override
-    public void hValidateExistence(IContext context) throws CoreException
+    public void validateExistence_(IContext context) throws CoreException
     {
         if (!isValidPackageName())
-            throw hDoesNotExistException();
+            throw newDoesNotExistException_();
 
         IResource resource = getResource();
         if (resource != null && !resource.isAccessible())
-            throw hDoesNotExistException();
+            throw newDoesNotExistException_();
     }
 
     @Override
-    public void hBuildStructure(IContext context, IProgressMonitor monitor)
+    public void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         HashSet<ICompilationUnit> children = new HashSet<>();
@@ -207,7 +207,7 @@ public class PackageFragment
     }
 
     @Override
-    public String hToString(IContext context)
+    public String toString_(IContext context)
     {
         if (context.getOrDefault(FORMAT_STYLE) == LONG)
         {
@@ -215,21 +215,21 @@ public class PackageFragment
             IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
             int indentLevel = context.getOrDefault(INDENT_LEVEL);
             indentPolicy.appendIndent(builder, indentLevel);
-            Object body = hPeekAtBody();
-            hToStringBody(builder, body, context);
+            Object body = peekAtBody_();
+            toStringBody_(builder, body, context);
             if (body != null)
                 builder.append(" (...)"); //$NON-NLS-1$
             return builder.toString();
         }
-        return super.hToString(context);
+        return super.toString_(context);
     }
 
     @Override
-    public void hToStringName(StringBuilder builder, IContext context)
+    public void toStringName_(StringBuilder builder, IContext context)
     {
         if (isDefaultPackage())
             builder.append("<default>"); //$NON-NLS-1$
         else
-            super.hToStringName(builder, context);
+            super.toStringName_(builder, context);
     }
 }

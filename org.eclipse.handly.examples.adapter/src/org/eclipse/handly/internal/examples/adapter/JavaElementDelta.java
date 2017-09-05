@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,68 +60,68 @@ class JavaElementDelta
     }
 
     @Override
-    public IElement hElement()
+    public IElement getElement_()
     {
         return JavaElement.create(delta.getElement());
     }
 
     @Override
-    public int hKind()
+    public int getKind_()
     {
         return kind;
     }
 
     @Override
-    public long hFlags()
+    public long getFlags_()
     {
         return flags;
     }
 
     @Override
-    public IElementDelta[] hAffectedChildren()
+    public IElementDelta[] getAffectedChildren_()
     {
         return toElementDeltas(delta.getAffectedChildren());
     }
 
     @Override
-    public IElementDelta[] hAddedChildren()
+    public IElementDelta[] getAddedChildren_()
     {
         return toElementDeltas(delta.getAddedChildren());
     }
 
     @Override
-    public IElementDelta[] hRemovedChildren()
+    public IElementDelta[] getRemovedChildren_()
     {
         return toElementDeltas(delta.getRemovedChildren());
     }
 
     @Override
-    public IElementDelta[] hChangedChildren()
+    public IElementDelta[] getChangedChildren_()
     {
         return toElementDeltas(delta.getChangedChildren());
     }
 
     @Override
-    public IElement hMovedFromElement()
+    public IElement getMovedFromElement_()
     {
         return JavaElement.create(delta.getMovedFromElement());
     }
 
     @Override
-    public IElement hMovedToElement()
+    public IElement getMovedToElement_()
     {
         return JavaElement.create(delta.getMovedToElement());
     }
 
     @Override
-    public IMarkerDelta[] hMarkerDeltas()
+    public IMarkerDelta[] getMarkerDeltas_()
     {
         // JDT JavaElementDelta does not provide marker deltas
         return EMPTY_MARKER_DELTAS;
     }
 
     @Override
-    public IResourceDelta[] hResourceDeltas()
+    public IResourceDelta[] getResourceDeltas_()
     {
         return delta.getResourceDeltas();
     }
@@ -133,7 +133,7 @@ class JavaElementDelta
     }
 
     @Override
-    public String hToString(IContext context)
+    public String toString_(IContext context)
     {
         return toString();
     }

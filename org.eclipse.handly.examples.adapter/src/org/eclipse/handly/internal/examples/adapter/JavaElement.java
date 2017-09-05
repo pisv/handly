@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,46 +79,46 @@ public class JavaElement
     }
 
     @Override
-    public String hName()
+    public String getName_()
     {
         return javaElement.getElementName();
     }
 
     @Override
-    public IElement hParent()
+    public IElement getParent_()
     {
         return create(javaElement.getParent());
     }
 
     @Override
-    public IElement hRoot()
+    public IElement getRoot_()
     {
         return create(javaElement.getJavaModel());
     }
 
     @Override
-    public IModel hModel()
+    public IModel getModel_()
     {
         return AdapterModelManager.INSTANCE;
     }
 
     @Override
-    public IResource hResource()
+    public IResource getResource_()
     {
         return javaElement.getResource();
     }
 
     @Override
-    public URI hLocationURI()
+    public URI getLocationURI_()
     {
-        IResource resource = hResource();
+        IResource resource = getResource_();
         if (resource != null)
             return resource.getLocationURI();
         return javaElement.getPath().toFile().toURI();
     }
 
     @Override
-    public boolean hExists()
+    public boolean exists_()
     {
         return javaElement.exists();
     }
@@ -149,13 +149,13 @@ public class JavaElement
     }
 
     @Override
-    public String hToString(IContext context)
+    public String toString_(IContext context)
     {
         return toString();
     }
 
     @Override
-    public IElement[] hChildren() throws CoreException
+    public IElement[] getChildren_() throws CoreException
     {
         if (!(javaElement instanceof IParent))
             return NO_CHILDREN;

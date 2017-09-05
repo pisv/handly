@@ -51,7 +51,7 @@ public class Field
     }
 
     @Override
-    public void hToStringBody(StringBuilder builder, Object body,
+    public void toStringBody_(StringBuilder builder, Object body,
         IContext context)
     {
         if (body != null && body != NO_BODY)
@@ -61,7 +61,7 @@ public class Field
             builder.append(Signature.toString(type));
             builder.append(' ');
         }
-        hToStringName(builder, context);
+        toStringName_(builder, context);
         if (body == null)
         {
             builder.append(" (not open)"); //$NON-NLS-1$

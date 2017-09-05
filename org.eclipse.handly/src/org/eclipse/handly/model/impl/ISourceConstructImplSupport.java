@@ -30,27 +30,27 @@ public interface ISourceConstructImplSupport
     extends ISourceElementImplSupport, ISourceConstructImplExtension
 {
     @Override
-    default int hDefaultHashCode()
+    default int defaultHashCode_()
     {
-        return ISourceElementImplSupport.super.hDefaultHashCode() * 31
-            + hOccurrenceCount();
+        return ISourceElementImplSupport.super.defaultHashCode_() * 31
+            + getOccurrenceCount_();
     }
 
     @Override
-    default boolean hDefaultEquals(Object obj)
+    default boolean defaultEquals_(Object obj)
     {
         if (!(obj instanceof ISourceConstructImplSupport))
             return false;
-        return ISourceElementImplSupport.super.hDefaultEquals(obj)
-            && hOccurrenceCount() == ((ISourceConstructImplSupport)obj).hOccurrenceCount();
+        return ISourceElementImplSupport.super.defaultEquals_(obj)
+            && getOccurrenceCount_() == ((ISourceConstructImplSupport)obj).getOccurrenceCount_();
     }
 
     @Override
-    default boolean hExists()
+    default boolean exists_()
     {
         try
         {
-            hBody();
+            getBody_();
             return true;
         }
         catch (CoreException e)
@@ -76,7 +76,7 @@ public interface ISourceConstructImplSupport
      *  <code>false</code> otherwise
      */
     @Override
-    default boolean hIsOpenable()
+    default boolean isOpenable_()
     {
         return false;
     }
@@ -89,7 +89,7 @@ public interface ISourceConstructImplSupport
      * </p>
      */
     @Override
-    default void hValidateExistence(IContext context) throws CoreException
+    default void validateExistence_(IContext context) throws CoreException
     {
         throw new AssertionError("This method should not be called"); //$NON-NLS-1$
     }
@@ -102,17 +102,17 @@ public interface ISourceConstructImplSupport
      * </p>
      */
     @Override
-    default void hBuildStructure(IContext context, IProgressMonitor monitor)
+    default void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         throw new AssertionError("This method should not be called"); //$NON-NLS-1$
     }
 
     @Override
-    default void hToStringName(StringBuilder builder, IContext context)
+    default void toStringName_(StringBuilder builder, IContext context)
     {
-        ISourceElementImplSupport.super.hToStringName(builder, context);
-        int occurrenceCount = hOccurrenceCount();
+        ISourceElementImplSupport.super.toStringName_(builder, context);
+        int occurrenceCount = getOccurrenceCount_();
         if (occurrenceCount > 1)
         {
             builder.append('#');

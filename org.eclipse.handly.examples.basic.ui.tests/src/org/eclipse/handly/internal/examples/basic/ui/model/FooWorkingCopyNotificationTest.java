@@ -224,14 +224,14 @@ public class FooWorkingCopyNotificationTest
     private void doWithWorkingCopy(IWorkspaceRunnable runnable)
         throws CoreException
     {
-        workingCopy.hBecomeWorkingCopy(EMPTY_CONTEXT, null);
+        workingCopy.becomeWorkingCopy_(EMPTY_CONTEXT, null);
         try
         {
             runnable.run(null);
         }
         finally
         {
-            workingCopy.hReleaseWorkingCopy();
+            workingCopy.releaseWorkingCopy_();
         }
     }
 
@@ -248,13 +248,15 @@ public class FooWorkingCopyNotificationTest
             return;
         }
         assertNotNull(actual);
-        assertEquals(expected.hElement(), actual.hElement());
-        assertEquals(expected.hKind(), actual.hKind());
-        assertEquals(expected.hFlags(), actual.hFlags());
-        assertEquals(expected.hMovedToElement(), actual.hMovedToElement());
-        assertEquals(expected.hMovedFromElement(), actual.hMovedFromElement());
-        ElementDelta[] expectedChildren = expected.hAffectedChildren();
-        ElementDelta[] actualChildren = actual.hAffectedChildren();
+        assertEquals(expected.getElement_(), actual.getElement_());
+        assertEquals(expected.getKind_(), actual.getKind_());
+        assertEquals(expected.getFlags_(), actual.getFlags_());
+        assertEquals(expected.getMovedToElement_(),
+            actual.getMovedToElement_());
+        assertEquals(expected.getMovedFromElement_(),
+            actual.getMovedFromElement_());
+        ElementDelta[] expectedChildren = expected.getAffectedChildren_();
+        ElementDelta[] actualChildren = actual.getAffectedChildren_();
         assertEquals(expectedChildren.length, actualChildren.length);
         for (int i = 0; i < expectedChildren.length; i++)
             assertDelta(expectedChildren[i], actualChildren[i]);

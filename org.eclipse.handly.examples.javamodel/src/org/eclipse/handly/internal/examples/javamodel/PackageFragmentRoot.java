@@ -57,7 +57,7 @@ public class PackageFragmentRoot
     @Override
     public JavaProject getParent()
     {
-        return (JavaProject)hParent();
+        return (JavaProject)getParent_();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class PackageFragmentRoot
     @Override
     public Object[] getNonJavaResources() throws CoreException
     {
-        return ((PackageFragmentRootBody)hBody()).getNonJavaResources(this);
+        return ((PackageFragmentRootBody)getBody_()).getNonJavaResources(this);
     }
 
     @Override
@@ -106,29 +106,29 @@ public class PackageFragmentRoot
     }
 
     @Override
-    public IResource hResource()
+    public IResource getResource_()
     {
         return resource;
     }
 
     @Override
-    public void hValidateExistence(IContext context) throws CoreException
+    public void validateExistence_(IContext context) throws CoreException
     {
         validateOnClasspath();
 
         if (!resource.isAccessible())
-            throw hDoesNotExistException();
+            throw newDoesNotExistException_();
     }
 
     protected void validateOnClasspath() throws CoreException
     {
         IClasspathEntry[] rawClasspath = getParent().getRawClasspath();
         if (!ClasspathUtil.isSourceFolder(resource, rawClasspath))
-            throw hDoesNotExistException();
+            throw newDoesNotExistException_();
     }
 
     @Override
-    public void hBuildStructure(IContext context, IProgressMonitor monitor)
+    public void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         PackageFragmentRootBody body = new PackageFragmentRootBody();

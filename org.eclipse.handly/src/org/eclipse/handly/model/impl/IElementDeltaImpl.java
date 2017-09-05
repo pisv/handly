@@ -31,7 +31,7 @@ public interface IElementDeltaImpl
      * @return the element that this delta describes a change to
      *  (never <code>null</code>)
      */
-    IElement hElement();
+    IElement getElement_();
 
     /**
      * Returns whether this delta is empty,
@@ -40,9 +40,9 @@ public interface IElementDeltaImpl
      * @return <code>true</code> if this delta is empty,
      *  <code>false</code> otherwise
      */
-    default boolean hIsEmpty()
+    default boolean isEmpty_()
     {
-        return hKind() == IElementDeltaConstants.NO_CHANGE;
+        return getKind_() == IElementDeltaConstants.NO_CHANGE;
     }
 
     /**
@@ -55,7 +55,7 @@ public interface IElementDeltaImpl
      *
      * @return the kind of this delta
      */
-    int hKind();
+    int getKind_();
 
     /**
      * Returns the delta's flags that describe how the element has changed.
@@ -77,7 +77,7 @@ public interface IElementDeltaImpl
      *
      * @return the delta's flags that describe how the element has changed
      */
-    long hFlags();
+    long getFlags_();
 
     /**
      * Returns deltas for the affected (added, removed, or changed) children.
@@ -86,7 +86,7 @@ public interface IElementDeltaImpl
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
-    IElementDelta[] hAffectedChildren();
+    IElementDelta[] getAffectedChildren_();
 
     /**
      * Returns deltas for the children that have been added.
@@ -95,7 +95,7 @@ public interface IElementDeltaImpl
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
-    IElementDelta[] hAddedChildren();
+    IElementDelta[] getAddedChildren_();
 
     /**
      * Returns deltas for the children that have been removed.
@@ -104,7 +104,7 @@ public interface IElementDeltaImpl
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
-    IElementDelta[] hRemovedChildren();
+    IElementDelta[] getRemovedChildren_();
 
     /**
      * Returns deltas for the children that have been changed.
@@ -113,7 +113,7 @@ public interface IElementDeltaImpl
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
-    IElementDelta[] hChangedChildren();
+    IElementDelta[] getChangedChildren_();
 
     /**
      * Returns an element describing this delta's element before it was moved
@@ -124,7 +124,7 @@ public interface IElementDeltaImpl
      *  to its current location, or <code>null</code> if the <code>F_MOVED_FROM</code>
      *  flag is not set
      */
-    IElement hMovedFromElement();
+    IElement getMovedFromElement_();
 
     /**
      * Returns an element describing this delta's element in its new location,
@@ -134,7 +134,7 @@ public interface IElementDeltaImpl
      * @return an element describing this delta's element in its new location,
      *  or <code>null</code> if the <code>F_MOVED_TO</code> flag is not set
      */
-    IElement hMovedToElement();
+    IElement getMovedToElement_();
 
     /**
      * Returns the changes to markers on the corresponding resource of this
@@ -152,7 +152,7 @@ public interface IElementDeltaImpl
      * @return the marker deltas, or <code>null</code> if none.
      *  Clients <b>must not</b> modify the returned array.
      */
-    IMarkerDelta[] hMarkerDeltas();
+    IMarkerDelta[] getMarkerDeltas_();
 
     /**
      * Returns the changes to children of the element's corresponding resource
@@ -170,7 +170,7 @@ public interface IElementDeltaImpl
      * @return the resource deltas, or <code>null</code> if none.
      *  Clients <b>must not</b> modify the returned array.
      */
-    IResourceDelta[] hResourceDeltas();
+    IResourceDelta[] getResourceDeltas_();
 
     /**
      * Debugging purposes. Returns a string representation of this delta.
@@ -195,5 +195,5 @@ public interface IElementDeltaImpl
      * @param context not <code>null</code>
      * @return a string representation of this delta (never <code>null</code>)
      */
-    String hToString(IContext context);
+    String toString_(IContext context);
 }
