@@ -430,8 +430,7 @@ public class ElementDelta
      */
     protected ElementDelta newDelta_(IElement element)
     {
-        Factory factory = Elements.getModel(element).getModelContext().get(
-            Factory.class);
+        Factory factory = Elements.getModelContext(element).get(Factory.class);
         if (factory != null)
             return factory.newDelta(element);
         return new ElementDelta(element);

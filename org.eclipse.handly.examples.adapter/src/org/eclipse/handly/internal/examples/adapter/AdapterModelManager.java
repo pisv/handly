@@ -12,11 +12,12 @@ package org.eclipse.handly.internal.examples.adapter;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 
+import org.eclipse.handly.ApiLevel;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementDelta;
-import org.eclipse.handly.model.IModel;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
+import org.eclipse.handly.model.impl.IModelImpl;
 import org.eclipse.handly.model.impl.NotificationManager;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IElementChangedListener;
@@ -30,7 +31,7 @@ import org.eclipse.jdt.core.JavaCore;
  * @threadsafe This class is intended to be thread-safe
  */
 public class AdapterModelManager
-    implements IModel, IElementChangedListener
+    implements IModelImpl, IElementChangedListener
 {
     /**
      * The sole instance of the manager.
@@ -61,13 +62,13 @@ public class AdapterModelManager
     }
 
     @Override
-    public IContext getModelContext()
+    public IContext getModelContext_()
     {
         return EMPTY_CONTEXT;
     }
 
     @Override
-    public int getApiLevel()
+    public int getModelApiLevel_()
     {
         return ApiLevel.CURRENT;
     }

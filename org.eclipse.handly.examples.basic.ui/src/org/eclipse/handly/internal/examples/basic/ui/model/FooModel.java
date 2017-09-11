@@ -18,21 +18,22 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.ApiLevel;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IModel;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.IModelImpl;
 
 /**
  * Represents the root Foo element corresponding to the workspace.
  */
 public class FooModel
     extends Element
-    implements IFooModel, IFooElementInternal, IModel
+    implements IFooModel, IFooElementInternal, IModelImpl
 {
     private final IWorkspace workspace;
 
@@ -49,18 +50,6 @@ public class FooModel
         if (workspace == null)
             throw new IllegalArgumentException();
         this.workspace = workspace;
-    }
-
-    @Override
-    public int getApiLevel()
-    {
-        return ApiLevel.CURRENT;
-    }
-
-    @Override
-    public IContext getModelContext()
-    {
-        return FooModelManager.INSTANCE.getModelContext();
     }
 
     @Override
@@ -118,6 +107,18 @@ public class FooModel
     public int hashCode()
     {
         return workspace.hashCode();
+    }
+
+    @Override
+    public IContext getModelContext_()
+    {
+        return FooModelManager.INSTANCE.getModelContext();
+    }
+
+    @Override
+    public int getModelApiLevel_()
+    {
+        return ApiLevel.CURRENT;
     }
 
     @Override

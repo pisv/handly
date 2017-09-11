@@ -12,26 +12,26 @@ package org.eclipse.handly.model.impl;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 
+import org.eclipse.handly.ApiLevel;
 import org.eclipse.handly.context.IContext;
-import org.eclipse.handly.model.IModel;
 
 /**
  * A simple model for tests.
  * Test clients can instantiate this class directly or subclass it.
  */
 class SimpleModel
-    implements IModel
+    implements IModelImpl
 {
     IContext context = EMPTY_CONTEXT;
 
     @Override
-    public IContext getModelContext()
+    public IContext getModelContext_()
     {
         return context;
     }
 
     @Override
-    public int getApiLevel()
+    public int getModelApiLevel_()
     {
         return ApiLevel.CURRENT;
     }

@@ -17,8 +17,9 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.impl.IElementDeltaImpl;
 
 /**
- * Provides methods for generic access to element deltas. Given a delta, clients
- * can access the element that has changed, and any children that have changed.
+ * Provides methods for generic access to {@link IElementDelta}s. Given a delta,
+ * clients can access the element that has changed, and any children that have
+ * changed.
  * <p>
  * Deltas have a different status depending on the kind of change they represent.
  * The list below summarizes each status (as returned by {@link #getKind})
@@ -53,8 +54,6 @@ import org.eclipse.handly.model.impl.IElementDeltaImpl;
  * This is based on the "outward impression" of late resolution of
  * symbolic references a JVM must provide according to the JVMS.
  * </p>
- *
- * @see IElementDelta
  */
 public class ElementDeltas
 {

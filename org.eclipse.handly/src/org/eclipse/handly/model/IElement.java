@@ -20,8 +20,8 @@ package org.eclipse.handly.model;
  * are guaranteed to be equal, but not necessarily identical.
  * </p>
  * <p>
- * The class {@link Elements} provides methods for generic access to elements
- * of a Handly-based model.
+ * The class {@link Elements} provides methods for generic access to
+ * {@link IElement}s.
  * </p>
  * <p>
  * Elements of a Handly-based model are safe for use by multiple threads.

@@ -18,14 +18,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.ApiLevel;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.IModel;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.IModelImpl;
 
 /**
  * Implementation of {@link IJavaModel}. The Java model maintains a cache of
@@ -33,7 +34,7 @@ import org.eclipse.handly.model.impl.Element;
  */
 public class JavaModel
     extends Element
-    implements IJavaModel, IJavaElementInternal, IModel
+    implements IJavaModel, IJavaElementInternal, IModelImpl
 {
     private final IWorkspace workspace;
 
@@ -49,18 +50,6 @@ public class JavaModel
         if (workspace == null)
             throw new IllegalArgumentException();
         this.workspace = workspace;
-    }
-
-    @Override
-    public int getApiLevel()
-    {
-        return ApiLevel.CURRENT;
-    }
-
-    @Override
-    public IContext getModelContext()
-    {
-        return JavaModelManager.INSTANCE.getModelContext();
     }
 
     @Override
@@ -124,6 +113,18 @@ public class JavaModel
     public int hashCode()
     {
         return workspace.hashCode();
+    }
+
+    @Override
+    public IContext getModelContext_()
+    {
+        return JavaModelManager.INSTANCE.getModelContext();
+    }
+
+    @Override
+    public int getModelApiLevel_()
+    {
+        return ApiLevel.CURRENT;
     }
 
     @Override

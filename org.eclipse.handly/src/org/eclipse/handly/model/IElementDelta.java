@@ -12,18 +12,16 @@
 package org.eclipse.handly.model;
 
 /**
- * An element delta describes changes in the corresponding element between
- * two discrete points in time.
+ * An element delta describes changes in the corresponding {@link IElement}
+ * between two discrete points in time.
  * <p>
  * The class {@link ElementDeltas} provides methods for generic access to
- * element deltas.
+ * {@link IElementDelta}s.
  * </p>
  * <p>
  * Delta objects are generally not valid outside the dynamic scope of change
  * notification.
  * </p>
- *
- * @see IElement
  */
 public interface IElementDelta
 {

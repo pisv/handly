@@ -10,73 +10,28 @@
  *******************************************************************************/
 package org.eclipse.handly.model;
 
-import org.eclipse.handly.context.IContext;
-
 /**
- * A model serves as the common owner of any number of elements.
+ * A model serves as the common owner of any number of {@link IElement}s.
  * <p>
- * Each element belongs to a model, called the owning model. The children of an
- * element always have the same {@link Elements#getModel(IElement) owner} as
- * their parent element.
+ * Each {@link IElement} belongs to a model, called the owning model. The
+ * children of an element always have the same {@link Elements#getModel(IElement)
+ * owner} as their parent element.
  * </p>
  * <p>
  * There can be any number of elements owned by a model that are {@link
  * Elements#getParent(IElement) unparented}. Each of these elements is the root
  * of a separate tree of elements. The method {@link Elements#getRoot(IElement)}
  * navigates from any element to the root of the tree that it is contained in.
- * One can navigate from any element to its model, but not conversely.
+ * One can navigate from any element to its owning model, but not conversely.
  * </p>
  * <p>
- * An instance of the model is safe for use by multiple threads.
+ * The class {@link Models} provides methods for generic access to
+ * {@link IModel}s.
  * </p>
- *
- * @see IElement
- *
- * @noextend This interface is not intended to be extended by clients.
+ * <p>
+ * An instance of {@link IModel} is safe for use by multiple threads.
+ * </p>
  */
 public interface IModel
 {
-    /**
-     * Returns a context which provides information and services pertaining
-     * to this model. The context, as a set of bindings, is immutable.
-     * <p>
-     * Note that the relationship between a model and its context does not
-     * change over the lifetime of a model.
-     * </p>
-     *
-     * @return the model context (never <code>null</code>)
-     */
-    IContext getModelContext();
-
-    /**
-     * Returns the API level supported by this model.
-     * <p>
-     * Implementations are encouraged to return {@link ApiLevel#CURRENT}, which
-     * corresponds to the version of Handly the model was built against.
-     * </p>
-     *
-     * @return the API level; one of the level constants declared on
-     *  {@link ApiLevel}; assume this set is open-ended
-     */
-    int getApiLevel();
-
-    /**
-     * Declares API level constants.
-     */
-    class ApiLevel
-    {
-        /**
-         * Corresponds to Handly 1.0 Release.
-         */
-        public static final int _1_0 = 0;
-        /**
-         * Corresponds to the version of Handly the code using this constant
-         * was built against.
-         */
-        public static final int CURRENT = _1_0;
-
-        private ApiLevel()
-        {
-        }
-    }
 }

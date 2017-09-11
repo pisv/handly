@@ -182,8 +182,8 @@ public class ElementChangeRecorder
      */
     protected IElementDeltaBuilder newDeltaBuilder(IElement element)
     {
-        ElementDelta.Factory deltaFactory = Elements.getModel(
-            element).getModelContext().get(ElementDelta.Factory.class);
+        ElementDelta.Factory deltaFactory = Elements.getModelContext(
+            element).get(ElementDelta.Factory.class);
         ElementDelta delta;
         if (deltaFactory != null)
             delta = deltaFactory.newDelta(element);

@@ -33,7 +33,7 @@ import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * Provides methods for generic access to elements of a Handly-based model.
+ * Provides methods for generic access to {@link IElement}s.
  * <p>
  * Methods annotated as "handle-only" do not require underlying elements
  * to exist. Methods that require underlying elements to exist throw a
@@ -45,8 +45,6 @@ import org.eclipse.handly.util.TextRange;
  * bundle is not available. This is based on the "outward impression" of late
  * resolution of symbolic references a JVM must provide according to the JVMS.
  * </p>
- *
- * @see IElement
  */
 public class Elements
 {
@@ -113,6 +111,32 @@ public class Elements
     public static IModel getModel(IElement element)
     {
         return ((IElementImpl)element).getModel_();
+    }
+
+    /**
+     * Returns a context which provides information and services pertaining
+     * to the element's model. The context, as a set of bindings, is immutable.
+     * This is a handle-only method.
+     *
+     * @param element not <code>null</code>
+     * @return the model context for the element (never <code>null</code>)
+     */
+    public static IContext getModelContext(IElement element)
+    {
+        return Models.getModelContext(getModel(element));
+    }
+
+    /**
+     * Returns the API level supported by the element's model; one of the
+     * level constants declared in {@link org.eclipse.handly.ApiLevel}.
+     * This is a handle-only method.
+     *
+     * @param element not <code>null</code>
+     * @return the API level supported by the element's model
+     */
+    public static int getModelApiLevel(IElement element)
+    {
+        return Models.getModelApiLevel(getModel(element));
     }
 
     /**

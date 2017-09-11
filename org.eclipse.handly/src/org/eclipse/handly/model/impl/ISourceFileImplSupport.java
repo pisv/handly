@@ -36,6 +36,7 @@ import org.eclipse.handly.context.Context;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -286,7 +287,7 @@ public interface ISourceFileImplSupport
      */
     default ReconcileOperation getReconcileOperation_()
     {
-        if (getModel_().getModelContext().get(
+        if (Elements.getModelContext(this).get(
             INotificationManager.class) != null)
             return new NotifyingReconcileOperation(this);
 
@@ -334,12 +335,12 @@ public interface ISourceFileImplSupport
      */
     default void workingCopyModeChanged_()
     {
-        INotificationManager notificationManager =
-            getModel_().getModelContext().get(INotificationManager.class);
+        INotificationManager notificationManager = Elements.getModelContext(
+            this).get(INotificationManager.class);
         if (notificationManager == null)
             return;
 
-        ElementDelta.Factory deltaFactory = getModel_().getModelContext().get(
+        ElementDelta.Factory deltaFactory = Elements.getModelContext(this).get(
             ElementDelta.Factory.class);
         if (deltaFactory == null)
             deltaFactory = element -> new ElementDelta(element);
@@ -897,7 +898,7 @@ public interface ISourceFileImplSupport
                 IElementDelta delta = recorder.endRecording().getDelta();
                 if (!ElementDeltas.isNullOrEmpty(delta))
                 {
-                    sourceFile.getModel_().getModelContext().get(
+                    Elements.getModelContext(sourceFile).get(
                         INotificationManager.class).fireElementChangeEvent(
                             new ElementChangeEvent(
                                 ElementChangeEvent.POST_RECONCILE, delta));
