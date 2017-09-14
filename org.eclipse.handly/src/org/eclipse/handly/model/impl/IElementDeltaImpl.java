@@ -13,6 +13,8 @@ package org.eclipse.handly.model.impl;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.handly.context.IContext;
+import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.IElementDeltaConstants;
@@ -78,6 +80,36 @@ public interface IElementDeltaImpl
      * @return the delta's flags that describe how the element has changed
      */
     long getFlags_();
+
+    /**
+     * Returns the delta for the given element in this delta subtree,
+     * or <code>null</code> if no delta is found for the given element.
+     * <p>
+     * This is a convenience method to avoid manual traversal of the delta tree
+     * in cases where the listener is only interested in changes to particular
+     * elements. Calling this method will generally be faster than manually
+     * traversing the delta to a particular descendant.
+     * </p>
+     *
+     * @param element the element to search delta for (may be <code>null</code>)
+     * @return the delta for the given element, or <code>null</code> if none
+     */
+    default IElementDelta findDelta_(IElement element)
+    {
+        if (element == null)
+            return null;
+        if (Elements.equalsAndSameParentChain(element, getElement_()))
+            return this;
+        if (!Elements.isDescendantOf(element, getElement_()))
+            return null;
+        for (IElementDelta child : getAffectedChildren_())
+        {
+            IElementDelta delta = ElementDeltas.findDelta(child, element);
+            if (delta != null)
+                return delta;
+        }
+        return null;
+    }
 
     /**
      * Returns deltas for the affected (added, removed, or changed) children.

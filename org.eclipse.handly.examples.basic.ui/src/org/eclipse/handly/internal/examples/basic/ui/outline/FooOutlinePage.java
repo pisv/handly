@@ -135,17 +135,10 @@ public final class FooOutlinePage
 
     private boolean affects(IElementDelta delta, IElement element)
     {
-        if (ElementDeltas.getElement(delta).equals(element))
-        {
-            return ElementDeltas.isStructuralChange(delta);
-        }
-        IElementDelta[] children = ElementDeltas.getAffectedChildren(delta);
-        for (IElementDelta child : children)
-        {
-            if (affects(child, element))
-                return true;
-        }
-        return false;
+        IElementDelta foundDelta = ElementDeltas.findDelta(delta, element);
+        if (foundDelta == null)
+            return false;
+        return ElementDeltas.isStructuralChange(foundDelta);
     }
 
     private Object computeInput()

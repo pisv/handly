@@ -14,7 +14,6 @@ package org.eclipse.handly.model;
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 
 import java.net.URI;
-import java.util.Objects;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -100,6 +99,24 @@ public class Elements
     public static <T> T getAncestor(IElement element, Class<T> ancestorType)
     {
         return ((IElementImpl)element).getAncestor_(ancestorType);
+    }
+
+    /**
+     * Returns whether the element is a descendant of the given ancestor.
+     *
+     * @param element not <code>null</code>
+     * @param ancestor may be <code>null</code>
+     * @return <code>true</code> if the element is a descendant of the given
+     *  ancestor, and <code>false</code> otherwise
+     */
+    public static boolean isDescendantOf(IElement element, IElement ancestor)
+    {
+        for (IElement p = getParent(element); p != null; p = getParent(p))
+        {
+            if (equalsAndSameParentChain(p, ancestor))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -281,19 +298,25 @@ public class Elements
     }
 
     /**
-     * Returns whether the given elements are equal and have the same parent.
+     * Returns whether the given elements are equal and belong to the same
+     * parent chain. In the most general case, equal elements may belong to
+     * different parent chains. E.g. in JDT, equal JarPackageFragmentRoots
+     * may belong to different Java projects.
      *
      * @param e1 the first element (not <code>null</code>)
      * @param e2 the second element (may be <code>null</code>)
-     * @return <code>true</code> if the given elements are equal and have
-     *  the same parent, <code>false</code> otherwise
+     * @return <code>true</code> if the given elements are equal and belong
+     *  to the same parent chain, <code>false</code> otherwise
      */
-    public static boolean equalsAndSameParent(IElement e1, IElement e2)
+    public static boolean equalsAndSameParentChain(IElement e1, IElement e2)
     {
+        if (e1 == e2)
+            return true;
+
         if (!e1.equals(e2))
             return false;
 
-        return Objects.equals(getParent(e1), getParent(e2));
+        return equalsAndSameParentChain(getParent(e1), getParent(e2));
     }
 
     /**
@@ -317,7 +340,8 @@ public class Elements
     public static ISourceElement getSourceElementAt(ISourceElement context,
         int position, ISnapshot base) throws CoreException
     {
-        return ((ISourceElementImpl)context).getSourceElementAt_(position, base);
+        return ((ISourceElementImpl)context).getSourceElementAt_(position,
+            base);
     }
 
     /**

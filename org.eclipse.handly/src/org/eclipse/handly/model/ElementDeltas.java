@@ -161,6 +161,25 @@ public class ElementDeltas
     }
 
     /**
+     * Returns the delta for the given element in the delta subtree,
+     * or <code>null</code> if no delta is found for the given element.
+     * <p>
+     * This is a convenience method to avoid manual traversal of the delta tree
+     * in cases where the listener is only interested in changes to particular
+     * elements. Calling this method will generally be faster than manually
+     * traversing the delta to a particular descendant.
+     * </p>
+     *
+     * @param delta the subtree to search delta in (not <code>null</code>)
+     * @param element the element to search delta for (may be <code>null</code>)
+     * @return the delta for the given element, or <code>null</code> if none
+     */
+    public static IElementDelta findDelta(IElementDelta delta, IElement element)
+    {
+        return ((IElementDeltaImpl)delta).findDelta_(element);
+    }
+
+    /**
      * Returns deltas for the affected (added, removed, or changed) children.
      *
      * @param delta not <code>null</code>

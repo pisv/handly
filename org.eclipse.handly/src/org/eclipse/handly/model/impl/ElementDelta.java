@@ -128,6 +128,16 @@ public class ElementDelta
     }
 
     @Override
+    public final ElementDelta findDelta_(IElement element)
+    {
+        if (element == null)
+            return null;
+        if (Elements.equalsAndSameParentChain(this.element, element))
+            return this;
+        return findDescendant(new Key(element));
+    }
+
+    @Override
     public final ElementDelta[] getAffectedChildren_()
     {
         return affectedChildren;
@@ -180,22 +190,6 @@ public class ElementDelta
                 resourceDeltasCounter);
         }
         return resourceDeltas;
-    }
-
-    /**
-     * Returns the delta for the given element in this delta subtree,
-     * or <code>null</code> if no delta is found for the given element.
-     *
-     * @param element the element to search delta for (may be <code>null</code>)
-     * @return the delta for the given element, or <code>null</code> if none
-     */
-    public final ElementDelta findDelta_(IElement element)
-    {
-        if (element == null)
-            return null;
-        if (Elements.equalsAndSameParent(this.element, element))
-            return this;
-        return findDescendant(new Key(element));
     }
 
     @Override
@@ -849,7 +843,7 @@ public class ElementDelta
             return null;
 
         ArrayList<IElement> parents = new ArrayList<>();
-        while (!parent.equals(element))
+        while (!Elements.equalsAndSameParentChain(parent, element))
         {
             parents.add(parent);
             parent = Elements.getParent(parent);
@@ -894,7 +888,8 @@ public class ElementDelta
      */
     private ElementDelta findDescendant(Key key)
     {
-        if (affectedChildren.length == 0)
+        if (affectedChildren.length == 0 || !Elements.isDescendantOf(
+            key.element, element))
             return null;
         Integer index = indexOfChild(key);
         if (index != null)
@@ -924,7 +919,7 @@ public class ElementDelta
         {
             for (int i = 0; i < length; i++)
             {
-                if (Elements.equalsAndSameParent(key.element,
+                if (Elements.equalsAndSameParentChain(key.element,
                     affectedChildren[i].element))
                 {
                     return i;
@@ -1153,7 +1148,8 @@ public class ElementDelta
 
         private void insert(ElementDelta delta)
         {
-            if (!Elements.equalsAndSameParent(rootDelta.element, delta.element))
+            if (!Elements.equalsAndSameParentChain(rootDelta.element,
+                delta.element))
                 rootDelta.insertSubTree_(delta);
             else
                 rootDelta.mergeWith_(delta);
@@ -1284,7 +1280,8 @@ public class ElementDelta
         {
             if (!(obj instanceof Key))
                 return false;
-            return Elements.equalsAndSameParent(element, ((Key)obj).element);
+            return Elements.equalsAndSameParentChain(element,
+                ((Key)obj).element);
         }
     }
 }
