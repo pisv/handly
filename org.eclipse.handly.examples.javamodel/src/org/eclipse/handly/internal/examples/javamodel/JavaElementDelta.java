@@ -20,10 +20,13 @@ import org.eclipse.handly.model.impl.ElementDelta;
  *
  * @see ElementDelta
  */
-public class JavaElementDelta
+public final class JavaElementDelta
     extends ElementDelta
     implements IJavaElementDelta
 {
+    private static final JavaElementDelta[] NO_CHILDREN =
+        new JavaElementDelta[0];
+
     /**
      * Constructs an initially empty delta for the given element.
      *
@@ -33,6 +36,7 @@ public class JavaElementDelta
     public JavaElementDelta(IJavaElement element)
     {
         super(element);
+        setAffectedChildren_(NO_CHILDREN); // ensure that runtime type of affectedChildren is JavaElementDelta[]
     }
 
     @Override
@@ -44,25 +48,25 @@ public class JavaElementDelta
     @Override
     public JavaElementDelta[] getAffectedChildren()
     {
-        return convert(getAffectedChildren_());
+        return (JavaElementDelta[])getAffectedChildren_();
     }
 
     @Override
     public JavaElementDelta[] getAddedChildren()
     {
-        return convert(getAddedChildren_());
+        return (JavaElementDelta[])getAddedChildren_();
     }
 
     @Override
     public JavaElementDelta[] getRemovedChildren()
     {
-        return convert(getRemovedChildren_());
+        return (JavaElementDelta[])getRemovedChildren_();
     }
 
     @Override
     public JavaElementDelta[] getChangedChildren()
     {
-        return convert(getChangedChildren_());
+        return (JavaElementDelta[])getChangedChildren_();
     }
 
     @Override
@@ -78,9 +82,9 @@ public class JavaElementDelta
     }
 
     @Override
-    public IJavaElementDelta findDelta(IJavaElement element)
+    public JavaElementDelta findDelta(IJavaElement element)
     {
-        return (IJavaElementDelta)findDelta_(element);
+        return (JavaElementDelta)findDelta_(element);
     }
 
     @Override
@@ -95,12 +99,5 @@ public class JavaElementDelta
             prev = true;
         }
         return prev;
-    }
-
-    private static JavaElementDelta[] convert(ElementDelta[] array)
-    {
-        JavaElementDelta[] result = new JavaElementDelta[array.length];
-        System.arraycopy(array, 0, result, 0, array.length);
-        return result;
     }
 }

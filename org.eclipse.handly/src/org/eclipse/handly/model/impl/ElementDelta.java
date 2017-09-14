@@ -39,6 +39,7 @@ import static org.eclipse.handly.util.ToStringOptions.FormatStyle.LONG;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.SHORT;
 
+import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -137,24 +138,52 @@ public class ElementDelta
         return findDescendant(new Key(element));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns an array of exactly the same runtime type as
+     * the array given in the most recent call to {@link #setAffectedChildren_}.
+     * </p>
+     */
     @Override
     public final ElementDelta[] getAffectedChildren_()
     {
         return affectedChildren;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns an array of exactly the same runtime type as
+     * the array given in the most recent call to {@link #setAffectedChildren_}.
+     * </p>
+     */
     @Override
     public final ElementDelta[] getAddedChildren_()
     {
         return getChildrenOfKind(ADDED);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns an array of exactly the same runtime type as
+     * the array given in the most recent call to {@link #setAffectedChildren_}.
+     * </p>
+     */
     @Override
     public final ElementDelta[] getRemovedChildren_()
     {
         return getChildrenOfKind(REMOVED);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns an array of exactly the same runtime type as
+     * the array given in the most recent call to {@link #setAffectedChildren_}.
+     * </p>
+     */
     @Override
     public final ElementDelta[] getChangedChildren_()
     {
@@ -864,9 +893,11 @@ public class ElementDelta
      */
     private ElementDelta[] getChildrenOfKind(int kind)
     {
+        // note: the resulting array is to be of the runtime type of affectedChildren
+
         int length = affectedChildren.length;
         if (length == 0)
-            return NO_CHILDREN;
+            return affectedChildren;
 
         ArrayList<ElementDelta> children = new ArrayList<>(length);
         for (ElementDelta child : affectedChildren)
@@ -874,8 +905,12 @@ public class ElementDelta
             if (child.getKind_() == kind)
                 children.add(child);
         }
+        if (children.size() == length)
+            return affectedChildren;
 
-        return children.toArray(NO_CHILDREN);
+        ElementDelta[] result = (ElementDelta[])Array.newInstance(
+            affectedChildren.getClass().getComponentType(), children.size());
+        return children.toArray(result);
     }
 
     /**
@@ -988,6 +1023,8 @@ public class ElementDelta
     /**
      * Adds the given element to a new array that contains all
      * of the elements of the given array. Returns the new array.
+     * The resulting array is of exactly the same runtime type as
+     * the given array.
      *
      * @param array the specified array (not <code>null</code>)
      * @param addition the element to add
@@ -996,15 +1033,19 @@ public class ElementDelta
     private static ElementDelta[] growAndAddToArray(ElementDelta[] array,
         ElementDelta addition)
     {
-        ElementDelta[] result = new ElementDelta[array.length + 1];
-        System.arraycopy(array, 0, result, 0, array.length);
-        result[array.length] = addition;
+        int length = array.length;
+        ElementDelta[] result = (ElementDelta[])Array.newInstance(
+            array.getClass().getComponentType(), length + 1);
+        System.arraycopy(array, 0, result, 0, length);
+        result[length] = addition;
         return result;
     }
 
     /**
      * Copies the given array into a new array excluding
      * an element at the given index. Returns the new array.
+     * The resulting array is of exactly the same runtime type as
+     * the given array.
      *
      * @param array the specified array (not <code>null</code>)
      * @param index a valid index which indicates the element to exclude
@@ -1013,10 +1054,12 @@ public class ElementDelta
     private static ElementDelta[] removeAndShrinkArray(ElementDelta[] array,
         int index)
     {
-        ElementDelta[] result = new ElementDelta[array.length - 1];
+        int length = array.length;
+        ElementDelta[] result = (ElementDelta[])Array.newInstance(
+            array.getClass().getComponentType(), length - 1);
         if (index > 0)
             System.arraycopy(array, 0, result, 0, index);
-        int rest = array.length - index - 1;
+        int rest = length - index - 1;
         if (rest > 0)
             System.arraycopy(array, index + 1, result, index, rest);
         return result;
