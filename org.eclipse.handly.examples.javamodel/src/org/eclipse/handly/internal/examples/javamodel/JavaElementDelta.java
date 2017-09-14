@@ -78,6 +78,12 @@ public class JavaElementDelta
     }
 
     @Override
+    public IJavaElementDelta findDelta(IJavaElement element)
+    {
+        return (IJavaElementDelta)findDelta_(element);
+    }
+
+    @Override
     protected boolean toStringFlags_(StringBuilder builder, IContext context)
     {
         boolean prev = super.toStringFlags_(builder, context);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,4 +51,19 @@ public interface IJavaElementDelta
 
     @Override
     IJavaElement getMovedToElement();
+
+    /**
+     * Returns the delta for the given element in this delta subtree,
+     * or <code>null</code> if no delta is found for the given element.
+     * <p>
+     * This is a convenience method to avoid manual traversal of the delta tree
+     * in cases where the listener is only interested in changes to particular
+     * elements. Calling this method will generally be faster than manually
+     * traversing the delta to a particular descendant.
+     * </p>
+     *
+     * @param element the element to search delta for (may be <code>null</code>)
+     * @return the delta for the given element, or <code>null</code> if none
+     */
+    IJavaElementDelta findDelta(IJavaElement element);
 }
