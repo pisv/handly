@@ -42,6 +42,7 @@ import static org.eclipse.handly.util.ToStringOptions.FormatStyle.SHORT;
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,7 @@ public class ElementDelta
     private IElement movedFromElement;
     private IElement movedToElement;
     private ElementDelta[] affectedChildren = NO_CHILDREN;
+    private int affectedChildrenCounter;
 
     /**
      * On-demand index into <code>affectedChildren</code>.
@@ -148,6 +150,12 @@ public class ElementDelta
     @Override
     public final ElementDelta[] getAffectedChildren_()
     {
+        if (affectedChildren.length != affectedChildrenCounter)
+        {
+            // be careful to preserve the runtime type of affectedChildren
+            affectedChildren = Arrays.copyOf(affectedChildren,
+                affectedChildrenCounter);
+        }
         return affectedChildren;
     }
 
@@ -244,7 +252,7 @@ public class ElementDelta
         FormatStyle style = context.getOrDefault(FORMAT_STYLE);
         if (style == FULL || style == LONG)
         {
-            if (affectedChildren.length > 0)
+            if (affectedChildrenCounter > 0)
             {
                 indentPolicy.appendLine(builder);
                 toStringChildren_(builder, with(of(INDENT_LEVEL, //
@@ -266,7 +274,7 @@ public class ElementDelta
     protected void toStringChildren_(StringBuilder builder, IContext context)
     {
         IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
-        for (int i = 0; i < affectedChildren.length; i++)
+        for (int i = 0; i < affectedChildrenCounter; i++)
         {
             if (i > 0)
                 indentPolicy.appendLine(builder);
@@ -467,7 +475,7 @@ public class ElementDelta
      */
     protected boolean needsChildIndex_()
     {
-        return affectedChildren.length >= 3;
+        return affectedChildrenCounter >= 3;
     }
 
     /**
@@ -783,9 +791,9 @@ public class ElementDelta
             else if (getKind_() != delta.getKind_())
                 throw new IllegalArgumentException();
 
-            for (ElementDelta child : delta.getAffectedChildren_())
+            for (int i = 0; i < delta.affectedChildrenCounter; i++)
             {
-                addAffectedChild_(child);
+                addAffectedChild_(delta.affectedChildren[i]);
             }
 
             // add marker deltas if needed
@@ -823,6 +831,7 @@ public class ElementDelta
         if (children == null)
             throw new IllegalArgumentException();
         affectedChildren = children;
+        affectedChildrenCounter = children.length;
         childIndex = null;
     }
 
@@ -895,17 +904,18 @@ public class ElementDelta
     {
         // note: the resulting array is to be of the runtime type of affectedChildren
 
-        int length = affectedChildren.length;
-        if (length == 0)
+        if (affectedChildren.length == 0)
             return affectedChildren;
 
-        ArrayList<ElementDelta> children = new ArrayList<>(length);
-        for (ElementDelta child : affectedChildren)
+        ArrayList<ElementDelta> children = new ArrayList<>(
+            affectedChildrenCounter);
+        for (int i = 0; i < affectedChildrenCounter; i++)
         {
+            ElementDelta child = affectedChildren[i];
             if (child.getKind_() == kind)
                 children.add(child);
         }
-        if (children.size() == length)
+        if (children.size() == affectedChildren.length)
             return affectedChildren;
 
         ElementDelta[] result = (ElementDelta[])Array.newInstance(
@@ -923,15 +933,15 @@ public class ElementDelta
      */
     private ElementDelta findDescendant(Key key)
     {
-        if (affectedChildren.length == 0 || !Elements.isDescendantOf(
+        if (affectedChildrenCounter == 0 || !Elements.isDescendantOf(
             key.element, element))
             return null;
         Integer index = indexOfChild(key);
         if (index != null)
             return affectedChildren[index];
-        for (ElementDelta child : affectedChildren)
+        for (int i = 0; i < affectedChildrenCounter; i++)
         {
-            ElementDelta delta = child.findDescendant(key);
+            ElementDelta delta = affectedChildren[i].findDescendant(key);
             if (delta != null)
                 return delta;
         }
@@ -949,10 +959,9 @@ public class ElementDelta
      */
     private Integer indexOfChild(Key key)
     {
-        int length = affectedChildren.length;
         if (!needsChildIndex_())
         {
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < affectedChildrenCounter; i++)
             {
                 if (Elements.equalsAndSameParentChain(key.element,
                     affectedChildren[i].element))
@@ -965,7 +974,7 @@ public class ElementDelta
         if (childIndex == null)
         {
             childIndex = new HashMap<Key, Integer>();
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < affectedChildrenCounter; i++)
             {
                 childIndex.put(new Key(affectedChildren[i].element), i);
             }
@@ -987,10 +996,18 @@ public class ElementDelta
      */
     private void addNewChild(ElementDelta child)
     {
-        affectedChildren = growAndAddToArray(affectedChildren, child);
+        int length = affectedChildren.length;
+        if (length == affectedChildrenCounter)
+        {
+            // need a resize
+            int newLength = (length == 0 ? 1 : length * 2);
+            // be careful to preserve the runtime type of affectedChildren
+            affectedChildren = Arrays.copyOf(affectedChildren, newLength);
+        }
+        affectedChildren[affectedChildrenCounter++] = child;
         if (childIndex != null)
         {
-            childIndex.put(new Key(child.element), affectedChildren.length - 1);
+            childIndex.put(new Key(child.element), affectedChildrenCounter - 1);
         }
     }
 
@@ -1004,7 +1021,18 @@ public class ElementDelta
      */
     private void removeExistingChild(Key key, int index)
     {
-        affectedChildren = removeAndShrinkArray(affectedChildren, index);
+        if (affectedChildren.length == affectedChildrenCounter)
+        {
+            // don't mutate the original array: it may be shared
+            affectedChildren = affectedChildren.clone();
+        }
+        int rest = affectedChildrenCounter - index - 1;
+        if (rest > 0)
+        {
+            System.arraycopy(affectedChildren, index + 1, affectedChildren,
+                index, rest);
+        }
+        affectedChildren[--affectedChildrenCounter] = null;
         if (childIndex != null)
         {
             if (!needsChildIndex_())
@@ -1012,57 +1040,12 @@ public class ElementDelta
             else
             {
                 childIndex.remove(key);
-                for (int i = index; i < affectedChildren.length; i++)
+                for (int i = index; i < affectedChildrenCounter; i++)
                 {
                     childIndex.put(new Key(affectedChildren[i].element), i);
                 }
             }
         }
-    }
-
-    /**
-     * Adds the given element to a new array that contains all
-     * of the elements of the given array. Returns the new array.
-     * The resulting array is of exactly the same runtime type as
-     * the given array.
-     *
-     * @param array the specified array (not <code>null</code>)
-     * @param addition the element to add
-     * @return the resulting array (never <code>null</code>)
-     */
-    private static ElementDelta[] growAndAddToArray(ElementDelta[] array,
-        ElementDelta addition)
-    {
-        int length = array.length;
-        ElementDelta[] result = (ElementDelta[])Array.newInstance(
-            array.getClass().getComponentType(), length + 1);
-        System.arraycopy(array, 0, result, 0, length);
-        result[length] = addition;
-        return result;
-    }
-
-    /**
-     * Copies the given array into a new array excluding
-     * an element at the given index. Returns the new array.
-     * The resulting array is of exactly the same runtime type as
-     * the given array.
-     *
-     * @param array the specified array (not <code>null</code>)
-     * @param index a valid index which indicates the element to exclude
-     * @return the resulting array (never <code>null</code>)
-     */
-    private static ElementDelta[] removeAndShrinkArray(ElementDelta[] array,
-        int index)
-    {
-        int length = array.length;
-        ElementDelta[] result = (ElementDelta[])Array.newInstance(
-            array.getClass().getComponentType(), length - 1);
-        if (index > 0)
-            System.arraycopy(array, 0, result, 0, index);
-        int rest = length - index - 1;
-        if (rest > 0)
-            System.arraycopy(array, index + 1, result, index, rest);
-        return result;
     }
 
     /**
