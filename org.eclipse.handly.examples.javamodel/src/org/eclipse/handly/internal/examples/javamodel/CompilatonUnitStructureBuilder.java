@@ -39,7 +39,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
  */
 class CompilatonUnitStructureBuilder
 {
-    private final StructureHelper helper;
+    private final Map<IElement, Object> newElements;
+    private final StructureHelper helper = new StructureHelper();
 
     /**
      * Constructs a new compilation unit structure builder.
@@ -49,19 +50,22 @@ class CompilatonUnitStructureBuilder
      */
     CompilatonUnitStructureBuilder(Map<IElement, Object> newElements)
     {
-        helper = new StructureHelper(newElements);
+        if (newElements == null)
+            throw new IllegalArgumentException();
+        this.newElements = newElements;
     }
 
     /**
      * Builds the structure for the given compilation unit based on its AST.
      *
      * @param handle the handle to a compilation unit (not <code>null</code>)
-     * @param body the body of the compilation unit (not <code>null</code>)
      * @param cu the AST of the compilation unit (not <code>null</code>)
      */
-    void buildStructure(CompilationUnit handle, SourceElementBody body,
+    void buildStructure(CompilationUnit handle,
         org.eclipse.jdt.core.dom.CompilationUnit cu)
     {
+        SourceElementBody body = new SourceElementBody();
+
         org.eclipse.jdt.core.dom.PackageDeclaration pkg = cu.getPackage();
         if (pkg != null)
             buildStructure(handle, body, pkg);
@@ -76,21 +80,24 @@ class CompilatonUnitStructureBuilder
         for (AbstractTypeDeclaration type : types)
             buildStructure(handle, body, type);
 
-        helper.complete(body);
+        body.setChildren(helper.popChildren(body).toArray(Body.NO_CHILDREN));
+        newElements.put(handle, body);
     }
 
-    private void buildStructure(CompilationUnit parent, Body parentBody,
+    private void buildStructure(CompilationUnit parent, Object parentBody,
         org.eclipse.jdt.core.dom.PackageDeclaration pkg)
     {
         PackageDeclaration handle = new PackageDeclaration(parent,
             pkg.getName().getFullyQualifiedName());
+        helper.resolveDuplicates(handle);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(pkg));
         body.setIdentifyingRange(getTextRange(pkg.getName()));
-        helper.addChild(parentBody, handle, body);
+        newElements.put(handle, body);
+        helper.pushChild(parentBody, handle);
     }
 
-    private void buildStructure(CompilationUnit parent, Body parentBody,
+    private void buildStructure(CompilationUnit parent, Object parentBody,
         List<org.eclipse.jdt.core.dom.ImportDeclaration> imports)
     {
         ImportContainer handle = new ImportContainer(parent);
@@ -103,27 +110,31 @@ class CompilatonUnitStructureBuilder
                 - firstImport.getStartPosition()));
         for (org.eclipse.jdt.core.dom.ImportDeclaration importDecl : imports)
             buildStructure(handle, body, importDecl);
-        helper.complete(body);
-        helper.addChild(parentBody, handle, body);
+        body.setChildren(helper.popChildren(body).toArray(Body.NO_CHILDREN));
+        newElements.put(handle, body);
+        helper.pushChild(parentBody, handle);
     }
 
-    private void buildStructure(ImportContainer parent, Body parentBody,
+    private void buildStructure(ImportContainer parent, Object parentBody,
         org.eclipse.jdt.core.dom.ImportDeclaration importDecl)
     {
         String name = importDecl.getName().getFullyQualifiedName();
         if (importDecl.isOnDemand())
             name += ".*"; //$NON-NLS-1$
         ImportDeclaration handle = new ImportDeclaration(parent, name);
+        helper.resolveDuplicates(handle);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(importDecl));
         body.setIdentifyingRange(getTextRange(importDecl.getName()));
-        helper.addChild(parentBody, handle, body);
+        newElements.put(handle, body);
+        helper.pushChild(parentBody, handle);
     }
 
-    private void buildStructure(IJavaElement parent, Body parentBody,
+    private void buildStructure(IJavaElement parent, Object parentBody,
         AbstractTypeDeclaration type)
     {
         Type handle = new Type(parent, type.getName().getIdentifier());
+        helper.resolveDuplicates(handle);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(type));
         body.setIdentifyingRange(getTextRange(type.getName()));
@@ -184,11 +195,12 @@ class CompilatonUnitStructureBuilder
                 buildStructure(handle, body,
                     (AnnotationTypeMemberDeclaration)bd);
         }
-        helper.complete(body);
-        helper.addChild(parentBody, handle, body);
+        body.setChildren(helper.popChildren(body).toArray(Body.NO_CHILDREN));
+        newElements.put(handle, body);
+        helper.pushChild(parentBody, handle);
     }
 
-    private void buildStructure(Type parent, Body parentBody,
+    private void buildStructure(Type parent, Object parentBody,
         FieldDeclaration field)
     {
         @SuppressWarnings("unchecked")
@@ -197,10 +209,11 @@ class CompilatonUnitStructureBuilder
             buildStructure(parent, parentBody, field, fragment);
     }
 
-    private void buildStructure(Type parent, Body parentBody,
+    private void buildStructure(Type parent, Object parentBody,
         FieldDeclaration field, VariableDeclarationFragment fragment)
     {
         Field handle = new Field(parent, fragment.getName().getIdentifier());
+        helper.resolveDuplicates(handle);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(field));
         body.setIdentifyingRange(getTextRange(fragment.getName()));
@@ -208,24 +221,27 @@ class CompilatonUnitStructureBuilder
         body.set(Field.TYPE, Signature.createArraySignature(
             AstUtil.getSignature(field.getType()),
             fragment.getExtraDimensions()));
-        helper.addChild(parentBody, handle, body);
+        newElements.put(handle, body);
+        helper.pushChild(parentBody, handle);
     }
 
-    private void buildStructure(Type parent, Body parentBody,
+    private void buildStructure(Type parent, Object parentBody,
         EnumDeclaration enumDeclaration, EnumConstantDeclaration enumConstant)
     {
         Field handle = new Field(parent,
             enumConstant.getName().getIdentifier());
+        helper.resolveDuplicates(handle);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(enumConstant));
         body.setIdentifyingRange(getTextRange(enumConstant.getName()));
         body.set(Field.FLAGS, enumConstant.getModifiers() | Flags.AccEnum);
         body.set(Field.TYPE, Signature.createTypeSignature(
             enumDeclaration.getName().getIdentifier(), false));
-        helper.addChild(parentBody, handle, body);
+        newElements.put(handle, body);
+        helper.pushChild(parentBody, handle);
     }
 
-    private void buildStructure(Type parent, Body parentBody,
+    private void buildStructure(Type parent, Object parentBody,
         MethodDeclaration method)
     {
         @SuppressWarnings("unchecked")
@@ -245,6 +261,7 @@ class CompilatonUnitStructureBuilder
 
         Method handle = new Method(parent, method.getName().getIdentifier(),
             parameterTypes);
+        helper.resolveDuplicates(handle);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(method));
         body.setIdentifyingRange(getTextRange(method.getName()));
@@ -263,21 +280,24 @@ class CompilatonUnitStructureBuilder
             thrownExceptions));
         if (method.isConstructor())
             body.set(Method.IS_CONSTRUCTOR, Boolean.TRUE);
-        helper.addChild(parentBody, handle, body);
+        newElements.put(handle, body);
+        helper.pushChild(parentBody, handle);
     }
 
-    private void buildStructure(Type parent, Body parentBody,
+    private void buildStructure(Type parent, Object parentBody,
         AnnotationTypeMemberDeclaration annotationTypeMember)
     {
         Method handle = new Method(parent,
             annotationTypeMember.getName().getIdentifier(), Method.NO_STRINGS);
+        helper.resolveDuplicates(handle);
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(annotationTypeMember));
         body.setIdentifyingRange(getTextRange(annotationTypeMember.getName()));
         body.set(Method.FLAGS, annotationTypeMember.getModifiers());
         body.set(Method.RETURN_TYPE, AstUtil.getSignature(
             annotationTypeMember.getType()));
-        helper.addChild(parentBody, handle, body);
+        newElements.put(handle, body);
+        helper.pushChild(parentBody, handle);
     }
 
     private static TextRange getTextRange(ASTNode node)

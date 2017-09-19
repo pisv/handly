@@ -30,11 +30,13 @@ public interface ISourceConstructImplExtension
     int getOccurrenceCount_();
 
     /**
-     * Increments the occurrence count of this element.
+     * Sets the occurrence count for this element.
      * <p>
      * This method is intended to be used only when building structure of
      * a source file to distinguish source constructs with duplicate names.
      * </p>
+     *
+     * @param occurrenceCount the occurrence count for this element (> 0)
      */
-    void incrementOccurrenceCount_();
+    void setOccurrenceCount_(int occurrenceCount);
 }

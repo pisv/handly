@@ -15,8 +15,6 @@ import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.Elements.FORCE_RECONCILING;
 
-import java.util.Map;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,8 +28,6 @@ import org.eclipse.handly.examples.javamodel.IImportDeclaration;
 import org.eclipse.handly.examples.javamodel.IJavaSourceElement;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
-import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.WorkspaceSourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.Property;
@@ -262,19 +258,14 @@ public class CompilationUnit
     public void buildSourceStructure_(IContext context,
         IProgressMonitor monitor) throws CoreException
     {
-        Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
-        SourceElementBody body = new SourceElementBody();
-
         org.eclipse.jdt.core.dom.CompilationUnit cu =
             (org.eclipse.jdt.core.dom.CompilationUnit)context.get(SOURCE_AST);
         if (cu == null)
             cu = createAst(context.get(SOURCE_CONTENTS), context, monitor);
 
         CompilatonUnitStructureBuilder builder =
-            new CompilatonUnitStructureBuilder(newElements);
-        builder.buildStructure(this, body, cu);
-
-        newElements.put(this, body);
+            new CompilatonUnitStructureBuilder(context.get(NEW_ELEMENTS));
+        builder.buildStructure(this, cu);
     }
 
     @Override

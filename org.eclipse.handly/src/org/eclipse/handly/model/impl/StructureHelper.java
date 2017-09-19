@@ -10,25 +10,32 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
-import static org.eclipse.handly.context.Contexts.of;
-import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
-import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 
 /**
- * A helper class for building a subtree of elements. Typically, this class
- * is used when building the entire structure of a source file.
+ * A helper class that is typically used when building the entire structure of a
+ * source file. A typical usage pattern is <pre>
+ *    Body parentBody = new ...;
+ *
+ *    // for each child element
+ *    SourceConstruct element = new ...;
+ *    helper.resolveDuplicates(element);
+ *    Body body = new ...; // create and initialize the body
+ *    newElements.put(element, body);
+ *    helper.pushChild(parentBody, element);
+ *
+ *    parentBody.setChildren(helper.popChildren(parentBody).toArray(...));</pre>
  * <p>
- * The structure is being created as calls to {@link #addChild(Body, IElement,
- * Object)} are made on the helper. Make sure to complete initialization of each
- * parent body with a call to {@link #complete(Body)}.
+ * Note that calling <code>parentBody.addChild(element)</code> for each child
+ * element would generally be less efficient than using the pattern shown above.
  * </p>
  * <p>
  * Clients can use this class as it stands or subclass it
@@ -37,96 +44,66 @@ import org.eclipse.handly.model.IElement;
  */
 public class StructureHelper
 {
-    private final Map<IElement, Object> newElements;
-
     /*
      * Map from body to list of child elements.
      */
-    private final Map<Body, List<IElement>> children = new HashMap<>();
+    private final Map<Object, List<IElement>> children = new HashMap<>();
+
+    private final Map<ISourceConstructImplExtension, Integer> occurrenceCounts =
+        new HashMap<>();
 
     /**
-     * Constructs a new structure helper that will populate the given map
-     * with new handle/body relationships as calls to {@link #addChild} are
-     * made on the helper.
-     *
-     * @param newElements the map to populate with structure elements
-     *  (not <code>null</code>)
-     */
-    public StructureHelper(Map<IElement, Object> newElements)
-    {
-        if (newElements == null)
-            throw new IllegalArgumentException();
-
-        this.newElements = newElements;
-    }
-
-    /**
-     * Remembers the given element as a child of the yet-to-be-{@link
-     * #complete(Body) completed} parent body and establishes an association
-     * between the child handle and the child body, resolving {@link
-     * #resolveDuplicates(IElement) duplicates} along the way.
+     * Remembers the given element as a child of the given parent body.
      *
      * @param parentBody the body of the parent element (not <code>null</code>)
      * @param child the handle for the child element (not <code>null</code>)
-     * @param childBody the body for the child element, or <code>null</code>
-     *  if no body is to be associated with the child element
+     * @see #popChildren(Object)
      */
-    public void addChild(Body parentBody, IElement child, Object childBody)
+    public final void pushChild(Object parentBody, IElement child)
     {
         if (parentBody == null)
             throw new IllegalArgumentException();
         if (child == null)
             throw new IllegalArgumentException();
-        if (childBody != null)
-        {
-            resolveDuplicates(child);
-            if (newElements.containsKey(child))
-                throw new AssertionError(
-                    "Attempt to add an already present element: " //$NON-NLS-1$
-                        + Elements.toString(child, of(FORMAT_STYLE, MEDIUM)));
-            newElements.put(child, childBody);
-        }
         List<IElement> childrenList = children.get(parentBody);
         if (childrenList == null)
-            children.put(parentBody, childrenList = new ArrayList<IElement>());
+            children.put(parentBody, childrenList = new ArrayList<>());
         childrenList.add(child);
     }
 
     /**
-     * Completes initialization of the given body. In particular, initializes it
-     * with a list of elements previously {@link #addChild remembered} as children
-     * of the body.
+     * Retrieves and forgets the child elements previously remembered for the
+     * given body. The returned children are in the order in which they were
+     * remembered.
      *
-     * @param body the given body (not <code>null</code>)
+     * @param body
+     * @return a list of child elements for the given body, possibly empty
+     *  (never <code>null</code>)
+     * @see #pushChild(Object, IElement)
      */
-    public void complete(Body body)
+    public final List<IElement> popChildren(Object body)
     {
-        if (body == null)
-            throw new IllegalArgumentException();
-
-        List<IElement> childrenList = children.remove(body);
-        body.setChildren(childrenList == null ? Body.NO_CHILDREN
-            : childrenList.toArray(Body.NO_CHILDREN));
+        return ofNullable(children.remove(body)).orElse(emptyList());
     }
 
     /**
-     * Allows to make distinctions among elements which would otherwise be equal.
-     * <p>
-     * If the given element is a source construct which is equal to an already
-     * {@link #addChild added} element, this implementation increments its
-     * {@link ISourceConstructImplExtension#getOccurrenceCount_() occurrence count}
-     * until it is no longer equal to any previously added element.
-     * </p>
+     * Resolves duplicate source constructs by incrementing their {@link
+     * ISourceConstructImplExtension#getOccurrenceCount_() occurrence count}.
      *
-     * @param element the given element (never <code>null</code>)
+     * @param element a source construct (not <code>null</code>)
      */
-    protected void resolveDuplicates(IElement element)
+    public void resolveDuplicates(ISourceConstructImplExtension element)
     {
-        if (!(element instanceof ISourceConstructImplExtension))
-            return;
-        ISourceConstructImplExtension sc =
-            (ISourceConstructImplExtension)element;
-        while (newElements.containsKey(sc))
-            sc.incrementOccurrenceCount_();
+        if (element.getOccurrenceCount_() != 1)
+            throw new IllegalArgumentException();
+        Integer occurrenceCount = occurrenceCounts.get(element);
+        if (occurrenceCount == null)
+            occurrenceCounts.put(element, 1);
+        else
+        {
+            int newOccurrenceCount = occurrenceCount + 1;
+            occurrenceCounts.put(element, newOccurrenceCount);
+            element.setOccurrenceCount_(newOccurrenceCount);
+        }
     }
 }

@@ -47,8 +47,10 @@ public abstract class SourceConstruct
     }
 
     @Override
-    public void incrementOccurrenceCount_()
+    public void setOccurrenceCount_(int occurrenceCount)
     {
-        occurrenceCount++;
+        if (occurrenceCount < 1)
+            throw new IllegalArgumentException();
+        this.occurrenceCount = occurrenceCount;
     }
 }
