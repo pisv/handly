@@ -36,7 +36,7 @@ public interface ISourceConstructImplExtension
      * a source file to distinguish source constructs with duplicate names.
      * </p>
      *
-     * @param occurrenceCount the occurrence count for this element (> 0)
+     * @param occurrenceCount the occurrence count for this element (&gt; 0)
      */
     void setOccurrenceCount_(int occurrenceCount);
 }
