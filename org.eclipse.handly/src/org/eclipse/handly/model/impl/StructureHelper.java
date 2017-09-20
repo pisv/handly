@@ -54,6 +54,8 @@ public class StructureHelper
 
     /**
      * Remembers the given element as a child of the given parent body.
+     * If the given element has already been remembered as a child of a body,
+     * the behavior is unspecified.
      *
      * @param parentBody the body of the parent element (not <code>null</code>)
      * @param child the handle for the child element (not <code>null</code>)
