@@ -16,7 +16,7 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 
 /**
- * A delta tree builder.
+ * Builds a delta tree based on elementary changes reported to it.
  * <p>
  * Note that despite having a dependency on {@link IResourceDelta}
  * and {@link IMarkerDelta} this interface can be used even when
@@ -132,7 +132,12 @@ public interface IElementDeltaBuilder
         IResourceDelta resourceDelta);
 
     /**
-     * Returns the root of the built delta tree.
+     * Returns the root of the built delta tree. The delta tree describes
+     * the net result of all changes reported to this builder from the
+     * beginning of the builder lifecycle up to now. There is no requirement
+     * for the returned delta object to reflect subsequent changes reported
+     * to this builder. Instead, a new instance may be returned each time
+     * this method is invoked.
      *
      * @return the root of the built delta tree, or <code>null</code> if none
      */
