@@ -41,8 +41,8 @@ public interface ISourceConstructImplSupport
     {
         if (!(obj instanceof ISourceConstructImplSupport))
             return false;
-        return ISourceElementImplSupport.super.defaultEquals_(obj)
-            && getOccurrenceCount_() == ((ISourceConstructImplSupport)obj).getOccurrenceCount_();
+        return getOccurrenceCount_() == ((ISourceConstructImplSupport)obj).getOccurrenceCount_()
+            && ISourceElementImplSupport.super.defaultEquals_(obj);
     }
 
     @Override

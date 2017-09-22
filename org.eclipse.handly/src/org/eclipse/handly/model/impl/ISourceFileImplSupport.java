@@ -82,9 +82,9 @@ public interface ISourceFileImplSupport
         if (!(obj instanceof ISourceFileImplSupport))
             return false;
         IFile file = getFile_();
-        return ISourceElementImplSupport.super.defaultEquals_(obj)
-            && (file == null || file.equals(
-                ((ISourceFileImplSupport)obj).getFile_()));
+        return (file == null || file.equals(
+            ((ISourceFileImplSupport)obj).getFile_()))
+            && ISourceElementImplSupport.super.defaultEquals_(obj);
     }
 
     /**

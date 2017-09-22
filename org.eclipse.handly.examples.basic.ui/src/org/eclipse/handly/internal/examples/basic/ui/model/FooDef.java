@@ -57,7 +57,7 @@ public class FooDef
     {
         if (!(obj instanceof FooDef))
             return false;
-        return super.equals(obj) && arity == ((FooDef)obj).arity;
+        return arity == ((FooDef)obj).arity && super.equals(obj);
     }
 
     @Override

@@ -23,6 +23,7 @@ import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -71,13 +72,7 @@ public interface IElementImplSupport
      */
     default int defaultHashCode_()
     {
-        final int prime = 31;
-        int result = 1;
-        IElement parent = getParent_();
-        String name = getName_();
-        result = prime * result + (parent == null ? 0 : parent.hashCode());
-        result = prime * result + (name == null ? 0 : name.hashCode());
-        return result;
+        return Objects.hash(getName_(), getParent_());
     }
 
     /**
@@ -102,30 +97,13 @@ public interface IElementImplSupport
     {
         if (this == obj)
             return true;
-        if (obj == null)
-            return false;
         if (!(obj instanceof IElementImplSupport))
             return false;
         IElementImplSupport other = (IElementImplSupport)obj;
         if (!other.canEqual_(this))
             return false;
-        IElement parent = getParent_();
-        if (parent == null)
-        {
-            if (other.getParent_() != null)
-                return false;
-        }
-        else if (!parent.equals(other.getParent_()))
-            return false;
-        String name = getName_();
-        if (name == null)
-        {
-            if (other.getName_() != null)
-                return false;
-        }
-        else if (!name.equals(other.getName_()))
-            return false;
-        return true;
+        return Objects.equals(getName_(), other.getName_()) && Objects.equals(
+            getParent_(), other.getParent_());
     }
 
     /**
