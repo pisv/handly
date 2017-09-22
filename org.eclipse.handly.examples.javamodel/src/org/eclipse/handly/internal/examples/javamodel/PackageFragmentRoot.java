@@ -23,8 +23,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
-import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaConventions;
@@ -37,6 +35,9 @@ public class PackageFragmentRoot
     extends Element
     implements IPackageFragmentRoot, IJavaElementInternal
 {
+    private static final IPackageFragment[] NO_CHILDREN =
+        new IPackageFragment[0];
+
     private final IResource resource;
 
     /**
@@ -74,11 +75,7 @@ public class PackageFragmentRoot
     @Override
     public IPackageFragment[] getPackageFragments() throws CoreException
     {
-        IElement[] children = getChildren();
-        int length = children.length;
-        IPackageFragment[] result = new IPackageFragment[length];
-        System.arraycopy(children, 0, result, 0, length);
-        return result;
+        return (IPackageFragment[])getChildren();
     }
 
     @Override
@@ -132,14 +129,14 @@ public class PackageFragmentRoot
         throws CoreException
     {
         PackageFragmentRootBody body = new PackageFragmentRootBody();
+        ArrayList<IPackageFragment> children = new ArrayList<>();
         if (resource.getType() == IResource.FOLDER
             || resource.getType() == IResource.PROJECT)
         {
             IContainer rootFolder = (IContainer)resource;
-            ArrayList<IPackageFragment> children = new ArrayList<>();
             computeFolderChildren(rootFolder, Path.EMPTY, children);
-            body.setChildren(children.toArray(Body.NO_CHILDREN));
         }
+        body.setChildren(children.toArray(NO_CHILDREN));
         context.get(NEW_ELEMENTS).put(this, body);
     }
 

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import org.eclipse.core.resources.IFile;
@@ -496,13 +497,14 @@ class DeltaProcessor
             parentBody.addChild(root);
         else
         {
-            int newSize = roots.length + 1;
-            IElement[] newChildren = new IElement[newSize];
+            int newLength = roots.length + 1;
+            IElement[] newChildren = (IElement[])Array.newInstance(
+                roots.getClass().getComponentType(), newLength);
             if (indexToInsert > 0)
                 System.arraycopy(roots, 0, newChildren, 0, indexToInsert);
             newChildren[indexToInsert] = root;
             System.arraycopy(roots, indexToInsert, newChildren, indexToInsert
-                + 1, newSize - indexToInsert - 1);
+                + 1, newLength - indexToInsert - 1);
             parentBody.setChildren(newChildren);
         }
     }

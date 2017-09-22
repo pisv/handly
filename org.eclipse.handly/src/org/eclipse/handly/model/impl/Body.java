@@ -11,16 +11,30 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import java.lang.reflect.Array;
+
 import org.eclipse.handly.model.IElement;
 
 /**
- * Holds cached structure and properties for an element represented by {@link
- * IElement}. Subclassed to carry properties for specific kinds of elements.
+ * Holds cached structure and properties for an {@link IElement element}.
+ * <p>
+ * This implementation is thread-safe under the condition that mutator methods
+ * are not invoked concurrently. If multiple threads access a body concurrently,
+ * and at most one of them modifies the body, which is the typical usage pattern,
+ * external synchronization is not required.
+ * </p>
+ * <p>
+ * Clients can use this class as it stands or subclass it
+ * as circumstances warrant.
+ * </p>
  *
  * @see IBodyCache
  */
 public class Body
 {
+    /**
+     * A zero-length array of the runtime type <code>IElement[]</code>.
+     */
     public static final IElement[] NO_CHILDREN = new IElement[0];
 
     /*
@@ -29,11 +43,27 @@ public class Body
      */
     private volatile IElement[] children = NO_CHILDREN;
 
+    /**
+     * Returns the immediate children of the element.
+     * <p>
+     * This implementation returns an array of exactly the same runtime type as
+     * the array given in the most recent call to {@link #setChildren}.
+     * </p>
+     *
+     * @return the immediate children of the element (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
+     */
     public IElement[] getChildren()
     {
         return children;
     }
 
+    /**
+     * Sets the immediate children of the element.
+     * The given array <b>must not</b> be modified afterwards.
+     *
+     * @param children not <code>null</code>
+     */
     public void setChildren(IElement[] children)
     {
         if (children == null)
@@ -41,26 +71,33 @@ public class Body
         this.children = children;
     }
 
+    /**
+     * Adds the given element to the immediate children of the element
+     * if it is not already present. Throws a runtime exception if the class
+     * of the given element prevents it from being added as a child of the
+     * element.
+     *
+     * @param child not <code>null</code>
+     */
     public void addChild(IElement child)
     {
+        if (child == null)
+            throw new IllegalArgumentException();
         IElement[] oldChildren = children;
-        int length = oldChildren.length;
-        if (length == 0)
-            children = new IElement[] { child };
-        else
+        for (int i = 0, length = oldChildren.length; i < length; i++)
         {
-            for (int i = 0; i < length; i++)
-            {
-                if (oldChildren[i].equals(child))
-                    return; // already exists
-            }
-            IElement[] newChildren = new IElement[length + 1];
-            System.arraycopy(oldChildren, 0, newChildren, 0, length);
-            newChildren[length] = child;
-            children = newChildren;
+            if (oldChildren[i].equals(child))
+                return; // already exists
         }
+        children = growAndAddToArray(oldChildren, child);
     }
 
+    /**
+     * Removes the given element from the immediate children of the element
+     * if it is present.
+     *
+     * @param child
+     */
     public void removeChild(IElement child)
     {
         IElement[] oldChildren = children;
@@ -68,17 +105,7 @@ public class Body
         {
             if (oldChildren[i].equals(child))
             {
-                if (length == 1)
-                    children = NO_CHILDREN;
-                else
-                {
-                    IElement[] newChildren = new IElement[length - 1];
-                    System.arraycopy(oldChildren, 0, newChildren, 0, i);
-                    if (i < length - 1)
-                        System.arraycopy(oldChildren, i + 1, newChildren, i,
-                            length - i - 1);
-                    children = newChildren;
-                }
+                children = removeAndShrinkArray(oldChildren, i);
                 break;
             }
         }
@@ -102,5 +129,49 @@ public class Body
         IElementDeltaBuilder builder)
     {
         // subclasses may override
+    }
+
+    /*
+     * Adds the given element to a new array that contains all
+     * of the elements of the given array. Returns the new array.
+     * The resulting array is of exactly the same runtime type as
+     * the given array.
+     *
+     * @param array the specified array (not <code>null</code>)
+     * @param addition the element to add
+     * @return the resulting array (never <code>null</code>)
+     */
+    private static IElement[] growAndAddToArray(IElement[] array,
+        IElement addition)
+    {
+        int length = array.length;
+        IElement[] result = (IElement[])Array.newInstance(
+            array.getClass().getComponentType(), length + 1);
+        System.arraycopy(array, 0, result, 0, length);
+        result[length] = addition;
+        return result;
+    }
+
+    /*
+     * Copies the given array into a new array excluding
+     * an element at the given index. Returns the new array.
+     * The resulting array is of exactly the same runtime type as
+     * the given array.
+     *
+     * @param array the specified array (not <code>null</code>)
+     * @param index a valid index which indicates the element to exclude
+     * @return the resulting array (never <code>null</code>)
+     */
+    private static IElement[] removeAndShrinkArray(IElement[] array, int index)
+    {
+        int length = array.length;
+        IElement[] result = (IElement[])Array.newInstance(
+            array.getClass().getComponentType(), length - 1);
+        if (index > 0)
+            System.arraycopy(array, 0, result, 0, index);
+        int rest = length - index - 1;
+        if (rest > 0)
+            System.arraycopy(array, index + 1, result, index, rest);
+        return result;
     }
 }

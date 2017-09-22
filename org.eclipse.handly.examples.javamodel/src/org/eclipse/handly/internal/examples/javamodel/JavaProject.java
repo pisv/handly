@@ -23,8 +23,6 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
-import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
@@ -36,6 +34,9 @@ public class JavaProject
     extends Element
     implements IJavaProject, IJavaElementInternal
 {
+    private static final IPackageFragmentRoot[] NO_CHILDREN =
+        new IPackageFragmentRoot[0];
+
     private final IProject project;
 
     /**
@@ -76,11 +77,7 @@ public class JavaProject
     @Override
     public IPackageFragmentRoot[] getPackageFragmentRoots() throws CoreException
     {
-        IElement[] children = getChildren();
-        int length = children.length;
-        IPackageFragmentRoot[] result = new IPackageFragmentRoot[length];
-        System.arraycopy(children, 0, result, 0, length);
-        return result;
+        return (IPackageFragmentRoot[])getChildren();
     }
 
     @Override
@@ -283,7 +280,7 @@ public class JavaProject
                 roots.add(root);
         }
         JavaProjectBody body = new JavaProjectBody();
-        body.setChildren(roots.toArray(Body.NO_CHILDREN));
+        body.setChildren(roots.toArray(NO_CHILDREN));
         context.get(NEW_ELEMENTS).put(this, body);
     }
 }

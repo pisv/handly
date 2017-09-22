@@ -29,8 +29,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
-import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.util.IndentPolicy;
 import org.eclipse.jdt.core.JavaConventions;
@@ -44,6 +42,9 @@ public class PackageFragment
     extends Element
     implements IPackageFragment, IJavaElementInternal
 {
+    private static final ICompilationUnit[] NO_CHILDREN =
+        new ICompilationUnit[0];
+
     private final String[] simpleNames;
 
     /**
@@ -89,11 +90,7 @@ public class PackageFragment
     @Override
     public ICompilationUnit[] getCompilationUnits() throws CoreException
     {
-        IElement[] children = getChildren();
-        int length = children.length;
-        ICompilationUnit[] result = new ICompilationUnit[length];
-        System.arraycopy(children, 0, result, 0, length);
-        return result;
+        return (ICompilationUnit[])getChildren();
     }
 
     @Override
@@ -202,7 +199,7 @@ public class PackageFragment
             }
         }
         PackageFragmentBody body = new PackageFragmentBody();
-        body.setChildren(children.toArray(Body.NO_CHILDREN));
+        body.setChildren(children.toArray(NO_CHILDREN));
         context.get(NEW_ELEMENTS).put(this, body);
     }
 

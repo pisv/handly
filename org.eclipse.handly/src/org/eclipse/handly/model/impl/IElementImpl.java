@@ -168,6 +168,12 @@ public interface IElementImpl
     default <T> T[] getChildren_(Class<T> childType) throws CoreException
     {
         IElement[] children = getChildren_();
+        if (childType.isAssignableFrom(children.getClass().getComponentType()))
+        {
+            @SuppressWarnings("unchecked")
+            T[] result = (T[])children;
+            return result;
+        }
         List<T> list = new ArrayList<T>(children.length);
         for (IElement child : children)
         {

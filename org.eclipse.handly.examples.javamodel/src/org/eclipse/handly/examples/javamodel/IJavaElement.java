@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -131,17 +131,14 @@ public interface IJavaElement
      * Returns the immediate children of this element. Unless otherwise specified
      * by the implementing element, the children are in no particular order.
      *
-     * @return the immediate children of this element (never <code>null</code>)
+     * @return the immediate children of this element (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
     default IJavaElement[] getChildren() throws CoreException
     {
-        IElement[] src = Elements.getChildren(this);
-        int length = src.length;
-        IJavaElement[] dest = new IJavaElement[length];
-        System.arraycopy(src, 0, dest, 0, length);
-        return dest;
+        return (IJavaElement[])Elements.getChildren(this);
     }
 
     /**
@@ -151,7 +148,7 @@ public interface IJavaElement
      *
      * @param childType the given type (not <code>null</code>)
      * @return the immediate children of this element that have the given type
-     *  (never <code>null</code>)
+     *  (never <code>null</code>). Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */

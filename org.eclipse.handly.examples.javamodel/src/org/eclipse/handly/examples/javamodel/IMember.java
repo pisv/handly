@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.util.Property;
 
 /**
@@ -21,7 +20,7 @@ import org.eclipse.handly.util.Property;
  * </p>
  */
 public interface IMember
-    extends IJavaSourceElement, ISourceConstruct
+    extends IJavaSourceConstruct
 {
     /**
      * Flags property.

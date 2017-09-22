@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,8 @@ public interface IMethod
      * This is a handle-only method.
      *
      * @return the type signatures for the parameters of this method
-     *  (never <code>null</code>)
+     *  (never <code>null</code>). Clients <b>must not</b> modify the
+     *  returned array.
      * @see org.eclipse.jdt.core.Signature
      */
     String[] getParameterTypes();
@@ -64,7 +65,8 @@ public interface IMethod
      * Returns the names of parameters in this method.
      * Returns an empty array if this method has no parameters.
      *
-     * @return the names of parameters in this method (never <code>null</code>)
+     * @return the names of parameters in this method (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */
@@ -88,7 +90,8 @@ public interface IMethod
      * if this method throws no exceptions.
      *
      * @return the type signatures of the exceptions this method throws,
-     *  in the order declared in the source (never <code>null</code>)
+     *  in the order declared in the source (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      * @see org.eclipse.jdt.core.Signature

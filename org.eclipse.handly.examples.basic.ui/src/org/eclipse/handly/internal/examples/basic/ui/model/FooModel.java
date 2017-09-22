@@ -22,7 +22,6 @@ import org.eclipse.handly.ApiLevel;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
@@ -35,6 +34,8 @@ public class FooModel
     extends Element
     implements IFooModel, IFooElementInternal, IModelImpl
 {
+    private static final IFooProject[] NO_CHILDREN = new IFooProject[0];
+
     private final IWorkspace workspace;
 
     /**
@@ -75,11 +76,7 @@ public class FooModel
     @Override
     public IFooProject[] getFooProjects() throws CoreException
     {
-        IElement[] children = getChildren();
-        int length = children.length;
-        IFooProject[] result = new IFooProject[length];
-        System.arraycopy(children, 0, result, 0, length);
-        return result;
+        return (IFooProject[])getChildren();
     }
 
     @Override
@@ -153,7 +150,7 @@ public class FooModel
             }
         }
         Body body = new Body();
-        body.setChildren(fooProjects.toArray(Body.NO_CHILDREN));
+        body.setChildren(fooProjects.toArray(NO_CHILDREN));
         context.get(NEW_ELEMENTS).put(this, body);
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,6 +72,7 @@ public class CompilationUnitTest
         IPackageDeclaration[] pkgDecls = cu.getPackageDeclarations();
         assertEquals(1, pkgDecls.length);
         assertEquals(pkgDecl, pkgDecls[0]);
+        assertEquals(0, pkgDecl.getChildren().length);
 
         IImportDeclaration import1 = cu.getImport("a.A");
         assertTrue(import1.exists());
@@ -83,8 +84,11 @@ public class CompilationUnitTest
         IImportDeclaration[] imports = cu.getImports();
         assertEquals(3, imports.length);
         assertEquals(import1, imports[0]);
+        assertEquals(0, import1.getChildren().length);
         assertEquals(import2, imports[1]);
+        assertEquals(0, import2.getChildren().length);
         assertEquals(import3, imports[2]);
+        assertEquals(0, import3.getChildren().length);
         assertTrue(Arrays.equals(importContainer.getImports(), imports));
 
         IType[] types = cu.getTypes();

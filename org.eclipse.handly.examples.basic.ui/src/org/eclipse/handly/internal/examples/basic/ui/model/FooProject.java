@@ -27,8 +27,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 
 /**
@@ -38,6 +36,8 @@ public class FooProject
     extends Element
     implements IFooProject, IFooElementInternal
 {
+    private static final IFooFile[] NO_CHILDREN = new IFooFile[0];
+
     private final IProject project;
 
     /**
@@ -117,11 +117,7 @@ public class FooProject
     @Override
     public IFooFile[] getFooFiles() throws CoreException
     {
-        IElement[] children = getChildren();
-        int length = children.length;
-        IFooFile[] result = new IFooFile[length];
-        System.arraycopy(children, 0, result, 0, length);
-        return result;
+        return (IFooFile[])getChildren();
     }
 
     @Override
@@ -169,7 +165,7 @@ public class FooProject
             }
         }
         FooProjectBody body = new FooProjectBody();
-        body.setChildren(fooFiles.toArray(Body.NO_CHILDREN));
+        body.setChildren(fooFiles.toArray(NO_CHILDREN));
         context.get(NEW_ELEMENTS).put(this, body);
     }
 }

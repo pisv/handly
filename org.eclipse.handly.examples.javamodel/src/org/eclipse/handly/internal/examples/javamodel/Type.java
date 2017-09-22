@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
+import org.eclipse.handly.examples.javamodel.IMember;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
 import org.eclipse.handly.model.Elements;
@@ -32,6 +33,8 @@ public class Type
     extends Member
     implements IType
 {
+    static final IMember[] NO_CHILDREN = new IMember[0];
+
     /**
      * Creates a handle for a type with the given parent element
      * and the given name.

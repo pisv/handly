@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.SourceConstruct;
 import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
@@ -32,6 +31,8 @@ public class ImportContainer
     extends SourceConstruct
     implements IImportContainer, IJavaElementInternal
 {
+    static final IImportDeclaration[] NO_CHILDREN = new IImportDeclaration[0];
+
     /**
      * Creates a handle for an import container  with the given parent element.
      *
@@ -51,11 +52,7 @@ public class ImportContainer
     @Override
     public IImportDeclaration[] getImports() throws CoreException
     {
-        IElement[] children = getChildren();
-        int length = children.length;
-        IImportDeclaration[] result = new IImportDeclaration[length];
-        System.arraycopy(children, 0, result, 0, length);
-        return result;
+        return (IImportDeclaration[])getChildren();
     }
 
     @Override

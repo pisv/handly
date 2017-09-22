@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -189,6 +189,7 @@ public class MemberTest
         IMethod methodV = typeA.getMethod("value", Method.NO_STRINGS);
         assertEquals(0, methodV.getFlags());
         assertEquals("[I", methodV.getReturnType());
+        assertEquals(0, methodV.getChildren().length);
 
         IType typeE = typeA.getType("E");
 
@@ -231,11 +232,13 @@ public class MemberTest
         IField fieldE1 = typeE.getField("E1");
         assertEquals(Flags.AccEnum, fieldE1.getFlags());
         assertEquals("QE;", fieldE1.getType());
+        assertEquals(0, fieldE1.getChildren().length);
         assertTrue(fieldE1.isEnumConstant());
 
         IField fieldE2 = typeE.getField("E2");
         assertEquals(Flags.AccEnum, fieldE2.getFlags());
         assertEquals("QE;", fieldE2.getType());
+        assertEquals(0, fieldE2.getChildren().length);
         assertTrue(fieldE2.isEnumConstant());
 
         IField fieldE = typeE.getField("E");
@@ -298,10 +301,12 @@ public class MemberTest
         IField fieldY = typeY.getField("Y");
         assertEquals(0, fieldY.getFlags());
         assertEquals("QString;", fieldY.getType());
+        assertEquals(0, fieldY.getChildren().length);
 
         IMethod methodF = typeY.getMethod("f", Method.NO_STRINGS);
         assertEquals(Flags.AccAbstract, methodF.getFlags());
         assertEquals("I", methodF.getReturnType());
+        assertEquals(0, methodF.getChildren().length);
 
         IType typeZ = typeY.getType("Z");
         assertEquals(Flags.AccFinal, typeZ.getFlags());

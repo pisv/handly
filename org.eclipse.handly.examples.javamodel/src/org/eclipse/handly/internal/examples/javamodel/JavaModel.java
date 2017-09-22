@@ -22,9 +22,7 @@ import org.eclipse.handly.ApiLevel;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.IModelImpl;
 
@@ -36,6 +34,8 @@ public class JavaModel
     extends Element
     implements IJavaModel, IJavaElementInternal, IModelImpl
 {
+    private static final IJavaProject[] NO_CHILDREN = new IJavaProject[0];
+
     private final IWorkspace workspace;
 
     /**
@@ -75,11 +75,7 @@ public class JavaModel
     @Override
     public IJavaProject[] getJavaProjects() throws CoreException
     {
-        IElement[] children = getChildren();
-        int length = children.length;
-        IJavaProject[] result = new IJavaProject[length];
-        System.arraycopy(children, 0, result, 0, length);
-        return result;
+        return (IJavaProject[])getChildren();
     }
 
     @Override
@@ -159,7 +155,7 @@ public class JavaModel
             }
         }
         JavaModelBody body = new JavaModelBody();
-        body.setChildren(javaProjects.toArray(Body.NO_CHILDREN));
+        body.setChildren(javaProjects.toArray(NO_CHILDREN));
         context.get(NEW_ELEMENTS).put(this, body);
     }
 

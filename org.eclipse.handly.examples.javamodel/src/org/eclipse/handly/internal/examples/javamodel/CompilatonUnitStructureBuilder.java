@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.handly.examples.javamodel.IJavaElement;
+import org.eclipse.handly.examples.javamodel.IJavaSourceConstruct;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.SourceElementBody;
 import org.eclipse.handly.model.impl.StructureHelper;
 import org.eclipse.handly.util.TextRange;
@@ -39,6 +39,9 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
  */
 class CompilatonUnitStructureBuilder
 {
+    private static final IJavaSourceConstruct[] NO_CHILDREN =
+        new IJavaSourceConstruct[0];
+
     private final Map<IElement, Object> newElements;
     private final StructureHelper helper = new StructureHelper();
 
@@ -80,7 +83,8 @@ class CompilatonUnitStructureBuilder
         for (AbstractTypeDeclaration type : types)
             buildStructure(handle, body, type);
 
-        body.setChildren(helper.popChildren(body).toArray(Body.NO_CHILDREN));
+        body.setChildren(helper.popChildren(body).toArray(
+            CompilationUnit.NO_CHILDREN));
         newElements.put(handle, body);
     }
 
@@ -93,6 +97,7 @@ class CompilatonUnitStructureBuilder
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(pkg));
         body.setIdentifyingRange(getTextRange(pkg.getName()));
+        body.setChildren(NO_CHILDREN);
         newElements.put(handle, body);
         helper.pushChild(parentBody, handle);
     }
@@ -110,7 +115,8 @@ class CompilatonUnitStructureBuilder
                 - firstImport.getStartPosition()));
         for (org.eclipse.jdt.core.dom.ImportDeclaration importDecl : imports)
             buildStructure(handle, body, importDecl);
-        body.setChildren(helper.popChildren(body).toArray(Body.NO_CHILDREN));
+        body.setChildren(helper.popChildren(body).toArray(
+            ImportContainer.NO_CHILDREN));
         newElements.put(handle, body);
         helper.pushChild(parentBody, handle);
     }
@@ -126,6 +132,7 @@ class CompilatonUnitStructureBuilder
         SourceElementBody body = new SourceElementBody();
         body.setFullRange(getTextRange(importDecl));
         body.setIdentifyingRange(getTextRange(importDecl.getName()));
+        body.setChildren(NO_CHILDREN);
         newElements.put(handle, body);
         helper.pushChild(parentBody, handle);
     }
@@ -195,7 +202,7 @@ class CompilatonUnitStructureBuilder
                 buildStructure(handle, body,
                     (AnnotationTypeMemberDeclaration)bd);
         }
-        body.setChildren(helper.popChildren(body).toArray(Body.NO_CHILDREN));
+        body.setChildren(helper.popChildren(body).toArray(Type.NO_CHILDREN));
         newElements.put(handle, body);
         helper.pushChild(parentBody, handle);
     }
@@ -221,6 +228,7 @@ class CompilatonUnitStructureBuilder
         body.set(Field.TYPE, Signature.createArraySignature(
             AstUtil.getSignature(field.getType()),
             fragment.getExtraDimensions()));
+        body.setChildren(NO_CHILDREN);
         newElements.put(handle, body);
         helper.pushChild(parentBody, handle);
     }
@@ -237,6 +245,7 @@ class CompilatonUnitStructureBuilder
         body.set(Field.FLAGS, enumConstant.getModifiers() | Flags.AccEnum);
         body.set(Field.TYPE, Signature.createTypeSignature(
             enumDeclaration.getName().getIdentifier(), false));
+        body.setChildren(NO_CHILDREN);
         newElements.put(handle, body);
         helper.pushChild(parentBody, handle);
     }
@@ -280,6 +289,7 @@ class CompilatonUnitStructureBuilder
             thrownExceptions));
         if (method.isConstructor())
             body.set(Method.IS_CONSTRUCTOR, Boolean.TRUE);
+        body.setChildren(NO_CHILDREN);
         newElements.put(handle, body);
         helper.pushChild(parentBody, handle);
     }
@@ -296,6 +306,7 @@ class CompilatonUnitStructureBuilder
         body.set(Method.FLAGS, annotationTypeMember.getModifiers());
         body.set(Method.RETURN_TYPE, AstUtil.getSignature(
             annotationTypeMember.getType()));
+        body.setChildren(NO_CHILDREN);
         newElements.put(handle, body);
         helper.pushChild(parentBody, handle);
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,7 +59,8 @@ public interface IJavaModel
     /**
      * Returns the Java projects in this Java model.
      *
-     * @return the Java projects in this Java model (never <code>null</code>)
+     * @return the Java projects in this Java model (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this request fails
      */
     IJavaProject[] getJavaProjects() throws CoreException;
@@ -69,7 +70,8 @@ public interface IJavaModel
      * include all projects that are closed (even if they have the Java nature).
      *
      * @return the non-Java projects contained in the workspace
-     *  (never <code>null</code>)
+     *  (never <code>null</code>). Clients <b>must not</b> modify
+     *  the returned array.
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */

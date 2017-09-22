@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.javamodel;
 
+import org.eclipse.handly.model.ISourceConstruct;
+
 /**
- * Represents a package declaration in Java compilation unit.
+ * Marker interface of Java source constructs.
  */
-public interface IPackageDeclaration
-    extends IJavaSourceConstruct
+public interface IJavaSourceConstruct
+    extends IJavaSourceElement, ISourceConstruct
 {
-    @Override
-    default ICompilationUnit getParent()
-    {
-        return (ICompilationUnit)IJavaSourceConstruct.super.getParent();
-    }
 }

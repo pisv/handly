@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,18 +10,16 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.javamodel;
 
-import org.eclipse.handly.model.ISourceConstruct;
-
 /**
  * Represents an import declaration in Java compilation unit.
  */
 public interface IImportDeclaration
-    extends IJavaSourceElement, ISourceConstruct
+    extends IJavaSourceConstruct
 {
     @Override
     default IImportContainer getParent()
     {
-        return (IImportContainer)IJavaSourceElement.super.getParent();
+        return (IImportContainer)IJavaSourceConstruct.super.getParent();
     }
 
     /**
@@ -34,8 +32,9 @@ public interface IImportDeclaration
      *
      * @return the name that has been imported (never <code>null</code>)
      */
+    @Override
     default String getElementName()
     {
-        return IJavaSourceElement.super.getElementName();
+        return IJavaSourceConstruct.super.getElementName();
     }
 }

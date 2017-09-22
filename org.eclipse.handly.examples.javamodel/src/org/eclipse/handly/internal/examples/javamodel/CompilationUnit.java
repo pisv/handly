@@ -25,6 +25,7 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
+import org.eclipse.handly.examples.javamodel.IJavaSourceConstruct;
 import org.eclipse.handly.examples.javamodel.IJavaSourceElement;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
@@ -46,6 +47,8 @@ public class CompilationUnit
     extends WorkspaceSourceFile
     implements ICompilationUnit, IJavaElementInternal
 {
+    static final IJavaSourceConstruct[] NO_CHILDREN =
+        new IJavaSourceConstruct[0];
     @SuppressWarnings("restriction")
     private static final WorkingCopyOwner PRIMARY_OWNER =
         org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner.PRIMARY;

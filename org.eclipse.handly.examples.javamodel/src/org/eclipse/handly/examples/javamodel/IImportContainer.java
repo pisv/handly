@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.handly.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.model.ISourceConstruct;
 
 /**
  * Represents an import container. It is a child of a Java compilation unit
@@ -19,12 +18,12 @@ import org.eclipse.handly.model.ISourceConstruct;
  * has no import declarations, no import container will be present.
  */
 public interface IImportContainer
-    extends IJavaSourceElement, ISourceConstruct
+    extends IJavaSourceConstruct
 {
     @Override
     default ICompilationUnit getParent()
     {
-        return (ICompilationUnit)IJavaSourceElement.super.getParent();
+        return (ICompilationUnit)IJavaSourceConstruct.super.getParent();
     }
 
     /**
@@ -45,7 +44,8 @@ public interface IImportContainer
      * in which they appear in the source.
      *
      * @return the import declarations in this import container
-     *  (never <code>null</code>)
+     *  (never <code>null</code>). Clients <b>must not</b> modify
+     *  the returned array.
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */

@@ -29,7 +29,17 @@ import org.eclipse.handly.util.TextRange;
 
 /**
  * Holds cached structure and properties for a source element.
- * Can be subclassed for specific kinds of elements.
+ * <p>
+ * This implementation is not synchronized. If multiple threads access a
+ * source element body concurrently, and at least one of them modifies the
+ * body, it must be synchronized externally. Note, however, that the typical
+ * usage pattern is that a source element body is not modified after it is
+ * fully constructed and published.
+ * </p>
+ * <p>
+ * Clients can use this class as it stands or subclass it
+ * as circumstances warrant.
+ * </p>
  *
  * @see ISourceElementInfo
  */
@@ -45,10 +55,20 @@ public class SourceElementBody
     private TextRange fullRange;
     private TextRange identifyingRange;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns an array of exactly the same runtime type as
+     * the array given in the most recent call to {@link #setChildren} if that
+     * type is assignable to <code>ISourceConstruct[]</code>.
+     * </p>
+     */
     @Override
     public ISourceConstruct[] getChildren()
     {
         IElement[] children = super.getChildren();
+        if (children instanceof ISourceConstruct[])
+            return (ISourceConstruct[])children;
         int length = children.length;
         ISourceConstruct[] result = new ISourceConstruct[length];
         System.arraycopy(children, 0, result, 0, length);
@@ -89,13 +109,13 @@ public class SourceElementBody
     public <T> void set(Property<T> p, T value)
     {
         String name = p.getName();
-        int len = properties.length;
-        if (len == 0)
+        int length = properties.length;
+        if (length == 0)
             properties = new InternalProperty[] { new InternalProperty(name,
                 value) };
         else
         {
-            for (int i = 0; i < len; i++)
+            for (int i = 0; i < length; i++)
             {
                 if (properties[i].name.equals(name))
                 {
@@ -103,9 +123,9 @@ public class SourceElementBody
                     return;
                 }
             }
-            InternalProperty[] newProperties = new InternalProperty[len + 1];
-            System.arraycopy(properties, 0, newProperties, 0, len);
-            newProperties[len] = new InternalProperty(name, value);
+            InternalProperty[] newProperties = new InternalProperty[length + 1];
+            System.arraycopy(properties, 0, newProperties, 0, length);
+            newProperties[length] = new InternalProperty(name, value);
             properties = newProperties;
         }
     }

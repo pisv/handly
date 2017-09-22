@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,7 +66,8 @@ public interface IType
      * Returns the fields declared by this type. The results are listed
      * in the order in which they appear in the source.
      *
-     * @return the fields declared by this type (never <code>null</code>)
+     * @return the fields declared by this type (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */
@@ -95,7 +96,8 @@ public interface IType
      * The results are listed in the order in which they appear in the source.
      *
      * @return the methods and constructors declared by this type
-     *  (never <code>null</code>)
+     *  (never <code>null</code>). Clients <b>must not</b> modify
+     *  the returned array.
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */
@@ -118,7 +120,8 @@ public interface IType
      * The results are listed in the order in which they appear in the source.
      *
      * @return the immediate member types declared by this type
-     *  (never <code>null</code>)
+     *  (never <code>null</code>). Clients <b>must not</b> modify
+     *  the returned array.
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      */
@@ -143,7 +146,8 @@ public interface IType
      *
      * @return the type signatures of the interfaces that this type
      *  implements or extends, in the order in which they are listed in the
-     *  source (never <code>null</code>)
+     *  source (never <code>null</code>). Clients <b>must not</b> modify the
+     *  returned array.
      * @throws CoreException if this element does not exist or if an exception
      *  occurs while accessing its corresponding resource
      * @see org.eclipse.jdt.core.Signature

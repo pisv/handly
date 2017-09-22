@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,7 +57,8 @@ public interface IFooModel
     /**
      * Returns the Foo projects in this Foo Model.
      *
-     * @return the Foo projects in this Foo Model (never <code>null</code>)
+     * @return the Foo projects in this Foo Model (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this request fails
      */
     IFooProject[] getFooProjects() throws CoreException;
