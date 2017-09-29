@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementCache;
 import org.eclipse.handly.model.impl.IBodyCache;
 
@@ -80,7 +81,8 @@ class FooModelCache
         else if (element instanceof IFooProject)
         {
             projectCache.put(element, body);
-            fileCache.ensureSpaceLimit(body, element);
+            fileCache.ensureSpaceLimit(((Body)body).getChildren().length,
+                element);
         }
         else if (element instanceof IFooFile)
             fileCache.put(element, body);

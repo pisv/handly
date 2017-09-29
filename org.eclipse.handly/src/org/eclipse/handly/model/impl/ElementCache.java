@@ -59,14 +59,13 @@ public class ElementCache
     }
 
     /**
-     * Ensures that there is enough room for adding the children of the given
-     * body. If the space limit must be increased, record the parent that
-     * needed this space limit.
+     * Ensures that there is enough room for adding the given number of children.
+     * If the space limit must be increased, record the parent that needed
+     * this space limit.
      */
-    public void ensureSpaceLimit(Object body, IElement parent)
+    public void ensureSpaceLimit(int childCount, IElement parent)
     {
         // ensure the children can be put without closing other elements
-        int childCount = getChildCount(parent, body);
         int spaceNeeded = 1 + (int)((1 + loadFactor) * (childCount + overflow));
         if (spaceLimit < spaceNeeded)
         {
@@ -88,14 +87,6 @@ public class ElementCache
             setSpaceLimit(defaultLimit);
             spaceLimitParent = null;
         }
-    }
-
-    /**
-     * Given a body, returns the number of children of the given element.
-     */
-    protected int getChildCount(IElement element, Object body)
-    {
-        return ((IElementImplExtension)element).getChildren_(body).length;
     }
 
     @Override

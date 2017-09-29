@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.impl.Body;
 import org.eclipse.handly.model.impl.ElementCache;
 import org.eclipse.handly.model.impl.IBodyCache;
 
@@ -96,17 +97,20 @@ class JavaModelCache
         else if (element instanceof IJavaProject)
         {
             projectCache.put(element, body);
-            rootCache.ensureSpaceLimit(body, element);
+            rootCache.ensureSpaceLimit(((Body)body).getChildren().length,
+                element);
         }
         else if (element instanceof IPackageFragmentRoot)
         {
             rootCache.put(element, body);
-            pkgCache.ensureSpaceLimit(body, element);
+            pkgCache.ensureSpaceLimit(((Body)body).getChildren().length,
+                element);
         }
         else if (element instanceof IPackageFragment)
         {
             pkgCache.put(element, body);
-            fileCache.ensureSpaceLimit(body, element);
+            fileCache.ensureSpaceLimit(((Body)body).getChildren().length,
+                element);
         }
         else if (element instanceof ICompilationUnit)
             fileCache.put(element, body);
