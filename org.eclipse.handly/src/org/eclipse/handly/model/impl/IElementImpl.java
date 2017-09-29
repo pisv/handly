@@ -130,11 +130,7 @@ public interface IElementImpl
      * Returns whether this element exists in the model.
      * <p>
      * Handles may or may not be backed by an actual element. Handles that are
-     * backed by an actual element are said to "exist". It is always the case
-     * that if an element exists, then its parent also exists (provided
-     * it has one) and includes that element as one of its children.
-     * It is therefore possible to navigate to any existing element
-     * from the root element along a chain of existing elements.
+     * backed by an actual element are said to "exist".
      * </p>
      *
      * @return <code>true</code> if this element exists in the model, and

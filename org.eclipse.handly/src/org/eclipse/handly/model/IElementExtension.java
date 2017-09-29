@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -116,11 +116,7 @@ public interface IElementExtension
      * Returns whether this element exists in the model.
      * <p>
      * Handles may or may not be backed by an actual element. Handles that are
-     * backed by an actual element are said to "exist". It is always the case
-     * that if an element exists, then its parent also exists (provided
-     * it has one) and includes that element as one of its children.
-     * It is therefore possible to navigate to any existing element
-     * from the root element along a chain of existing elements.
+     * backed by an actual element are said to "exist".
      * </p>
      *
      * @return <code>true</code> if this element exists in the model, and

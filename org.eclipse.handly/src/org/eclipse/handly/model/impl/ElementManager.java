@@ -39,8 +39,7 @@ public class ElementManager
     protected final IBodyCache cache;
 
     // Temporary cache of newly opened elements
-    private ThreadLocal<Map<IElement, Object>> temporaryCache =
-        new ThreadLocal<>();
+    private ThreadLocal<TemporaryCache> temporaryCache = new ThreadLocal<>();
 
     private Map<ISourceFileImplSupport, WorkingCopyInfo> workingCopyInfos =
         new HashMap<>();
@@ -109,7 +108,7 @@ public class ElementManager
      */
     synchronized Object get(IElementImplSupport element)
     {
-        Map<IElement, Object> tempCache = temporaryCache.get();
+        TemporaryCache tempCache = temporaryCache.get();
         if (tempCache != null)
         {
             Object body = tempCache.get(element);
@@ -135,7 +134,7 @@ public class ElementManager
      */
     synchronized Object peek(IElementImplSupport element)
     {
-        Map<IElement, Object> tempCache = temporaryCache.get();
+        TemporaryCache tempCache = temporaryCache.get();
         if (tempCache != null)
         {
             Object body = tempCache.get(element);
@@ -222,43 +221,18 @@ public class ElementManager
         }
     }
 
-    /**
-     * Returns the temporary cache of handle/body relationships for the current
-     * thread, creating it if needed.
-     *
-     * @return the temporary cache of handle/body relationships
-     *  for the current thread (never <code>null</code>)
-     */
-    Map<IElement, Object> getTemporaryCache()
+    void pushTemporaryCache(Map<IElement, Object> newElements)
     {
-        Map<IElement, Object> result = temporaryCache.get();
-        if (result == null)
-        {
-            result = new HashMap<>();
-            temporaryCache.set(result);
-        }
-        return result;
+        TemporaryCache parent = temporaryCache.get();
+        temporaryCache.set(new TemporaryCache(parent, newElements));
     }
 
-    /**
-     * Returns whether the current thread has the temporary cache set.
-     *
-     * @return <code>true</code> if the temporary cache is associated with
-     *  the current thread, <code>false</code> otherwise
-     */
-    boolean hasTemporaryCache()
+    void popTemporaryCache()
     {
-        return temporaryCache.get() != null;
-    }
-
-    /**
-     * Resets the temporary cache for the current thread. After this method
-     * call and before <code>getTemporaryCache()</code> call in the same thread,
-     * the thread will have no temporary cache.
-     */
-    void resetTemporaryCache()
-    {
-        temporaryCache.set(null);
+        TemporaryCache tempCache = temporaryCache.get();
+        if (tempCache == null)
+            throw new IllegalStateException();
+        temporaryCache.set(tempCache.parent);
     }
 
     /**
@@ -397,6 +371,27 @@ public class ElementManager
                     buffer.release();
                 }
             }
+        }
+    }
+
+    private static class TemporaryCache
+    {
+        final TemporaryCache parent;
+        private final Map<IElement, Object> newElements;
+
+        TemporaryCache(TemporaryCache parent, Map<IElement, Object> newElements)
+        {
+            this.parent = parent;
+            if ((this.newElements = newElements) == null)
+                throw new IllegalArgumentException();
+        }
+
+        Object get(IElement element)
+        {
+            Object body = newElements.get(element);
+            if (body == null && parent != null)
+                body = parent.get(element);
+            return body;
         }
     }
 }

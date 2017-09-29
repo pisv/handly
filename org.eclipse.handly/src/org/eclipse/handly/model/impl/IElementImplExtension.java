@@ -108,7 +108,7 @@ public interface IElementImplExtension
         Boolean.class).withDefault(false);
 
     /**
-     * Makes sure this element is open, i.e. it exists and is present in the
+     * Ensures that this element is open, i.e. it exists and is present in the
      * body cache. Performs atomically. Returns the cached body for this element.
      * <p>
      * Implementations are encouraged to support the following standard options,

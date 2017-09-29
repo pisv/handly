@@ -482,13 +482,12 @@ public interface ISourceFileImplSupport
     }
 
     @Override
-    default void generateAncestorBodies_(IContext context,
-        IProgressMonitor monitor) throws CoreException
+    default void openParent_(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
         if (isWorkingCopy_())
-            return; // don't open ancestors for a working copy
-        ISourceElementImplSupport.super.generateAncestorBodies_(context,
-            monitor);
+            return; // don't open the parent element for a working copy
+        ISourceElementImplSupport.super.openParent_(context, monitor);
     }
 
     @Override

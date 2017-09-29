@@ -22,6 +22,7 @@ import static org.eclipse.handly.util.ToStringOptions.FormatStyle.LONG;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -215,44 +216,57 @@ public interface IElementImplSupport
                 toDisplayString_(of(FORMAT_STYLE, FULL))), null));
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * This implementation creates and initializes bodies for this element,
-     * its ancestors and its children as necessary and then atomically puts
-     * them into the body cache.
-     * </p>
-     * @throws CoreException {@inheritDoc}
-     * @throws OperationCanceledException {@inheritDoc}
-     */
     @Override
     default Object open_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
         if (monitor == null)
             monitor = new NullProgressMonitor();
-        ElementManager elementManager = getElementManager_();
-        boolean hadTemporaryCache = elementManager.hasTemporaryCache();
+        monitor.beginTask("", 2); //$NON-NLS-1$
         try
         {
-            Map<IElement, Object> newElements =
-                elementManager.getTemporaryCache();
-            generateBodies_(with(of(NEW_ELEMENTS, newElements), context),
-                monitor);
-            Object body = newElements.get(this);
-            if (body == null)
+            openParent_(!Boolean.TRUE.equals(context.get(FORCE_OPEN)) ? context
+                : with(of(FORCE_OPEN, false), context), new SubProgressMonitor(
+                    monitor, 1));
+
+            Object body;
+            if (!isOpenable_())
             {
-                // the openable parent did not create a body for this element
-                IElementImplSupport openable = getOpenableParent_();
-                Object openableBody = newElements.get(openable);
-                if (openableBody != null)
-                    openable.removing_(openableBody); // give a chance for cleanup
-                throw newDoesNotExistException_();
+                body = findBody_();
+                if (body == null)
+                    throw newDoesNotExistException_();
             }
-            if (monitor.isCanceled())
-                throw new OperationCanceledException();
-            if (!hadTemporaryCache)
+            else
             {
+                validateExistence_(context);
+
+                if (monitor.isCanceled())
+                    throw new OperationCanceledException();
+
+                ElementManager elementManager = getElementManager_();
+
+                Map<IElement, Object> newElements =
+                    new HashMap<IElement, Object>();
+
+                elementManager.pushTemporaryCache(newElements);
+                try
+                {
+                    buildStructure_(with(of(NEW_ELEMENTS, newElements),
+                        context), new SubProgressMonitor(monitor, 1));
+                }
+                finally
+                {
+                    elementManager.popTemporaryCache();
+                }
+
+                body = newElements.get(this);
+                if (body == null)
+                {
+                    throw new AssertionError(MessageFormat.format(
+                        "No body for {0}. Incorrect {1}#buildStructure_ implementation?", //$NON-NLS-1$
+                        toString(), getClass().getSimpleName()));
+                }
+
                 if (context.getOrDefault(FORCE_OPEN))
                     elementManager.put(this, newElements);
                 else
@@ -267,74 +281,31 @@ public interface IElementImplSupport
         }
         finally
         {
-            if (!hadTemporaryCache)
-            {
-                elementManager.resetTemporaryCache();
-            }
-        }
-    }
-
-    /**
-     * Creates and initializes bodies for this element, its ancestors
-     * and its children as necessary and puts them into the {@link
-     * #NEW_ELEMENTS} map available in the given context.
-     *
-     * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>)
-     * @throws CoreException if this element does not exist or if an
-     *  exception occurs while accessing its corresponding resource
-     * @throws OperationCanceledException if this method is canceled
-     */
-    default void generateBodies_(IContext context, IProgressMonitor monitor)
-        throws CoreException
-    {
-        monitor.beginTask("", 2); //$NON-NLS-1$
-        try
-        {
-            generateAncestorBodies_(context, new SubProgressMonitor(monitor,
-                1));
-
-            if (isOpenable_())
-            {
-                validateExistence_(context);
-
-                if (monitor.isCanceled())
-                    throw new OperationCanceledException();
-
-                buildStructure_(context, new SubProgressMonitor(monitor, 1));
-
-                Object body = context.get(NEW_ELEMENTS).get(this);
-                if (body == null)
-                {
-                    throw new AssertionError(MessageFormat.format(
-                        "No body for {0}. Incorrect {1}#hBuildStructure implementation?", //$NON-NLS-1$
-                        toString(), getClass().getSimpleName()));
-                }
-            }
-        }
-        finally
-        {
             monitor.done();
         }
     }
 
     /**
-     * Creates and initializes bodies for ancestors of this element
-     * as necessary and puts them into the {@link #NEW_ELEMENTS} map
-     * available in the given context.
-     *
+     * Open the parent element if necessary.
+     * <p>
+     * This method is called internally; it is not intended to be invoked by clients.
+     * </p>
+    *
      * @param context the operation context (never <code>null</code>)
      * @param monitor a progress monitor (never <code>null</code>)
-     * @throws CoreException if an ancestor does not exist or if an
-     *  exception occurs while accessing its corresponding resource
+     * @throws CoreException if an exception occurs while opening this element's parent
      * @throws OperationCanceledException if this method is canceled
      */
-    default void generateAncestorBodies_(IContext context,
-        IProgressMonitor monitor) throws CoreException
+    default void openParent_(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
-        IElementImplSupport openableParent = getOpenableParent_();
-        if (openableParent != null && openableParent.findBody_() == null)
-            openableParent.generateBodies_(context, monitor);
+        IElement p = getParent_();
+        if (p instanceof IElementImplExtension)
+        {
+            IElementImplExtension parent = (IElementImplExtension)p;
+            if (parent.findBody_() == null)
+                parent.open_(context, monitor);
+        }
     }
 
     /**
@@ -357,30 +328,6 @@ public interface IElementImplSupport
     default boolean isOpenable_()
     {
         return true;
-    }
-
-    /**
-     * Returns the innermost {@link #isOpenable_() openable} element
-     * in the parent chain of this element, or <code>null</code>
-     * if this element has no openable parent.
-     *
-     * @return the innermost openable element in the parent chain of this
-     *  element, or <code>null</code> if this element has no openable parent
-     */
-    default IElementImplSupport getOpenableParent_()
-    {
-        IElement parent = getParent_();
-        while (parent != null)
-        {
-            if (parent instanceof IElementImplSupport)
-            {
-                IElementImplSupport p = (IElementImplSupport)parent;
-                if (p.isOpenable_())
-                    return p;
-            }
-            parent = Elements.getParent(parent);
-        }
-        return null;
     }
 
     /**
