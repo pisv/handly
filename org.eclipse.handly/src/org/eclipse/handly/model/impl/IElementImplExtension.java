@@ -101,6 +101,10 @@ public interface IElementImplExtension
     /**
      * Indicates whether to forcibly reopen this element if it is already open
      * (i.e. already present in the body cache). Default value: <code>false</code>.
+     * <p>
+     * This property is for implementation purposes;
+     * it is not intended for use by general clients.
+     * </p>
      * @see #open_(IContext, IProgressMonitor)
      */
     Property<Boolean> FORCE_OPEN = Property.get(
@@ -169,6 +173,10 @@ public interface IElementImplExtension
 
     /**
      * Close hint property.
+     * <p>
+     * This property is for implementation purposes;
+     * it is not intended for use by general clients.
+     * </p>
      * @see #close_(IContext)
      */
     Property<CloseHint> CLOSE_HINT = Property.get(
