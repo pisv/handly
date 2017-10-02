@@ -118,7 +118,7 @@ public interface IElementImpl
      * @return a file system location for this element,
      *  or <code>null</code> if no location can be determined
      */
-    default URI getLocationURI_()
+    default URI getLocationUri_()
     {
         IResource resource = getResource_();
         if (resource != null)

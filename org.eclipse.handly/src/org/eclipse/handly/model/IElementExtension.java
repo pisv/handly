@@ -107,9 +107,9 @@ public interface IElementExtension
      * @return a file system location for this element,
      *  or <code>null</code> if no location can be determined
      */
-    default URI getLocationURI()
+    default URI getLocationUri()
     {
-        return Elements.getLocationURI(this);
+        return Elements.getLocationUri(this);
     }
 
     /**

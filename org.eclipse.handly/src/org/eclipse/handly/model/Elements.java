@@ -184,9 +184,9 @@ public class Elements
      * @return a file system location for the element,
      *  or <code>null</code> if no location can be determined
      */
-    public static URI getLocationURI(IElement element)
+    public static URI getLocationUri(IElement element)
     {
-        return ((IElementImpl)element).getLocationURI_();
+        return ((IElementImpl)element).getLocationUri_();
     }
 
     /**

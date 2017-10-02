@@ -109,7 +109,7 @@ public class JavaElement
     }
 
     @Override
-    public URI getLocationURI_()
+    public URI getLocationUri_()
     {
         IResource resource = getResource_();
         if (resource != null)
