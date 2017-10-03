@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
@@ -32,8 +31,8 @@ import org.eclipse.jdt.core.JavaCore;
  * Implementation of {@link IPackageFragmentRoot}.
  */
 public class PackageFragmentRoot
-    extends Element
-    implements IPackageFragmentRoot, IJavaElementInternal
+    extends JavaElement
+    implements IPackageFragmentRoot
 {
     private static final IPackageFragment[] NO_CHILDREN =
         new IPackageFragment[0];

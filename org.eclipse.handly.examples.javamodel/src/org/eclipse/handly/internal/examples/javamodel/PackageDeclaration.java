@@ -12,14 +12,13 @@ package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
-import org.eclipse.handly.model.impl.SourceConstruct;
 
 /**
  * Implementation of {@link IPackageDeclaration}.
  */
 public class PackageDeclaration
-    extends SourceConstruct
-    implements IPackageDeclaration, IJavaElementInternal
+    extends JavaSourceConstruct
+    implements IPackageDeclaration
 {
     /**
      * Creates a handle for a package declaration with the given parent element

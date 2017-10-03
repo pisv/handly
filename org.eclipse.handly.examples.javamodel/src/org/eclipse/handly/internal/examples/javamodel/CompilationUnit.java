@@ -16,6 +16,7 @@ import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.Elements.FORCE_RECONCILING;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -29,7 +30,7 @@ import org.eclipse.handly.examples.javamodel.IJavaSourceConstruct;
 import org.eclipse.handly.examples.javamodel.IJavaSourceElement;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
-import org.eclipse.handly.model.impl.WorkspaceSourceFile;
+import org.eclipse.handly.model.impl.ISourceFileImplSupport;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.Property;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -44,8 +45,8 @@ import org.eclipse.jdt.core.dom.ASTParser;
  * Implementation of {@link ICompilationUnit}.
  */
 public class CompilationUnit
-    extends WorkspaceSourceFile
-    implements ICompilationUnit, IJavaElementInternal
+    extends JavaElement
+    implements ICompilationUnit, ISourceFileImplSupport
 {
     static final IJavaSourceConstruct[] NO_CHILDREN =
         new IJavaSourceConstruct[0];
@@ -55,6 +56,7 @@ public class CompilationUnit
     private static final IImportDeclaration[] NO_IMPORTS =
         new IImportDeclaration[0];
 
+    private final IFile file;
     private final WorkingCopyOwner owner;
 
     /**
@@ -69,11 +71,12 @@ public class CompilationUnit
     public CompilationUnit(PackageFragment parent, IFile file,
         WorkingCopyOwner owner)
     {
-        super(parent, file);
+        super(parent, file.getName());
         if (!file.getParent().equals(parent.getResource()))
             throw new IllegalArgumentException();
         if (!"java".equals(file.getFileExtension())) //$NON-NLS-1$
             throw new IllegalArgumentException();
+        this.file = file;
         if (owner == null)
             owner = PRIMARY_OWNER;
         this.owner = owner;
@@ -196,9 +199,26 @@ public class CompilationUnit
     }
 
     @Override
+    public IResource getResource_()
+    {
+        return file;
+    }
+
+    /**
+     * Returns the underlying {@link IFile}. This is a handle-only method.
+     *
+     * @return the underlying <code>IFile</code> (never <code>null</code>)
+     */
+    @Override
+    public IFile getFile_()
+    {
+        return file;
+    }
+
+    @Override
     public void validateExistence_(IContext context) throws CoreException
     {
-        super.validateExistence_(context);
+        ISourceFileImplSupport.super.validateExistence_(context);
 
         IStatus status = validateCompilationUnitName();
         if (status.getSeverity() == IStatus.ERROR)

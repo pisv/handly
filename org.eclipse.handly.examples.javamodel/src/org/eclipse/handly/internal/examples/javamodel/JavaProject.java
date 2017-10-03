@@ -23,7 +23,6 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 
@@ -31,8 +30,8 @@ import org.eclipse.jdt.core.JavaCore;
  * Implementation of {@link IJavaProject}.
  */
 public class JavaProject
-    extends Element
-    implements IJavaProject, IJavaElementInternal
+    extends JavaElement
+    implements IJavaProject
 {
     private static final IPackageFragmentRoot[] NO_CHILDREN =
         new IPackageFragmentRoot[0];

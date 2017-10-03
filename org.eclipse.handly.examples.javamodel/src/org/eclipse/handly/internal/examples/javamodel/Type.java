@@ -13,7 +13,6 @@ package org.eclipse.handly.internal.examples.javamodel;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IField;
-import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IMember;
 import org.eclipse.handly.examples.javamodel.IMethod;
 import org.eclipse.handly.examples.javamodel.IType;
@@ -42,7 +41,7 @@ public class Type
      * @param parent the parent of the element (not <code>null</code>)
      * @param name the name of the element (not <code>null</code>)
      */
-    public Type(IJavaElement parent, String name)
+    public Type(JavaElement parent, String name)
     {
         super(parent, name);
         if (name == null)

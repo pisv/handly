@@ -11,17 +11,15 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IMember;
 import org.eclipse.handly.examples.javamodel.IType;
-import org.eclipse.handly.model.impl.SourceConstruct;
 
 /**
  * Implementation of {@link IMember}.
  */
 public abstract class Member
-    extends SourceConstruct
-    implements IMember, IJavaElementInternal
+    extends JavaSourceConstruct
+    implements IMember
 {
     static final String[] NO_STRINGS = new String[0];
 
@@ -33,7 +31,7 @@ public abstract class Member
      * @param name the name of the element, or <code>null</code>
      *  if the element has no name
      */
-    public Member(IJavaElement parent, String name)
+    public Member(JavaElement parent, String name)
     {
         super(parent, name);
     }

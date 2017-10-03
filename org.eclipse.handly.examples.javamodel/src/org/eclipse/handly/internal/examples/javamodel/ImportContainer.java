@@ -21,15 +21,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IImportContainer;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
-import org.eclipse.handly.model.impl.SourceConstruct;
 import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
  * Implementation of {@link IImportContainer}.
  */
 public class ImportContainer
-    extends SourceConstruct
-    implements IImportContainer, IJavaElementInternal
+    extends JavaSourceConstruct
+    implements IImportContainer
 {
     static final IImportDeclaration[] NO_CHILDREN = new IImportDeclaration[0];
 

@@ -12,14 +12,13 @@ package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IImportDeclaration;
-import org.eclipse.handly.model.impl.SourceConstruct;
 
 /**
  * Implementation of {@link IImportDeclaration}.
  */
 public class ImportDeclaration
-    extends SourceConstruct
-    implements IImportDeclaration, IJavaElementInternal
+    extends JavaSourceConstruct
+    implements IImportDeclaration
 {
     /**
      * Creates a handle for an import declaration with the given parent element

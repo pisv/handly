@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.util.IndentPolicy;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
@@ -39,8 +38,8 @@ import org.eclipse.jdt.core.Signature;
  * Implementation of {@link IPackageFragment}
  */
 public class PackageFragment
-    extends Element
-    implements IPackageFragment, IJavaElementInternal
+    extends JavaElement
+    implements IPackageFragment
 {
     private static final ICompilationUnit[] NO_CHILDREN =
         new ICompilationUnit[0];

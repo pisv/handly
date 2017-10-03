@@ -13,7 +13,6 @@ package org.eclipse.handly.internal.examples.javamodel;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaSourceConstruct;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.SourceElementBody;
@@ -137,7 +136,7 @@ class CompilatonUnitStructureBuilder
         helper.pushChild(parentBody, handle);
     }
 
-    private void buildStructure(IJavaElement parent, Object parentBody,
+    private void buildStructure(JavaElement parent, Object parentBody,
         AbstractTypeDeclaration type)
     {
         Type handle = new Type(parent, type.getName().getIdentifier());

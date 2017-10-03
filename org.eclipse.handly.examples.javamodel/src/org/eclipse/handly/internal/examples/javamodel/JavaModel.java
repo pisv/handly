@@ -23,7 +23,6 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaModel;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.IModelImpl;
 
 /**
@@ -31,8 +30,8 @@ import org.eclipse.handly.model.impl.IModelImpl;
  * {@link IJavaProject}s in a workspace. A Java model is specific to a workspace.
  */
 public class JavaModel
-    extends Element
-    implements IJavaModel, IJavaElementInternal, IModelImpl
+    extends JavaElement
+    implements IJavaModel, IModelImpl
 {
     private static final IJavaProject[] NO_CHILDREN = new IJavaProject[0];
 
