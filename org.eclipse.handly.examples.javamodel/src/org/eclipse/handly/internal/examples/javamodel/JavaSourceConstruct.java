@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,5 +48,51 @@ public abstract class JavaSourceConstruct
         if (occurrenceCount < 1)
             throw new IllegalArgumentException();
         this.occurrenceCount = occurrenceCount;
+    }
+
+    @Override
+    protected void getHandleMemento(StringBuilder sb)
+    {
+        super.getHandleMemento(sb);
+        if (occurrenceCount > 1)
+        {
+            sb.append(JEM_COUNT);
+            sb.append(occurrenceCount);
+        }
+    }
+
+    @Override
+    protected JavaElement getHandleFromMemento(String token,
+        MementoTokenizer memento)
+    {
+        if (token == MementoTokenizer.COUNT)
+            return getHandleUpdatingCountFromMemento(memento);
+
+        return this;
+    }
+
+    protected final JavaElement getHandleUpdatingCountFromMemento(
+        MementoTokenizer memento)
+    {
+        String token = null;
+        if (memento.hasMoreTokens())
+        {
+            token = memento.nextToken();
+            if (!MementoTokenizer.isDelimeter(token))
+            {
+                try
+                {
+                    setOccurrenceCount_(Integer.parseInt(token));
+                }
+                catch (IllegalArgumentException e)
+                {
+                }
+                token = null;
+            }
+        }
+        if (token == null)
+            return getHandleFromMemento(memento);
+        else
+            return getHandleFromMemento(token, memento);
     }
 }

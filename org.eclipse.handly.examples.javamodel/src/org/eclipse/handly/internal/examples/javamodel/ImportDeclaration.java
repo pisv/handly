@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,9 +35,35 @@ public class ImportDeclaration
     }
 
     @Override
+    public ImportContainer getParent()
+    {
+        return (ImportContainer)super.getParent();
+    }
+
+    @Override
     public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append("import "); //$NON-NLS-1$
         super.toStringName_(builder, context);
+    }
+
+    @Override
+    protected void getHandleMemento(StringBuilder sb)
+    {
+        getParent().getHandleMemento(sb);
+        escapeMementoName(sb, getElementName());
+        int occurrenceCount = getOccurrenceCount_();
+        if (occurrenceCount > 1)
+        {
+            sb.append(JEM_COUNT);
+            sb.append(occurrenceCount);
+        }
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        // For import declarations, the handle delimiter is associated to the import container already
+        throw new AssertionError("This method should not be called");
     }
 }

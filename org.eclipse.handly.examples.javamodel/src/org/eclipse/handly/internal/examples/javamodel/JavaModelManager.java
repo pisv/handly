@@ -26,6 +26,7 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.model.ElementDeltas;
 import org.eclipse.handly.model.IElementDelta;
+import org.eclipse.handly.model.IElementHandleFactory;
 import org.eclipse.handly.model.impl.ElementChangeEvent;
 import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.handly.model.impl.ElementManager;
@@ -72,6 +73,8 @@ public class JavaModelManager
                 notificationManager);
             modelContext.bind(ElementDelta.Factory.class).to(
                 element -> new JavaElementDelta((IJavaElement)element));
+            modelContext.bind(IElementHandleFactory.class).to(
+                new JavaElementHandleFactory());
 
             workspace.addResourceChangeListener(this,
                 IResourceChangeEvent.POST_CHANGE);

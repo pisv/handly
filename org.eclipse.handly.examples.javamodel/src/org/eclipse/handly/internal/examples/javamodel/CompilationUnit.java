@@ -95,13 +95,13 @@ public class CompilationUnit
     }
 
     @Override
-    public IImportDeclaration getImport(String name)
+    public ImportDeclaration getImport(String name)
     {
         return getImportContainer().getImport(name);
     }
 
     @Override
-    public IImportContainer getImportContainer()
+    public ImportContainer getImportContainer()
     {
         return new ImportContainer(this);
     }
@@ -116,7 +116,7 @@ public class CompilationUnit
     }
 
     @Override
-    public IPackageDeclaration getPackageDeclaration(String name)
+    public PackageDeclaration getPackageDeclaration(String name)
     {
         return new PackageDeclaration(this, name);
     }
@@ -128,7 +128,7 @@ public class CompilationUnit
     }
 
     @Override
-    public IType getType(String name)
+    public Type getType(String name)
     {
         return new Type(this, name);
     }
@@ -302,6 +302,49 @@ public class CompilationUnit
     public ReconcileOperation getReconcileOperation_()
     {
         return new CuReconcileOperation();
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JEM_COMPILATIONUNIT;
+    }
+
+    @Override
+    protected JavaElement getHandleFromMemento(String token,
+        MementoTokenizer memento)
+    {
+        if (token == MementoTokenizer.IMPORTDECLARATION)
+        {
+            return getImportContainer().getHandleFromMemento(memento);
+        }
+        else if (token == MementoTokenizer.PACKAGEDECLARATION
+            || token == MementoTokenizer.TYPE)
+        {
+            String name = ""; //$NON-NLS-1$
+            String nextToken = null;
+            if (memento.hasMoreTokens())
+            {
+                nextToken = memento.nextToken();
+                if (!MementoTokenizer.isDelimeter(nextToken))
+                {
+                    name = nextToken;
+                    nextToken = null;
+                }
+            }
+            JavaElement element;
+            if (token == MementoTokenizer.PACKAGEDECLARATION)
+                element = getPackageDeclaration(name);
+            else if (token == MementoTokenizer.TYPE)
+                element = getType(name);
+            else
+                throw new AssertionError();
+            if (nextToken == null)
+                return element.getHandleFromMemento(memento);
+            else
+                return element.getHandleFromMemento(token, memento);
+        }
+        return null;
     }
 
     private class CuReconcileOperation

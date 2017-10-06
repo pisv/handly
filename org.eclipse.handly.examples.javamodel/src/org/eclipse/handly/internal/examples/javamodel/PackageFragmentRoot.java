@@ -168,4 +168,44 @@ public class PackageFragmentRoot
             }
         }
     }
+
+    @Override
+    protected void getHandleMemento(StringBuilder sb)
+    {
+        getParent().getHandleMemento(sb);
+        sb.append(getHandleMementoDelimiter());
+        escapeMementoName(sb, resource.getProjectRelativePath().toString());
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JavaElement.JEM_PACKAGEFRAGMENTROOT;
+    }
+
+    @Override
+    protected JavaElement getHandleFromMemento(String token,
+        MementoTokenizer memento)
+    {
+        if (token == MementoTokenizer.PACKAGEFRAGMENT)
+        {
+            String packageName = ""; //$NON-NLS-1$
+            token = null;
+            if (memento.hasMoreTokens())
+            {
+                token = memento.nextToken();
+                if (!MementoTokenizer.isDelimeter(token))
+                {
+                    packageName = token;
+                    token = null;
+                }
+            }
+            PackageFragment packageFragment = getPackageFragment(packageName);
+            if (token == null)
+                return packageFragment.getHandleFromMemento(memento);
+            else
+                return packageFragment.getHandleFromMemento(token, memento);
+        }
+        return null;
+    }
 }

@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
@@ -281,5 +282,38 @@ public class JavaProject
         JavaProjectBody body = new JavaProjectBody();
         body.setChildren(roots.toArray(NO_CHILDREN));
         context.get(NEW_ELEMENTS).put(this, body);
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JEM_JAVAPROJECT;
+    }
+
+    @Override
+    protected JavaElement getHandleFromMemento(String token,
+        MementoTokenizer memento)
+    {
+        if (token == MementoTokenizer.PACKAGEFRAGMENTROOT)
+        {
+            String rootPath = ""; //$NON-NLS-1$
+            token = null;
+            if (memento.hasMoreTokens())
+            {
+                token = memento.nextToken();
+                if (!MementoTokenizer.isDelimeter(token))
+                {
+                    rootPath = token;
+                    token = null;
+                }
+            }
+            PackageFragmentRoot root = getPackageFragmentRoot(
+                getProject().getFolder(new Path(rootPath)));
+            if (token == null)
+                return root.getHandleFromMemento(memento);
+            else
+                return root.getHandleFromMemento(token, memento);
+        }
+        return null;
     }
 }

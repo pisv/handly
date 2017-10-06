@@ -43,7 +43,13 @@ public class ImportContainer
     }
 
     @Override
-    public IImportDeclaration getImport(String name)
+    public CompilationUnit getParent()
+    {
+        return (CompilationUnit)super.getParent();
+    }
+
+    @Override
+    public ImportDeclaration getImport(String name)
     {
         return new ImportDeclaration(this, name);
     }
@@ -72,5 +78,28 @@ public class ImportContainer
     public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append("<import container>"); //$NON-NLS-1$
+    }
+
+    @Override
+    protected void getHandleMemento(StringBuilder sb)
+    {
+        getParent().getHandleMemento(sb);
+        sb.append(getHandleMementoDelimiter());
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JEM_IMPORTDECLARATION;
+    }
+
+    @Override
+    protected JavaElement getHandleFromMemento(String token,
+        MementoTokenizer memento)
+    {
+        if (!MementoTokenizer.isDelimeter(token))
+            return getImport(token).getHandleFromMemento(memento);
+
+        return this;
     }
 }

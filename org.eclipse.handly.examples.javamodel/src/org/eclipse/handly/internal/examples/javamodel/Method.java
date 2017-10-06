@@ -47,6 +47,12 @@ public class Method
     }
 
     @Override
+    public Type getParent()
+    {
+        return (Type)super.getParent();
+    }
+
+    @Override
     public String[] getParameterTypes()
     {
         return parameterTypes;
@@ -164,5 +170,31 @@ public class Method
         {
             builder.append(" (not open)"); //$NON-NLS-1$
         }
+    }
+
+    @Override
+    protected void getHandleMemento(StringBuilder sb)
+    {
+        getParent().getHandleMemento(sb);
+        char delimiter = getHandleMementoDelimiter();
+        sb.append(delimiter);
+        escapeMementoName(sb, getElementName());
+        for (int i = 0; i < parameterTypes.length; i++)
+        {
+            sb.append(delimiter);
+            escapeMementoName(sb, parameterTypes[i]);
+        }
+        int occurrenceCount = getOccurrenceCount_();
+        if (occurrenceCount > 1)
+        {
+            sb.append(JEM_COUNT);
+            sb.append(occurrenceCount);
+        }
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JEM_METHOD;
     }
 }

@@ -96,6 +96,20 @@ public interface IElementImpl
     IModel getModel_();
 
     /**
+     * Returns a string representation of this element handle. The format of
+     * the string is not specified; however, the representation is stable across
+     * workbench sessions, and can be used to recreate this handle via the model's
+     * <code>IElementHandleFactory</code>. This is a handle-only method.
+     *
+     * @return the handle memento for this element, or <code>null</code>
+     *  if this element is unable to provide a handle memento
+     */
+    default String getHandleMemento_()
+    {
+        return null;
+    }
+
+    /**
      * Returns the innermost resource enclosing this element, or <code>null</code>
      * if this element is not enclosed in a workspace resource.
      * This is a handle-only method.

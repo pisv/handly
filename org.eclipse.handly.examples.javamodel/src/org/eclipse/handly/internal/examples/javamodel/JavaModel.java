@@ -66,7 +66,7 @@ public class JavaModel
     }
 
     @Override
-    public IJavaProject getJavaProject(String name)
+    public JavaProject getJavaProject(String name)
     {
         return new JavaProject(this, workspace.getRoot().getProject(name));
     }
@@ -162,5 +162,42 @@ public class JavaModel
     public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append("Java Model"); //$NON-NLS-1$
+    }
+
+    @Override
+    protected void getHandleMemento(StringBuilder sb)
+    {
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        throw new AssertionError("This method should not be called");
+    }
+
+    @Override
+    protected JavaElement getHandleFromMemento(String token,
+        MementoTokenizer memento)
+    {
+        if (token == MementoTokenizer.JAVAPROJECT)
+        {
+            String projectName = ""; //$NON-NLS-1$
+            token = null;
+            if (memento.hasMoreTokens())
+            {
+                token = memento.nextToken();
+                if (!MementoTokenizer.isDelimeter(token))
+                {
+                    projectName = token;
+                    token = null;
+                }
+            }
+            JavaProject project = getJavaProject(projectName);
+            if (token == null)
+                return project.getHandleFromMemento(memento);
+            else
+                return project.getHandleFromMemento(token, memento);
+        }
+        return null;
     }
 }

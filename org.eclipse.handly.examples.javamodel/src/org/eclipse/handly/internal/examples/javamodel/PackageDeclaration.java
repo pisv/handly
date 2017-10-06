@@ -35,9 +35,21 @@ public class PackageDeclaration
     }
 
     @Override
+    public CompilationUnit getParent()
+    {
+        return (CompilationUnit)super.getParent();
+    }
+
+    @Override
     public void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append("package "); //$NON-NLS-1$
         super.toStringName_(builder, context);
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JEM_PACKAGEDECLARATION;
     }
 }

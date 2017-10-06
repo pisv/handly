@@ -157,6 +157,21 @@ public class Elements
     }
 
     /**
+     * Returns a string representation of the element handle. The format of
+     * the string is not specified; however, the representation is stable across
+     * workbench sessions, and can be used to recreate the handle via the model's
+     * {@link IElementHandleFactory}. This is a handle-only method.
+     *
+     * @param element not <code>null</code>
+     * @return the handle memento for the element, or <code>null</code>
+     *  if the element is unable to provide a handle memento
+     */
+    public static String getHandleMemento(IElement element)
+    {
+        return ((IElementImpl)element).getHandleMemento_();
+    }
+
+    /**
      * Returns the innermost resource enclosing the element, or <code>null</code>
      * if the element is not enclosed in a workspace resource.
      * This is a handle-only method.

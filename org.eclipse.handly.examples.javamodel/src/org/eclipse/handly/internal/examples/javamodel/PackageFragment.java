@@ -78,7 +78,7 @@ public class PackageFragment
     }
 
     @Override
-    public ICompilationUnit getCompilationUnit(String name)
+    public CompilationUnit getCompilationUnit(String name)
     {
         if (name == null)
             throw new IllegalArgumentException();
@@ -227,5 +227,37 @@ public class PackageFragment
             builder.append("<default>"); //$NON-NLS-1$
         else
             super.toStringName_(builder, context);
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JEM_PACKAGEFRAGMENT;
+    }
+
+    @Override
+    protected JavaElement getHandleFromMemento(String token,
+        MementoTokenizer memento)
+    {
+        if (token == MementoTokenizer.COMPILATIONUNIT)
+        {
+            String name = ""; //$NON-NLS-1$
+            token = null;
+            if (memento.hasMoreTokens())
+            {
+                token = memento.nextToken();
+                if (!MementoTokenizer.isDelimeter(token))
+                {
+                    name = token;
+                    token = null;
+                }
+            }
+            CompilationUnit compilationUnit = getCompilationUnit(name);
+            if (token == null)
+                return compilationUnit.getHandleFromMemento(memento);
+            else
+                return compilationUnit.getHandleFromMemento(token, memento);
+        }
+        return null;
     }
 }

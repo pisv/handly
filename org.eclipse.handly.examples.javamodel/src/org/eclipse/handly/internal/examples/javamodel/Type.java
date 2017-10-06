@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IField;
@@ -49,7 +51,7 @@ public class Type
     }
 
     @Override
-    public IField getField(String name)
+    public Field getField(String name)
     {
         return new Field(this, name);
     }
@@ -61,7 +63,7 @@ public class Type
     }
 
     @Override
-    public IMethod getMethod(String name, String[] parameterTypes)
+    public Method getMethod(String name, String[] parameterTypes)
     {
         return new Method(this, name, parameterTypes);
     }
@@ -73,7 +75,7 @@ public class Type
     }
 
     @Override
-    public IType getType(String name)
+    public Type getType(String name)
     {
         return new Type(this, name);
     }
@@ -208,5 +210,71 @@ public class Type
         {
             builder.append(" (not open)"); //$NON-NLS-1$
         }
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JEM_TYPE;
+    }
+
+    @Override
+    protected JavaElement getHandleFromMemento(String token,
+        MementoTokenizer memento)
+    {
+        if (token == MementoTokenizer.COUNT)
+        {
+            return getHandleUpdatingCountFromMemento(memento);
+        }
+        else if (token == MementoTokenizer.TYPE
+            || token == MementoTokenizer.FIELD
+            || token == MementoTokenizer.METHOD)
+        {
+            String name = ""; //$NON-NLS-1$
+            String nextToken = null;
+            if (memento.hasMoreTokens())
+            {
+                nextToken = memento.nextToken();
+                if (!MementoTokenizer.isDelimeter(nextToken))
+                {
+                    name = nextToken;
+                    nextToken = null;
+                }
+            }
+            JavaElement element;
+            if (token == MementoTokenizer.TYPE)
+                element = getType(name);
+            else if (token == MementoTokenizer.FIELD)
+                element = getField(name);
+            else if (token == MementoTokenizer.METHOD)
+            {
+                ArrayList<String> parameterTypes = new ArrayList<>();
+                while (memento.hasMoreTokens())
+                {
+                    if (nextToken == null)
+                        nextToken = memento.nextToken();
+                    if (nextToken != MementoTokenizer.METHOD)
+                        break;
+                    nextToken = null;
+                    if (memento.hasMoreTokens())
+                    {
+                        nextToken = memento.nextToken();
+                        if (MementoTokenizer.isDelimeter(nextToken))
+                            break;
+                        parameterTypes.add(nextToken);
+                        nextToken = null;
+                    }
+                }
+                element = getMethod(name, parameterTypes.toArray(
+                    new String[0]));
+            }
+            else
+                throw new AssertionError();
+            if (nextToken == null)
+                return element.getHandleFromMemento(memento);
+            else
+                return element.getHandleFromMemento(token, memento);
+        }
+        return null;
     }
 }

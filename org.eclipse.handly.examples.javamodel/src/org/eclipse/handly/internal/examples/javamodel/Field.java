@@ -39,6 +39,12 @@ public class Field
     }
 
     @Override
+    public Type getParent()
+    {
+        return (Type)super.getParent();
+    }
+
+    @Override
     public String getType() throws CoreException
     {
         return getSourceElementInfo().get(TYPE);
@@ -66,5 +72,11 @@ public class Field
         {
             builder.append(" (not open)"); //$NON-NLS-1$
         }
+    }
+
+    @Override
+    protected char getHandleMementoDelimiter()
+    {
+        return JEM_FIELD;
     }
 }
