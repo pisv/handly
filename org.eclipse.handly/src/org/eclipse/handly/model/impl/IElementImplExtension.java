@@ -31,7 +31,7 @@ public interface IElementImplExtension
     @Override
     default IElement[] getChildren_() throws CoreException
     {
-        return getChildren_(getBody_());
+        return getChildrenFromBody_(getBody_());
     }
 
     /**
@@ -41,7 +41,7 @@ public interface IElementImplExtension
      *  (never <code>null</code>)
      * @return the immediate children of this element (not <code>null</code>)
      */
-    IElement[] getChildren_(Object body);
+    IElement[] getChildrenFromBody_(Object body);
 
     /**
      * Returns the cached body for this element, or <code>null</code>

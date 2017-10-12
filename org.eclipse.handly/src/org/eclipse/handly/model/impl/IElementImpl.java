@@ -17,7 +17,6 @@ import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -86,6 +85,51 @@ public interface IElementImpl
         if (ancestorType.isInstance(parent))
             return ancestorType.cast(parent);
         return Elements.getAncestor(parent, ancestorType);
+    }
+
+    /**
+     * Returns whether this element is a descendant of the given element.
+     * This is a handle-only method.
+     *
+     * @param other may be <code>null</code>
+     * @return <code>true</code> if this element is a descendant of the given
+     *  element, and <code>false</code> otherwise
+     */
+    default boolean isDescendantOf_(IElement other)
+    {
+        IElement parent = getParent_();
+        if (parent == null)
+            return false;
+        if (Elements.equalsAndSameParentChain(parent, other))
+            return true;
+        return Elements.isDescendantOf(parent, other);
+    }
+
+    /**
+     * Returns whether this element is equal to the given element and belongs
+     * to the same parent chain as the given element. This is a handle-only
+     * method.
+     * <p>
+     * This implementation is provided for the most general case where equal
+     * elements may belong to different parent chains. E.g. in JDT, equal
+     * JarPackageFragmentRoots may belong to different Java projects. Specific
+     * models can provide an optimized implementation. For example, it would be
+     * possible to just <code>return equals(other);</code> if it were known for
+     * a model that equal elements cannot belong to different parent chains.
+     * </p>
+     *
+     * @param other may be <code>null</code>
+     * @return <code>true</code> if this element is equal to the given element
+     *  and belongs to the same parent chain, and <code>false</code> otherwise
+     */
+    default boolean equalsAndSameParentChain_(IElement other)
+    {
+        if (this == other)
+            return true;
+        if (!equals(other))
+            return false;
+        return Elements.equalsAndSameParentChain(getParent_(),
+            Elements.getParent(other));
     }
 
     /**
@@ -184,7 +228,7 @@ public interface IElementImpl
             T[] result = (T[])children;
             return result;
         }
-        List<T> list = new ArrayList<T>(children.length);
+        ArrayList<T> list = new ArrayList<T>(children.length);
         for (IElement child : children)
         {
             if (childType.isInstance(child))

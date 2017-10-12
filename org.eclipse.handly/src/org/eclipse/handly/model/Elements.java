@@ -102,21 +102,37 @@ public class Elements
     }
 
     /**
-     * Returns whether the element is a descendant of the given ancestor.
+     * Returns whether the element is a descendant of the given other element.
+     * This is a handle-only method.
      *
      * @param element not <code>null</code>
-     * @param ancestor may be <code>null</code>
+     * @param other may be <code>null</code>
      * @return <code>true</code> if the element is a descendant of the given
-     *  ancestor, and <code>false</code> otherwise
+     *  other element, and <code>false</code> otherwise
      */
-    public static boolean isDescendantOf(IElement element, IElement ancestor)
+    public static boolean isDescendantOf(IElement element, IElement other)
     {
-        for (IElement p = getParent(element); p != null; p = getParent(p))
-        {
-            if (equalsAndSameParentChain(p, ancestor))
-                return true;
-        }
-        return false;
+        return ((IElementImpl)element).isDescendantOf_(other);
+    }
+
+    /**
+     * Returns whether the given elements are equal and belong to the same
+     * parent chain. This is a handle-only method.
+     * <p>
+     * In the most general case, equal elements may belong to different parent
+     * chains. E.g. in JDT, equal JarPackageFragmentRoots may belong to different
+     * Java projects.
+     * </p>
+     *
+     * @param element not <code>null</code>
+     * @param other may be <code>null</code>
+     * @return <code>true</code> if the given elements are equal and belong
+     *  to the same parent chain, <code>false</code> otherwise
+     */
+    public static boolean equalsAndSameParentChain(IElement element,
+        IElement other)
+    {
+        return ((IElementImpl)element).equalsAndSameParentChain_(other);
     }
 
     /**
@@ -306,28 +322,6 @@ public class Elements
     public static String toDisplayString(IElement element, IContext context)
     {
         return ((IElementImpl)element).toDisplayString_(context);
-    }
-
-    /**
-     * Returns whether the given elements are equal and belong to the same
-     * parent chain. In the most general case, equal elements may belong to
-     * different parent chains. E.g. in JDT, equal JarPackageFragmentRoots
-     * may belong to different Java projects.
-     *
-     * @param e1 the first element (not <code>null</code>)
-     * @param e2 the second element (may be <code>null</code>)
-     * @return <code>true</code> if the given elements are equal and belong
-     *  to the same parent chain, <code>false</code> otherwise
-     */
-    public static boolean equalsAndSameParentChain(IElement e1, IElement e2)
-    {
-        if (e1 == e2)
-            return true;
-
-        if (!e1.equals(e2))
-            return false;
-
-        return equalsAndSameParentChain(getParent(e1), getParent(e2));
     }
 
     /**

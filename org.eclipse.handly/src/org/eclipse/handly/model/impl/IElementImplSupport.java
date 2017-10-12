@@ -151,7 +151,7 @@ public interface IElementImplSupport
     }
 
     @Override
-    default IElement[] getChildren_(Object body)
+    default IElement[] getChildrenFromBody_(Object body)
     {
         return ((Body)body).getChildren();
     }
@@ -423,7 +423,7 @@ public interface IElementImplSupport
             toStringBody_(builder, body, context);
             if (style == FULL)
                 toStringAncestors_(builder, context);
-            if (body != null && getChildren_(body).length > 0)
+            if (body != null && getChildrenFromBody_(body).length > 0)
             {
                 indentPolicy.appendLine(builder);
                 toStringChildren_(builder, body, with(of(FORMAT_STYLE, LONG),
@@ -464,7 +464,7 @@ public interface IElementImplSupport
         if (body == null)
             return;
         IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
-        IElement[] children = getChildren_(body);
+        IElement[] children = getChildrenFromBody_(body);
         for (int i = 0; i < children.length; i++)
         {
             if (i > 0)

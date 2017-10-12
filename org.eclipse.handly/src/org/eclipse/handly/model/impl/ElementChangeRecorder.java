@@ -256,7 +256,7 @@ public class ElementChangeRecorder
 
         recordBody(body, element);
 
-        IElement[] children = ((IElementImplExtension)element).getChildren_(
+        IElement[] children = ((IElementImplExtension)element).getChildrenFromBody_(
             body);
         insertPositions(children, false);
         for (IElement child : children)
@@ -341,7 +341,7 @@ public class ElementChangeRecorder
 
             findContentChange(oldBody, newBody, element);
 
-            for (IElement child : ((IElementImplExtension)element).getChildren_(
+            for (IElement child : ((IElementImplExtension)element).getChildrenFromBody_(
                 newBody))
             {
                 findAdditions(child, depth + 1);

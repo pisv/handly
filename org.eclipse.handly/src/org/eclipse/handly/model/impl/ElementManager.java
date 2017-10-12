@@ -160,7 +160,7 @@ public class ElementManager
         Object body = cache.peek(element);
         if (body != null)
         {
-            for (IElement child : element.getChildren_(body))
+            for (IElement child : element.getChildrenFromBody_(body))
             {
                 close(child, of(CLOSE_HINT, PARENT_CLOSING));
             }
@@ -213,7 +213,7 @@ public class ElementManager
         if (body != null)
         {
             element.removing_(body);
-            for (IElement child : element.getChildren_(body))
+            for (IElement child : element.getChildrenFromBody_(body))
             {
                 close(child, of(CLOSE_HINT, PARENT_CLOSING));
             }
