@@ -10,9 +10,16 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.context.Contexts.with;
+import static org.eclipse.handly.model.Elements.BASE_SNAPSHOT;
+
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IField;
 import org.eclipse.handly.examples.javamodel.IMember;
@@ -136,56 +143,75 @@ public class Type
 
     @Override
     public ISourceElement getSourceElementAt_(int position,
-        ISourceElementInfo info) throws CoreException
+        ISourceElementInfo info, IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
-        ISnapshot snapshot = info.getSnapshot();
-        ISourceElement[] children = info.getChildren();
-        for (int i = children.length - 1; i >= 0; i--)
+        ISnapshot snapshot = context.get(BASE_SNAPSHOT);
+        if (snapshot == null)
         {
-            ISourceElement child = children[i];
-            if (child instanceof IField)
+            snapshot = info.getSnapshot();
+            if (snapshot != null)
+                context = with(of(BASE_SNAPSHOT, snapshot), context);
+        }
+        ISourceElement[] children = info.getChildren();
+        monitor.beginTask("", children.length);
+        try
+        {
+            for (int i = children.length - 1; i >= 0; i--)
             {
-                ISourceElementInfo childInfo = Elements.getSourceElementInfo(
-                    child);
-                if (ISourceElementImplSupport.checkInRange(position, snapshot,
-                    childInfo))
+                if (monitor.isCanceled())
+                    throw new OperationCanceledException();
+                ISourceElement child = children[i];
+                if (child instanceof IField)
                 {
-                    // check multi-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=465410)
-                    ISourceElement candidate = null;
-                    do
+                    ISourceElementInfo childInfo =
+                        Elements.getSourceElementInfo(child);
+                    if (ISourceElementImplSupport.checkInRange(position,
+                        snapshot, childInfo))
                     {
-                        // check name range
-                        TextRange nameRange = childInfo.getIdentifyingRange();
-                        if (nameRange != null
-                            && position <= nameRange.getEndOffset())
-                            candidate = child;
-                        else
-                            return candidate == null ? child : candidate;
-
-                        if (--i < 0)
-                            child = null;
-                        else
+                        // check multi-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=465410)
+                        ISourceElement candidate = null;
+                        do
                         {
-                            child = children[i];
-                            childInfo = Elements.getSourceElementInfo(child);
+                            // check name range
+                            TextRange nameRange =
+                                childInfo.getIdentifyingRange();
+                            if (nameRange != null
+                                && position <= nameRange.getEndOffset())
+                                candidate = child;
+                            else
+                                return candidate == null ? child : candidate;
+
+                            if (--i < 0)
+                                child = null;
+                            else
+                            {
+                                child = children[i];
+                                childInfo = Elements.getSourceElementInfo(
+                                    child);
+                            }
                         }
+                        while (child != null
+                            && ISourceElementImplSupport.checkInRange(position,
+                                snapshot, childInfo));
+                        // position in field's type: use first field
+                        return candidate;
                     }
-                    while (child != null
-                        && ISourceElementImplSupport.checkInRange(position,
-                            snapshot, childInfo));
-                    // position in field's type: use first field
-                    return candidate;
+                }
+                else
+                {
+                    ISourceElement found = Elements.getSourceElementAt(child,
+                        position, context, new SubProgressMonitor(monitor, 1));
+                    if (found != null)
+                        return found;
                 }
             }
-            else
-            {
-                ISourceElement found = Elements.getSourceElementAt(child,
-                    position, snapshot);
-                if (found != null)
-                    return found;
-            }
+            return this;
         }
-        return this;
+        finally
+        {
+            monitor.done();
+        }
     }
 
     @Override

@@ -29,9 +29,10 @@ public interface IElementImplExtension
     extends IElementImpl
 {
     @Override
-    default IElement[] getChildren_() throws CoreException
+    default IElement[] getChildren_(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
-        return getChildrenFromBody_(getBody_());
+        return getChildrenFromBody_(getBody_(context, monitor));
     }
 
     /**

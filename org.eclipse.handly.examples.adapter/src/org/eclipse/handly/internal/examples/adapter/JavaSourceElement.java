@@ -11,6 +11,8 @@
 package org.eclipse.handly.internal.examples.adapter;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.ISourceElement;
@@ -48,7 +50,8 @@ class JavaSourceElement
     }
 
     @Override
-    public ISourceElement getSourceElementAt_(int position, ISnapshot base)
+    public ISourceElement getSourceElementAt_(int position, IContext context,
+        IProgressMonitor monitor)
     {
         IJavaElement javaElement = getJavaElement();
         ISourceReference sourceRef = (ISourceReference)javaElement;
@@ -101,7 +104,8 @@ class JavaSourceElement
     }
 
     @Override
-    public ISourceElementInfo getSourceElementInfo_() throws CoreException
+    public ISourceElementInfo getSourceElementInfo_(IContext context,
+        IProgressMonitor monitor) throws CoreException
     {
         // JDT does not provide a strong guarantee that source, sourceRange,
         // nameRange, and children correspond to the same snapshot. Therefore,
@@ -112,7 +116,8 @@ class JavaSourceElement
         final String source = sourceRef.getSource();
         ISourceRange sourceRange = sourceRef.getSourceRange();
         ISourceRange nameRange = sourceRef.getNameRange();
-        final ISourceConstruct[] children = getChildren_(ISourceConstruct.class);
+        final ISourceConstruct[] children = getChildren_(ISourceConstruct.class,
+            context, monitor);
         final ISnapshot snapshot = (source == null ? null : new Snapshot()
         {
             @Override

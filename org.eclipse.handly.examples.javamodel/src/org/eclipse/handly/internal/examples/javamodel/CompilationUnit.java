@@ -13,6 +13,7 @@ package org.eclipse.handly.internal.examples.javamodel;
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.context.Contexts.with;
+import static org.eclipse.handly.model.Elements.BASE_SNAPSHOT;
 import static org.eclipse.handly.model.Elements.FORCE_RECONCILING;
 
 import org.eclipse.core.resources.IFile;
@@ -143,7 +144,8 @@ public class CompilationUnit
     public IJavaSourceElement getElementAt(int position, ISnapshot base)
         throws CoreException
     {
-        return (IJavaSourceElement)getSourceElementAt_(position, base);
+        return (IJavaSourceElement)getSourceElementAt_(position, of(
+            BASE_SNAPSHOT, base), null);
     }
 
     @Override

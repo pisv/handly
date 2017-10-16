@@ -11,9 +11,10 @@
 package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
-import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
 
 /**
@@ -29,10 +30,22 @@ public interface ISourceElementImpl
      * the given source position, or <code>null</code> if the given position
      * is not within the source range of this element. If no finer grained
      * element is found at the position, this element itself is returned.
+     * <p>
+     * Implementations are encouraged to support the following standard options,
+     * which may be specified in the given context:
+     * </p>
+     * <ul>
+     * <li>
+     * {@link org.eclipse.handly.model.Elements#BASE_SNAPSHOT BASE_SNAPSHOT} -
+     * A snapshot on which the given position is based, or <code>null</code>
+     * if the snapshot is unknown or doesn't matter.
+     * </li>
+     * </ul>
      *
      * @param position a source position (0-based)
-     * @param base a snapshot on which the given position is based,
-     *  or <code>null</code> if the snapshot is unknown or doesn't matter
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
      * @return the innermost element enclosing the given source position,
      *  or <code>null</code> if none (including this element itself)
      * @throws CoreException if this element does not exist or if an
@@ -41,15 +54,19 @@ public interface ISourceElementImpl
      *  i.e. this element's current structure and properties are based on
      *  a different snapshot
      */
-    ISourceElement getSourceElementAt_(int position, ISnapshot base)
-        throws CoreException;
+    ISourceElement getSourceElementAt_(int position, IContext context,
+        IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns an object holding cached structure and properties for this element.
      *
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
      * @return {@link ISourceElementInfo} for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    ISourceElementInfo getSourceElementInfo_() throws CoreException;
+    ISourceElementInfo getSourceElementInfo_(IContext context,
+        IProgressMonitor monitor) throws CoreException;
 }

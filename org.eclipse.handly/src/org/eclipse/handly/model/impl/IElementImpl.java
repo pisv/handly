@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
@@ -200,12 +201,16 @@ public interface IElementImpl
      * Returns the immediate children of this element. Unless otherwise specified
      * by the implementing element, the children are in no particular order.
      *
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
      * @return the immediate children of this element (never <code>null</code>).
      *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    IElement[] getChildren_() throws CoreException;
+    IElement[] getChildren_(IContext context, IProgressMonitor monitor)
+        throws CoreException;
 
     /**
      * Returns the immediate children of this element that have the given type.
@@ -213,15 +218,19 @@ public interface IElementImpl
      * are in no particular order.
      *
      * @param childType the given type (not <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
      * @return the immediate children of this element that have the given type
      *  (never <code>null</code>). Clients <b>must not</b> modify the returned
      *  array.
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    default <T> T[] getChildren_(Class<T> childType) throws CoreException
+    default <T> T[] getChildren_(Class<T> childType, IContext context,
+        IProgressMonitor monitor) throws CoreException
     {
-        IElement[] children = getChildren_();
+        IElement[] children = getChildren_(context, monitor);
         if (childType.isAssignableFrom(children.getClass().getComponentType()))
         {
             @SuppressWarnings("unchecked")

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.IElement;
@@ -155,7 +156,8 @@ public class JavaElement
     }
 
     @Override
-    public IElement[] getChildren_() throws CoreException
+    public IElement[] getChildren_(IContext context, IProgressMonitor monitor)
+        throws CoreException
     {
         if (!(javaElement instanceof IParent))
             return NO_CHILDREN;

@@ -12,6 +12,7 @@
 package org.eclipse.handly.model;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+import static org.eclipse.handly.context.Contexts.of;
 
 import java.net.URI;
 
@@ -248,7 +249,26 @@ public class Elements
      */
     public static IElement[] getChildren(IElement element) throws CoreException
     {
-        return ((IElementImpl)element).getChildren_();
+        return getChildren(element, EMPTY_CONTEXT, null);
+    }
+
+    /**
+     * Returns the immediate children of the element. Unless otherwise specified
+     * by the implementing element, the children are in no particular order.
+     *
+     * @param element not <code>null</code>
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the immediate children of the element (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
+     * @throws CoreException if the element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     */
+    public static IElement[] getChildren(IElement element, IContext context,
+        IProgressMonitor monitor) throws CoreException
+    {
+        return ((IElementImpl)element).getChildren_(context, monitor);
     }
 
     /**
@@ -267,7 +287,30 @@ public class Elements
     public static <T> T[] getChildren(IElement element, Class<T> childType)
         throws CoreException
     {
-        return ((IElementImpl)element).getChildren_(childType);
+        return getChildren(element, childType, EMPTY_CONTEXT, null);
+    }
+
+    /**
+     * Returns the immediate children of the element that have the given type.
+     * Unless otherwise specified by the implementing element, the children are
+     * in no particular order.
+     *
+     * @param element not <code>null</code>
+     * @param childType the given type (not <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the immediate children of the element that have the given type
+     *  (never <code>null</code>). Clients <b>must not</b> modify the returned
+     *  array.
+     * @throws CoreException if the element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     */
+    public static <T> T[] getChildren(IElement element, Class<T> childType,
+        IContext context, IProgressMonitor monitor) throws CoreException
+    {
+        return ((IElementImpl)element).getChildren_(childType, context,
+            monitor);
     }
 
     /**
@@ -330,7 +373,7 @@ public class Elements
      * of the given element. If no finer grained element is found at the
      * position, the given element itself is returned.
      *
-     * @param context a source element (not <code>null</code>)
+     * @param element a source element (not <code>null</code>)
      * @param position a source position (0-based)
      * @param base a snapshot on which the given position is based,
      *  or <code>null</code> if the snapshot is unknown or doesn't matter
@@ -342,12 +385,56 @@ public class Elements
      *  i.e. the given element's current structure and properties are based on
      *  a different snapshot
      */
-    public static ISourceElement getSourceElementAt(ISourceElement context,
+    public static ISourceElement getSourceElementAt(ISourceElement element,
         int position, ISnapshot base) throws CoreException
     {
-        return ((ISourceElementImpl)context).getSourceElementAt_(position,
-            base);
+        return getSourceElementAt(element, position, of(BASE_SNAPSHOT, base),
+            null);
     }
+
+    /**
+     * Returns the smallest element that includes the given source position,
+     * or <code>null</code> if the given position is not within the source range
+     * of the given element. If no finer grained element is found at the
+     * position, the given element itself is returned.
+     * <p>
+     * Implementations are encouraged to support the following standard options,
+     * which may be specified in the given context:
+     * </p>
+     * <ul>
+     * <li>
+     * {@link #BASE_SNAPSHOT} - A snapshot on which the given position is based,
+     * or <code>null</code> if the snapshot is unknown or doesn't matter.
+     * </li>
+     * </ul>
+     *
+     * @param element a source element (not <code>null</code>)
+     * @param position a source position (0-based)
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return the innermost element enclosing the given source position,
+     *  or <code>null</code> if none (including the given element itself)
+     * @throws CoreException if the given element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws StaleSnapshotException if snapshot inconsistency is detected,
+     *  i.e. the given element's current structure and properties are based on
+     *  a different snapshot
+     */
+    public static ISourceElement getSourceElementAt(ISourceElement element,
+        int position, IContext context, IProgressMonitor monitor)
+        throws CoreException
+    {
+        return ((ISourceElementImpl)element).getSourceElementAt_(position,
+            context, monitor);
+    }
+
+    /**
+     * Specifies a base snapshot.
+     * @see #getSourceElementAt(ISourceElement, int, IContext, IProgressMonitor)
+     */
+    public static final Property<ISnapshot> BASE_SNAPSHOT = Property.get(
+        Elements.class.getName() + ".baseSnapshot", ISnapshot.class); //$NON-NLS-1$
 
     /**
      * Returns the smallest element that includes the given position,
@@ -357,23 +444,23 @@ public class Elements
      * snapshot inconsistency is detected. If no finer grained element is
      * found at the position, the given element itself is returned.
      *
-     * @param context a source element (not <code>null</code>)
+     * @param element a source element (not <code>null</code>)
      * @param position a source position (0-based)
      * @param base a snapshot on which the given position is based,
      *  or <code>null</code> if the snapshot is unknown or doesn't matter
      * @return the innermost element enclosing the given source position,
      *  or <code>null</code> if none (including the given element itself)
      */
-    public static ISourceElement getSourceElementAt2(ISourceElement context,
+    public static ISourceElement getSourceElementAt2(ISourceElement element,
         int position, ISnapshot base)
     {
         try
         {
-            return getSourceElementAt(context, position, base);
+            return getSourceElementAt(element, position, base);
         }
         catch (CoreException e)
         {
-            if (!exists(context))
+            if (!exists(element))
                 ; // this is considered normal
             else
                 Activator.log(e.getStatus());
@@ -398,7 +485,28 @@ public class Elements
     public static ISourceElementInfo getSourceElementInfo(
         ISourceElement element) throws CoreException
     {
-        return ((ISourceElementImpl)element).getSourceElementInfo_();
+        return getSourceElementInfo(element, EMPTY_CONTEXT, null);
+    }
+
+    /**
+     * Returns an object holding cached structure and properties for the
+     * source element.
+     *
+     * @param element not <code>null</code>
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired
+     * @return {@link ISourceElementInfo} for the element
+     *  (never <code>null</code>)
+     * @throws CoreException if the element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     */
+    public static ISourceElementInfo getSourceElementInfo(
+        ISourceElement element, IContext context, IProgressMonitor monitor)
+        throws CoreException
+    {
+        return ((ISourceElementImpl)element).getSourceElementInfo_(context,
+            monitor);
     }
 
     /**
