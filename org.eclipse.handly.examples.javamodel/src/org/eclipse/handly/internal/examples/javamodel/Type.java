@@ -146,10 +146,9 @@ public class Type
         ISourceElementInfo info, IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        ISnapshot snapshot = context.get(BASE_SNAPSHOT);
-        if (snapshot == null)
+        if (context.get(BASE_SNAPSHOT) == null)
         {
-            snapshot = info.getSnapshot();
+            ISnapshot snapshot = info.getSnapshot();
             if (snapshot != null)
                 context = with(of(BASE_SNAPSHOT, snapshot), context);
         }
@@ -167,7 +166,7 @@ public class Type
                     ISourceElementInfo childInfo =
                         Elements.getSourceElementInfo(child);
                     if (ISourceElementImplSupport.checkInRange(position,
-                        snapshot, childInfo))
+                        childInfo, context))
                     {
                         // check multi-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=465410)
                         ISourceElement candidate = null;
@@ -193,7 +192,7 @@ public class Type
                         }
                         while (child != null
                             && ISourceElementImplSupport.checkInRange(position,
-                                snapshot, childInfo));
+                                childInfo, context));
                         // position in field's type: use first field
                         return candidate;
                     }

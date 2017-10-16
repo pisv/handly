@@ -54,8 +54,8 @@ public interface ISourceElementImplSupport
      * This implementation obtains the source element info for this element and
      * delegates to {@link #getSourceElementAt_(int, ISourceElementInfo, IContext,
      * IProgressMonitor)} if the given position is within the source range of
-     * this element as reported by {@link #checkInRange(int, ISnapshot,
-     * ISourceElementInfo)}. Otherwise, returns <code>null</code>.
+     * this element as reported by {@link #checkInRange(int, ISourceElementInfo,
+     * IContext)}. Otherwise, returns <code>null</code>.
      * </p>
      */
     @Override
@@ -69,7 +69,7 @@ public interface ISourceElementImplSupport
         {
             ISourceElementInfo info = getSourceElementInfo_(context,
                 new SubProgressMonitor(monitor, 1));
-            if (!checkInRange(position, context.get(BASE_SNAPSHOT), info))
+            if (!checkInRange(position, info, context))
                 return null;
             return getSourceElementAt_(position, info, context,
                 new SubProgressMonitor(monitor, 1));
@@ -132,19 +132,19 @@ public interface ISourceElementImplSupport
      * in the source snapshot as recorded by the given element info.
      *
      * @param position a source position (0-based)
-     * @param base a snapshot on which the given position is based,
-     *  or <code>null</code> if the snapshot is unknown or doesn't matter
      * @param info the source element info (never <code>null</code>)
+     * @param context the operation context (never <code>null</code>)
      * @return <code>true</code> if the given position is within the element's
      *  source range; <code>false</code> otherwise
      * @throws StaleSnapshotException if snapshot inconsistency is detected
      */
-    static boolean checkInRange(int position, ISnapshot base,
-        ISourceElementInfo info)
+    static boolean checkInRange(int position, ISourceElementInfo info,
+        IContext context)
     {
         ISnapshot snapshot = info.getSnapshot();
         if (snapshot == null)
             return false; // the element has no associated source code
+        ISnapshot base = context.get(BASE_SNAPSHOT);
         if (base != null && !base.isEqualTo(snapshot))
         {
             throw new StaleSnapshotException();
