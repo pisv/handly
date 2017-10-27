@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Codasip Ltd.
+ * Copyright (c) 2015, 2017 Codasip Ltd. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.handly.examples.javamodel.ICompilationUnit;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
+import org.eclipse.handly.examples.javamodel.IJavaSourceConstruct;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.IMemento;
@@ -67,7 +67,7 @@ public class PersistableJavaElementFactory
     @Override
     public void saveState(IMemento memento)
     {
-        if (element.getAncestor(ICompilationUnit.class) != null)
+        if (element instanceof IJavaSourceConstruct)
             return; // element inside compilation unit
         memento.putString(KEY, element.getPath().toPortableString());
     }

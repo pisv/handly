@@ -70,43 +70,6 @@ public interface IElementImpl
     }
 
     /**
-     * Returns the closest ancestor of this element that has the given type.
-     * Returns <code>null</code> if no such ancestor can be found.
-     * This is a handle-only method.
-     *
-     * @param ancestorType the given type (not <code>null</code>)
-     * @return the closest ancestor of this element that has the given type,
-     *  or <code>null</code> if no such ancestor can be found
-     */
-    default <T> T getAncestor_(Class<T> ancestorType)
-    {
-        IElement parent = getParent_();
-        if (parent == null)
-            return null;
-        if (ancestorType.isInstance(parent))
-            return ancestorType.cast(parent);
-        return Elements.getAncestor(parent, ancestorType);
-    }
-
-    /**
-     * Returns whether this element is a descendant of the given element.
-     * This is a handle-only method.
-     *
-     * @param other may be <code>null</code>
-     * @return <code>true</code> if this element is a descendant of the given
-     *  element, and <code>false</code> otherwise
-     */
-    default boolean isDescendantOf_(IElement other)
-    {
-        IElement parent = getParent_();
-        if (parent == null)
-            return false;
-        if (Elements.equalsAndSameParentChain(parent, other))
-            return true;
-        return Elements.isDescendantOf(parent, other);
-    }
-
-    /**
      * Returns whether this element is equal to the given element and belongs
      * to the same parent chain as the given element. This is a handle-only
      * method.
@@ -217,7 +180,7 @@ public interface IElementImpl
      * Unless otherwise specified by the implementing element, the children
      * are in no particular order.
      *
-     * @param childType the given type (not <code>null</code>)
+     * @param type not <code>null</code>
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
@@ -227,11 +190,11 @@ public interface IElementImpl
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    default <T> T[] getChildren_(Class<T> childType, IContext context,
+    default <T> T[] getChildrenOfType_(Class<T> type, IContext context,
         IProgressMonitor monitor) throws CoreException
     {
         IElement[] children = getChildren_(context, monitor);
-        if (childType.isAssignableFrom(children.getClass().getComponentType()))
+        if (type.isAssignableFrom(children.getClass().getComponentType()))
         {
             @SuppressWarnings("unchecked")
             T[] result = (T[])children;
@@ -240,11 +203,11 @@ public interface IElementImpl
         ArrayList<T> list = new ArrayList<T>(children.length);
         for (IElement child : children)
         {
-            if (childType.isInstance(child))
-                list.add(childType.cast(child));
+            if (type.isInstance(child))
+                list.add(type.cast(child));
         }
         @SuppressWarnings("unchecked")
-        T[] result = (T[])Array.newInstance(childType, list.size());
+        T[] result = (T[])Array.newInstance(type, list.size());
         return list.toArray(result);
     }
 

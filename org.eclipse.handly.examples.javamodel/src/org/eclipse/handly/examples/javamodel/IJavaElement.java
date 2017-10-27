@@ -62,17 +62,17 @@ public interface IJavaElement
     }
 
     /**
-     * Returns the closest ancestor of this element that has the given type.
-     * Returns <code>null</code> if no such ancestor can be found.
-     * This is a handle-only method.
+     * Returns this element if it has the given type or the closest ancestor
+     * of this element that has the given type. Returns <code>null</code> if
+     * no such element can be found. This is a handle-only method.
      *
-     * @param ancestorType the given type (not <code>null</code>)
-     * @return the closest ancestor of this element that has the given type,
-     *  or <code>null</code> if no such ancestor can be found
+     * @param type not <code>null</code
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
      */
-    default <T extends IJavaElement> T getAncestor(Class<T> ancestorType)
+    default <T extends IJavaElement> T getAncestorOfType(Class<T> type)
     {
-        return Elements.getAncestor(this, ancestorType);
+        return Elements.findAncestorOfType(this, type);
     }
 
     /**
@@ -156,15 +156,15 @@ public interface IJavaElement
      * Unless otherwise specified by the implementing element, the children
      * are in no particular order.
      *
-     * @param childType the given type (not <code>null</code>)
+     * @param type not <code>null</code>
      * @return the immediate children of this element that have the given type
      *  (never <code>null</code>). Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    default <T extends IJavaElement> T[] getChildren(Class<T> childType)
+    default <T extends IJavaElement> T[] getChildrenOfType(Class<T> type)
         throws CoreException
     {
-        return Elements.getChildren(this, childType);
+        return Elements.getChildrenOfType(this, type);
     }
 }

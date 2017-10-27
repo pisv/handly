@@ -68,17 +68,18 @@ public interface IElementExtension
     }
 
     /**
-     * Returns the closest ancestor of this element that has the given type.
-     * Returns <code>null</code> if no such ancestor can be found.
-     * This is a handle-only method.
+     * Returns the closest ancestor of this element that has the given type
+     * (excluding this element). Returns <code>null</code> if no such ancestor
+     * can be found. This is a handle-only method.
      *
      * @param ancestorType the given type (not <code>null</code>)
-     * @return the closest ancestor of this element that has the given type,
-     *  or <code>null</code> if no such ancestor can be found
+     * @return the closest ancestor of this element that has the given type
+     *  (excluding this element),  or <code>null</code> if no such ancestor
+     *  can be found
      */
     default <T> T getAncestor(Class<T> ancestorType)
     {
-        return Elements.getAncestor(this, ancestorType);
+        return Elements.findAncestorOfType(getParent(), ancestorType);
     }
 
     /**
@@ -155,6 +156,6 @@ public interface IElementExtension
      */
     default <T> T[] getChildren(Class<T> childType) throws CoreException
     {
-        return Elements.getChildren(this, childType);
+        return Elements.getChildrenOfType(this, childType);
     }
 }

@@ -15,11 +15,12 @@ import org.eclipse.handly.model.IModel;
 /**
  * A simple model manager for tests.
  */
-class SimpleModelManager
+public class SimpleModelManager
     implements IModelManager
 {
-    IModel model = new SimpleModel();
-    ElementManager elementManager = new ElementManager(new NullBodyCache());
+    public IModel model = new SimpleModel();
+    public ElementManager elementManager = new ElementManager(
+        new NullBodyCache());
 
     @Override
     public IModel getModel()

@@ -21,7 +21,7 @@ import org.eclipse.handly.model.IElement;
  * A simple source file for tests.
  * Test clients can instantiate this class directly or subclass it.
  */
-class SimpleSourceFile
+public class SimpleSourceFile
     extends SourceFile
 {
     private final IFile file;

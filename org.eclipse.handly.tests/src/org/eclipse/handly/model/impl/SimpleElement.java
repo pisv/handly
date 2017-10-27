@@ -20,7 +20,7 @@ import org.eclipse.handly.model.IElement;
  * A simple element for tests.
  * Test clients can instantiate this class directly or subclass it.
  */
-class SimpleElement
+public class SimpleElement
     extends Element
 {
     private final IModelManager manager;

@@ -15,6 +15,20 @@ import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -48,6 +62,11 @@ import org.eclipse.handly.util.TextRange;
  */
 public class Elements
 {
+    /**
+     * Zero length array of runtime type {@link IElement}.
+     */
+    public static final IElement[] EMPTY_ARRAY = new IElement[0];
+
     /**
      * Returns the name of the element, or <code>null</code>
      * if the element has no name. This is a handle-only method.
@@ -88,37 +107,581 @@ public class Elements
     }
 
     /**
-     * Returns the element's closest ancestor that has the given type.
-     * Returns <code>null</code> if no such ancestor can be found.
-     * This is a handle-only method.
+     * Returns an <code>Iterable</code> that starts from the given element
+     * (inclusive) and goes up through the parent chain to the root element
+     * (inclusive). This is a handle-only method.
+     * <p>
+     * This method is equivalent to <code>getParentChainUntil(element, null)</code>.
+     * </p>
      *
-     * @param element not <code>null</code>
-     * @param ancestorType the given type (not <code>null</code>)
-     * @return the closest ancestor element that has the given type,
-     *  or <code>null</code> if no such ancestor can be found
+     * @param element may be <code>null</code>, in which case an empty iterable
+     *  will be returned
+     * @return an iterable representing the specified parent chain
+     *  (never <code>null</code>)
      */
-    public static <T> T getAncestor(IElement element, Class<T> ancestorType)
+    public static Iterable<IElement> getParentChain(IElement element)
     {
-        return ((IElementImpl)element).getAncestor_(ancestorType);
+        return getParentChainUntil(element, null);
     }
 
     /**
-     * Returns whether the element is a descendant of the given other element.
+     * Returns an <code>Iterable</code> that starts from the given element
+     * (inclusive) and goes up through the parent chain to the ancestor matched
+     * by the given predicate (exclusive). If the predicate is not matched or
+     * is <code>null</code>, all ancestors will be included. If the predicate
+     * matches the given element, the returned iterable will be empty.
      * This is a handle-only method.
      *
-     * @param element not <code>null</code>
-     * @param other may be <code>null</code>
-     * @return <code>true</code> if the element is a descendant of the given
-     *  other element, and <code>false</code> otherwise
+     * @param element may be <code>null</code>, in which case an empty iterable
+     *  will be returned
+     * @param until may be <code>null</code>
+     * @return an iterable representing the specified parent chain
+     *  (never <code>null</code>)
      */
-    public static boolean isDescendantOf(IElement element, IElement other)
+    public static Iterable<IElement> getParentChainUntil(IElement element,
+        Predicate<? super IElement> until)
     {
-        return ((IElementImpl)element).isDescendantOf_(other);
+        return new Iterable<IElement>()
+        {
+            @Override
+            public Iterator<IElement> iterator()
+            {
+                ParentChainItr it = new ParentChainItr(element);
+                if (until == null)
+                    return it;
+                return it.with(until);
+            }
+
+            @Override
+            public Spliterator<IElement> spliterator()
+            {
+                return Spliterators.spliteratorUnknownSize(iterator(),
+                    Spliterator.IMMUTABLE | Spliterator.ORDERED
+                        | Spliterator.DISTINCT | Spliterator.NONNULL);
+            }
+        };
+    }
+
+    private static class ParentChainItr
+        implements Iterator<IElement>
+    {
+        private IElement next;
+
+        ParentChainItr(IElement from)
+        {
+            next = from;
+        }
+
+        Iterator<IElement> with(Predicate<? super IElement> until)
+        {
+            return new ParentChainItr(next)
+            {
+                @Override
+                public boolean hasNext()
+                {
+                    if (!super.hasNext())
+                        return false;
+                    return !until.test(peekNext());
+                }
+            };
+        }
+
+        @Override
+        public boolean hasNext()
+        {
+            return next != null;
+        }
+
+        @Override
+        public IElement next()
+        {
+            if (!hasNext())
+                throw new NoSuchElementException();
+            IElement result = next;
+            next = getParent(next);
+            return result;
+        }
+
+        IElement peekNext()
+        {
+            return next;
+        }
     }
 
     /**
-     * Returns whether the given elements are equal and belong to the same
-     * parent chain. This is a handle-only method.
+     * Returns a sequential ordered stream that starts from the given element
+     * (inclusive) and goes up through the parent chain to the root element
+     * (inclusive). This is a handle-only method.
+     * <p>
+     * This method is equivalent to <code>streamParentChainUntil(element, null)</code>.
+     * </p>
+     *
+     * @param element may be <code>null</code>, in which case an empty stream
+     *  will be returned
+     * @return a stream representing the specified parent chain
+     *  (never <code>null</code>)
+     */
+    public static Stream<IElement> streamParentChain(IElement element)
+    {
+        return streamParentChainUntil(element, null);
+    }
+
+    /**
+     * Returns a sequential ordered stream that starts from the given element
+     * (inclusive) and goes up through the parent chain to the ancestor matched
+     * by the given predicate (exclusive). If the predicate is not matched or
+     * is <code>null</code>, all ancestors will be included. If the predicate
+     * matches the given element, the returned stream will be empty.
+     * This is a handle-only method.
+     *
+     * @param element may be <code>null</code>, in which case an empty stream
+     *  will be returned
+     * @param until may be <code>null</code>
+     * @return a stream representing the specified parent chain
+     *  (never <code>null</code>)
+     */
+    public static Stream<IElement> streamParentChainUntil(IElement element,
+        Predicate<? super IElement> until)
+    {
+        return StreamSupport.stream(getParentChainUntil(element,
+            until).spliterator(), false);
+    }
+
+    /**
+     * Adds elements to the given collection starting from the given element
+     * (inclusive) and going up through the parent chain to the root element
+     * (inclusive). This is a handle-only method.
+     * <p>
+     * This method is equivalent to <code>collectParentChainUntil(element, null)</code>.
+     * </p>
+     *
+     * @param element may be <code>null</code>, in which case no elements
+     *  will be added to the given collection
+     * @param collection not <code>null</code>
+     * @return the given collection
+     */
+    public static <T extends Collection<? super IElement>> T collectParentChain(
+        IElement element, T collection)
+    {
+        while (element != null)
+        {
+            collection.add(element);
+            element = getParent(element);
+        }
+        return collection;
+    }
+
+    /**
+     * Adds elements to the given collection starting from the given element
+     * (inclusive) and going up through the parent chain to the ancestor matched
+     * by the given predicate (exclusive). If the predicate is not matched or
+     * is <code>null</code>, all ancestors will be included. If the predicate
+     * matches the given element, no elements will be added to the collection.
+     * This is a handle-only method.
+     *
+     * @param element may be <code>null</code>, in which case no elements
+     *  will be added to the given collection
+     * @param collection not <code>null</code>
+     * @param until may be <code>null</code>
+     * @return the given collection
+     */
+    public static <T extends Collection<? super IElement>> T collectParentChainUntil(
+        IElement element, T collection, Predicate<? super IElement> until)
+    {
+        if (until == null)
+            return collectParentChain(element, collection);
+        while (element != null)
+        {
+            if (until.test(element))
+                break;
+            collection.add(element);
+            element = getParent(element);
+        }
+        return collection;
+    }
+
+    /**
+     * Finds and returns the first element that matches the given predicate
+     * starting from the given element (inclusive) and going up through
+     * the parent chain. Returns <code>null</code> if no such element
+     * can be found. This is a handle-only method.
+     * <p>
+     * This method is equivalent to <code>findMatchingAncestorUntil(element,
+     * filter, null)</code>.
+     * </p>
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param filter not <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static IElement findMatchingAncestor(IElement element,
+        Predicate<? super IElement> filter)
+    {
+        while (element != null)
+        {
+            if (filter.test(element))
+                return element;
+            element = getParent(element);
+        }
+        return null;
+    }
+
+    /**
+     * Finds and returns the first element that matches the given <code>filter</code>
+     * predicate starting from the given element (inclusive) and going up through
+     * the parent chain no further than the element matched by the given
+     * <code>until</code> predicate (exclusive). Returns <code>null</code>
+     * if no such element can be found. If the <code>until</code> predicate
+     * is not matched or is <code>null</code>, all ancestors will be included.
+     * If the <code>until</code> predicate matches the given element,
+     * <code>null</code> will be returned. This is a handle-only method.
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param filter not <code>null</code>
+     * @param until may be <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static IElement findMatchingAncestorUntil(IElement element,
+        Predicate<? super IElement> filter, Predicate<? super IElement> until)
+    {
+        if (until == null)
+            return findMatchingAncestor(element, filter);
+        while (element != null)
+        {
+            if (until.test(element))
+                return null;
+            if (filter.test(element))
+                return element;
+            element = getParent(element);
+        }
+        return null;
+    }
+
+    /**
+     * Finds and returns the first element that has the given type starting from
+     * the given element (inclusive) and going up through the parent chain. Returns
+     * <code>null</code> if no such element can be found. This is a handle-only
+     * method.
+     * <p>
+     * This method is equivalent to <code>findAncestorOfTypeUntil(element,
+     * type, null)</code>.
+     * </p>
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param type not <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static <T> T findAncestorOfType(IElement element, Class<T> type)
+    {
+        return type.cast(findMatchingAncestor(element, e -> type.isInstance(
+            e)));
+    }
+
+    /**
+     * Finds and returns the first element that has the given type starting from
+     * the given element (inclusive) and going up through the parent chain
+     * no further than the element matched by the given predicate (exclusive).
+     * Returns <code>null</code> if no such element can be found. If the predicate
+     * is not matched or is <code>null</code>, all ancestors will be included.
+     * If the predicate matches the given element, <code>null</code> will be
+     * returned. This is a handle-only method.
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param type not <code>null</code>
+     * @param until may be <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static <T> T findAncestorOfTypeUntil(IElement element, Class<T> type,
+        Predicate<? super IElement> until)
+    {
+        return type.cast(findMatchingAncestorUntil(element,
+            e -> type.isInstance(e), until));
+    }
+
+    /**
+     * Finds and returns the last element that matches the given predicate
+     * starting from the given element (inclusive) and going up through the
+     * parent chain to the root element (inclusive). Returns <code>null</code>
+     * if no such element can be found. This is a handle-only method.
+     * <p>
+     * This method is equivalent to <code>findLastMatchingAncestorUntil(element,
+     * filter, null)</code>.
+     * </p>
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param filter not <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static IElement findLastMatchingAncestor(IElement element,
+        Predicate<? super IElement> filter)
+    {
+        IElement result = null;
+        while (element != null)
+        {
+            if (filter.test(element))
+                result = element;
+            element = getParent(element);
+        }
+        return result;
+    }
+
+    /**
+     * Finds and returns the last element that matches the given <code>filter</code>
+     * predicate starting from the given element (inclusive) and going up through
+     * the parent chain to the element matched by the given <code>until</code>
+     * predicate (exclusive). Returns <code>null</code> if no such element can
+     * be found. If the <code>until</code> predicate is not matched or is
+     * <code>null</code>, all ancestors will be included. If the <code>until</code>
+     * predicate matches the given element, <code>null</code> will be returned.
+     * This is a handle-only method.
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param filter not <code>null</code>
+     * @param until may be <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static IElement findLastMatchingAncestorUntil(IElement element,
+        Predicate<? super IElement> filter, Predicate<? super IElement> until)
+    {
+        if (until == null)
+            return findLastMatchingAncestor(element, filter);
+        IElement result = null;
+        while (element != null)
+        {
+            if (until.test(element))
+                break;
+            if (filter.test(element))
+                result = element;
+            element = getParent(element);
+        }
+        return result;
+    }
+
+    /**
+     * Finds and returns the last element that has the given type starting from
+     * the given element (inclusive) and going up through the parent chain to the
+     * root element (inclusive). Returns <code>null</code> if no such element
+     * can be found. This is a handle-only method.
+     * <p>
+     * This method is equivalent to <code>findLastAncestorOfTypeUntil(element,
+     * type, null)</code>.
+     * </p>
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param type not <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static <T> T findLastAncestorOfType(IElement element, Class<T> type)
+    {
+        return type.cast(findLastMatchingAncestor(element, e -> type.isInstance(
+            e)));
+    }
+
+    /**
+     * Finds and returns the last element that has the given type starting from
+     * the given element (inclusive) and going up through the parent chain to the
+     * element matched by the given predicate (exclusive). Returns <code>null</code>
+     * if no such element can be found. If the predicate is not matched or is
+     * <code>null</code>, all ancestors will be included. If the predicate
+     * matches the given element, <code>null</code> will be returned.
+     * This is a handle-only method.
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param type not <code>null</code>
+     * @param until may be <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static <T> T findLastAncestorOfTypeUntil(IElement element,
+        Class<T> type, Predicate<? super IElement> until)
+    {
+        return type.cast(findLastMatchingAncestorUntil(element,
+            e -> type.isInstance(e), until));
+    }
+
+    /**
+     * Finds and returns the closest common ancestor of the given elements,
+     * viewing each element as its own ancestor. Returns <code>null</code>
+     * if no such element can be found. This is a handle-only method.
+     * <p>
+     * This method is equivalent to
+     * <code>findCommonAncestorUntil(element, other, null)</code>.
+     * </p>
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param other may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static IElement findCommonAncestor(IElement element, IElement other)
+    {
+        return findCommonAncestorUntil(element, other, null);
+    }
+
+    /**
+     * Finds and returns the closest common ancestor of the given elements,
+     * viewing each element as its own ancestor and looking no further in each
+     * parent chain than the element matched by the given predicate (exclusive).
+     * Returns <code>null</code> if no such element can be found. If the predicate
+     * is not matched or is <code>null</code>, all ancestors will be included.
+     * If the predicate matches any of the given elements, <code>null</code>
+     * will be returned. This is a handle-only method.
+     *
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param other may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
+     * @param until may be <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static IElement findCommonAncestorUntil(IElement element,
+        IElement other, Predicate<? super IElement> until)
+    {
+        if (element == null || other == null)
+            return null;
+        List<IElement> parentChain = collectParentChainUntil(element,
+            new ArrayList<>(), until);
+        List<IElement> otherParentChain = collectParentChainUntil(other,
+            new ArrayList<>(), until);
+        int index = -1;
+        for (int i = parentChain.size() - 1, j = otherParentChain.size() - 1; //
+            i >= 0 && j >= 0; i--, j--)
+        {
+            if (!parentChain.get(i).equals(otherParentChain.get(j)))
+                break;
+
+            index = i;
+        }
+        if (index == -1)
+            return null;
+        return parentChain.get(index);
+    }
+
+    /**
+     * Finds and returns the closest common ancestor of the given elements,
+     * viewing each element as its own ancestor. Returns <code>null</code>
+     * if no such element can be found. This is a handle-only method.
+     * <p>
+     * This method is equivalent to
+     * <code>findCommonAncestorUntil(elements, null)</code>.
+     * </p>
+     *
+     * @param elements not <code>null</code>, may contain nulls
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static IElement findCommonAncestor(
+        Iterable<? extends IElement> elements)
+    {
+        return findCommonAncestorUntil(elements, null);
+    }
+
+    /**
+     * Finds and returns the closest common ancestor of the given elements,
+     * viewing each element as its own ancestor and looking no further in each
+     * parent chain than the element matched by the given predicate (exclusive).
+     * Returns <code>null</code> if no such element can be found. If the predicate
+     * is not matched or is <code>null</code>, all ancestors will be included.
+     * If the predicate matches any of the given elements, <code>null</code>
+     * will be returned. This is a handle-only method.
+     *
+     * @param elements not <code>null</code>, may contain nulls
+     * @param until may be <code>null</code>
+     * @return the matching element, or <code>null</code> if no such element
+     *  can be found
+     */
+    public static IElement findCommonAncestorUntil(
+        Iterable<? extends IElement> elements,
+        Predicate<? super IElement> until)
+    {
+        IElement result = null;
+        for (IElement element : elements)
+        {
+            if (element == null)
+                return null;
+
+            if (result != null)
+                result = findCommonAncestorUntil(result, element, until);
+            else if (until == null || !until.test(element))
+                result = element;
+
+            if (result == null)
+                return null;
+        }
+        return result;
+    }
+
+    /**
+     * Returns whether the element is the same as or an ancestor of the
+     * other element. This is a handle-only method.
+     *
+     * @param element not <code>null</code>
+     * @param other may be <code>null</code>, in which case <code>false</code>
+     *  will be returned
+     * @return <code>true</code> if the element is the same as or an ancestor
+     *  of the other element, and <code>false</code> otherwise
+     */
+    public static boolean isAncestorOf(IElement element, IElement other)
+    {
+        while (other != null)
+        {
+            if (equalsAndSameParentChain(element, other))
+                return true;
+
+            other = getParent(other);
+        }
+        return false;
+    }
+
+    /**
+     * Given a collection of elements, returns a subset without descendants,
+     * i.e. without elements for which an ancestor is also present in the given
+     * collection. The returned set has predictable iteration order determined
+     * by that of the given collection. This is a handle-only method.
+     *
+     * @param elements not <code>null</code>, must not contain nulls
+     * @return a set excluding any descendant elements present in the given
+     *  collection (never <code>null</code>)
+     */
+    public static <T extends IElement> Set<T> withoutDescendants(
+        Collection<T> elements)
+    {
+        Set<T> result = new LinkedHashSet<>(elements);
+        for (IElement element : elements)
+        {
+            for (IElement other : elements)
+            {
+                if (element == other)
+                    continue;
+
+                if (isAncestorOf(other, getParent(element)))
+                    result.remove(element);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns whether the elements are equal and belong to the same parent chain.
+     * This is a handle-only method.
      * <p>
      * In the most general case, equal elements may belong to different parent
      * chains. E.g. in JDT, equal JarPackageFragmentRoots may belong to different
@@ -127,8 +690,8 @@ public class Elements
      *
      * @param element not <code>null</code>
      * @param other may be <code>null</code>
-     * @return <code>true</code> if the given elements are equal and belong
-     *  to the same parent chain, <code>false</code> otherwise
+     * @return <code>true</code> if the elements are equal and belong to the same
+     *  parent chain, <code>false</code> otherwise
      */
     public static boolean equalsAndSameParentChain(IElement element,
         IElement other)
@@ -145,6 +708,21 @@ public class Elements
     public static IModel getModel(IElement element)
     {
         return ((IElementImpl)element).getModel_();
+    }
+
+    /**
+     * Returns whether the element belongs to the given model. More formally,
+     * returns <code>true</code> iff <code>model.equals(getModel(element))</code>.
+     * This is a handle-only method.
+     *
+     * @param element not <code>null</code>
+     * @param model not <code>null</code>
+     * @return <code>true</code> if the element belongs to the given model;
+     *  <code>false</code> otherwise
+     */
+    public static boolean isOfModel(IElement element, IModel model)
+    {
+        return model.equals(getModel(element));
     }
 
     /**
@@ -205,6 +783,51 @@ public class Elements
     public static IResource getResource(IElement element)
     {
         return ((IElementImpl)element).getResource_();
+    }
+
+    /**
+     * Splits the given objects into a collection of {@link IElement}s and
+     * a collection of {@link IResource}s, ignoring objects that are neither
+     * elements nor resources. The given element handle factory is used to
+     * translate resources to elements; if a resource has a corresponding
+     * existing element, the element will be added instead of the resource.
+     * This is a handle-only method.
+     *
+     * @param objects not <code>null</code>, may contain nulls
+     * @param elements not <code>null</code>
+     * @param model may be <code>null</code>. If not <code>null</code>, only
+     *  elements belonging to the model will be added to the <code>elements</code>
+     *  collection
+     * @param resources may be <code>null</code>. If <code>null</code>,
+     *  no checks for <code>instanceof IResource</code> will be done
+     * @param elementHandleFactory may be <code>null</code>. If <code>null</code>,
+     *  resources will be added without first trying to translate them to elements
+     */
+    public static void splitIntoElementsAndResources(Iterable<?> objects,
+        Collection<? super IElement> elements, IModel model,
+        Collection<? super IResource> resources,
+        IElementHandleFactory elementHandleFactory)
+    {
+        for (Object o : objects)
+        {
+            if (o instanceof IElement)
+            {
+                IElement element = (IElement)o;
+                if (model == null || isOfModel(element, model))
+                    elements.add(element);
+            }
+            else if (resources != null && o instanceof IResource)
+            {
+                IResource resource = (IResource)o;
+                IElement element = (elementHandleFactory == null) ? null
+                    : elementHandleFactory.createFromResourceHandle(resource);
+                if (element != null && (model == null || isOfModel(element,
+                    model)) && exists(element))
+                    elements.add(element);
+                else
+                    resources.add(resource);
+            }
+        }
     }
 
     /**
@@ -277,17 +900,17 @@ public class Elements
      * in no particular order.
      *
      * @param element not <code>null</code>
-     * @param childType the given type (not <code>null</code>)
+     * @param type not <code>null</code>
      * @return the immediate children of the element that have the given type
      *  (never <code>null</code>). Clients <b>must not</b> modify the returned
      *  array.
      * @throws CoreException if the element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    public static <T> T[] getChildren(IElement element, Class<T> childType)
+    public static <T> T[] getChildrenOfType(IElement element, Class<T> type)
         throws CoreException
     {
-        return getChildren(element, childType, EMPTY_CONTEXT, null);
+        return getChildrenOfType(element, type, EMPTY_CONTEXT, null);
     }
 
     /**
@@ -296,7 +919,7 @@ public class Elements
      * in no particular order.
      *
      * @param element not <code>null</code>
-     * @param childType the given type (not <code>null</code>)
+     * @param type not <code>null</code>
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired
@@ -306,10 +929,10 @@ public class Elements
      * @throws CoreException if the element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */
-    public static <T> T[] getChildren(IElement element, Class<T> childType,
+    public static <T> T[] getChildrenOfType(IElement element, Class<T> type,
         IContext context, IProgressMonitor monitor) throws CoreException
     {
-        return ((IElementImpl)element).getChildren_(childType, context,
+        return ((IElementImpl)element).getChildrenOfType_(type, context,
             monitor);
     }
 
@@ -589,17 +1212,45 @@ public class Elements
      * Returns the source file that contains the given element,
      * or <code>null</code> if the given element is not contained in a
      * source file. Returns the given element itself if it is a source file.
+     * This is a handle-only method.
      *
-     * @param element not <code>null</code>
+     * @param element may be <code>null</code>, in which case <code>null</code>
+     *  will be returned
      * @return the source file containing the given element,
      *  or <code>null</code> if none
      */
-    public static ISourceFile getSourceFile(ISourceElement element)
+    public static ISourceFile getSourceFile(IElement element)
     {
-        if (element instanceof ISourceFile)
-            return (ISourceFile)element;
-        else
-            return getAncestor(element, ISourceFile.class);
+        return findAncestorOfType(element, ISourceFile.class);
+    }
+
+    /**
+     * Groups each of the given elements by its containing source file, ignoring
+     * elements outside a source file. Returns a mapping from a source file to
+     * a set of elements grouped by that source file; the order of elements in
+     * the set is determined by iteration order of the given elements.
+     * This is a handle-only method.
+     *
+     * @param elements not <code>null</code>, must not contain nulls
+     * @return elements grouped by containing source file (never <code>null</code>)
+     */
+    public static <T extends IElement> Map<ISourceFile, Set<T>> groupBySourceFile(
+        Iterable<T> elements)
+    {
+        Map<ISourceFile, Set<T>> result = new HashMap<>();
+        for (T element : elements)
+        {
+            ISourceFile sourceFile = getSourceFile(element);
+            if (sourceFile != null)
+            {
+                Set<T> set = result.get(sourceFile);
+                if (set == null)
+                    result.put(sourceFile, set = new LinkedHashSet<>());
+                if (element != sourceFile)
+                    set.add(element);
+            }
+        }
+        return result;
     }
 
     /**

@@ -125,7 +125,7 @@ public class CompilationUnit
     @Override
     public IPackageDeclaration[] getPackageDeclarations() throws CoreException
     {
-        return getChildren(IPackageDeclaration.class);
+        return getChildrenOfType(IPackageDeclaration.class);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class CompilationUnit
     @Override
     public IType[] getTypes() throws CoreException
     {
-        return getChildren(IType.class);
+        return getChildrenOfType(IType.class);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class CompilationUnit
 
     IStatus validateCompilationUnitName()
     {
-        JavaProject javaProject = getAncestor(JavaProject.class);
+        JavaProject javaProject = getAncestorOfType(JavaProject.class);
         String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE,
             true);
         String complianceLevel = javaProject.getOption(

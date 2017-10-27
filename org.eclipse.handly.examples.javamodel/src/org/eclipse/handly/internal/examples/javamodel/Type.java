@@ -66,7 +66,7 @@ public class Type
     @Override
     public IField[] getFields() throws CoreException
     {
-        return getChildren(IField.class);
+        return getChildrenOfType(IField.class);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class Type
     @Override
     public IMethod[] getMethods() throws CoreException
     {
-        return getChildren(IMethod.class);
+        return getChildrenOfType(IMethod.class);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class Type
     @Override
     public IType[] getTypes() throws CoreException
     {
-        return getChildren(IType.class);
+        return getChildrenOfType(IType.class);
     }
 
     @Override

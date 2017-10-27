@@ -933,8 +933,8 @@ public class ElementDelta
      */
     private ElementDelta findDescendant(Key key)
     {
-        if (affectedChildrenCounter == 0 || !Elements.isDescendantOf(
-            key.element, element))
+        if (affectedChildrenCounter == 0 || !Elements.isAncestorOf(element,
+            Elements.getParent(key.element)))
             return null;
         Integer index = indexOfChild(key);
         if (index != null)

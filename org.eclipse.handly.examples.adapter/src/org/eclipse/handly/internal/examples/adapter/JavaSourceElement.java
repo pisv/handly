@@ -116,7 +116,7 @@ class JavaSourceElement
         final String source = sourceRef.getSource();
         ISourceRange sourceRange = sourceRef.getSourceRange();
         ISourceRange nameRange = sourceRef.getNameRange();
-        final ISourceConstruct[] children = getChildren_(ISourceConstruct.class,
+        final ISourceConstruct[] children = getChildrenOfType_(ISourceConstruct.class,
             context, monitor);
         final ISnapshot snapshot = (source == null ? null : new Snapshot()
         {

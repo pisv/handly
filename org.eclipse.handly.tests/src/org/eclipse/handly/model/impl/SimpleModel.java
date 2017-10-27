@@ -19,10 +19,10 @@ import org.eclipse.handly.context.IContext;
  * A simple model for tests.
  * Test clients can instantiate this class directly or subclass it.
  */
-class SimpleModel
+public class SimpleModel
     implements IModelImpl
 {
-    IContext context = EMPTY_CONTEXT;
+    public IContext context = EMPTY_CONTEXT;
 
     @Override
     public IContext getModelContext_()

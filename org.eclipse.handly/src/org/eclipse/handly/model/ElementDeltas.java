@@ -58,6 +58,11 @@ import org.eclipse.handly.model.impl.IElementDeltaImpl;
 public class ElementDeltas
 {
     /**
+     * Zero length array of runtime type {@link IElementDelta}.
+     */
+    public static final IElementDelta[] EMPTY_ARRAY = new IElementDelta[0];
+
+    /**
      * Returns the element that the delta describes a change to.
      *
      * @param delta not <code>null</code>

@@ -112,7 +112,7 @@ public class PackageFragment
     @Override
     public boolean hasSubpackages() throws CoreException
     {
-        IPackageFragment[] packages = getParent().getChildren(
+        IPackageFragment[] packages = getParent().getChildrenOfType(
             IPackageFragment.class);
         int namesLength = simpleNames.length;
         nextPackage: for (IPackageFragment pkg : packages)
@@ -178,7 +178,7 @@ public class PackageFragment
         IResource[] members = ((IContainer)getResource()).members();
         if (members.length > 0)
         {
-            JavaProject javaProject = getAncestor(JavaProject.class);
+            JavaProject javaProject = getAncestorOfType(JavaProject.class);
             String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE,
                 true);
             String complianceLevel = javaProject.getOption(

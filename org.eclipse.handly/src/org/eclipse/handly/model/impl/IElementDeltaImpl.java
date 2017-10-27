@@ -98,9 +98,9 @@ public interface IElementDeltaImpl
     {
         if (element == null)
             return null;
-        if (Elements.equalsAndSameParentChain(element, getElement_()))
+        if (Elements.equalsAndSameParentChain(getElement_(), element))
             return this;
-        if (!Elements.isDescendantOf(element, getElement_()))
+        if (!Elements.isAncestorOf(getElement_(), Elements.getParent(element)))
             return null;
         for (IElementDelta child : getAffectedChildren_())
         {
