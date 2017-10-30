@@ -82,8 +82,9 @@ public interface IElementDeltaImpl
     long getFlags_();
 
     /**
-     * Returns the delta for the given element in this delta subtree,
-     * or <code>null</code> if no delta is found for the given element.
+     * Finds and returns the delta for the given element in this delta subtree
+     * (subtree root inclusive), or <code>null</code> if no such delta can be
+     * found.
      * <p>
      * This is a convenience method to avoid manual traversal of the delta tree
      * in cases where the listener is only interested in changes to particular
@@ -91,8 +92,10 @@ public interface IElementDeltaImpl
      * traversing the delta to a particular descendant.
      * </p>
      *
-     * @param element the element to search delta for (may be <code>null</code>)
-     * @return the delta for the given element, or <code>null</code> if none
+     * @param element the element of the desired delta (may be <code>null</code>,
+     *  in which case <code>null</code> will be returned)
+     * @return the delta for the given element, or <code>null</code> if no such
+     *  delta can be found
      */
     default IElementDelta findDelta_(IElement element)
     {
