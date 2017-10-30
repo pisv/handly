@@ -17,9 +17,9 @@
         <repository location='http://download.eclipse.org/releases/oxygen/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.12.0.v20170519-1412'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.13.0.v20171020-0920'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/oxygen/'/>
+        <repository location='http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases'/>
       </repositories>
     </iu>
     <iu id='org.eclipse.xpand.sdk.feature.group' version='2.2.0.v201605260315'>
