@@ -13,7 +13,7 @@ package org.eclipse.handly.internal.examples.javamodel;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IField;
-import org.eclipse.handly.model.impl.SourceElementBody;
+import org.eclipse.handly.model.impl.support.SourceElementBody;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.Signature;
 

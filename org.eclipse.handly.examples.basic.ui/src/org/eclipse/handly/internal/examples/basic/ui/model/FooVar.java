@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
-import org.eclipse.handly.model.impl.SourceConstruct;
+import org.eclipse.handly.model.impl.support.SourceConstruct;
 
 /**
  * Represents a variable declared in a Foo file.

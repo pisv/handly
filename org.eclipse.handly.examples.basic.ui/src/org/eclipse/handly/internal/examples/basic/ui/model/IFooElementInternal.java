@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.basic.ui.model;
 
-import org.eclipse.handly.model.impl.IModelManager;
+import org.eclipse.handly.model.impl.support.IModelManager;
 
 /**
  * A "mix-in" interface that all Foo elements implement.

@@ -13,7 +13,7 @@ package org.eclipse.handly.internal.examples.basic.ui.model;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
-import org.eclipse.handly.model.impl.SourceConstruct;
+import org.eclipse.handly.model.impl.support.SourceConstruct;
 
 /**
  * Represents a function defined in a Foo file.

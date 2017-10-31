@@ -27,7 +27,7 @@ import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.impl.ElementDelta;
+import org.eclipse.handly.model.impl.support.ElementDelta;
 
 /**
  * Foo element change notification tests.

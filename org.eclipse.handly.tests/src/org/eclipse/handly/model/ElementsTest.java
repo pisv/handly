@@ -23,11 +23,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.handly.model.impl.Element;
-import org.eclipse.handly.model.impl.SimpleElement;
-import org.eclipse.handly.model.impl.SimpleModel;
-import org.eclipse.handly.model.impl.SimpleModelManager;
-import org.eclipse.handly.model.impl.SimpleSourceFile;
+import org.eclipse.handly.model.impl.support.SimpleElement;
+import org.eclipse.handly.model.impl.support.SimpleModel;
+import org.eclipse.handly.model.impl.support.SimpleModelManager;
+import org.eclipse.handly.model.impl.support.SimpleSourceFile;
 
 import junit.framework.TestCase;
 
@@ -376,7 +375,7 @@ public class ElementsTest
         assertEquals(Arrays.asList(foo, bar), new ArrayList<>(
             Elements.groupBySourceFile(Arrays.asList(root, aFile, foo,
                 bar)).get(aFile)));
-        Map<ISourceFile, Set<Element>> result = Elements.groupBySourceFile(
+        Map<ISourceFile, Set<IElement>> result = Elements.groupBySourceFile(
             Arrays.asList(bFile, bar, baz, root, aFile, foo, bar));
         assertEquals(Arrays.asList(bar, foo), new ArrayList<>(result.get(
             aFile)));

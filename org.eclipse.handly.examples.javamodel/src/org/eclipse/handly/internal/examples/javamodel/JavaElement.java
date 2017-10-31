@@ -11,8 +11,8 @@
 package org.eclipse.handly.internal.examples.javamodel;
 
 import org.eclipse.handly.examples.javamodel.IJavaElement;
-import org.eclipse.handly.model.impl.Element;
-import org.eclipse.handly.model.impl.IModelManager;
+import org.eclipse.handly.model.impl.support.Element;
+import org.eclipse.handly.model.impl.support.IModelManager;
 
 /**
  * Root of Java element handle hierarchy.

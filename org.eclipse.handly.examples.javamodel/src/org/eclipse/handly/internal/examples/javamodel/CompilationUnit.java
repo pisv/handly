@@ -31,7 +31,7 @@ import org.eclipse.handly.examples.javamodel.IJavaSourceConstruct;
 import org.eclipse.handly.examples.javamodel.IJavaSourceElement;
 import org.eclipse.handly.examples.javamodel.IPackageDeclaration;
 import org.eclipse.handly.examples.javamodel.IType;
-import org.eclipse.handly.model.impl.ISourceFileImplSupport;
+import org.eclipse.handly.model.impl.support.ISourceFileImplSupport;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.Property;
 import org.eclipse.jdt.core.IProblemRequestor;

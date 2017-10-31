@@ -32,7 +32,7 @@ import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.ISourceElementInfo;
-import org.eclipse.handly.model.impl.ElementDelta;
+import org.eclipse.handly.model.impl.support.ElementDelta;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;

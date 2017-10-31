@@ -35,9 +35,9 @@ import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
-import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.handly.model.impl.IElementImplExtension;
+import org.eclipse.handly.model.impl.support.Body;
+import org.eclipse.handly.model.impl.support.ElementDelta;
 
 /**
  * This class is used by the <code>FooModelManager</code> to convert

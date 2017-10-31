@@ -15,7 +15,7 @@ import java.util.Arrays;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IMethod;
-import org.eclipse.handly.model.impl.SourceElementBody;
+import org.eclipse.handly.model.impl.support.SourceElementBody;
 import org.eclipse.jdt.core.Signature;
 
 /**

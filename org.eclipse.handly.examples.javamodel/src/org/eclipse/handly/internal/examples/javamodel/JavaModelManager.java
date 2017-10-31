@@ -27,12 +27,12 @@ import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.model.ElementDeltas;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.IElementHandleFactory;
-import org.eclipse.handly.model.impl.ElementChangeEvent;
-import org.eclipse.handly.model.impl.ElementDelta;
-import org.eclipse.handly.model.impl.ElementManager;
-import org.eclipse.handly.model.impl.IModelManager;
-import org.eclipse.handly.model.impl.INotificationManager;
-import org.eclipse.handly.model.impl.NotificationManager;
+import org.eclipse.handly.model.impl.support.ElementChangeEvent;
+import org.eclipse.handly.model.impl.support.ElementDelta;
+import org.eclipse.handly.model.impl.support.ElementManager;
+import org.eclipse.handly.model.impl.support.IModelManager;
+import org.eclipse.handly.model.impl.support.INotificationManager;
+import org.eclipse.handly.model.impl.support.NotificationManager;
 import org.eclipse.handly.util.SavedStateJob;
 
 /**

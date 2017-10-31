@@ -16,9 +16,9 @@ import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.ElementCache;
-import org.eclipse.handly.model.impl.IBodyCache;
+import org.eclipse.handly.model.impl.support.Body;
+import org.eclipse.handly.model.impl.support.ElementCache;
+import org.eclipse.handly.model.impl.support.IBodyCache;
 
 /**
  * The Foo Model cache.

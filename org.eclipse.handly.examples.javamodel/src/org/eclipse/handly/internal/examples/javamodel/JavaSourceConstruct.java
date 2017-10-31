@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.javamodel;
 
-import org.eclipse.handly.model.impl.ISourceConstructImplSupport;
+import org.eclipse.handly.model.impl.support.ISourceConstructImplSupport;
 
 /**
  * Abstract class for Java elements that are source constructs.

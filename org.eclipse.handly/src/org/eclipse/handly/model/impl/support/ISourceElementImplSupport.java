@@ -1,0 +1,156 @@
+/*******************************************************************************
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Vladimir Piskarev (1C) - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.handly.model.impl.support;
+
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.context.Contexts.with;
+import static org.eclipse.handly.model.Elements.BASE_SNAPSHOT;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.handly.context.IContext;
+import org.eclipse.handly.model.Elements;
+import org.eclipse.handly.model.ISourceElement;
+import org.eclipse.handly.model.ISourceElementInfo;
+import org.eclipse.handly.model.impl.ISourceElementImpl;
+import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.snapshot.StaleSnapshotException;
+import org.eclipse.handly.util.TextRange;
+
+/**
+ * This "trait-like" interface provides a skeletal implementation of {@link
+ * ISourceElementImpl} to minimize the effort required to implement that
+ * interface.
+ * <p>
+ * In general, the members first defined in this interface are not intended
+ * to be referenced outside the subtype hierarchy.
+ * </p>
+ *
+ * @noextend This interface is not intended to be extended by clients.
+ */
+public interface ISourceElementImplSupport
+    extends IElementImplSupport, ISourceElementImpl
+{
+    @Override
+    default ISourceElementInfo getSourceElementInfo_(IContext context,
+        IProgressMonitor monitor) throws CoreException
+    {
+        return (ISourceElementInfo)getBody_(context, monitor);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation obtains the source element info for this element and
+     * delegates to {@link #getSourceElementAt_(int, ISourceElementInfo, IContext,
+     * IProgressMonitor)} if the given position is within the source range of
+     * this element as reported by {@link #checkInRange(int, ISourceElementInfo,
+     * IContext)}. Otherwise, returns <code>null</code>.
+     * </p>
+     */
+    @Override
+    default ISourceElement getSourceElementAt_(int position, IContext context,
+        IProgressMonitor monitor) throws CoreException
+    {
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+        monitor.beginTask("", 2); //$NON-NLS-1$
+        try
+        {
+            ISourceElementInfo info = getSourceElementInfo_(context,
+                new SubProgressMonitor(monitor, 1));
+            if (!checkInRange(position, info, context))
+                return null;
+            return getSourceElementAt_(position, info, context,
+                new SubProgressMonitor(monitor, 1));
+        }
+        finally
+        {
+            monitor.done();
+        }
+    }
+
+    /**
+     * Returns the element that is located at the given source position
+     * in this element. The position given is known to be within this element's
+     * source range already, and if no finer grained element is found at the
+     * position, this element is returned.
+     *
+     * @param position a source position (0-based)
+     * @param info the info object for this element (never <code>null</code>)
+     * @param context the operation context (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>)
+     * @return the innermost element enclosing the given source position
+     *  (not <code>null</code>)
+     * @throws CoreException if an exception occurs while accessing
+     *  the element's corresponding resource
+     * @throws StaleSnapshotException if snapshot inconsistency is detected
+     */
+    default ISourceElement getSourceElementAt_(int position,
+        ISourceElementInfo info, IContext context, IProgressMonitor monitor)
+        throws CoreException
+    {
+        if (context.get(BASE_SNAPSHOT) == null)
+        {
+            ISnapshot snapshot = info.getSnapshot();
+            if (snapshot != null)
+                context = with(of(BASE_SNAPSHOT, snapshot), context);
+        }
+        ISourceElement[] children = info.getChildren();
+        monitor.beginTask("", children.length); //$NON-NLS-1$
+        try
+        {
+            for (ISourceElement child : children)
+            {
+                if (monitor.isCanceled())
+                    throw new OperationCanceledException();
+                ISourceElement found = Elements.getSourceElementAt(child,
+                    position, context, new SubProgressMonitor(monitor, 1));
+                if (found != null)
+                    return found;
+            }
+            return this;
+        }
+        finally
+        {
+            monitor.done();
+        }
+    }
+
+    /**
+     * Checks whether the given position is within the element's range
+     * in the source snapshot as recorded by the given element info.
+     *
+     * @param position a source position (0-based)
+     * @param info the source element info (never <code>null</code>)
+     * @param context the operation context (never <code>null</code>)
+     * @return <code>true</code> if the given position is within the element's
+     *  source range; <code>false</code> otherwise
+     * @throws StaleSnapshotException if snapshot inconsistency is detected
+     */
+    static boolean checkInRange(int position, ISourceElementInfo info,
+        IContext context)
+    {
+        ISnapshot snapshot = info.getSnapshot();
+        if (snapshot == null)
+            return false; // the element has no associated source code
+        ISnapshot base = context.get(BASE_SNAPSHOT);
+        if (base != null && !base.isEqualTo(snapshot))
+        {
+            throw new StaleSnapshotException();
+        }
+        TextRange textRange = info.getFullRange();
+        return textRange != null && textRange.covers(position);
+    }
+}

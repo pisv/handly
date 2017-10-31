@@ -23,9 +23,9 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.model.IElementChangeListener;
-import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.Element;
 import org.eclipse.handly.model.impl.IModelImpl;
+import org.eclipse.handly.model.impl.support.Body;
+import org.eclipse.handly.model.impl.support.Element;
 
 /**
  * Represents the root Foo element corresponding to the workspace.

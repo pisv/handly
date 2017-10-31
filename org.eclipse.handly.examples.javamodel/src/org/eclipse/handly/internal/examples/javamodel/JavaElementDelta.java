@@ -13,7 +13,7 @@ package org.eclipse.handly.internal.examples.javamodel;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.javamodel.IJavaElement;
 import org.eclipse.handly.examples.javamodel.IJavaElementDelta;
-import org.eclipse.handly.model.impl.ElementDelta;
+import org.eclipse.handly.model.impl.support.ElementDelta;
 
 /**
  * Implementation of {@link IJavaElementDelta}.

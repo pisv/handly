@@ -15,8 +15,8 @@ import java.util.Map;
 
 import org.eclipse.handly.examples.javamodel.IJavaSourceConstruct;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.SourceElementBody;
-import org.eclipse.handly.model.impl.StructureHelper;
+import org.eclipse.handly.model.impl.support.SourceElementBody;
+import org.eclipse.handly.model.impl.support.StructureHelper;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.Signature;

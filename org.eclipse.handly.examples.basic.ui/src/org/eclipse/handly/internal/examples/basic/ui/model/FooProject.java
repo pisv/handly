@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.model.impl.Element;
+import org.eclipse.handly.model.impl.support.Element;
 
 /**
  * Represents a Foo project.

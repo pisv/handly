@@ -32,9 +32,9 @@ import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.examples.javamodel.JavaModelCore;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
-import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.ElementDelta;
 import org.eclipse.handly.model.impl.IElementImplExtension;
+import org.eclipse.handly.model.impl.support.Body;
+import org.eclipse.handly.model.impl.support.IElementDeltaBuilder;
 import org.eclipse.jdt.core.IClasspathEntry;
 
 /**
@@ -46,7 +46,7 @@ class DeltaProcessor
     implements IResourceDeltaVisitor
 {
     private final DeltaProcessingState state;
-    private final ElementDelta.Builder builder;
+    private final IElementDeltaBuilder builder;
 
     DeltaProcessor(DeltaProcessingState state)
     {

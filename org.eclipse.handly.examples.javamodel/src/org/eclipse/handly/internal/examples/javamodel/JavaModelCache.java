@@ -18,9 +18,9 @@ import org.eclipse.handly.examples.javamodel.IJavaProject;
 import org.eclipse.handly.examples.javamodel.IPackageFragment;
 import org.eclipse.handly.examples.javamodel.IPackageFragmentRoot;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.Body;
-import org.eclipse.handly.model.impl.ElementCache;
-import org.eclipse.handly.model.impl.IBodyCache;
+import org.eclipse.handly.model.impl.support.Body;
+import org.eclipse.handly.model.impl.support.ElementCache;
+import org.eclipse.handly.model.impl.support.IBodyCache;
 
 /**
  * The Java model cache.
