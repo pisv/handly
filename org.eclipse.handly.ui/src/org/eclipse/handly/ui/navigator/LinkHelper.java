@@ -26,35 +26,16 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.navigator.ILinkHelper;
 
 /**
- * Default implementation of {@link ILinkHelper}.
- * <p>
- * Clients are intended to subclass this class and override
- * the {@link #getNavigatorView()} method. They may also specialize
- * the default behavior of other methods as needed.
- * </p>
+ * A partial implementation of {@link ILinkHelper}.
  */
-public class LinkHelper
+public abstract class LinkHelper
     implements ILinkHelper
 {
-    private IInputElementProvider inputElementProvider;
-
-    /**
-     * Sets the input element provider.
-     *
-     * @param provider the input element provider (not <code>null</code>)
-     * @see IInputElementProvider
-     */
-    public void setInputElementProvider(IInputElementProvider provider)
-    {
-        if (provider == null)
-            throw new IllegalArgumentException();
-        inputElementProvider = provider;
-    }
-
     @Override
     public IStructuredSelection findSelection(IEditorInput editorInput)
     {
-        IElement inputElement = inputElementProvider.getElement(editorInput);
+        IElement inputElement = getInputElementProvider().getElement(
+            editorInput);
         if (inputElement != null)
         {
             IViewPart navigatorView = getNavigatorView();
@@ -106,26 +87,16 @@ public class LinkHelper
         }
     }
 
+    protected abstract IInputElementProvider getInputElementProvider();
+
     /**
      * Returns the navigator view this link helper is for.
      * This is used in {@link #findSelection(IEditorInput)} method
      * to preserve the current selection in the navigator if possible.
-     * <p>
-     * Default implementation returns <code>null</code>.
-     * Subclasses are advised to override this method.
-     * </p>
      *
-     * @return the navigator view this link helper is for
+     * @return the navigator view this link helper is for, or <code>null</code>
      */
-    protected IViewPart getNavigatorView()
-    {
-        return null;
-    }
-
-    protected IInputElementProvider getInputElementProvider()
-    {
-        return inputElementProvider;
-    }
+    protected abstract IViewPart getNavigatorView();
 
     protected EditorUtility getEditorUtility()
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ public abstract class HandlyXtextOutlinePage
     extends HandlyOutlinePage
     implements IXtextEditorAware
 {
+    private IInputElementProvider inputElementProvider;
     @Inject
     private LinkWithEditorPreference linkWithEditorPreference;
     @Inject
@@ -39,7 +40,13 @@ public abstract class HandlyXtextOutlinePage
     @Inject
     public void setInputElementProvider(IInputElementProvider provider)
     {
-        super.setInputElementProvider(provider);
+        inputElementProvider = provider;
+    }
+
+    @Override
+    protected IInputElementProvider getInputElementProvider()
+    {
+        return inputElementProvider;
     }
 
     @Override
@@ -55,7 +62,7 @@ public abstract class HandlyXtextOutlinePage
     }
 
     @Override
-    public void setEditor(final XtextEditor editor)
+    public void setEditor(XtextEditor editor)
     {
         init(editor);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import org.eclipse.handly.examples.adapter.JavaModelAdapter;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.adapter.DefaultContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapter;
+import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.ui.outline.HandlyOutlinePage;
 import org.eclipse.handly.ui.outline.OutlineContextMenuContribution;
 import org.eclipse.handly.ui.preference.BooleanPreference;
@@ -45,7 +46,6 @@ public class JavaOutlinePage
      */
     public JavaOutlinePage(IEditorPart editor)
     {
-        setInputElementProvider(JavaInputElementProvider.INSTANCE);
         init(editor);
     }
 
@@ -74,6 +74,12 @@ public class JavaOutlinePage
     public IBooleanPreference getLexicalSortPreference()
     {
         return LexicalSortPreference.INSTANCE;
+    }
+
+    @Override
+    protected IInputElementProvider getInputElementProvider()
+    {
+        return JavaInputElementProvider.INSTANCE;
     }
 
     @Override

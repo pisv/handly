@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.handly.internal.examples.javamodel.ui.editor;
 import org.eclipse.handly.examples.javamodel.ui.JavaModelContentProvider;
 import org.eclipse.handly.examples.javamodel.ui.JavaModelLabelProvider;
 import org.eclipse.handly.internal.examples.javamodel.ui.JavaInputElementProvider;
+import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.handly.ui.quickoutline.HandlyOutlinePopup;
 import org.eclipse.handly.ui.viewer.ProblemMarkerLabelDecorator;
 import org.eclipse.jface.viewers.DecoratingStyledCellLabelProvider;
@@ -25,9 +26,10 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 public class JavaOutlinePopup
     extends HandlyOutlinePopup
 {
-    public JavaOutlinePopup()
+    @Override
+    protected IInputElementProvider getInputElementProvider()
     {
-        setInputElementProvider(JavaInputElementProvider.INSTANCE);
+        return JavaInputElementProvider.INSTANCE;
     }
 
     @Override

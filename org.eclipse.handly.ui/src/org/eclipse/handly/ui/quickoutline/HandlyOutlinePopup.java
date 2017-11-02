@@ -30,21 +30,6 @@ public abstract class HandlyOutlinePopup
     extends FilteringOutlinePopup
     implements IContentAdapterProvider
 {
-    private IInputElementProvider inputElementProvider;
-
-    /**
-     * Sets the input element provider.
-     *
-     * @param provider the input element provider (not <code>null</code>)
-     * @see IInputElementProvider
-     */
-    public void setInputElementProvider(IInputElementProvider provider)
-    {
-        if (provider == null)
-            throw new IllegalArgumentException();
-        inputElementProvider = provider;
-    }
-
     /**
      * Returns the content adapter that defines a mapping between elements
      * of a Handly based model and the outline's content.
@@ -120,8 +105,5 @@ public abstract class HandlyOutlinePopup
             element);
     }
 
-    protected IInputElementProvider getInputElementProvider()
-    {
-        return inputElementProvider;
-    }
+    protected abstract IInputElementProvider getInputElementProvider();
 }

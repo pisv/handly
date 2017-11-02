@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,21 +30,6 @@ public abstract class HandlyOutlinePage
     extends CommonOutlinePage
     implements IContentAdapterProvider
 {
-    private IInputElementProvider inputElementProvider;
-
-    /**
-     * Sets the input element provider.
-     *
-     * @param provider the input element provider (not <code>null</code>)
-     * @see IInputElementProvider
-     */
-    public void setInputElementProvider(IInputElementProvider provider)
-    {
-        if (provider == null)
-            throw new IllegalArgumentException();
-        inputElementProvider = provider;
-    }
-
     @Override
     public void init(IEditorPart editor)
     {
@@ -75,6 +60,8 @@ public abstract class HandlyOutlinePage
             getEditor().getEditorInput());
         return getContentAdapter().getCorrespondingElement(inputElement);
     }
+
+    protected abstract IInputElementProvider getInputElementProvider();
 
     /**
      * Hook to add contributions to this outline page.
@@ -189,10 +176,5 @@ public abstract class HandlyOutlinePage
                 }
             }
         });
-    }
-
-    protected IInputElementProvider getInputElementProvider()
-    {
-        return inputElementProvider;
     }
 }
