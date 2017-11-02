@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2015, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,12 +86,13 @@ public abstract class AbstractContainmentAdapter
     protected boolean contains(IElement workingSetElement, IElement element,
         int flags)
     {
-        if (checkContext(flags) && workingSetElement.equals(element))
+        if (checkContext(flags) && Elements.equalsAndSameParentChain(
+            workingSetElement, element))
         {
             return true;
         }
-        if (checkIfChild(flags) && workingSetElement.equals(Elements.getParent(
-            element)))
+        if (checkIfChild(flags) && Elements.equalsAndSameParentChain(
+            workingSetElement, Elements.getParent(element)))
         {
             return true;
         }
@@ -108,14 +109,7 @@ public abstract class AbstractContainmentAdapter
 
     protected boolean check(IElement ancestor, IElement descendent)
     {
-        descendent = Elements.getParent(descendent);
-        while (descendent != null)
-        {
-            if (ancestor.equals(descendent))
-                return true;
-            descendent = Elements.getParent(descendent);
-        }
-        return false;
+        return Elements.isAncestorOf(ancestor, Elements.getParent(descendent));
     }
 
     protected boolean contains(IElement workingSetElement, IResource resource,
