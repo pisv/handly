@@ -61,14 +61,14 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.handly.examples.javamodel"
+         id="org.eclipse.handly.examples.jmodel"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.handly.examples.javamodel.ui"
+         id="org.eclipse.handly.examples.jmodel.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

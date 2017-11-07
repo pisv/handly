@@ -43,7 +43,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.handly.examples.javamodel.tests"
+         id="org.eclipse.handly.examples.jmodel.tests"
          download-size="0"
          install-size="0"
          version="0.0.0"
