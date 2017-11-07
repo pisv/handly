@@ -58,7 +58,7 @@ import org.eclipse.handly.model.impl.IElementDeltaImpl;
 public class ElementDeltas
 {
     /**
-     * Zero length array of runtime type {@link IElementDelta}.
+     * A zero-length array of the runtime type <code>IElementDelta[]</code>.
      */
     public static final IElementDelta[] EMPTY_ARRAY = new IElementDelta[0];
 

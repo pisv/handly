@@ -13,6 +13,7 @@ package org.eclipse.handly.model.impl.support;
 
 import java.lang.reflect.Array;
 
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 
 /**
@@ -32,16 +33,11 @@ import org.eclipse.handly.model.IElement;
  */
 public class Body
 {
-    /**
-     * A zero-length array of the runtime type <code>IElement[]</code>.
-     */
-    public static final IElement[] NO_CHILDREN = new IElement[0];
-
     /*
      * Handles of immediate children of the element.
      * This is an empty array if the element has no children.
      */
-    private volatile IElement[] children = NO_CHILDREN;
+    private volatile IElement[] children = Elements.EMPTY_ARRAY;
 
     /**
      * Returns the immediate children of the element.

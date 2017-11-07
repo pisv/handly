@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.handly.examples.basic.foo.Def;
 import org.eclipse.handly.examples.basic.foo.Module;
 import org.eclipse.handly.examples.basic.foo.Var;
+import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.support.Body;
 import org.eclipse.handly.model.impl.support.SourceElementBody;
@@ -88,7 +89,7 @@ class FooFileStructureBuilder
                 monitor.worked(1);
             }
             body.setChildren(helper.popChildren(body).toArray(
-                Body.NO_CHILDREN));
+                Elements.EMPTY_ARRAY));
         }
         finally
         {

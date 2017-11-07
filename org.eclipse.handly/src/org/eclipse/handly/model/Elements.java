@@ -63,7 +63,7 @@ import org.eclipse.handly.util.TextRange;
 public class Elements
 {
     /**
-     * Zero length array of runtime type {@link IElement}.
+     * A zero-length array of the runtime type <code>IElement[]</code>.
      */
     public static final IElement[] EMPTY_ARRAY = new IElement[0];
 
