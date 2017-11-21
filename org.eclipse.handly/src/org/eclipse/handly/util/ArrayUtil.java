@@ -141,7 +141,7 @@ public class ArrayUtil
      * @param a array (not <code>null</code>)
      * @param p predicate (not <code>null</code>)
      * @param c collection (not <code>null</code>)
-     * @return the given collection
+     * @return the given collection instance, <code>c</code>
      */
     public static <T, C extends Collection<? super T>> C collectMatching(T[] a,
         Predicate<? super T> p, C c)

@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -247,20 +245,40 @@ public class ElementsTest
         assertTrue(Elements.isAncestorOf(foo, foo));
     }
 
-    public void testWithoutDescendants()
+    public void testRemoveDescendants()
     {
         SimpleElement bar = new SimpleElement(aFile, "bar", manager);
         SimpleElement baz = bar.getChild("baz");
-        assertTrue(Elements.withoutDescendants(
-            Collections.emptySet()).isEmpty());
-        assertEquals(Collections.singleton(root), Elements.withoutDescendants(
-            Arrays.asList(root, root)));
-        assertEquals(Collections.singleton(root), Elements.withoutDescendants(
-            Arrays.asList(root, aFile, foo)));
-        assertEquals(Collections.singleton(aFile), Elements.withoutDescendants(
-            Arrays.asList(aFile, foo)));
-        assertEquals(Arrays.asList(bar, foo), new ArrayList<>(
-            Elements.withoutDescendants(Arrays.asList(bar, baz, foo))));
+        ArrayList<IElement> elements = new ArrayList<>();
+
+        Elements.removeDescendants(elements);
+        assertTrue(elements.isEmpty());
+
+        elements.add(root);
+        elements.add(root);
+        Elements.removeDescendants(elements);
+        assertEquals(Arrays.asList(root, root), elements);
+
+        elements.clear();
+        elements.add(root);
+        elements.add(aFile);
+        elements.add(aFile);
+        elements.add(foo);
+        Elements.removeDescendants(elements);
+        assertEquals(Collections.singletonList(root), elements);
+
+        elements.clear();
+        elements.add(aFile);
+        elements.add(foo);
+        Elements.removeDescendants(elements);
+        assertEquals(Collections.singletonList(aFile), elements);
+
+        elements.clear();
+        elements.add(bar);
+        elements.add(baz);
+        elements.add(foo);
+        Elements.removeDescendants(elements);
+        assertEquals(Arrays.asList(bar, foo), elements);
     }
 
     public void testIsOfModel()
@@ -358,27 +376,5 @@ public class ElementsTest
         assertEquals(Arrays.asList(project, file), resources);
         elements.clear();
         resources.clear();
-    }
-
-    public void testGroupBySourceFile()
-    {
-        SimpleSourceFile bFile = new SimpleSourceFile(root, "bFile", null,
-            manager);
-        SimpleElement bar = new SimpleElement(aFile, "bar", manager);
-        SimpleElement baz = new SimpleElement(bFile, "baz", manager);
-        assertTrue(Elements.groupBySourceFile(
-            Collections.emptySet()).isEmpty());
-        assertTrue(Elements.groupBySourceFile(Collections.singleton(
-            root)).isEmpty());
-        assertTrue(Elements.groupBySourceFile(Arrays.asList(aFile)).get(
-            aFile).isEmpty());
-        assertEquals(Arrays.asList(foo, bar), new ArrayList<>(
-            Elements.groupBySourceFile(Arrays.asList(root, aFile, foo,
-                bar)).get(aFile)));
-        Map<ISourceFile, Set<IElement>> result = Elements.groupBySourceFile(
-            Arrays.asList(bFile, bar, baz, root, aFile, foo, bar));
-        assertEquals(Arrays.asList(bar, foo), new ArrayList<>(result.get(
-            aFile)));
-        assertEquals(Arrays.asList(baz), new ArrayList<>(result.get(bFile)));
     }
 }

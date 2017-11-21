@@ -17,11 +17,9 @@ import static org.eclipse.handly.context.Contexts.of;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Spliterator;
@@ -258,7 +256,7 @@ public class Elements
      * @param element may be <code>null</code>, in which case no elements
      *  will be added to the given collection
      * @param collection not <code>null</code>
-     * @return the given collection
+     * @return the given <code>collection</code> instance
      */
     public static <T extends Collection<? super IElement>> T collectParentChain(
         IElement element, T collection)
@@ -283,7 +281,7 @@ public class Elements
      *  will be added to the given collection
      * @param collection not <code>null</code>
      * @param until may be <code>null</code>
-     * @return the given collection
+     * @return the given <code>collection</code> instance
      */
     public static <T extends Collection<? super IElement>> T collectParentChainUntil(
         IElement element, T collection, Predicate<? super IElement> until)
@@ -652,31 +650,77 @@ public class Elements
     }
 
     /**
-     * Given a collection of elements, returns a subset without descendants,
-     * i.e. without elements for which an ancestor is also present in the given
-     * collection. The returned set has predictable iteration order determined
-     * by that of the given collection. This is a handle-only method.
+     * Removes descendants from the given collection of elements. In other words,
+     * removes those elements for which an ancestor is also present in the given
+     * collection. This is a handle-only method.
      *
      * @param elements not <code>null</code>, must not contain nulls
-     * @return a set excluding any descendant elements present in the given
-     *  collection (never <code>null</code>)
      */
-    public static <T extends IElement> Set<T> withoutDescendants(
-        Collection<T> elements)
+    public static void removeDescendants(
+        Collection<? extends IElement> elements)
     {
-        Set<T> result = new LinkedHashSet<>(elements);
-        for (IElement element : elements)
+        Set<Key> keys = Key.toKeys(elements);
+        Iterator<? extends IElement> it = elements.iterator();
+        while (it.hasNext())
         {
-            for (IElement other : elements)
-            {
-                if (element == other)
-                    continue;
-
-                if (isAncestorOf(other, getParent(element)))
-                    result.remove(element);
-            }
+            if (Key.hasAncestor(Key.toKey(getParent(it.next())), keys))
+                it.remove();
         }
-        return result;
+    }
+
+    private static class Key
+    {
+        final IElement e;
+
+        Key(IElement e)
+        {
+            if (e == null)
+                throw new IllegalArgumentException();
+            this.e = e;
+        }
+
+        static Key toKey(IElement e)
+        {
+            return e != null ? new Key(e) : null;
+        }
+
+        static Set<Key> toKeys(Collection<? extends IElement> elements)
+        {
+            Set<Key> result = new HashSet<>(elements.size());
+            for (IElement e : elements)
+                result.add(new Key(e));
+            return result;
+        }
+
+        static boolean hasAncestor(Key key, Set<Key> keys)
+        {
+            while (key != null)
+            {
+                if (keys.contains(key))
+                    return true;
+                key = key.parent();
+            }
+            return false;
+        }
+
+        Key parent()
+        {
+            return toKey(getParent(e));
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return e.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (!(o instanceof Key))
+                return false;
+            return equalsAndSameParentChain(e, ((Key)o).e);
+        }
     }
 
     /**
@@ -1222,35 +1266,6 @@ public class Elements
     public static ISourceFile getSourceFile(IElement element)
     {
         return findAncestorOfType(element, ISourceFile.class);
-    }
-
-    /**
-     * Groups each of the given elements by its containing source file, ignoring
-     * elements outside a source file. Returns a mapping from a source file to
-     * a set of elements grouped by that source file; the order of elements in
-     * the set is determined by iteration order of the given elements.
-     * This is a handle-only method.
-     *
-     * @param elements not <code>null</code>, must not contain nulls
-     * @return elements grouped by containing source file (never <code>null</code>)
-     */
-    public static <T extends IElement> Map<ISourceFile, Set<T>> groupBySourceFile(
-        Iterable<T> elements)
-    {
-        Map<ISourceFile, Set<T>> result = new HashMap<>();
-        for (T element : elements)
-        {
-            ISourceFile sourceFile = getSourceFile(element);
-            if (sourceFile != null)
-            {
-                Set<T> set = result.get(sourceFile);
-                if (set == null)
-                    result.put(sourceFile, set = new LinkedHashSet<>());
-                if (element != sourceFile)
-                    set.add(element);
-            }
-        }
-        return result;
     }
 
     /**
