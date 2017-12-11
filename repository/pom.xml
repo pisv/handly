@@ -16,13 +16,13 @@
   <parent>
     <groupId>org.eclipse.handly</groupId>
     <artifactId>releng</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
     <relativePath>../releng</relativePath>
   </parent>
   <artifactId>repository</artifactId>
   <packaging>eclipse-repository</packaging>
   <properties>
-    <handly.version>0.8.0.${buildQualifier}</handly.version>
+    <handly.version>0.9.0.${buildQualifier}</handly.version>
     <ant-optional.version>1.5.3-1</ant-optional.version>
     <ant-xalan2.version>1.9.4</ant-xalan2.version>
   </properties>
