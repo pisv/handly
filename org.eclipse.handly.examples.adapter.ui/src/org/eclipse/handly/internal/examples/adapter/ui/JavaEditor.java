@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,14 +24,15 @@ public class JavaEditor
 {
     private IContentOutlinePage outlinePage;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(@SuppressWarnings("rawtypes") Class required)
+    public <T> T getAdapter(Class<T> required)
     {
         if (required == IContentOutlinePage.class)
         {
             if (outlinePage == null)
                 outlinePage = new JavaOutlinePage(this);
-            return outlinePage;
+            return (T)outlinePage;
         }
 
         return super.getAdapter(required);

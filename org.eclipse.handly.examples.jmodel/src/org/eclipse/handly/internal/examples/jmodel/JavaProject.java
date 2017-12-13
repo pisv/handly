@@ -227,7 +227,6 @@ public class JavaProject
      *  should be inherited as well
      * @return table of current settings of all options (never <code>null</code>)
      */
-    @SuppressWarnings("unchecked")
     public Map<String, String> getOptions(boolean inheritJavaCoreOptions)
     {
         // Cheat and delegate directly to JDT

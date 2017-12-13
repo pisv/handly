@@ -40,14 +40,15 @@ public class JavaEditor
             "org.eclipse.handly.examples.jmodel.ui.javaEditorScope" }); //$NON-NLS-1$
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter)
+    public <T> T getAdapter(Class<T> adapter)
     {
         if (adapter == IContentOutlinePage.class)
         {
             if (outlinePage == null)
                 outlinePage = new JavaOutlinePage(this);
-            return outlinePage;
+            return (T)outlinePage;
         }
         return super.getAdapter(adapter);
     }

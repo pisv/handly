@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public abstract class AbstractPreference
                 }
             }
         };
-    private ListenerList listenerList;
+    private ListenerList<IPreferenceListener> listenerList;
 
     /**
      * Creates a new preference with the given name and the given store.
@@ -109,7 +109,7 @@ public abstract class AbstractPreference
         if (listener == null)
             throw new IllegalArgumentException();
         if (listenerList == null)
-            listenerList = new ListenerList();
+            listenerList = new ListenerList<>();
         listenerList.add(listener);
         store.addPropertyChangeListener(storeListener);
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -87,10 +87,11 @@ public class OpenAction
                         IEditorDescriptor descriptor;
                         IFile file = ResourceUtil.getFile(input);
                         if (file != null)
-                            descriptor = IDE.getEditorDescriptor(file);
+                            descriptor = IDE.getEditorDescriptor(file, true,
+                                true);
                         else
                             descriptor = IDE.getEditorDescriptor(
-                                input.getName());
+                                input.getName(), true, true);
                         IEditorPart editor = page.openEditor(input,
                             descriptor.getId(), OpenStrategy.activateOnOpen());
                         if (editor != null)

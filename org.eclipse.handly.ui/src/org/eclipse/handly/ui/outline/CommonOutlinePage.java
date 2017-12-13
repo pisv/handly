@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,8 +58,10 @@ public abstract class CommonOutlinePage
     private IEditorPart editor;
     private List<IOutlineContribution> contributionList =
         new ArrayList<IOutlineContribution>();
-    private ListenerList inputChangeListeners = new ListenerList();
-    private ListenerList selectionChangedListeners = new ListenerList();
+    private ListenerList<IOutlineInputChangeListener> inputChangeListeners =
+        new ListenerList<>();
+    private ListenerList<ISelectionChangedListener> selectionChangedListeners =
+        new ListenerList<>();
     private IPropertyListener editorInputListener = new IPropertyListener()
     {
         public void propertyChanged(Object source, int propId)
