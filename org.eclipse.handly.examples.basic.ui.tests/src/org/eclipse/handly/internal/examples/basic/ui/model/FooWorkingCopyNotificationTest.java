@@ -16,8 +16,8 @@ import static org.eclipse.handly.model.IElementDeltaConstants.F_FINE_GRAINED;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
 
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.IBuffer;
@@ -66,7 +66,7 @@ public class FooWorkingCopyNotificationTest
 
     public void test1() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -89,7 +89,7 @@ public class FooWorkingCopyNotificationTest
 
     public void test2() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -126,7 +126,7 @@ public class FooWorkingCopyNotificationTest
 
     public void test3() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -187,7 +187,7 @@ public class FooWorkingCopyNotificationTest
 
     public void test4() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -221,8 +221,7 @@ public class FooWorkingCopyNotificationTest
         });
     }
 
-    private void doWithWorkingCopy(IWorkspaceRunnable runnable)
-        throws CoreException
+    private void doWithWorkingCopy(ICoreRunnable runnable) throws CoreException
     {
         workingCopy.becomeWorkingCopy_(EMPTY_CONTEXT, null);
         try

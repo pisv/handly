@@ -19,8 +19,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.context.IContext;
@@ -66,7 +66,7 @@ public class FooProject
         throws CoreException
     {
         IWorkspace workspace = getParent().getWorkspace();
-        workspace.run(new IWorkspaceRunnable()
+        workspace.run(new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException

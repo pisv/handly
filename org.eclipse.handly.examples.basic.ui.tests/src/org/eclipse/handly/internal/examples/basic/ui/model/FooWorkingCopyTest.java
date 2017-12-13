@@ -13,8 +13,8 @@ package org.eclipse.handly.internal.examples.basic.ui.model;
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.buffer.Buffer;
 import org.eclipse.handly.buffer.BufferChange;
@@ -52,7 +52,7 @@ public class FooWorkingCopyTest
 
     public void test1() throws Exception
     {
-        doWithWorkingCopy(EMPTY_CONTEXT, new IWorkspaceRunnable()
+        doWithWorkingCopy(EMPTY_CONTEXT, new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -89,7 +89,7 @@ public class FooWorkingCopyTest
 
     public void test2() throws Exception
     {
-        doWithWorkingCopy(EMPTY_CONTEXT, new IWorkspaceRunnable()
+        doWithWorkingCopy(EMPTY_CONTEXT, new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -159,7 +159,7 @@ public class FooWorkingCopyTest
                 "var x; var y; def f() {} def f(x) {} def f(x, y) {}"))
         {
             doWithWorkingCopy(of(ISourceFileImplExtension.WORKING_COPY_BUFFER,
-                buffer), new IWorkspaceRunnable()
+                buffer), new ICoreRunnable()
                 {
                     @Override
                     public void run(IProgressMonitor monitor)
@@ -180,7 +180,7 @@ public class FooWorkingCopyTest
     public void testBug480397_2() throws Exception
     {
         // working copy cannot be closed
-        doWithWorkingCopy(EMPTY_CONTEXT, new IWorkspaceRunnable()
+        doWithWorkingCopy(EMPTY_CONTEXT, new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -199,7 +199,7 @@ public class FooWorkingCopyTest
     public void testBug480397_3() throws Exception
     {
         // attempting to close a non-openable element
-        IWorkspaceRunnable testRunnable = new IWorkspaceRunnable()
+        ICoreRunnable testRunnable = new ICoreRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
@@ -216,8 +216,8 @@ public class FooWorkingCopyTest
         testRunnable.run(null);
     }
 
-    private void doWithWorkingCopy(IContext context,
-        IWorkspaceRunnable runnable) throws CoreException
+    private void doWithWorkingCopy(IContext context, ICoreRunnable runnable)
+        throws CoreException
     {
         workingCopy.becomeWorkingCopy_(context, null);
         try

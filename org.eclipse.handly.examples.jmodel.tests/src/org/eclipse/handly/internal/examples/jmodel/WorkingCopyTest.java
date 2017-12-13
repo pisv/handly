@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
@@ -68,7 +68,7 @@ public class WorkingCopyTest
 
     public void test001() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -104,7 +104,7 @@ public class WorkingCopyTest
 
     public void test002() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -156,7 +156,7 @@ public class WorkingCopyTest
 
     public void test003() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -193,7 +193,7 @@ public class WorkingCopyTest
 
     public void test004() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -206,7 +206,7 @@ public class WorkingCopyTest
 
     public void test005() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -220,7 +220,7 @@ public class WorkingCopyTest
 
     public void test006() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -234,7 +234,7 @@ public class WorkingCopyTest
 
     public void test007() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -263,7 +263,7 @@ public class WorkingCopyTest
 
     public void test008() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -295,7 +295,7 @@ public class WorkingCopyTest
 
     public void test009() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -308,7 +308,7 @@ public class WorkingCopyTest
 
     public void test010() throws Exception
     {
-        doWithWorkingCopy(new IWorkspaceRunnable()
+        doWithWorkingCopy(new ICoreRunnable()
         {
             public void run(IProgressMonitor monitor) throws CoreException
             {
@@ -324,7 +324,7 @@ public class WorkingCopyTest
                 {
                     doWithWorkingCopy(privateCopy, of(
                         ISourceFileImplExtension.WORKING_COPY_BUFFER,
-                        privateBuffer), new IWorkspaceRunnable()
+                        privateBuffer), new ICoreRunnable()
                         {
                             public void run(IProgressMonitor monitor)
                                 throws CoreException
@@ -367,15 +367,14 @@ public class WorkingCopyTest
         });
     }
 
-    private void doWithWorkingCopy(IWorkspaceRunnable runnable)
-        throws CoreException
+    private void doWithWorkingCopy(ICoreRunnable runnable) throws CoreException
     {
         doWithWorkingCopy(workingCopy, of(IProblemRequestor.class,
             problemRequestor), runnable);
     }
 
     private static void doWithWorkingCopy(CompilationUnit cu, IContext context,
-        IWorkspaceRunnable runnable) throws CoreException
+        ICoreRunnable runnable) throws CoreException
     {
         cu.becomeWorkingCopy_(context, null);
         try
