@@ -26,9 +26,8 @@ import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.ICoreTextFileBufferProvider;
 import org.eclipse.handly.buffer.TextFileBuffer;
@@ -105,41 +104,30 @@ public interface ISourceFileImplSupport
     default IBuffer getBuffer_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        if (monitor == null)
-            monitor = new NullProgressMonitor();
-        monitor.beginTask("", 100); //$NON-NLS-1$
-        try
+        SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+        if (!acquireExistingWorkingCopy_(subMonitor.split(10)))
         {
-            if (!acquireExistingWorkingCopy_(new SubProgressMonitor(monitor,
-                10)))
-            {
-                return getFileBuffer_(context, new SubProgressMonitor(monitor,
-                    90));
-            }
-            else
-            {
-                try
-                {
-                    WorkingCopyInfo info =
-                        getElementManager_().peekAtWorkingCopyInfo(this);
-
-                    if (info == null)
-                        throw new AssertionError(
-                            "This method probably needs to be overridden"); //$NON-NLS-1$
-
-                    IBuffer buffer = info.getBuffer();
-                    buffer.addRef();
-                    return buffer;
-                }
-                finally
-                {
-                    releaseWorkingCopy_();
-                }
-            }
+            return getFileBuffer_(context, subMonitor.split(90));
         }
-        finally
+        else
         {
-            monitor.done();
+            try
+            {
+                WorkingCopyInfo info =
+                    getElementManager_().peekAtWorkingCopyInfo(this);
+
+                if (info == null)
+                    throw new AssertionError(
+                        "This method probably needs to be overridden"); //$NON-NLS-1$
+
+                IBuffer buffer = info.getBuffer();
+                buffer.addRef();
+                return buffer;
+            }
+            finally
+            {
+                releaseWorkingCopy_();
+            }
         }
     }
 
@@ -240,37 +228,26 @@ public interface ISourceFileImplSupport
     default void reconcile_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        if (monitor == null)
-            monitor = new NullProgressMonitor();
-        monitor.beginTask("", 100); //$NON-NLS-1$
-        try
+        SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+        if (!acquireExistingWorkingCopy_(subMonitor.split(10)))
+            return; // not a working copy
+        else
         {
-            if (!acquireExistingWorkingCopy_(new SubProgressMonitor(monitor,
-                10)))
-                return; // not a working copy
-            else
+            try
             {
-                try
-                {
-                    WorkingCopyInfo info =
-                        getElementManager_().peekAtWorkingCopyInfo(this);
+                WorkingCopyInfo info =
+                    getElementManager_().peekAtWorkingCopyInfo(this);
 
-                    if (info == null)
-                        throw new AssertionError(
-                            "This method probably needs to be overriden"); //$NON-NLS-1$
+                if (info == null)
+                    throw new AssertionError(
+                        "This method probably needs to be overriden"); //$NON-NLS-1$
 
-                    info.callback.reconcile(context, new SubProgressMonitor(
-                        monitor, 90));
-                }
-                finally
-                {
-                    releaseWorkingCopy_();
-                }
+                info.callback.reconcile(context, subMonitor.split(90));
             }
-        }
-        finally
-        {
-            monitor.done();
+            finally
+            {
+                releaseWorkingCopy_();
+            }
         }
     }
 

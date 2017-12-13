@@ -16,9 +16,7 @@ import static org.eclipse.handly.model.Elements.BASE_SNAPSHOT;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceElement;
@@ -63,22 +61,13 @@ public interface ISourceElementImplSupport
     default ISourceElement getSourceElementAt_(int position, IContext context,
         IProgressMonitor monitor) throws CoreException
     {
-        if (monitor == null)
-            monitor = new NullProgressMonitor();
-        monitor.beginTask("", 2); //$NON-NLS-1$
-        try
-        {
-            ISourceElementInfo info = getSourceElementInfo_(context,
-                new SubProgressMonitor(monitor, 1));
-            if (!checkInRange(position, info, context))
-                return null;
-            return getSourceElementAt_(position, info, context,
-                new SubProgressMonitor(monitor, 1));
-        }
-        finally
-        {
-            monitor.done();
-        }
+        SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+        ISourceElementInfo info = getSourceElementInfo_(context,
+            subMonitor.split(1));
+        if (!checkInRange(position, info, context))
+            return null;
+        return getSourceElementAt_(position, info, context, subMonitor.split(
+            1));
     }
 
     /**
@@ -108,24 +97,16 @@ public interface ISourceElementImplSupport
                 context = with(of(BASE_SNAPSHOT, snapshot), context);
         }
         ISourceElement[] children = info.getChildren();
-        monitor.beginTask("", children.length); //$NON-NLS-1$
-        try
+        SubMonitor loopMonitor = SubMonitor.convert(monitor, children.length);
+        for (ISourceElement child : children)
         {
-            for (ISourceElement child : children)
-            {
-                if (monitor.isCanceled())
-                    throw new OperationCanceledException();
-                ISourceElement found = Elements.getSourceElementAt(child,
-                    position, context, new SubProgressMonitor(monitor, 1));
-                if (found != null)
-                    return found;
-            }
-            return this;
+            SubMonitor iterationMonitor = loopMonitor.split(1);
+            ISourceElement found = Elements.getSourceElementAt(child, position,
+                context, iterationMonitor);
+            if (found != null)
+                return found;
         }
-        finally
-        {
-            monitor.done();
-        }
+        return this;
     }
 
     /**

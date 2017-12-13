@@ -28,9 +28,8 @@ import java.util.Objects;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.Elements;
@@ -221,69 +220,56 @@ public interface IElementImplSupport
     default Object open_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        if (monitor == null)
-            monitor = new NullProgressMonitor();
-        monitor.beginTask("", 2); //$NON-NLS-1$
-        try
-        {
-            openParent_(!Boolean.TRUE.equals(context.get(FORCE_OPEN)) ? context
-                : with(of(FORCE_OPEN, false), context), new SubProgressMonitor(
-                    monitor, 1));
+        SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 
-            Object body;
-            if (!isOpenable_())
+        openParent_(!Boolean.TRUE.equals(context.get(FORCE_OPEN)) ? context
+            : with(of(FORCE_OPEN, false), context), subMonitor.split(1));
+
+        Object body;
+        if (!isOpenable_())
+        {
+            body = findBody_();
+            if (body == null)
+                throw newDoesNotExistException_();
+        }
+        else
+        {
+            validateExistence_(context);
+
+            ElementManager elementManager = getElementManager_();
+
+            Map<IElement, Object> newElements = new HashMap<IElement, Object>();
+
+            elementManager.pushTemporaryCache(newElements);
+            try
             {
-                body = findBody_();
-                if (body == null)
-                    throw newDoesNotExistException_();
+                buildStructure_(with(of(NEW_ELEMENTS, newElements), context),
+                    subMonitor.split(1));
             }
+            finally
+            {
+                elementManager.popTemporaryCache();
+            }
+
+            body = newElements.get(this);
+            if (body == null)
+            {
+                throw new AssertionError(MessageFormat.format(
+                    "No body for {0}. Incorrect {1}#buildStructure_ implementation?", //$NON-NLS-1$
+                    toString(), getClass().getSimpleName()));
+            }
+
+            if (context.getOrDefault(FORCE_OPEN))
+                elementManager.put(this, newElements);
             else
             {
-                validateExistence_(context);
-
-                if (monitor.isCanceled())
-                    throw new OperationCanceledException();
-
-                ElementManager elementManager = getElementManager_();
-
-                Map<IElement, Object> newElements =
-                    new HashMap<IElement, Object>();
-
-                elementManager.pushTemporaryCache(newElements);
-                try
-                {
-                    buildStructure_(with(of(NEW_ELEMENTS, newElements),
-                        context), new SubProgressMonitor(monitor, 1));
-                }
-                finally
-                {
-                    elementManager.popTemporaryCache();
-                }
-
-                body = newElements.get(this);
-                if (body == null)
-                {
-                    throw new AssertionError(MessageFormat.format(
-                        "No body for {0}. Incorrect {1}#buildStructure_ implementation?", //$NON-NLS-1$
-                        toString(), getClass().getSimpleName()));
-                }
-
-                if (context.getOrDefault(FORCE_OPEN))
-                    elementManager.put(this, newElements);
-                else
-                {
-                    Object existingBody = elementManager.putIfAbsent(this,
-                        newElements);
-                    if (existingBody != null)
-                        body = existingBody;
-                }
+                Object existingBody = elementManager.putIfAbsent(this,
+                    newElements);
+                if (existingBody != null)
+                    body = existingBody;
             }
-            return body;
         }
-        finally
-        {
-            monitor.done();
-        }
+        return body;
     }
 
     /**

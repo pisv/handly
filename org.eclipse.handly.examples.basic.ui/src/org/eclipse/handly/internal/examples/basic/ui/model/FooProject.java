@@ -22,8 +22,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
@@ -63,41 +62,30 @@ public class FooProject
     }
 
     @Override
-    public void create(final URI location, IProgressMonitor monitor)
+    public void create(URI location, IProgressMonitor monitor)
         throws CoreException
     {
-        final IWorkspace workspace = getParent().getWorkspace();
+        IWorkspace workspace = getParent().getWorkspace();
         workspace.run(new IWorkspaceRunnable()
         {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException
             {
-                if (monitor == null)
-                    monitor = new NullProgressMonitor();
-                try
-                {
-                    monitor.beginTask("", 4); //$NON-NLS-1$
+                SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
 
-                    IProjectDescription description =
-                        workspace.newProjectDescription(getName());
-                    description.setLocationURI(location);
-                    project.create(description, new SubProgressMonitor(monitor,
-                        1));
-                    project.open(new SubProgressMonitor(monitor, 1));
+                IProjectDescription description =
+                    workspace.newProjectDescription(getName());
+                description.setLocationURI(location);
+                project.create(description, subMonitor.split(1));
+                project.open(subMonitor.split(1));
 
-                    description.setNatureIds(new String[] {
-                        "org.eclipse.xtext.ui.shared.xtextNature", //$NON-NLS-1$
-                        IFooProject.NATURE_ID });
-                    project.setDescription(description, new SubProgressMonitor(
-                        monitor, 1));
+                description.setNatureIds(new String[] {
+                    "org.eclipse.xtext.ui.shared.xtextNature", //$NON-NLS-1$
+                    IFooProject.NATURE_ID });
+                project.setDescription(description, subMonitor.split(1));
 
-                    project.setDefaultCharset("UTF-8", //$NON-NLS-1$
-                        new SubProgressMonitor(monitor, 1));
-                }
-                finally
-                {
-                    monitor.done();
-                }
+                project.setDefaultCharset("UTF-8", //$NON-NLS-1$
+                    subMonitor.split(1));
             }
         }, monitor);
     }

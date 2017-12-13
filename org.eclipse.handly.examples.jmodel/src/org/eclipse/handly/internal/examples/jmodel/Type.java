@@ -18,8 +18,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.examples.jmodel.IField;
 import org.eclipse.handly.examples.jmodel.IMember;
@@ -153,64 +152,54 @@ public class Type
                 context = with(of(BASE_SNAPSHOT, snapshot), context);
         }
         ISourceElement[] children = info.getChildren();
-        monitor.beginTask("", children.length);
-        try
+        SubMonitor loopMonitor = SubMonitor.convert(monitor, children.length);
+        for (int i = children.length - 1; i >= 0; i--)
         {
-            for (int i = children.length - 1; i >= 0; i--)
+            SubMonitor iterationMonitor = loopMonitor.split(1);
+            ISourceElement child = children[i];
+            if (child instanceof IField)
             {
-                if (monitor.isCanceled())
-                    throw new OperationCanceledException();
-                ISourceElement child = children[i];
-                if (child instanceof IField)
+                ISourceElementInfo childInfo = Elements.getSourceElementInfo(
+                    child);
+                if (ISourceElementImplSupport.checkInRange(position, childInfo,
+                    context))
                 {
-                    ISourceElementInfo childInfo =
-                        Elements.getSourceElementInfo(child);
-                    if (ISourceElementImplSupport.checkInRange(position,
-                        childInfo, context))
+                    // check multi-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=465410)
+                    ISourceElement candidate = null;
+                    do
                     {
-                        // check multi-declaration case (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=465410)
-                        ISourceElement candidate = null;
-                        do
-                        {
-                            // check name range
-                            TextRange nameRange =
-                                childInfo.getIdentifyingRange();
-                            if (nameRange != null
-                                && position <= nameRange.getEndOffset())
-                                candidate = child;
-                            else
-                                return candidate == null ? child : candidate;
+                        // check name range
+                        TextRange nameRange = childInfo.getIdentifyingRange();
+                        if (nameRange != null
+                            && position <= nameRange.getEndOffset())
+                            candidate = child;
+                        else
+                            return candidate == null ? child : candidate;
 
-                            if (--i < 0)
-                                child = null;
-                            else
-                            {
-                                child = children[i];
-                                childInfo = Elements.getSourceElementInfo(
-                                    child);
-                            }
+                        if (--i < 0)
+                            child = null;
+                        else
+                        {
+                            child = children[i];
+                            childInfo = Elements.getSourceElementInfo(child);
                         }
-                        while (child != null
-                            && ISourceElementImplSupport.checkInRange(position,
-                                childInfo, context));
-                        // position in field's type: use first field
-                        return candidate;
                     }
-                }
-                else
-                {
-                    ISourceElement found = Elements.getSourceElementAt(child,
-                        position, context, new SubProgressMonitor(monitor, 1));
-                    if (found != null)
-                        return found;
+                    while (child != null
+                        && ISourceElementImplSupport.checkInRange(position,
+                            childInfo, context));
+                    // position in field's type: use first field
+                    return candidate;
                 }
             }
-            return this;
+            else
+            {
+                ISourceElement found = Elements.getSourceElementAt(child,
+                    position, context, iterationMonitor);
+                if (found != null)
+                    return found;
+            }
         }
-        finally
-        {
-            monitor.done();
-        }
+        return this;
     }
 
     @Override

@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
@@ -247,10 +247,10 @@ public class SourceFileChange
     @Override
     public Change perform(IProgressMonitor pm) throws CoreException
     {
-        pm.beginTask("", 2); //$NON-NLS-1$
+        SubMonitor subMonitor = SubMonitor.convert(pm, 2);
         try (
             IBuffer buffer = getBuffer(sourceFile, EMPTY_CONTEXT,
-                new SubProgressMonitor(pm, 1)))
+                subMonitor.split(1)))
         {
             BufferChangeWithExcludes change = new BufferChangeWithExcludes(
                 edit);
@@ -264,8 +264,9 @@ public class SourceFileChange
 
             try
             {
-                undoChange = buffer.applyChange(change, new SubProgressMonitor(
-                    pm, 1));
+                undoChange = buffer.applyChange(change, subMonitor.split(1,
+                    SubMonitor.SUPPRESS_ISCANCELED
+                        | SubMonitor.SUPPRESS_BEGINTASK));
             }
             catch (StaleSnapshotException e)
             {
@@ -276,10 +277,6 @@ public class SourceFileChange
             }
 
             return new UndoSourceFileChange(getName(), sourceFile, undoChange);
-        }
-        finally
-        {
-            pm.done();
         }
     }
 
