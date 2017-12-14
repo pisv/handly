@@ -166,7 +166,8 @@ public interface IElementImpl
      *
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the immediate children of this element (never <code>null</code>).
      *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if this element does not exist or if an
@@ -183,7 +184,8 @@ public interface IElementImpl
      * @param type not <code>null</code>
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the immediate children of this element that have the given type
      *  (never <code>null</code>). Clients <b>must not</b> modify the returned
      *  array.

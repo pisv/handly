@@ -123,7 +123,9 @@ public class SourceElementLinkingHelper
      *
      * @param selection the selection in the editor
      *  (never <code>null</code>, never empty)
-     * @param monitor a progress monitor (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @return the outline selection corresponding to the given selection
      *  in the editor, or <code>null</code>
      * @throws OperationCanceledException if this method is canceled
@@ -151,7 +153,9 @@ public class SourceElementLinkingHelper
      *
      * @param selection the text selection in the editor
      *  (never <code>null</code>, never empty)
-     * @param monitor a progress monitor (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @return the outline selection corresponding to the given selection
      *  in the editor, or <code>null</code>
      * @throws OperationCanceledException if this method is canceled

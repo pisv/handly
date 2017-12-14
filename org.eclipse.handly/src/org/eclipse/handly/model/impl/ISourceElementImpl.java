@@ -45,7 +45,8 @@ public interface ISourceElementImpl
      * @param position a source position (0-based)
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the innermost element enclosing the given source position,
      *  or <code>null</code> if none (including this element itself)
      * @throws CoreException if this element does not exist or if an
@@ -62,7 +63,8 @@ public interface ISourceElementImpl
      *
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return {@link ISourceElementInfo} for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource

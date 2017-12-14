@@ -268,7 +268,9 @@ public class HandlyXtextDocument
      * @param snapshot the reconciled snapshot (never <code>null</code>)
      * @param forced whether reconciling was forced, i.e. the document has not
      *  changed since it was reconciled the last time
-     * @param monitor a progress monitor (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @throws OperationCanceledException if this method is canceled
      */
     private void reconciled(XtextResource resource,
@@ -332,7 +334,9 @@ public class HandlyXtextDocument
          * @param snapshot the reconciled snapshot (never <code>null</code>)
          * @param forced whether reconciling was forced, i.e. the document
          *  has not changed since it was reconciled the last time
-         * @param monitor a progress monitor (never <code>null</code>)
+         * @param monitor a progress monitor (never <code>null</code>).
+         *  The caller must not rely on {@link IProgressMonitor#done()}
+         *  having been called by the receiver
          * @throws Exception if a problem occurred while running this method
          * @throws OperationCanceledException if this method is canceled
          */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,7 +46,8 @@ public interface IHandlyXtextDocument
      * @param force indicates whether reconciling has to be performed
      *  even if it is not needed
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws OperationCanceledException if this method is canceled
      * @throws NoXtextResourceException if <code>force == true</code> and
      *  the document has no resource (either not set or already disposed)

@@ -101,7 +101,8 @@ public interface IReconcileStrategy
      *
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the model cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */

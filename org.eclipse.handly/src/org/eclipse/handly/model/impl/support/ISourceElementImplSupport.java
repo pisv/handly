@@ -79,7 +79,9 @@ public interface ISourceElementImplSupport
      * @param position a source position (0-based)
      * @param info the info object for this element (never <code>null</code>)
      * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @return the innermost element enclosing the given source position
      *  (not <code>null</code>)
      * @throws CoreException if an exception occurs while accessing

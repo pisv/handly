@@ -926,7 +926,8 @@ public class Elements
      * @param element not <code>null</code>
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the immediate children of the element (never <code>null</code>).
      *  Clients <b>must not</b> modify the returned array.
      * @throws CoreException if the element does not exist or if an
@@ -966,7 +967,8 @@ public class Elements
      * @param type not <code>null</code>
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the immediate children of the element that have the given type
      *  (never <code>null</code>). Clients <b>must not</b> modify the returned
      *  array.
@@ -1079,7 +1081,8 @@ public class Elements
      * @param position a source position (0-based)
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the innermost element enclosing the given source position,
      *  or <code>null</code> if none (including the given element itself)
      * @throws CoreException if the given element does not exist or if an
@@ -1162,7 +1165,8 @@ public class Elements
      * @param element not <code>null</code>
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return {@link ISourceElementInfo} for the element
      *  (never <code>null</code>)
      * @throws CoreException if the element does not exist or if an
@@ -1277,7 +1281,8 @@ public class Elements
      *
      * @param element not <code>null</code>
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return <code>true</code> if the call completed successfully,
      *  <code>false</code> in case of a failure
      * @throws OperationCanceledException if this method is canceled
@@ -1353,7 +1358,8 @@ public class Elements
      *
      * @param sourceFile not <code>null</code>
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
@@ -1381,7 +1387,8 @@ public class Elements
      * @param sourceFile not <code>null</code>
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
@@ -1459,7 +1466,8 @@ public class Elements
      * @param sourceFile not <code>null</code>
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the buffer opened for the source file. May return <code>null</code>
      *  if <code>CREATE_BUFFER == false</code> and there is no buffer currently
      *  opened for the source file

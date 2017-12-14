@@ -100,7 +100,8 @@ public interface ISourceFileImplExtension
      *
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return <code>true</code> if this source file became a working copy,
      *  or <code>false</code> if it was already in working copy mode
      * @throws CoreException if the working copy could not be created successfully
@@ -121,7 +122,8 @@ public interface ISourceFileImplExtension
      * </p>
      *
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return <code>true</code> if an existing working copy was acquired,
      *  or <code>false</code> if this source file is not a working copy
      * @throws OperationCanceledException if this method is canceled

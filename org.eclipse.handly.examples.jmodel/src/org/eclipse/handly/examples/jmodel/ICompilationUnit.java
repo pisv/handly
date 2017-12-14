@@ -212,7 +212,8 @@ public interface ICompilationUnit
      *  {@link AST#newAST(int) AST API level} of the AST if one is wanted
      * @param reconcileFlags the given reconcile flags
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the compilation unit AST or <code>null</code> if not requested,
      *  or if the requested level of AST API is not supported,
      *  or if the working copy was consistent

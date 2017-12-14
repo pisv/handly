@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,8 +31,9 @@ public interface ICoreTextFileBufferProvider
      * <code>getBuffer</code> returns the same file buffer until
      * <code>disconnect</code> is called.
      *
-     * @param monitor the progress monitor,
-     *  or <code>null</code> if progress reporting is not desired
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the file could not be successfully connected
      * @throws OperationCanceledException if this method is canceled
      */
@@ -43,8 +44,9 @@ public interface ICoreTextFileBufferProvider
      * successfully completed there is no guarantee that <code>getBuffer</code>
      * will return a valid file buffer.
      *
-     * @param monitor the progress monitor,
-     *  or <code>null</code> if progress reporting is not desired
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the file could not be successfully disconnected
      * @throws OperationCanceledException if this method is canceled
      */

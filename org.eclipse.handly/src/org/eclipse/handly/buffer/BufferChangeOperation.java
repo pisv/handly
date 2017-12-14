@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,7 +63,9 @@ public class BufferChangeOperation
      * on which the change is based. In that case, a {@link StaleSnapshotException}
      * is thrown.
      *
-     * @param monitor a progress monitor (not <code>null</code>)
+     * @param monitor a progress monitor (not <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @return undo change, if requested. Otherwise, <code>null</code>
      * @throws StaleSnapshotException if the buffer has changed
      *  since the inception of the snapshot on which the change is based
@@ -98,7 +100,7 @@ public class BufferChangeOperation
         }
     }
 
-    protected IBufferChange applyChange(IProgressMonitor pm)
+    protected IBufferChange applyChange(IProgressMonitor monitor)
         throws CoreException, BadLocationException
     {
         checkChange();
@@ -120,7 +122,7 @@ public class BufferChangeOperation
         if (change.getSaveMode() == SaveMode.FORCE_SAVE || (saved
             && change.getSaveMode() == SaveMode.KEEP_SAVED_STATE))
         {
-            buffer.save(EMPTY_CONTEXT, pm);
+            buffer.save(EMPTY_CONTEXT, monitor);
         }
 
         return createUndoChange(undoEdit, stampToRestore);

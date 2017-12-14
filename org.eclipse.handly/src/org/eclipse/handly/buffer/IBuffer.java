@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,8 +60,9 @@ public interface IBuffer
      * {@link StaleSnapshotException} is thrown.
      *
      * @param change a buffer change (not <code>null</code>)
-     * @param monitor a progress monitor to report progress,
-     *  or <code>null</code> if no progress reporting is desired
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return undo change, if requested. Otherwise, <code>null</code>
      * @throws StaleSnapshotException if the buffer's contents have changed
      *  since the inception of the snapshot on which the change is based
@@ -79,8 +80,9 @@ public interface IBuffer
      * is changed to the contents of the buffer.
      *
      * @param context the operation context (not <code>null</code>)
-     * @param monitor a progress monitor to report progress,
-     *  or <code>null</code> if no progress reporting is desired
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the buffer could not be saved successfully
      */
     void save(IContext context, IProgressMonitor monitor) throws CoreException;

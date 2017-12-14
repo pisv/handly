@@ -76,7 +76,8 @@ public interface ISourceFileExtension
      * is already consistent with its buffer.
      *
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if this working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      */

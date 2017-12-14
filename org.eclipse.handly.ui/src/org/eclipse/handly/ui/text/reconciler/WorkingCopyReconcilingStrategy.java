@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2017 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,7 +84,8 @@ public class WorkingCopyReconcilingStrategy
      * @param workingCopy the given working copy (never <code>null</code>)
      * @param initialReconcile <code>true</code> if this is the initial reconcile
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the working copy cannot be reconciled
      * @throws OperationCanceledException if this method is canceled
      * @see #initialReconcile()

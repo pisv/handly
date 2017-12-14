@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2017 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,7 +57,9 @@ public final class UiBufferChangeRunner
      * changed since the inception of the snapshot on which the change is based.
      * In that case, a {@link StaleSnapshotException} is thrown.
      *
-     * @param monitor a progress monitor (not <code>null</code>)
+     * @param monitor a progress monitor (not <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @return undo change, if requested. Otherwise, <code>null</code>
      * @throws StaleSnapshotException if the buffer has changed
      *  since the inception of the snapshot on which the change is based
@@ -67,16 +69,16 @@ public final class UiBufferChangeRunner
      * @throws BadLocationException if one of the edits in the tree
      *  can't be executed
      */
-    public IBufferChange run(final IProgressMonitor monitor)
+    public IBufferChange run(IProgressMonitor monitor)
         throws CoreException, BadLocationException
     {
-        final Thread callerThread = Thread.currentThread();
+        Thread callerThread = Thread.currentThread();
         Thread synchronizerThread = synchronizer.getThread();
         if (callerThread.equals(synchronizerThread))
             return operation.execute(monitor);
 
-        final IBufferChange[] undoChange = new IBufferChange[1];
-        final Throwable[] exception = new Throwable[1];
+        IBufferChange[] undoChange = new IBufferChange[1];
+        Throwable[] exception = new Throwable[1];
         Runnable runnable = new Runnable()
         {
             @Override

@@ -84,7 +84,8 @@ public interface IElementImplExtension
      *
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
@@ -128,7 +129,8 @@ public interface IElementImplExtension
      *
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource

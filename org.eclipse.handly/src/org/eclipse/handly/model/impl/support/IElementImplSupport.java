@@ -279,7 +279,9 @@ public interface IElementImplSupport
      * </p>
     *
      * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @throws CoreException if an exception occurs while opening this element's parent
      * @throws OperationCanceledException if this method is canceled
      */
@@ -334,7 +336,9 @@ public interface IElementImplSupport
      * to associate the created bodies with their respective elements.
      *
      * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @throws CoreException if an exception occurs while accessing
      *  the element's corresponding resource
      * @throws OperationCanceledException if this method is canceled

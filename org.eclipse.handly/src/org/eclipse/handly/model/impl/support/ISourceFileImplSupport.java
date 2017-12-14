@@ -427,7 +427,8 @@ public interface ISourceFileImplSupport
      *
      * @param context the operation context (never <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
-     *  if progress reporting is not desired
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the buffer opened for the underlying file of this source file,
      *  or <code>null</code> if <code>CREATE_BUFFER == false</code> and
      *  there is currently no buffer opened for that file
@@ -578,7 +579,9 @@ public interface ISourceFileImplSupport
      * </ul>
      *
      * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>).
+     *  The caller must not rely on {@link IProgressMonitor#done()}
+     *  having been called by the receiver
      * @throws CoreException if this method fails
      * @throws OperationCanceledException if this method is canceled
      */
@@ -710,7 +713,8 @@ public interface ISourceFileImplSupport
          *
          * @param context the operation context (not <code>null</code>)
          * @param monitor a progress monitor, or <code>null</code>
-         *  if progress reporting is not desired
+         *  if progress reporting is not desired. The caller must not rely on
+         *  {@link IProgressMonitor#done()} having been called by the receiver
          * @throws CoreException if the working copy cannot be reconciled
          * @throws OperationCanceledException if this method is canceled
          */
@@ -788,7 +792,8 @@ public interface ISourceFileImplSupport
          *
          * @param context the operation context (not <code>null</code>)
          * @param monitor a progress monitor, or <code>null</code>
-         *  if progress reporting is not desired
+         *  if progress reporting is not desired. The caller must not rely on
+         *  {@link IProgressMonitor#done()} having been called by the receiver
          * @throws CoreException if the working copy cannot be reconciled
          * @throws OperationCanceledException if this method is canceled
          * @see #reconcile(IContext, IProgressMonitor)

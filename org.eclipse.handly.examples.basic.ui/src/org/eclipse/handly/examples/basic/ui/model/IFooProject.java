@@ -51,8 +51,9 @@ public interface IFooProject
      * by the given progress monitor.
      * </p>
      *
-     * @param monitor a progress monitor, or <code>null</code> if progress
-     *  reporting is not desired
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the project could not be created.
      *  Reasons include:
      * <ul>
@@ -91,8 +92,9 @@ public interface IFooProject
      *
      * @param location the location for the project.
      *  If <code>null</code> is specified, the default location is used.
-     * @param monitor a progress monitor, or <code>null</code> if progress
-     *  reporting is not desired
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws CoreException if the project could not be created.
      *  Reasons include:
      * <ul>

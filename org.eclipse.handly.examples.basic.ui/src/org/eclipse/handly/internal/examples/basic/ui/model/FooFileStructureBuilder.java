@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.handly.examples.basic.foo.Def;
 import org.eclipse.handly.examples.basic.foo.Module;
@@ -64,37 +65,28 @@ class FooFileStructureBuilder
      * @param handle the handle to a Foo file (not <code>null</code>)
      * @param body the body of the Foo file (not <code>null</code>)
      * @param module the AST of the Foo file (not <code>null</code>)
-     * @param monitor a progress monitor (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws OperationCanceledException if this method is canceled
      */
     void buildStructure(FooFile handle, SourceElementBody body, Module module,
         IProgressMonitor monitor)
     {
-        monitor.beginTask("", //$NON-NLS-1$
+        SubMonitor subMonitor = SubMonitor.convert(monitor,
             module.getVars().size() + module.getDefs().size());
-        try
+        for (Var var : module.getVars())
         {
-            for (Var var : module.getVars())
-            {
-                if (monitor.isCanceled())
-                    throw new OperationCanceledException();
-                buildStructure(handle, body, var);
-                monitor.worked(1);
-            }
-            for (Def def : module.getDefs())
-            {
-                if (monitor.isCanceled())
-                    throw new OperationCanceledException();
-                buildStructure(handle, body, def);
-                monitor.worked(1);
-            }
-            body.setChildren(helper.popChildren(body).toArray(
-                Elements.EMPTY_ARRAY));
+            buildStructure(handle, body, var);
+            subMonitor.split(1);
         }
-        finally
+        for (Def def : module.getDefs())
         {
-            monitor.done();
+            buildStructure(handle, body, def);
+            subMonitor.split(1);
         }
+        body.setChildren(helper.popChildren(body).toArray(
+            Elements.EMPTY_ARRAY));
     }
 
     private void buildStructure(FooFile parent, Body parentBody, Var var)
