@@ -176,23 +176,18 @@ if [[ "$?" != "0" ]]; then
     exit -1
 fi
 
+JAVADOC_PREFIX=${JAVADOC_PREFIX:-"handly-javadoc-incubation"}
+JAVADOC_FILE=$REPO_VERSION/$JAVADOC_PREFIX-$REPO_VERSION.zip
+
 #
 # Downloading Javadocs from HIPP
 #
 
 echo "Downloading Javadocs $BUILD_VERSION..."
 
-curl --insecure -s -S -O https://hudson.eclipse.org/handly/job/$JOB_NAME/$BUILD_ID/artifact/build/apidocs/*zip*/apidocs.zip
+curl --insecure -s -S -o $JAVADOC_FILE https://hudson.eclipse.org/handly/job/$JOB_NAME/$BUILD_ID/javadoc/*zip*/javadoc.zip
 if [[ "$?" != "0" ]]; then
     exit -1
 fi
-
-echo "Unzipping Javadocs..."
-
-unzip apidocs.zip -d $REPO_VERSION > /dev/null
-if [[ "$?" != "0" ]]; then
-    exit -1
-fi
-rm -f apidocs.zip
 
 echo "OK ./$REPO_VERSION"

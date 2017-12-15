@@ -22,7 +22,10 @@
   <artifactId>repository</artifactId>
   <packaging>eclipse-repository</packaging>
   <properties>
-    <handly.version>0.9.0.${buildQualifier}</handly.version>
+    <handly.version.major>0</handly.version.major>
+    <handly.version.minor>9</handly.version.minor>
+    <handly.version.service>0</handly.version.service>
+    <handly.version>${handly.version.major}.${handly.version.minor}.${handly.version.service}.${buildQualifier}</handly.version>
     <ant-optional.version>1.5.3-1</ant-optional.version>
     <ant-xalan2.version>1.9.4</ant-xalan2.version>
   </properties>
@@ -47,6 +50,21 @@
                   </includes>
                 </resource>
               </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-repository-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>assemble-repository</goal>
+            </goals>
+            <configuration>
+              <repositoryName>Eclipse Handly ${handly.version.major}.${handly.version.minor}.${handly.version.service} (Incubation)</repositoryName>
             </configuration>
           </execution>
         </executions>
@@ -118,7 +136,7 @@
     <profile>
       <id>javadoc</id>
       <properties>
-        <javadoc.title>Eclipse Handly ${handly.version} API (Incubation)</javadoc.title>
+        <javadoc.title>Eclipse Handly ${handly.version.major}.${handly.version.minor} API Specification (Incubation)</javadoc.title>
       </properties>
       <build>
         <plugins>
