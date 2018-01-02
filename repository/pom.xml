@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Copyright (c) 2014, 2017 1C-Soft LLC and others.
+   Copyright (c) 2014, 2018 1C-Soft LLC and others.
    All rights reserved. This program and the accompanying materials
    are made available under the terms of the Eclipse Public License v1.0
    which accompanies this distribution, and is available at
@@ -59,6 +59,7 @@
         <artifactId>tycho-p2-repository-plugin</artifactId>
         <executions>
           <execution>
+            <id>assemble-repository</id>
             <phase>package</phase>
             <goals>
               <goal>assemble-repository</goal>
@@ -67,13 +68,8 @@
               <repositoryName>Eclipse Handly ${handly.version.major}.${handly.version.minor}.${handly.version.service} (Incubation)</repositoryName>
             </configuration>
           </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-p2-repository-plugin</artifactId>
-        <executions>
           <execution>
+            <id>archive-repository</id>
             <phase>package</phase>
             <goals>
               <goal>archive-repository</goal>
