@@ -2,12 +2,12 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='12'>
-    <iu id='org.eclipse.sdk.ide' version='4.7.1.M20171009-0410'>
+    <iu id='org.eclipse.sdk.ide' version='4.7.2.M20171130-0510'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/oxygen/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='4.8.0.201706111038-r'>
+    <iu id='org.eclipse.egit.feature.group' version='4.9.2.201712150930-r'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/oxygen/'/>
       </repositories>
