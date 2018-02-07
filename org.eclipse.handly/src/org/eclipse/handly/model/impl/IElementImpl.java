@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -92,8 +92,11 @@ public interface IElementImpl
             return true;
         if (!equals(other))
             return false;
-        return Elements.equalsAndSameParentChain(getParent_(),
-            Elements.getParent(other));
+        IElement parent = getParent_();
+        IElement otherParent = Elements.getParent(other);
+        if (parent == null)
+            return otherParent == null;
+        return Elements.equalsAndSameParentChain(parent, otherParent);
     }
 
     /**
