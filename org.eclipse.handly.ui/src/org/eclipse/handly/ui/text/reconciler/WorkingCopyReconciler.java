@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -235,7 +235,18 @@ public abstract class WorkingCopyReconciler
      */
     protected boolean isAffectedBy(IElementChangeEvent event)
     {
-        return isAffectedBy(event.getDelta(), getWorkingCopy());
+        return isAffectedBy(event.getDeltas(), getWorkingCopy());
+    }
+
+    private boolean isAffectedBy(IElementDelta[] deltas,
+        ISourceFile workingCopy)
+    {
+        for (IElementDelta delta : deltas)
+        {
+            if (isAffectedBy(delta, workingCopy))
+                return true;
+        }
+        return false;
     }
 
     /**

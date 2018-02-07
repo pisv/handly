@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ class JavaModelListener
     @Override
     public void elementChanged(IElementChangeEvent event)
     {
-        delta = (IJavaElementDelta)event.getDelta();
+        delta = (IJavaElementDelta)event.getDeltas()[0];
     }
 
     void assertDelta(String expected)

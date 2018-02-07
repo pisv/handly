@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -117,7 +117,7 @@ public final class FooOutlinePage
     @Override
     public void elementChanged(IElementChangeEvent event)
     {
-        if (affects(event.getDelta(), (IElement)getTreeViewer().getInput()))
+        if (affects(event.getDeltas(), (IElement)getTreeViewer().getInput()))
         {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
             {
@@ -131,6 +131,16 @@ public final class FooOutlinePage
                 }
             });
         }
+    }
+
+    private boolean affects(IElementDelta[] deltas, IElement element)
+    {
+        for (IElementDelta delta : deltas)
+        {
+            if (affects(delta, element))
+                return true;
+        }
+        return false;
     }
 
     private boolean affects(IElementDelta delta, IElement element)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,16 +13,16 @@
 package org.eclipse.handly.model;
 
 /**
- * Describes a change to the structure or contents of a tree of elements
- * of a Handly-based model. The changes to the elements are described by
- * the associated delta object carried by this event.
+ * Describes a change to the structure or contents of one or more trees of
+ * elements of a Handly-based model. The changes to the elements are described
+ * by the associated delta objects carried by this event.
  */
 public interface IElementChangeEvent
 {
     /**
      * Event type constant (bit mask) indicating an after-the-fact report
      * of creations, deletions, and modifications to one or more element(s)
-     * expressed as a hierarchical delta as returned by <code>getDelta()</code>.
+     * as returned by <code>getDeltas()</code>.
      * <p>
      * Note: this notification occurs during the corresponding POST_CHANGE
      * resource change notification.
@@ -33,7 +33,7 @@ public interface IElementChangeEvent
     /**
      * Event type constant (bit mask) indicating an after-the-fact report
      * of creations, deletions, and modifications to one or more element(s)
-     * expressed as a hierarchical delta as returned by <code>getDelta()</code>.
+     * as returned by <code>getDeltas()</code>.
      * <p>
      * Note: this notification occurs as a result of a working copy reconcile
      * operation.
@@ -58,9 +58,10 @@ public interface IElementChangeEvent
     int getType();
 
     /**
-     * Returns the delta describing the change.
+     * Returns the top-level deltas describing the change.
      *
-     * @return the delta describing the change (never <code>null</code>)
+     * @return the top-level deltas describing the change (never <code>null</code>,
+     *  never empty). Clients <b>must not</b> modify the returned array.
      */
-    IElementDelta getDelta();
+    IElementDelta[] getDeltas();
 }
