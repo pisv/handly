@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,6 @@ import org.eclipse.xtext.ui.editor.reconciler.ReplaceRegion;
 import org.eclipse.xtext.util.CancelIndicator;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 
-import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 
 /**
@@ -656,12 +655,12 @@ public class HandlyXtextDocument
                     dirtyStateEditorSupport.announceDirtyState(resource);
                 }
             }
-            catch (Throwable t)
+            catch (Error | RuntimeException e)
             {
                 resource.getCache().clear(resource);
 
-                if (!(t instanceof OperationCanceledError))
-                    Throwables.propagate(t);
+                if (!(e instanceof OperationCanceledError))
+                    throw e;
             }
         }
     }
