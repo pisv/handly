@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -706,9 +706,11 @@ public interface ISourceFileImplSupport
          * </ul>
          * <p>
          * Subclasses may override this method, but must make sure to call
-         * {@link #reconcileStructure} if {@link #shouldReconcileStructure}
-         * returns <code>true</code>. A simple way to ensure that is to invoke
          * the <b>super</b> implementation.
+         * </p>
+         * <p>
+         * This implementation calls {@link #reconcileStructure} iff
+         * {@link #shouldReconcileStructure} returns <code>true</code>.
          * </p>
          *
          * @param context the operation context (not <code>null</code>)
@@ -746,9 +748,37 @@ public interface ISourceFileImplSupport
          */
         protected boolean shouldReconcileStructure(IContext context)
         {
-            return context.getOrDefault(INITIAL_RECONCILE)
-                || !context.getOrDefault(RECONCILING_FORCED)
+            return isInitialReconcile(context) || !isReconcilingForced(context)
                 || context.getOrDefault(REBUILD_STRUCTURE_IF_FORCED);
+        }
+
+        /**
+         * Returns whether the reconcile operation is initial reconcile.
+         *
+         * @param context the operation context (not <code>null</code>)
+         * @return <code>true</code> if the reconcile operation is initial
+         *  reconcile; <code>false</code> otherwise
+         * @see #reconcile(IContext, IProgressMonitor)
+         * @see #reconcileStructure(IContext, IProgressMonitor)
+         */
+        protected static boolean isInitialReconcile(IContext context)
+        {
+            return context.getOrDefault(INITIAL_RECONCILE);
+        }
+
+        /**
+         * Returns whether reconciling was forced, i.e. the source has not been
+         * modified since the last time the model was reconciled.
+         *
+         * @param context the operation context (not <code>null</code>)
+         * @return <code>true</code> if the reconciling was forced;
+         *  <code>false</code> otherwise
+         * @see #reconcile(IContext, IProgressMonitor)
+         * @see #reconcileStructure(IContext, IProgressMonitor)
+         */
+        protected static boolean isReconcilingForced(IContext context)
+        {
+            return context.getOrDefault(RECONCILING_FORCED);
         }
 
         /**
@@ -818,7 +848,7 @@ public interface ISourceFileImplSupport
             {
                 CURRENTLY_RECONCILED.set(null);
             }
-            if (context.getOrDefault(INITIAL_RECONCILE))
+            if (isInitialReconcile(context))
             {
                 WorkingCopyInfo info =
                     sourceFile.getElementManager_().peekAtWorkingCopyInfo(
@@ -873,12 +903,14 @@ public interface ISourceFileImplSupport
         protected void reconcile(IContext context, IProgressMonitor monitor)
             throws CoreException
         {
-            if (shouldReconcileStructure(context))
+            if (!shouldReconcileStructure(context))
+                super.reconcile(context, monitor);
+            else
             {
                 ElementChangeRecorder recorder = newChangeRecorder();
                 recorder.beginRecording(sourceFile);
 
-                reconcileStructure(context, monitor);
+                super.reconcile(context, monitor);
 
                 IElementDelta delta = recorder.endRecording().getDelta();
                 if (!ElementDeltas.isNullOrEmpty(delta))
