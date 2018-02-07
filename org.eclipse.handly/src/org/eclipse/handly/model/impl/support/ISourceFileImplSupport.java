@@ -140,7 +140,7 @@ public interface ISourceFileImplSupport
 
         IBuffer buffer = context.get(WORKING_COPY_BUFFER);
         if (buffer == null)
-            try (IBuffer defaultBuffer = getFileBuffer_(context, monitor))
+            try (IBuffer defaultBuffer = getFileBuffer_(context, null))
             {
                 return becomeWorkingCopy_(with(of(WORKING_COPY_BUFFER,
                     defaultBuffer), context), monitor);
