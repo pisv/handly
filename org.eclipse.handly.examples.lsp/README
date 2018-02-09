@@ -9,7 +9,7 @@ model that can represent in a generic way any LSP-based source file.
 It is built on top of Eclipse LSP4J.
 
 For information about LSP, see
-https://github.com/Microsoft/language-server-protocol.
+<https://github.com/Microsoft/language-server-protocol>.
 
 **Implementation note.** Currently, we use symbol location range to infer
 a hierarchy for a given flat list of symbols in a text document, just as
@@ -25,4 +25,4 @@ for building a tree of symbols [1]. Since the approach we currently use
 clearly violates the specification, it may or may not work, depending on
 a language server implementation.
 
-[1] https://github.com/Microsoft/language-server-protocol/issues/327
+[1]: https://github.com/Microsoft/language-server-protocol/issues/327
