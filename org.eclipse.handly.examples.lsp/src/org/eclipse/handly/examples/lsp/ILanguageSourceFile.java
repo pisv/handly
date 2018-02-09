@@ -1,0 +1,125 @@
+/*******************************************************************************
+ * Copyright (c) 2018 1C-Soft LLC.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Vladimir Piskarev (1C) - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.handly.examples.lsp;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.handly.model.ISourceFileExtension;
+import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.snapshot.StaleSnapshotException;
+import org.eclipse.lsp4j.SymbolKind;
+
+/**
+ * Common interface for language source files.
+ */
+public interface ILanguageSourceFile
+    extends ILanguageSourceElement, ISourceFileExtension
+{
+    /**
+     * If this source file is not already in working copy mode, switches it
+     * into a working copy, associates it with a working copy buffer, and
+     * acquires an independent ownership of the working copy (and, hence,
+     * of the working copy buffer). Performs atomically.
+     * <p>
+     * In working copy mode, the source file's structure and properties
+     * shall no longer correspond to the underlying resource contents
+     * and must no longer be updated by a resource delta processor.
+     * Instead, the source file's structure and properties can be explicitly
+     * {@link #reconcile(IProgressMonitor) reconciled} with the current
+     * contents of the working copy buffer.
+     * </p>
+     * <p>
+     * If the source file was already in working copy mode, this method acquires
+     * a new independent ownership of the working copy by incrementing an internal
+     * counter.
+     * </p>
+     * <p>
+     * Each call to this method that didn't throw an exception must ultimately
+     * be followed by exactly one call to {@link #releaseWorkingCopy()}.
+     * </p>
+     *
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
+     * @throws CoreException if the working copy could not be created successfully
+     * @throws OperationCanceledException if this method is canceled
+     */
+    void becomeWorkingCopy(IProgressMonitor monitor) throws CoreException;
+
+    /**
+     * Relinquishes an independent ownership of the working copy by decrementing
+     * an internal counter. If there are no remaining owners of the working copy,
+     * switches this source file from working copy mode back to its original mode
+     * and releases the working copy buffer. Performs atomically.
+     * <p>
+     * Each independent ownership of the working copy must ultimately end
+     * with exactly one call to this method. Clients that do not own the
+     * working copy must not call this method.
+     * </p>
+     */
+    void releaseWorkingCopy();
+
+    /**
+     * Returns a string uniquely identifying the language corresponding to
+     * this source file. This is a handle-only method.
+     *
+     * @return the language identifier
+     */
+    String getLanguageId();
+
+    /**
+     * Returns the top-level symbol declared in this source file
+     * with the given simple name and the given kind. This is a
+     * handle-only method. The symbol may or may not exist.
+     *
+     * @param name the simple name of the requested symbol (not <code>null</code>)
+     * @param kind the kind of the requested symbol (not <code>null</code>)
+     * @return a handle onto the corresponding symbol (never <code>null</code>).
+     *  The symbol may or may not exist.
+     */
+    ILanguageSymbol getSymbol(String name, SymbolKind kind);
+
+    /**
+     * Returns the top-level symbols declared in this source file
+     * in the order in which they appear in the source.
+     *
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
+     * @return the top-level symbols of this source file (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
+     * @throws CoreException if this source file does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     */
+    ILanguageSymbol[] getSymbols(IProgressMonitor monitor) throws CoreException;
+
+    /**
+     * Returns the innermost symbol declared in this source file that includes
+     * the given source position, or <code>null</code> if none.
+     *
+     * @param position a source position (0-based)
+     * @param base a snapshot on which the given position is based,
+     *  or <code>null</code> if the snapshot is unknown or doesn't matter
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
+     * @return the innermost symbol enclosing the given source position,
+     *  or <code>null</code> if none
+     * @throws CoreException if this source file does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws StaleSnapshotException if snapshot inconsistency is detected,
+     *  i.e. this source file's current structure and properties are based on
+     *  a different snapshot
+     */
+    ILanguageSymbol getSymbolAt(int position, ISnapshot base,
+        IProgressMonitor monitor) throws CoreException;
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="org.eclipse.handly.examples.lsp.languageServers">
+      <server
+            class="org.eclipse.handly.internal.examples.lsp.LanguageSourceFile2Test$ServerConnectionProvider"
+            id="org.eclipse.handly.examples.lsp.tests.LanguageSourceFile2TestServer"
+            label="LanguageSourceFile2TestServer">
+         <language
+               file-extensions="foo"
+               id="fooLanguage">
+         </language>
+      </server>
+   </extension>
+</fragment>
