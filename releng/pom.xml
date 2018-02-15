@@ -54,6 +54,7 @@
     <module>../org.eclipse.handly.examples.adapter</module>
     <module>../org.eclipse.handly.examples.adapter.ui</module>
     <module>../org.eclipse.handly.examples.basic</module>
+    <module>../org.eclipse.handly.examples.basic.ide</module>
     <module>../org.eclipse.handly.examples.basic.ui</module>
     <module>../org.eclipse.handly.examples.basic.ui.tests</module>
     <module>../org.eclipse.handly.examples.jmodel</module>

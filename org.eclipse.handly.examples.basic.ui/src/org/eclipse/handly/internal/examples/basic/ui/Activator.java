@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@ package org.eclipse.handly.internal.examples.basic.ui;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.handly.examples.basic.ui.internal.FooActivator;
+import org.eclipse.handly.examples.basic.ui.internal.BasicActivator;
 import org.eclipse.handly.internal.examples.basic.ui.model.FooModelManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -20,10 +20,10 @@ import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.BundleContext;
 
 /**
- * Hand-written subclass of the Xtext-generated {@link FooActivator}.
+ * Hand-written subclass of the Xtext-generated {@link BasicActivator}.
  */
 public class Activator
-    extends FooActivator
+    extends BasicActivator
 {
     public static final String PLUGIN_ID =
         "org.eclipse.handly.examples.basic.ui"; //$NON-NLS-1$

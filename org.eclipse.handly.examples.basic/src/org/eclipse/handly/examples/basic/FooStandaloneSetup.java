@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.basic;
 
-import org.eclipse.handly.examples.basic.FooStandaloneSetupGenerated;
-
 /**
  * Initialization support for running Xtext languages
  * without equinox extension registry

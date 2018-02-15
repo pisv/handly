@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.basic;
 
-import org.eclipse.handly.examples.basic.AbstractFooRuntimeModule;
-
 /**
- * Use this class to register components to be used at runtime /
+ * Use this class to register components to be used at runtime
  * without the Equinox extension registry.
  */
 public class FooRuntimeModule

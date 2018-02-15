@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.handly.examples.basic.ui;
 
-import org.eclipse.handly.examples.basic.ui.internal.FooActivator;
+import org.eclipse.handly.examples.basic.ui.internal.BasicActivator;
 import org.eclipse.handly.internal.examples.basic.ui.FooInputElementProvider;
 import org.eclipse.handly.internal.examples.basic.ui.outline2.FooOutlinePage;
 import org.eclipse.handly.internal.examples.basic.ui.outline2.FooOutlinePopup;
@@ -33,7 +33,7 @@ import com.google.inject.name.Names;
 /**
  * Use this class to register components to be used within the IDE.
  * <p>
- * Note: Xtext-generated {@link FooActivator} implementation assumes
+ * Note: Xtext-generated {@link BasicActivator} implementation assumes
  * that this class lives in this package. Don't rename/move this class.
  */
 public class FooUiModule

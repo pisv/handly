@@ -3,31 +3,31 @@
  */
 package org.eclipse.handly.examples.basic.ui.internal;
 
+import com.google.common.collect.Maps;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
 import java.util.Collections;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
+import org.eclipse.handly.examples.basic.FooRuntimeModule;
+import org.eclipse.handly.examples.basic.ui.FooUiModule;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.shared.SharedStateModule;
 import org.eclipse.xtext.util.Modules2;
 import org.osgi.framework.BundleContext;
 
-import com.google.common.collect.Maps;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
-
 /**
  * This class was generated. Customizations should only happen in a newly
  * introduced subclass. 
  */
-public class FooActivator extends AbstractUIPlugin {
-	
+public class BasicActivator extends AbstractUIPlugin {
+
 	public static final String ORG_ECLIPSE_HANDLY_EXAMPLES_BASIC_FOO = "org.eclipse.handly.examples.basic.Foo";
 	
-	private static final Logger logger = Logger.getLogger(FooActivator.class);
+	private static final Logger logger = Logger.getLogger(BasicActivator.class);
 	
-	private static FooActivator INSTANCE;
+	private static BasicActivator INSTANCE;
 	
 	private Map<String, Injector> injectors = Collections.synchronizedMap(Maps.<String, Injector> newHashMapWithExpectedSize(1));
 	
@@ -44,7 +44,7 @@ public class FooActivator extends AbstractUIPlugin {
 		super.stop(context);
 	}
 	
-	public static FooActivator getInstance() {
+	public static BasicActivator getInstance() {
 		return INSTANCE;
 	}
 	
@@ -71,20 +71,18 @@ public class FooActivator extends AbstractUIPlugin {
 			throw new RuntimeException("Failed to create injector for " + language, e);
 		}
 	}
-
+	
 	protected Module getRuntimeModule(String grammar) {
 		if (ORG_ECLIPSE_HANDLY_EXAMPLES_BASIC_FOO.equals(grammar)) {
-			return new org.eclipse.handly.examples.basic.FooRuntimeModule();
+			return new FooRuntimeModule();
 		}
-		
 		throw new IllegalArgumentException(grammar);
 	}
 	
 	protected Module getUiModule(String grammar) {
 		if (ORG_ECLIPSE_HANDLY_EXAMPLES_BASIC_FOO.equals(grammar)) {
-			return new org.eclipse.handly.examples.basic.ui.FooUiModule(this);
+			return new FooUiModule(this);
 		}
-		
 		throw new IllegalArgumentException(grammar);
 	}
 	

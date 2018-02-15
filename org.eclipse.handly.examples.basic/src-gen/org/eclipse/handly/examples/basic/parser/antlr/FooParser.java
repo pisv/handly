@@ -4,36 +4,37 @@
 package org.eclipse.handly.examples.basic.parser.antlr;
 
 import com.google.inject.Inject;
-
-import org.eclipse.xtext.parser.antlr.XtextTokenStream;
+import org.eclipse.handly.examples.basic.parser.antlr.internal.InternalFooParser;
 import org.eclipse.handly.examples.basic.services.FooGrammarAccess;
+import org.eclipse.xtext.parser.antlr.AbstractAntlrParser;
+import org.eclipse.xtext.parser.antlr.XtextTokenStream;
 
-public class FooParser extends org.eclipse.xtext.parser.antlr.AbstractAntlrParser {
-	
+public class FooParser extends AbstractAntlrParser {
+
 	@Inject
 	private FooGrammarAccess grammarAccess;
-	
+
 	@Override
 	protected void setInitialHiddenTokens(XtextTokenStream tokenStream) {
 		tokenStream.setInitialHiddenTokens("RULE_WS", "RULE_ML_COMMENT", "RULE_SL_COMMENT");
 	}
 	
+
 	@Override
-	protected org.eclipse.handly.examples.basic.parser.antlr.internal.InternalFooParser createParser(XtextTokenStream stream) {
-		return new org.eclipse.handly.examples.basic.parser.antlr.internal.InternalFooParser(stream, getGrammarAccess());
+	protected InternalFooParser createParser(XtextTokenStream stream) {
+		return new InternalFooParser(stream, getGrammarAccess());
 	}
-	
+
 	@Override 
 	protected String getDefaultRuleName() {
 		return "Module";
 	}
-	
+
 	public FooGrammarAccess getGrammarAccess() {
 		return this.grammarAccess;
 	}
-	
+
 	public void setGrammarAccess(FooGrammarAccess grammarAccess) {
 		this.grammarAccess = grammarAccess;
 	}
-	
 }
