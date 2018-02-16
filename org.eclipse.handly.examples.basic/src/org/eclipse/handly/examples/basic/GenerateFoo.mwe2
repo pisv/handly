@@ -13,13 +13,11 @@ module org.eclipse.handly.examples.basic.GenerateFoo
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
 
-var projectName = "org.eclipse.handly.examples.basic"
-
 Workflow {
 	component = XtextGenerator {
 		configuration = {
 			project = StandardProjectConfig {
-				baseName = projectName
+				baseName = "org.eclipse.handly.examples.basic"
 				rootPath = ".."
 				eclipsePlugin = {
 					enabled = true
