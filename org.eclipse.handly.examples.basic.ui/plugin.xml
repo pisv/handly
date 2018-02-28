@@ -81,7 +81,7 @@
       <wizard
             id="org.eclipse.handly.examples.basic.ui.wizards.new.fooProject"
             name="Foo Project"
-            icon="icons/etool16/newprj_wiz.gif"
+            icon="icons/ctool16/newprj_wiz.gif"
             class="org.eclipse.handly.examples.basic.ui.FooExecutableExtensionFactory:org.eclipse.handly.internal.examples.basic.ui.wizards.NewFooProjectWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true">

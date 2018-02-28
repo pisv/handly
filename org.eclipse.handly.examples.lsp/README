@@ -1,9 +1,6 @@
 LSP Example
 ===========
 
-Please see the `README` file in the `org.eclipse.handly.examples` bundle
-for general information regarding Handly Examples.
-
 The LSP example (`o.e.handly.examples.lsp*`) demonstrates a Handly-based
 model that can represent in a generic way any LSP-based source file.
 It is built on top of Eclipse LSP4J.

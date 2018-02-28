@@ -1,9 +1,6 @@
 JModel Example
 ==============
 
-Please see the `README` file in the `org.eclipse.handly.examples` bundle
-for general information regarding Handly Examples.
-
 The JModel example (`o.e.handly.examples.jmodel*`) demonstrates a Handly-based
 model for the Java language along the lines of the JDT's Java model.
 
@@ -30,9 +27,8 @@ the example model for Java, are provided:
 
 * Example Java navigator view (kindly contributed by Ondrej Ilcik, Codasip).
 
-To try it out, launch runtime Eclipse (you can use the predefined launch
-configuration), and open the `JNavigator (Handly)` view (under the
-`Handly Examples` category). The view shows the elements of the underlying
+To try it out, launch runtime Eclipse and open the `JNavigator (Handly)` view (in
+the `Handly Examples` category). The view shows the elements of the underlying
 example model for Java. You can navigate the structure of the projects in your
 workspace down to types, methods, and fields in Java source files. Select
 a Java file and edit it with the `Java Editor (Handly JModel Example)`.

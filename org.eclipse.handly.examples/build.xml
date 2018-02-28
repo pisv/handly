@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2018 1C-Soft LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+        Vladimir Piskarev (1C) - initial API and implementation
+ -->
+<project>
+  <property name="source" location=".." />
+  <property name="target" location="contents" />
+  <macrodef name="zip_example">
+    <attribute name="name" />
+    <sequential>
+      <zip destfile="${target}/@{name}.zip" basedir="${source}/@{name}"
+        excludes="bin,bin/**,target/**,.antlr-generator*.jar"
+        defaultexcludes="no" />
+    </sequential>
+  </macrodef>
+  <target name="clean_all_examples">
+    <delete>
+      <fileset dir="${target}" includes="*.zip" />
+    </delete>
+  </target>
+  <target name="zip_all_examples">
+    <zip_example name="org.eclipse.handly.examples.adapter" />
+    <zip_example name="org.eclipse.handly.examples.adapter.ui" />
+    <zip_example name="org.eclipse.handly.examples.basic" />
+    <zip_example name="org.eclipse.handly.examples.basic.ide" />
+    <zip_example name="org.eclipse.handly.examples.basic.ui" />
+    <zip_example name="org.eclipse.handly.examples.basic.ui.tests" />
+    <zip_example name="org.eclipse.handly.examples.jmodel" />
+    <zip_example name="org.eclipse.handly.examples.jmodel.tests" />
+    <zip_example name="org.eclipse.handly.examples.jmodel.ui" />
+    <zip_example name="org.eclipse.handly.examples.lsp" />
+    <zip_example name="org.eclipse.handly.examples.lsp.tests" />
+  </target>
+</project>

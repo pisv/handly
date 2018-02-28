@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Copyright (c) 2014, 2017 1C-Soft LLC and others.
+   Copyright (c) 2014, 2018 1C-Soft LLC and others.
    All rights reserved. This program and the accompanying materials
    are made available under the terms of the Eclipse Public License v1.0
    which accompanies this distribution, and is available at
@@ -21,4 +21,37 @@
   <groupId>org.eclipse.handly.bundles</groupId>
   <artifactId>org.eclipse.handly.examples</artifactId>
   <packaging>eclipse-plugin</packaging>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-examples</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <ant antfile="${basedir}/build.xml" target="zip_all_examples" />
+              </target>
+            </configuration>
+          </execution>
+          <execution>
+            <id>clean-examples</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <ant antfile="${basedir}/build.xml" target="clean_all_examples" />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

@@ -1,16 +1,13 @@
 Basic Example
 =============
 
-Please see the `README` file in the `org.eclipse.handly.examples` bundle 
-for general information regarding Handly Examples.
-
 The basic example (`o.e.handly.examples.basic*`) demonstrates a full-featured 
 Handly-based model for a simple Xtext-based language, complete with automated 
 tests, content outline, and a CNF-based navigator view.
 
-Launch runtime Eclipse (you can use the predefined launch configuration) and 
-open the Resource perspective, then create a new project using the  
-`Foo Project` wizard. The wizard is in the `Examples/Handly Examples` category.
+Launch runtime Eclipse and open the Resource perspective, then create a new
+project using the `Foo Project` wizard. The wizard is in the `Handly Examples`
+category.
 
 Create a new file in the root of the project you've just created; the filename 
 must have the `.foo` extension. For example, create the `Module1.foo` file 

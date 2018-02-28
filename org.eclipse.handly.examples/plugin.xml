@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <!--
-    Copyright (c) 2014 1C LLC.
+    Copyright (c) 2014, 2018 1C-Soft LLC and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -20,6 +20,106 @@
             name="Handly Examples"
             parentCategory="org.eclipse.ui.Examples">
       </category>
+      <wizard
+            id="org.eclipse.handly.examples.adapter"
+            name="Adapter Example"
+            class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
+            category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
+            project="true"
+            icon="icons/ctool16/newprj_wiz.gif">
+         <description>Create plug-in projects implementing a Handly-based model that adapts the JDT Java model</description>
+      </wizard>
+      <wizard
+            id="org.eclipse.handly.examples.basic"
+            name="Basic Example"
+            class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
+            category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
+            project="true"
+            icon="icons/ctool16/newprj_wiz.gif">
+         <description>Create plug-in projects implementing a Handly-based model for a simple Xtext-based language</description>
+      </wizard>
+      <wizard
+            id="org.eclipse.handly.examples.jmodel"
+            name="JModel Example"
+            class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
+            category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
+            project="true"
+            icon="icons/ctool16/newprj_wiz.gif">
+         <description>Create plug-in projects implementing a Handly-based Java model</description>
+      </wizard>
+      <wizard
+            id="org.eclipse.handly.examples.lsp"
+            name="LSP Example"
+            class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
+            category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
+            project="true"
+            icon="icons/ctool16/newprj_wiz.gif">
+         <description>Create plug-in projects implementing a Handly-based model for LSP-based source files</description>
+      </wizard>
+   </extension>
+
+   <extension
+         point="org.eclipse.emf.common.ui.examples">
+      <example
+            id="org.eclipse.handly.examples.adapter"
+            wizardID="org.eclipse.handly.examples.adapter">
+         <projectDescriptor
+               name="org.eclipse.handly.examples.adapter"
+               contentURI="contents/org.eclipse.handly.examples.adapter.zip"
+               description="This project implements a Handly-based model adapting the JDT Java model."/>
+         <projectDescriptor
+               name="org.eclipse.handly.examples.adapter.ui"
+               contentURI="contents/org.eclipse.handly.examples.adapter.ui.zip"
+               description="This project contains UI parts using the adapter model."/>
+      </example>
+      <example
+            id="org.eclipse.handly.examples.basic"
+            wizardID="org.eclipse.handly.examples.basic">
+         <projectDescriptor
+               name="org.eclipse.handly.examples.basic"
+               contentURI="contents/org.eclipse.handly.examples.basic.zip"
+               description="This project implements a simple language based on Xtext."/>
+         <projectDescriptor
+               name="org.eclipse.handly.examples.basic.ide"
+               contentURI="contents/org.eclipse.handly.examples.basic.ide.zip"
+               description="This project contains Eclipse-independent IDE parts for the example language."/>
+         <projectDescriptor
+               name="org.eclipse.handly.examples.basic.ui"
+               contentURI="contents/org.eclipse.handly.examples.basic.ui.zip"
+               description="This project impelements a Handly-based model for the example language, complete with content outline and CNF-based navigator view."/>
+         <projectDescriptor
+               name="org.eclipse.handly.examples.basic.ui.tests"
+               contentURI="contents/org.eclipse.handly.examples.basic.ui.tests.zip"
+               description="This project contains plug-in tests."/>
+      </example>
+      <example
+            id="org.eclipse.handly.examples.jmodel"
+            wizardID="org.eclipse.handly.examples.jmodel">
+         <projectDescriptor
+               name="org.eclipse.handly.examples.jmodel"
+               contentURI="contents/org.eclipse.handly.examples.jmodel.zip"
+               description="This project implements a Handly-based Java model."/>
+         <projectDescriptor
+               name="org.eclipse.handly.examples.jmodel.tests"
+               contentURI="contents/org.eclipse.handly.examples.jmodel.tests.zip"
+               description="This project contains plug-in tests."/>
+         <projectDescriptor
+               name="org.eclipse.handly.examples.jmodel.ui"
+               contentURI="contents/org.eclipse.handly.examples.jmodel.ui.zip"
+               description="This project contains UI parts using the Java model."/>
+      </example>
+      <example
+            id="org.eclipse.handly.examples.lsp"
+            wizardID="org.eclipse.handly.examples.lsp">
+         <projectDescriptor
+               name="org.eclipse.handly.examples.lsp"
+               contentURI="contents/org.eclipse.handly.examples.lsp.zip"
+               description="This project implements a Handly-based model for LSP-based source files."/>
+         <projectDescriptor
+               name="org.eclipse.handly.examples.lsp.tests"
+               contentURI="contents/org.eclipse.handly.examples.lsp.tests.zip"
+               description="This project contains plug-in tests."/>
+      </example>
    </extension>
 
    <extension
