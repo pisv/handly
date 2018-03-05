@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.handly.internal.examples.jmodel.JavaModelManager;
 import org.eclipse.handly.internal.examples.jmodel.MementoTokenizer;
 
@@ -65,14 +66,16 @@ public class JavaModelCore
         if (resource == null)
             return null;
 
-        if (resource instanceof IProject)
+        if (resource instanceof IWorkspaceRoot)
+            return getJavaModel();
+        else if (resource instanceof IProject)
             return create((IProject)resource);
         else if (resource instanceof IFolder)
             return create((IFolder)resource);
         else if (resource instanceof IFile)
             return create((IFile)resource);
         else
-            return getJavaModel(); // workspace root
+            throw new AssertionError();
     }
 
     /**
