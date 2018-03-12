@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
 package org.eclipse.handly.model.impl.support;
 
 import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_FINE_GRAINED;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_REORDER;
 
 import java.util.HashMap;
@@ -100,13 +101,15 @@ public class ElementChangeRecorder
      *
      * @param inputElement not <code>null</code>
      * @param deltaBuilder may be <code>null</code>
-     * @param maxDepth the maximum depth of the input element's subtree
-     *  the recorder should look into
+     * @param maxDepth the maximum depth the recorder should look into
+     *  (&gt;= 0)
      */
     public void beginRecording(IElement inputElement,
         IElementDeltaBuilder deltaBuilder, int maxDepth)
     {
         if (inputElement == null)
+            throw new IllegalArgumentException();
+        if (maxDepth < 0)
             throw new IllegalArgumentException();
 
         if (deltaBuilder == null)
@@ -137,7 +140,7 @@ public class ElementChangeRecorder
             throw new IllegalStateException("No recording to end"); //$NON-NLS-1$
         recording = false;
         recordNewPositions(inputElement, 0);
-        findAdditions(inputElement, 0);
+        findChanges(inputElement, 0);
         findDeletions();
         findChangesInPositioning(inputElement, 0);
         return deltaBuilder;
@@ -242,9 +245,6 @@ public class ElementChangeRecorder
      */
     private void recordBody(IElement element, int depth)
     {
-        if (depth >= maxDepth)
-            return;
-
         Object body;
         try
         {
@@ -257,9 +257,14 @@ public class ElementChangeRecorder
 
         recordBody(body, element);
 
-        IElement[] children = ((IElementImplExtension)element).getChildrenFromBody_(
-            body);
+        if (depth == maxDepth)
+            return;
+
+        IElement[] children =
+            ((IElementImplExtension)element).getChildrenFromBody_(body);
+
         insertPositions(children, false);
+
         for (IElement child : children)
         {
             recordBody(child, depth + 1);
@@ -271,7 +276,7 @@ public class ElementChangeRecorder
      */
     private void recordNewPositions(IElement newElement, int depth)
     {
-        if (depth >= maxDepth)
+        if (depth == maxDepth)
             return;
 
         IElement[] children;
@@ -285,6 +290,7 @@ public class ElementChangeRecorder
         }
 
         insertPositions(children, true);
+
         for (IElement child : children)
         {
             recordNewPositions(child, depth + 1);
@@ -315,20 +321,15 @@ public class ElementChangeRecorder
     /*
      * Finds elements which have been added or changed.
      */
-    private void findAdditions(IElement element, int depth)
+    private void findChanges(IElement element, int depth)
     {
         Object oldBody = removeOldBody(element);
-        if (oldBody == null && depth < maxDepth)
+        if (oldBody == null)
         {
             deltaBuilder.added(element);
             added(element);
         }
-        else if (depth >= maxDepth)
-        {
-            // mark element as changed
-            deltaBuilder.changed(element, F_CONTENT);
-        }
-        else // oldBody != null
+        else
         {
             Object newBody;
             try
@@ -337,15 +338,24 @@ public class ElementChangeRecorder
             }
             catch (CoreException e)
             {
+                deltaBuilder.removed(element);
+                removed(element);
                 return;
             }
 
-            findContentChange(oldBody, newBody, element);
+            if (depth == maxDepth)
+            {
+                deltaBuilder.changed(element, F_CONTENT);
+                return;
+            }
+
+            if (oldBody != newBody)
+                findContentChange(oldBody, newBody, element);
 
             for (IElement child : ((IElementImplExtension)element).getChildrenFromBody_(
                 newBody))
             {
-                findAdditions(child, depth + 1);
+                findChanges(child, depth + 1);
             }
         }
     }
@@ -367,14 +377,19 @@ public class ElementChangeRecorder
      */
     private void findChangesInPositioning(IElement element, int depth)
     {
-        if (depth >= maxDepth || added.contains(element) || removed.contains(
-            element))
+        if (added.contains(element) || removed.contains(element))
             return;
 
         if (!isPositionedCorrectly(element))
         {
-            deltaBuilder.changed(element, F_REORDER);
+            long flags = F_REORDER;
+            if (depth < maxDepth)
+                flags |= F_FINE_GRAINED;
+            deltaBuilder.changed(element, flags);
         }
+
+        if (depth == maxDepth)
+            return;
 
         IElement[] children;
         try
