@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2018 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,33 +10,40 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl.support;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.handly.model.IElement;
 
 /**
- * A null implementation of {@link IBodyCache} for tests.
+ * A simple body cache for tests.
  */
-class NullBodyCache
+public class SimpleBodyCache
     implements IBodyCache
 {
+    private Map<IElement, Object> map = new HashMap<>();
+
     @Override
     public Object get(IElement element)
     {
-        return null;
+        return map.get(element);
     }
 
     @Override
     public Object peek(IElement element)
     {
-        return null;
+        return map.get(element);
     }
 
     @Override
     public void put(IElement element, Object body)
     {
+        map.put(element, body);
     }
 
     @Override
     public void remove(IElement element)
     {
+        map.remove(element);
     }
 }

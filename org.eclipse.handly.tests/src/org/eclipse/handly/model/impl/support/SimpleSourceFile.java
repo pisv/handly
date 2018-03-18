@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,18 @@ public class SimpleSourceFile
         this.file = file;
         if ((this.manager = manager) == null)
             throw new IllegalArgumentException();
+    }
+
+    /**
+     * Returns a child element with the given name.
+     * This is a handle-only method.
+     *
+     * @param name the name of the element
+     * @return the child element with the given name
+     */
+    public SimpleSourceConstruct getChild(String name)
+    {
+        return new SimpleSourceConstruct(this, name);
     }
 
     @Override

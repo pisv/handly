@@ -103,30 +103,25 @@ public class ElementChangeRecorderTest
 
     public void test02()
     {
-        recorder.beginRecording(root);
-        rootBody.addChild(a);
-        //@formatter:off
-        assertEquals("root[*]: {CHILDREN | FINE GRAINED}\n" +
-            "  A[+]: {}", recorder.endRecording().getDelta().toString());
-        //@formatter:on
+        rootBody = null;
+        recorder.beginRecording(root, null, 0);
+        rootBody = new SourceElementBody();
+        assertEquals("root[+]: {}",
+            recorder.endRecording().getDelta().toString());
     }
 
     public void test03()
     {
-        rootBody.addChild(b);
-        recorder.beginRecording(root);
-        rootBody.addChild(a);
-        //@formatter:off
-        assertEquals("root[*]: {CHILDREN | FINE GRAINED}\n" +
-            "  A[+]: {}", recorder.endRecording().getDelta().toString());
-        //@formatter:on
+        recorder.beginRecording(root, null, 0);
+        rootBody = null;
+        assertEquals("root[-]: {}",
+            recorder.endRecording().getDelta().toString());
     }
 
     public void test04()
     {
-        rootBody.addChild(b);
         recorder.beginRecording(root);
-        rootBody.setChildren(new SimpleSourceConstruct[] { a, b });
+        rootBody.addChild(a);
         //@formatter:off
         assertEquals("root[*]: {CHILDREN | FINE GRAINED}\n" +
             "  A[+]: {}", recorder.endRecording().getDelta().toString());
@@ -135,29 +130,29 @@ public class ElementChangeRecorderTest
 
     public void test05()
     {
-        rootBody.addChild(a);
+        rootBody.addChild(b);
         recorder.beginRecording(root);
-        rootBody.removeChild(a);
+        rootBody.addChild(a);
         //@formatter:off
         assertEquals("root[*]: {CHILDREN | FINE GRAINED}\n" +
-            "  A[-]: {}", recorder.endRecording().getDelta().toString());
+            "  A[+]: {}", recorder.endRecording().getDelta().toString());
         //@formatter:on
     }
 
     public void test06()
     {
-        rootBody.setChildren(new SimpleSourceConstruct[] { a, b });
+        rootBody.addChild(b);
         recorder.beginRecording(root);
-        rootBody.removeChild(a);
+        rootBody.setChildren(new SimpleSourceConstruct[] { a, b });
         //@formatter:off
         assertEquals("root[*]: {CHILDREN | FINE GRAINED}\n" +
-            "  A[-]: {}", recorder.endRecording().getDelta().toString());
+            "  A[+]: {}", recorder.endRecording().getDelta().toString());
         //@formatter:on
     }
 
     public void test07()
     {
-        rootBody.setChildren(new SimpleSourceConstruct[] { b, a });
+        rootBody.addChild(a);
         recorder.beginRecording(root);
         rootBody.removeChild(a);
         //@formatter:off
@@ -170,6 +165,28 @@ public class ElementChangeRecorderTest
     {
         rootBody.setChildren(new SimpleSourceConstruct[] { a, b });
         recorder.beginRecording(root);
+        rootBody.removeChild(a);
+        //@formatter:off
+        assertEquals("root[*]: {CHILDREN | FINE GRAINED}\n" +
+            "  A[-]: {}", recorder.endRecording().getDelta().toString());
+        //@formatter:on
+    }
+
+    public void test09()
+    {
+        rootBody.setChildren(new SimpleSourceConstruct[] { b, a });
+        recorder.beginRecording(root);
+        rootBody.removeChild(a);
+        //@formatter:off
+        assertEquals("root[*]: {CHILDREN | FINE GRAINED}\n" +
+            "  A[-]: {}", recorder.endRecording().getDelta().toString());
+        //@formatter:on
+    }
+
+    public void test10()
+    {
+        rootBody.setChildren(new SimpleSourceConstruct[] { a, b });
+        recorder.beginRecording(root);
         rootBody.setChildren(new SimpleSourceConstruct[] { b, a });
         //@formatter:off
         assertEquals("root[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -179,7 +196,7 @@ public class ElementChangeRecorderTest
         //@formatter:on
     }
 
-    public void test09()
+    public void test11()
     {
         rootBody.setFullRange(new TextRange(0, 0));
         recorder.beginRecording(root);
@@ -189,7 +206,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test10()
+    public void test12()
     {
         rootBody.setFullRange(new TextRange(0, 1));
         recorder.beginRecording(root);
@@ -199,7 +216,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta()));
     }
 
-    public void test11()
+    public void test13()
     {
         rootBody.setFullRange(new TextRange(0, 1));
         Document document = new Document("a");
@@ -213,7 +230,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test12()
+    public void test14()
     {
         rootBody.setFullRange(new TextRange(0, 1));
         Document document = new Document("a");
@@ -226,25 +243,25 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta()));
     }
 
-    public void test13()
-    {
-        recorder.beginRecording(root);
-        rootBody = new SourceElementBody();
-        rootBody.set(Property.get("p", String.class), "a");
-        assertEquals("root[*]: {CONTENT | FINE GRAINED}",
-            recorder.endRecording().getDelta().toString());
-    }
-
-    public void test14()
-    {
-        rootBody.set(Property.get("p", String.class), "a");
-        recorder.beginRecording(root);
-        rootBody = new SourceElementBody();
-        assertEquals("root[*]: {CONTENT | FINE GRAINED}",
-            recorder.endRecording().getDelta().toString());
-    }
-
     public void test15()
+    {
+        recorder.beginRecording(root);
+        rootBody = new SourceElementBody();
+        rootBody.set(Property.get("p", String.class), "a");
+        assertEquals("root[*]: {CONTENT | FINE GRAINED}",
+            recorder.endRecording().getDelta().toString());
+    }
+
+    public void test16()
+    {
+        rootBody.set(Property.get("p", String.class), "a");
+        recorder.beginRecording(root);
+        rootBody = new SourceElementBody();
+        assertEquals("root[*]: {CONTENT | FINE GRAINED}",
+            recorder.endRecording().getDelta().toString());
+    }
+
+    public void test17()
     {
         Property<String> p = Property.get("p", String.class);
         rootBody.set(p, "a");
@@ -255,7 +272,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test16()
+    public void test18()
     {
         Property<String[]> p = Property.get("p", String[].class);
         rootBody.set(p, new String[] { "a" });
@@ -266,7 +283,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test17()
+    public void test19()
     {
         rootBody.set(Property.get("p1", String.class), "a");
         recorder.beginRecording(root);
@@ -276,7 +293,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test18()
+    public void test20()
     {
         Property<String> p = Property.get("p", String.class);
         rootBody.set(p, "a");
@@ -287,14 +304,14 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta()));
     }
 
-    public void test19()
+    public void test21()
     {
         recorder.beginRecording(root, null, 0);
         assertEquals("root[*]: {CONTENT}",
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test20()
+    public void test22()
     {
         rootBody = null;
         recorder.beginRecording(root, null, 0);
@@ -303,7 +320,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test21()
+    public void test23()
     {
         recorder.beginRecording(root, null, 0);
         rootBody = null;
@@ -311,7 +328,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test22()
+    public void test24()
     {
         rootBody.addChild(a);
         recorder.beginRecording(root, null, 0);
@@ -320,7 +337,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test23()
+    public void test25()
     {
         rootBody.setChildren(new SimpleSourceConstruct[] { a, b });
         recorder.beginRecording(root, null, 0);
@@ -329,7 +346,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test24()
+    public void test26()
     {
         recorder.beginRecording(root, null, 0);
         rootBody = new SourceElementBody();
@@ -338,14 +355,14 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test25()
+    public void test27()
     {
         recorder.beginRecording(root, null, 1);
         assertTrue(ElementDeltas.isNullOrEmpty(
             recorder.endRecording().getDelta()));
     }
 
-    public void test26()
+    public void test28()
     {
         rootBody.addChild(a);
         recorder.beginRecording(root, null, 1);
@@ -357,7 +374,7 @@ public class ElementChangeRecorderTest
         //@formatter:on
     }
 
-    public void test27()
+    public void test29()
     {
         rootBody.addChild(a);
         rootBody.addChild(b);
@@ -370,7 +387,7 @@ public class ElementChangeRecorderTest
         //@formatter:on
     }
 
-    public void test28()
+    public void test30()
     {
         recorder.beginRecording(root, null, 1);
         rootBody = new SourceElementBody();
@@ -379,7 +396,7 @@ public class ElementChangeRecorderTest
             recorder.endRecording().getDelta().toString());
     }
 
-    public void test29()
+    public void test31()
     {
         rootBody.addChild(a);
         recorder.beginRecording(root, null, 1);
@@ -391,7 +408,7 @@ public class ElementChangeRecorderTest
         //@formatter:on
     }
 
-    public void test30()
+    public void test32()
     {
         rootBody.addChild(a);
         rootBody.addChild(b);
@@ -404,7 +421,7 @@ public class ElementChangeRecorderTest
         //@formatter:on
     }
 
-    public void test31()
+    public void test33()
     {
         rootBody.addChild(a);
         rootBody.addChild(b);
@@ -417,7 +434,7 @@ public class ElementChangeRecorderTest
         //@formatter:on
     }
 
-    public void test32()
+    public void test34()
     {
         rootBody.setChildren(new SimpleSourceConstruct[] { a, b });
         recorder.beginRecording(root, null, 1);
@@ -432,7 +449,7 @@ public class ElementChangeRecorderTest
         //@formatter:on
     }
 
-    public void test33()
+    public void test35()
     {
         rootBody.setChildren(new SimpleSourceConstruct[] { a, b });
         recorder.beginRecording(root, null, 2);

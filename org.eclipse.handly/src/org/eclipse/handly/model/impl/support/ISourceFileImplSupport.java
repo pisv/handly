@@ -13,6 +13,7 @@ package org.eclipse.handly.model.impl.support;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.context.Contexts.with;
 import static org.eclipse.handly.model.Elements.CREATE_BUFFER;
+import static org.eclipse.handly.model.IElementDeltaConstants.CHANGED;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
@@ -899,7 +900,7 @@ public interface ISourceFileImplSupport
                 reconcileStructure(context, monitor);
 
                 IElementDelta delta = recorder.endRecording().getDelta();
-                if (!ElementDeltas.isNullOrEmpty(delta))
+                if (delta != null && ElementDeltas.getKind(delta) == CHANGED)
                 {
                     Elements.getModelContext(sourceFile).get(
                         INotificationManager.class).fireElementChangeEvent(
