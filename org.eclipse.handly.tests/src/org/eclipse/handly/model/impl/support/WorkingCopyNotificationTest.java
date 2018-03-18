@@ -172,6 +172,6 @@ public class WorkingCopyNotificationTest
     {
         IElementChangeEvent event = events.get(index);
         assertEquals(type, event.getType());
-        assertEquals(expectedDelta, event.getDeltas()[0].toString());
+        assertEquals(expectedDelta, event.getDelta().toString());
     }
 }
