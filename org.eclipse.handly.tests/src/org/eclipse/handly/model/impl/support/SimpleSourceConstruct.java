@@ -17,7 +17,7 @@ package org.eclipse.handly.model.impl.support;
 public class SimpleSourceConstruct
     extends SourceConstruct
 {
-    private IModelManager manager;
+    private final IModelManager manager;
 
     /**
      * Constructs a handle for a source construct with the given parameters.

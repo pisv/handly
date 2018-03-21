@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,6 +56,11 @@ public interface ISourceElementImplSupport
      * this element as reported by {@link #checkInRange(int, ISourceElementInfo,
      * IContext)}. Otherwise, returns <code>null</code>.
      * </p>
+     * @throws CoreException if this element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws StaleSnapshotException if snapshot inconsistency is detected,
+     *  i.e. this element's current structure and properties are based on
+     *  a different snapshot
      */
     @Override
     default ISourceElement getSourceElementAt_(int position, IContext context,
@@ -125,11 +130,8 @@ public interface ISourceElementImplSupport
     static boolean checkInRange(int position, ISourceElementInfo info,
         IContext context)
     {
-        ISnapshot snapshot = info.getSnapshot();
-        if (snapshot == null)
-            return false; // the element has no associated source code
         ISnapshot base = context.get(BASE_SNAPSHOT);
-        if (base != null && !base.isEqualTo(snapshot))
+        if (base != null && !base.isEqualTo(info.getSnapshot()))
         {
             throw new StaleSnapshotException();
         }

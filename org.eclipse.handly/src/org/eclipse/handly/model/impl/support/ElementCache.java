@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,9 +63,16 @@ public class ElementCache
      * Ensures that there is enough room for adding the given number of children.
      * If the space limit must be increased, record the parent that needed
      * this space limit.
+     *
+     * @param childCount the number of child elements (&gt;= 0)
+     * @param parent the parent element (not <code>null</code>)
      */
     public void ensureSpaceLimit(int childCount, IElement parent)
     {
+        if (childCount < 0)
+            throw new IllegalArgumentException();
+        if (parent == null)
+            throw new IllegalArgumentException();
         // ensure the children can be put without closing other elements
         int spaceNeeded = 1 + (int)((1 + loadFactor) * (childCount + overflow));
         if (spaceLimit < spaceNeeded)
@@ -80,6 +87,9 @@ public class ElementCache
     /**
      * If the given parent was the one that increased the space limit, reset
      * the space limit to the given default value.
+     *
+     * @param defaultLimit default space limit (&gt;= 0)
+     * @param parent the parent element (not <code>null</code>)
      */
     public void resetSpaceLimit(int defaultLimit, IElement parent)
     {
@@ -95,8 +105,9 @@ public class ElementCache
     {
         ((IElementImplExtension)entry.key).close_(of(CLOSE_HINT,
             CACHE_OVERFLOW));
-        // closing of an element removes it from the cache, so...
-        return false; // ...no need to remove the cache entry after close
+        // we don't know whether the element has been successfully closed, but
+        // successful closing of an element would have removed it from the cache,
+        return false; // so we can safely answer 'false' in either case
     }
 
     @Override

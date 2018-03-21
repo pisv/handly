@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,13 +32,12 @@ public class SimpleElement
      *  or <code>null</code> if the element has no parent
      * @param name the name of the element,
      *  or <code>null</code> if the element has no name
-     * @param manager the model manager for the element (not <code>null</code>)
+     * @param manager the model manager for the element
      */
     public SimpleElement(IElement parent, String name, IModelManager manager)
     {
         super(parent, name);
-        if ((this.manager = manager) == null)
-            throw new IllegalArgumentException();
+        this.manager = manager;
     }
 
     /**
@@ -68,13 +67,12 @@ public class SimpleElement
     @Override
     public void validateExistence_(IContext context) throws CoreException
     {
-        throw new UnsupportedOperationException();
     }
 
     @Override
     public void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
-        throw new UnsupportedOperationException();
+        context.get(NEW_ELEMENTS).put(this, new Body());
     }
 }

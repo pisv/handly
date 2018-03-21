@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,12 +63,13 @@ public class LruCache<K, V>
      * Creates a new cache with the given space limit.
      *
      * @param spaceLimit the maximum amount of space that the cache can store
+     *  (&gt;= 0)
      */
     public LruCache(int spaceLimit)
     {
         this.timestampCounter = this.currentSpace = 0;
         this.entryQueue = this.entryQueueTail = null;
-        this.entryTable = new HashMap<K, LruCacheEntry<K, V>>(spaceLimit);
+        this.entryTable = new HashMap<>(spaceLimit);
         this.spaceLimit = spaceLimit;
     }
 
@@ -304,7 +305,7 @@ public class LruCache<K, V>
     public void clear()
     {
         currentSpace = 0;
-        entryTable = new HashMap<K, LruCacheEntry<K, V>>();
+        entryTable = new HashMap<>();
         entryQueue = entryQueueTail = null;
     }
 
@@ -369,10 +370,13 @@ public class LruCache<K, V>
     /**
      * Sets the maximum amount of space that the cache can store.
      *
-     * @param limit the number of units of cache space
+     * @param limit the number of units of cache space (&gt;= 0)
      */
     public void setSpaceLimit(int limit)
     {
+        if (limit < 0)
+            throw new IllegalArgumentException();
+
         if (limit < spaceLimit)
             makeSpace(spaceLimit - limit);
 
@@ -424,7 +428,7 @@ public class LruCache<K, V>
      */
     protected LruCache<K, V> newInstance(int spaceLimit)
     {
-        return new LruCache<K, V>(spaceLimit);
+        return new LruCache<>(spaceLimit);
     }
 
     /**
@@ -458,8 +462,7 @@ public class LruCache<K, V>
      */
     protected void privateAdd(K key, V value, int space)
     {
-        LruCacheEntry<K, V> entry = new LruCacheEntry<K, V>(key, value, space);
-        privateAddEntry(entry, false);
+        privateAddEntry(new LruCacheEntry<>(key, value, space), false);
     }
 
     /**

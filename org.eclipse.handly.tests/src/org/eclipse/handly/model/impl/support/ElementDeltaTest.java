@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl.support;
 
+import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
+import static org.eclipse.handly.model.IElementDeltaConstants.F_DESCRIPTION;
+import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
+
 import junit.framework.TestCase;
 
 /**
@@ -18,15 +22,318 @@ import junit.framework.TestCase;
 public class ElementDeltaTest
     extends TestCase
 {
+    private SimpleElement root;
+    private ElementDelta delta;
+    private ElementDelta.Builder builder;
+
+    @Override
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+        root = new SimpleElement(null, "root", new SimpleModelManager());
+        delta = new ElementDelta(root);
+        builder = new ElementDelta.Builder(delta);
+    }
+
+    public void test00()
+    {
+        assertDelta("root[?]: {}");
+    }
+
+    public void test01()
+    {
+        builder.added(root);
+        assertDelta("root[+]: {}");
+    }
+
+    public void test02()
+    {
+        builder.removed(root);
+        assertDelta("root[-]: {}");
+    }
+
+    public void test03()
+    {
+        builder.changed(root, F_CONTENT);
+        assertDelta("root[*]: {CONTENT}");
+    }
+
+    public void test04()
+    {
+        builder.added(root);
+        builder.added(root);
+        assertDelta("root[+]: {}");
+    }
+
+    public void test05()
+    {
+        builder.added(root);
+        builder.changed(root, F_CONTENT);
+        assertDelta("root[+]: {}");
+    }
+
+    public void test06()
+    {
+        builder.added(root);
+        builder.removed(root);
+        assertDelta("root[?]: {}");
+    }
+
+    public void test07()
+    {
+        builder.removed(root);
+        builder.added(root);
+        assertDelta("root[*]: {CONTENT}");
+    }
+
+    public void test08()
+    {
+        builder.removed(root);
+        builder.changed(root, F_CONTENT);
+        assertDelta("root[-]: {}");
+    }
+
+    public void test09()
+    {
+        builder.removed(root);
+        builder.removed(root);
+        assertDelta("root[-]: {}");
+    }
+
+    public void test10()
+    {
+        builder.changed(root, F_CONTENT);
+        builder.added(root);
+        assertDelta("root[+]: {}");
+    }
+
+    public void test11()
+    {
+        builder.changed(root, F_CONTENT);
+        builder.removed(root);
+        assertDelta("root[-]: {}");
+    }
+
+    public void test12()
+    {
+        builder.changed(root, F_CONTENT);
+        builder.changed(root, F_DESCRIPTION);
+        assertDelta("root[*]: {CONTENT | DESCRIPTION}");
+    }
+
+    public void test13()
+    {
+        // merge with empty delta
+        delta.mergeWith_(new ElementDelta(root));
+        assertDelta("root[?]: {}");
+    }
+
+    public void test14()
+    {
+        builder.added(root);
+        // merge with empty delta
+        delta.mergeWith_(new ElementDelta(root));
+        assertDelta("root[+]: {}");
+    }
+
+    public void test15()
+    {
+        builder.removed(root);
+        // merge with empty delta
+        delta.mergeWith_(new ElementDelta(root));
+        assertDelta("root[-]: {}");
+    }
+
+    public void test16()
+    {
+        builder.changed(root, F_CONTENT);
+        // merge with empty delta
+        delta.mergeWith_(new ElementDelta(root));
+        assertDelta("root[*]: {CONTENT}");
+    }
+
+    public void test17()
+    {
+        // copy from empty delta
+        delta.copyFrom_(new ElementDelta(root), false);
+        assertDelta("root[?]: {}");
+    }
+
+    public void test18()
+    {
+        builder.added(root);
+        // copy from empty delta
+        delta.copyFrom_(new ElementDelta(root), false);
+        assertDelta("root[+]: {}");
+    }
+
+    public void test19()
+    {
+        builder.removed(root);
+        // copy from empty delta
+        delta.copyFrom_(new ElementDelta(root), false);
+        assertDelta("root[-]: {}");
+    }
+
+    public void test20()
+    {
+        builder.changed(root, F_CONTENT);
+        // copy from empty delta
+        delta.copyFrom_(new ElementDelta(root), false);
+        assertDelta("root[*]: {CONTENT}");
+    }
+
+    public void test21()
+    {
+        ElementDelta d = new ElementDelta(root);
+        d.copyFrom_(delta, false);
+        assertEquals("root[?]: {}", d.toString());
+    }
+
+    public void test22()
+    {
+        builder.added(root);
+        ElementDelta d = new ElementDelta(root);
+        d.copyFrom_(delta, false);
+        assertEquals("root[+]: {}", d.toString());
+    }
+
+    public void test23()
+    {
+        builder.removed(root);
+        ElementDelta d = new ElementDelta(root);
+        d.copyFrom_(delta, false);
+        assertEquals("root[-]: {}", d.toString());
+    }
+
+    public void test24()
+    {
+        builder.changed(root, F_CONTENT);
+        ElementDelta d = new ElementDelta(root);
+        d.copyFrom_(delta, false);
+        assertEquals("root[*]: {CONTENT}", d.toString());
+    }
+
+    public void test25()
+    {
+        builder.added(root);
+        ElementDelta d = new ElementDelta(root);
+        d.setKind_(REMOVED);
+        try
+        {
+            d.copyFrom_(delta, false);
+            fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
+    }
+
+    public void test26()
+    {
+        builder.added(root.getChild("A"));
+        builder.removed(root.getChild("B"));
+        builder.changed(root.getChild("C"), F_CONTENT);
+        //@formatter:off
+        assertDelta("root[*]: {CHILDREN}\n" +
+            "  A[+]: {}\n" +
+            "  B[-]: {}\n" +
+            "  C[*]: {CONTENT}");
+        //@formatter:on
+        assertEquals(3, delta.getAffectedChildren_().length);
+        assertEquals(1, delta.getAddedChildren_().length);
+        assertEquals(1, delta.getRemovedChildren_().length);
+        assertEquals(1, delta.getChangedChildren_().length);
+    }
+
+    public void test27()
+    {
+        builder.added(root);
+        builder.added(root.getChild("A"));
+        builder.removed(root.getChild("B"));
+        builder.changed(root.getChild("C"), F_CONTENT);
+        assertDelta("root[+]: {}");
+        assertEquals(0, delta.getAffectedChildren_().length);
+        assertEquals(0, delta.getAddedChildren_().length);
+        assertEquals(0, delta.getRemovedChildren_().length);
+        assertEquals(0, delta.getChangedChildren_().length);
+    }
+
+    public void test28()
+    {
+        builder.removed(root);
+        builder.added(root.getChild("A"));
+        builder.removed(root.getChild("B"));
+        builder.changed(root.getChild("C"), F_CONTENT);
+        assertDelta("root[-]: {}");
+        assertEquals(0, delta.getAffectedChildren_().length);
+        assertEquals(0, delta.getAddedChildren_().length);
+        assertEquals(0, delta.getRemovedChildren_().length);
+        assertEquals(0, delta.getChangedChildren_().length);
+    }
+
+    public void test29()
+    {
+        SimpleElement a = root.getChild("A");
+        SimpleElement b = root.getChild("B");
+        builder.movedFrom(a, b);
+        builder.movedTo(b, a);
+        //@formatter:off
+        assertDelta("root[*]: {CHILDREN}\n" +
+            "  A[-]: {MOVED_TO(B)}\n" +
+            "  B[+]: {MOVED_FROM(A)}");
+        //@formatter:on
+        assertEquals(2, delta.getAffectedChildren_().length);
+        assertEquals(1, delta.getAddedChildren_().length);
+        assertEquals(1, delta.getRemovedChildren_().length);
+        assertEquals(0, delta.getChangedChildren_().length);
+    }
+
+    public void test30()
+    {
+        SimpleElement a = root.getChild("A");
+        SimpleElement b = a.getChild("B");
+        SimpleElement c = b.getChild("C");
+        builder.added(b);
+        builder.removed(c);
+        //@formatter:off
+        assertDelta("root[*]: {CHILDREN}\n" +
+            "  A[*]: {CHILDREN}\n" +
+            "    B[+]: {}");
+        //@formatter:on
+        assertEquals(delta, delta.findDelta_(root));
+        assertEquals(1, delta.getAffectedChildren_().length);
+        assertEquals(0, delta.getAddedChildren_().length);
+        assertEquals(0, delta.getRemovedChildren_().length);
+        assertEquals(1, delta.getChangedChildren_().length);
+        ElementDelta d = delta.findDelta_(a);
+        assertEquals(1, d.getAffectedChildren_().length);
+        assertEquals(1, d.getAddedChildren_().length);
+        assertEquals(0, d.getRemovedChildren_().length);
+        assertEquals(0, d.getChangedChildren_().length);
+        assertEquals(d.getAddedChildren_()[0], delta.findDelta_(b));
+        assertNull(delta.findDelta_(c));
+    }
+
+    public void test31()
+    {
+        SimpleModelManager manager = new SimpleModelManager();
+        SimpleSourceFile sourceFile = new SimpleSourceFile(root, "a.foo", null,
+            manager);
+        ElementDelta.Builder builder = new ElementDelta.Builder(
+            new ElementDelta(sourceFile));
+        builder.added(new SimpleElement(sourceFile, "A", manager));
+        //@formatter:off
+        assertEquals("a.foo[*]: {CHILDREN | FINE GRAINED}\n" +
+            "  A[+]: {}", builder.getDelta().toString());
+        //@formatter:on
+    }
+
     /**
      * Regression test for bug 456060 - AIOOB in #addAffectedChild.
      */
     public void testBug456060()
     {
-        SimpleElement root = new SimpleElement(null, "root",
-            new SimpleModelManager());
-        ElementDelta.Builder builder = new ElementDelta.Builder(
-            new ElementDelta(root));
         builder.added(root.getChild("A"));
         builder.added(root.getChild("B"));
         builder.added(root.getChild("C"));
@@ -50,5 +357,10 @@ public class ElementDeltaTest
         catch (IllegalArgumentException e)
         {
         }
+    }
+
+    private void assertDelta(String expected)
+    {
+        assertEquals(expected, delta.toString());
     }
 }

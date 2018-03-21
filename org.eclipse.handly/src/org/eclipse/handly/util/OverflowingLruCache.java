@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,11 +63,13 @@ public class OverflowingLruCache<K, V>
      * Creates a new cache with the given space limit and overflow.
      *
      * @param spaceLimit the maximum amount of space that the cache can store
-     * @param overflow the space by which the cache has overflowed
+     * @param overflow the space by which the cache has overflowed (&gt;= 0)
      */
     protected OverflowingLruCache(int spaceLimit, int overflow)
     {
         super(spaceLimit);
+        if (overflow < 0)
+            throw new IllegalArgumentException();
         this.overflow = overflow;
     }
 
@@ -203,7 +205,7 @@ public class OverflowingLruCache<K, V>
     protected OverflowingLruCache<K, V> newInstance(int spaceLimit,
         int overflow)
     {
-        return new OverflowingLruCache<K, V>(spaceLimit, overflow);
+        return new OverflowingLruCache<>(spaceLimit, overflow);
     }
 
     @Override

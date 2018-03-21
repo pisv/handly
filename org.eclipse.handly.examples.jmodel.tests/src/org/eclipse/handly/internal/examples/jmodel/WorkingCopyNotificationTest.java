@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,9 +27,15 @@ import org.eclipse.handly.examples.jmodel.IType;
 import org.eclipse.handly.examples.jmodel.JavaModelCore;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.handly.util.TextRange;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
+import org.eclipse.text.edits.MoveSourceEdit;
+import org.eclipse.text.edits.MoveTargetEdit;
+import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Working copy change notification tests.
@@ -260,6 +266,54 @@ public class WorkingCopyNotificationTest
     {
         doWithWorkingCopy(new ICoreRunnable()
         {
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException
+            {
+                listener.delta = null;
+
+                try (IBuffer buffer = workingCopy.getBuffer())
+                {
+                    TextEdit edit = new MultiTextEdit();
+                    try
+                    {
+                        IDocument document = buffer.getDocument();
+                        MoveSourceEdit source = new MoveSourceEdit(
+                            document.getLineOffset(2), document.getLineLength(
+                                2));
+                        MoveTargetEdit target = new MoveTargetEdit(
+                            document.getLineOffset(4), source);
+                        edit.addChild(source);
+                        edit.addChild(target);
+                    }
+                    catch (BadLocationException e)
+                    {
+                        throw new AssertionError();
+                    }
+                    BufferChange change = new BufferChange(edit);
+                    change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+                    buffer.applyChange(change, null);
+                }
+
+                assertNull(listener.delta);
+
+                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
+
+                //@formatter:off
+                listener.assertDelta(
+                    "[Working copy] X.java[*]: {CHILDREN | CONTENT | FINE GRAINED}\n" +
+                    "  X[*]: {CHILDREN | FINE GRAINED}\n" +
+                    "    f(int)[*]: {REORDERED | FINE GRAINED}\n" +
+                    "    x[*]: {REORDERED | FINE GRAINED}"
+                );
+                //@formatter:on
+            }
+        });
+    }
+
+    public void test007() throws Exception
+    {
+        doWithWorkingCopy(new ICoreRunnable()
+        {
             public void run(IProgressMonitor monitor) throws CoreException
             {
                 listener.delta = null;
@@ -281,7 +335,7 @@ public class WorkingCopyNotificationTest
         });
     }
 
-    public void test007() throws Exception
+    public void test008() throws Exception
     {
         doWithWorkingCopy(new ICoreRunnable()
         {

@@ -36,15 +36,14 @@ public class SimpleSourceFile
      *  if the element has no name
      * @param file the workspace file underlying the element, or <code>null</code>
      *  if the element has no underlying workspace file
-     * @param manager the model manager for the element (not <code>null</code>)
+     * @param manager the model manager for the element
      */
     public SimpleSourceFile(IElement parent, String name, IFile file,
         IModelManager manager)
     {
         super(parent, name);
         this.file = file;
-        if ((this.manager = manager) == null)
-            throw new IllegalArgumentException();
+        this.manager = manager;
     }
 
     /**
