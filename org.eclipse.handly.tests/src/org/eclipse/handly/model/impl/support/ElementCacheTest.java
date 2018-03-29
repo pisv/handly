@@ -35,44 +35,44 @@ public class ElementCacheTest
 
     public void test1()
     {
-        assertEquals(10, cache.getSpaceLimit());
-        cache.ensureSpaceLimit(100, a);
-        int spaceLimit = cache.getSpaceLimit();
-        assertTrue(spaceLimit > 100);
-        cache.resetSpaceLimit(10, b);
-        assertEquals(spaceLimit, cache.getSpaceLimit());
-        cache.resetSpaceLimit(10, a);
-        assertEquals(10, cache.getSpaceLimit());
-        cache.resetSpaceLimit(100, a);
-        assertEquals(10, cache.getSpaceLimit());
+        assertEquals(10, cache.maxSize());
+        cache.ensureMaxSize(100, a);
+        int maxSize = cache.maxSize();
+        assertTrue(maxSize > 100);
+        cache.resetMaxSize(10, b);
+        assertEquals(maxSize, cache.maxSize());
+        cache.resetMaxSize(10, a);
+        assertEquals(10, cache.maxSize());
+        cache.resetMaxSize(100, a);
+        assertEquals(10, cache.maxSize());
     }
 
     public void test2()
     {
-        assertEquals(10, cache.getSpaceLimit());
-        cache.ensureSpaceLimit(100, a);
-        assertTrue(cache.getSpaceLimit() > 100);
-        cache.ensureSpaceLimit(1000, b);
-        int spaceLimit = cache.getSpaceLimit();
-        assertTrue(spaceLimit > 1000);
-        cache.resetSpaceLimit(10, a);
-        assertEquals(spaceLimit, spaceLimit);
-        cache.resetSpaceLimit(10, b);
-        assertEquals(10, cache.getSpaceLimit());
+        assertEquals(10, cache.maxSize());
+        cache.ensureMaxSize(100, a);
+        assertTrue(cache.maxSize() > 100);
+        cache.ensureMaxSize(1000, b);
+        int maxSize = cache.maxSize();
+        assertTrue(maxSize > 1000);
+        cache.resetMaxSize(10, a);
+        assertEquals(maxSize, cache.maxSize());
+        cache.resetMaxSize(10, b);
+        assertEquals(10, cache.maxSize());
     }
 
     public void test3()
     {
-        assertEquals(10, cache.getSpaceLimit());
-        cache.ensureSpaceLimit(100, a);
-        int spaceLimit = cache.getSpaceLimit();
-        assertTrue(spaceLimit > 100);
-        cache.ensureSpaceLimit(50, b);
-        assertEquals(spaceLimit, cache.getSpaceLimit());
-        cache.resetSpaceLimit(10, b);
-        assertEquals(spaceLimit, spaceLimit);
-        cache.resetSpaceLimit(10, a);
-        assertEquals(10, cache.getSpaceLimit());
+        assertEquals(10, cache.maxSize());
+        cache.ensureMaxSize(100, a);
+        int maxSize = cache.maxSize();
+        assertTrue(maxSize > 100);
+        cache.ensureMaxSize(50, b);
+        assertEquals(maxSize, cache.maxSize());
+        cache.resetMaxSize(10, b);
+        assertEquals(maxSize, cache.maxSize());
+        cache.resetMaxSize(10, a);
+        assertEquals(10, cache.maxSize());
     }
 
     public void test4()
@@ -93,7 +93,7 @@ public class ElementCacheTest
                 closeHint = context.get(CLOSE_HINT);
             }
         }
-        cache.setSpaceLimit(1);
+        cache.setMaxSize(1);
         Element e1 = new Element("E1");
         cache.put(e1, new Object());
         assertNull(e1.closeHint);
@@ -102,8 +102,30 @@ public class ElementCacheTest
         assertEquals(CloseHint.CACHE_OVERFLOW, e1.closeHint);
         assertEquals(1, cache.getOverflow());
         assertNull(e2.closeHint);
-        cache.setSpaceLimit(0);
-        assertEquals(CloseHint.CACHE_OVERFLOW, e2.closeHint);
-        assertEquals(2, cache.getOverflow());
+    }
+
+    public void test5()
+    {
+        class Element
+            extends SimpleElement
+        {
+            Element(String name)
+            {
+                super(null, name, null);
+            }
+
+            @Override
+            public void close_(IContext context)
+            {
+                cache.remove(this);
+            }
+        }
+        assertEquals(10, cache.maxSize());
+        cache.setLoadFactor(0.5);
+        for (int i = 0; i < 10; i++)
+            cache.put(new Element(Integer.toString(i)), new Object());
+        assertEquals(cache.maxSize(), cache.size());
+        cache.put(new Element("E"), new Object());
+        assertEquals(6, cache.size());
     }
 }

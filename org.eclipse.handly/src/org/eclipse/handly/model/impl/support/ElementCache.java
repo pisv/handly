@@ -16,118 +16,163 @@ import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.model.impl.IElementImplExtension.CLOSE_HINT;
 import static org.eclipse.handly.model.impl.IElementImplExtension.CloseHint.CACHE_OVERFLOW;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
-import static org.eclipse.handly.util.ToStringOptions.INDENT_POLICY;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.IElementImplExtension;
-import org.eclipse.handly.util.OverflowingLruCache;
+import org.eclipse.handly.util.BoundedLruCache;
 
 /**
- * An overflowing LRU cache of handle/body relationships that is intended
- * to be used in advanced implementations of {@link IBodyCache}.
+ * A bounded LRU cache of handle/body relationships that is intended to be
+ * used in advanced implementations of {@link IBodyCache}. The cache is not
+ * strictly bounded, but can overflow if an entry is added when the cache
+ * is full but the current state of elements in the cache does not permit
+ * {@link IElementImplExtension#close_(org.eclipse.handly.context.IContext)
+ * closing}.
  * <p>
- * This implementation is NOT thread-safe. If multiple threads access the cache
+ * This implementation is not thread-safe. If multiple threads access the cache
  * concurrently, it must be synchronized externally.
  * </p>
- * @see OverflowingLruCache
  */
 public class ElementCache
-    extends OverflowingLruCache<IElement, Object>
+    extends BoundedLruCache<IElement, Object>
 {
-    private IElement spaceLimitParent = null;
+    private double loadFactor = 1.0 / 3;
+    private IElement maxSizeParent;
 
     /**
-     * Constructs a new cache with the given space limit.
+     * Constructs an element cache that is initially empty
+     * with initial {@link #getLoadFactor() load factor} of one third.
      *
-     * @param spaceLimit the maximum amount of space that the cache can store
+     * @param maxSize the maximum size of the cache (the bound)
+     * @throws IllegalArgumentException if <code>maxSize < 1</code>
      */
-    public ElementCache(int spaceLimit)
+    public ElementCache(int maxSize)
     {
-        this(spaceLimit, 0);
+        super(maxSize);
     }
 
     /**
-     * Constructs a new cache with the given space limit and overflow.
+     * Returns the size of cache overflow.
      *
-     * @param spaceLimit the maximum amount of space that the cache can store
-     * @param overflow the space by which the cache has overflowed
+     * @return the size of cache overflow
      */
-    protected ElementCache(int spaceLimit, int overflow)
+    public int getOverflow()
     {
-        super(spaceLimit, overflow);
+        int overflow = size() - maxSize();
+        if (overflow < 0)
+            return 0;
+        return overflow;
     }
 
     /**
-     * Ensures that there is enough room for adding the given number of children.
-     * If the space limit must be increased, record the parent that needed
-     * this space limit.
+     * Returns the load factor of the cache. The load factor determines
+     * how much space is reclaimed when the cache overflows.
+     *
+     * @return the load factor of the cache
+     */
+    public double getLoadFactor()
+    {
+        return loadFactor;
+    }
+
+    /**
+     * Changes the load factor for the cache. The load factor determines
+     * how much space is reclaimed when the cache overflows.
+     *
+     * @param loadFactor a new value for load factor
+     * @throws IllegalArgumentException if <code>loadFactor &lt;= 0</code> or
+     *  <code>loadFactor &gt; 1</code>
+     */
+    public void setLoadFactor(double loadFactor)
+    {
+        if (loadFactor <= 0.0 || loadFactor > 1.0)
+            throw new IllegalArgumentException();
+        this.loadFactor = loadFactor;
+    }
+
+    /**
+     * Ensures that there is enough room for adding the given number of child
+     * elements. If the maximum size of the cache must be increased, record
+     * the parent element that needed the new maximum size.
      *
      * @param childCount the number of child elements (&gt;= 0)
      * @param parent the parent element (not <code>null</code>)
      */
-    public void ensureSpaceLimit(int childCount, IElement parent)
+    public void ensureMaxSize(int childCount, IElement parent)
     {
         if (childCount < 0)
             throw new IllegalArgumentException();
         if (parent == null)
             throw new IllegalArgumentException();
         // ensure the children can be put without closing other elements
-        int spaceNeeded = 1 + (int)((1 + loadFactor) * (childCount + overflow));
-        if (spaceLimit < spaceNeeded)
+        int sizeNeeded = 1 + (int)((1 + getLoadFactor()) * (childCount
+            + getOverflow()));
+        if (maxSize() < sizeNeeded)
         {
-            // parent is being opened with more children than the space limit
-            shrink(); // remove overflow
-            setSpaceLimit(spaceNeeded);
-            spaceLimitParent = parent;
+            // parent is being opened with more children than maxSize
+            setMaxSize(sizeNeeded);
+            maxSizeParent = parent;
         }
     }
 
     /**
-     * If the given parent was the one that increased the space limit, reset
-     * the space limit to the given default value.
+     * If the given parent element was the one that increased the maximum size
+     * of the cache in {@link #ensureMaxSize}, reset the maximum size to the
+     * given value.
      *
-     * @param defaultLimit default space limit (&gt;= 0)
+     * @param maxSize &gt; 0
      * @param parent the parent element (not <code>null</code>)
      */
-    public void resetSpaceLimit(int defaultLimit, IElement parent)
+    public void resetMaxSize(int maxSize, IElement parent)
     {
-        if (parent.equals(spaceLimitParent))
+        if (parent.equals(maxSizeParent))
         {
-            setSpaceLimit(defaultLimit);
-            spaceLimitParent = null;
+            setMaxSize(maxSize);
+            maxSizeParent = null;
         }
     }
 
     @Override
-    protected boolean close(LruCacheEntry<IElement, Object> entry)
+    public String toString()
+    {
+        Entry<IElement, Object> e = getMruEntry();
+        if (e == null)
+            return "{}"; //$NON-NLS-1$
+        StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        for (;;)
+        {
+            sb.append(Elements.toString(e.key, of(FORMAT_STYLE, MEDIUM)));
+            e = e.next();
+            if (e == null)
+                return sb.append('}').toString();
+            sb.append(',').append(' ');
+        }
+    }
+
+    @Override
+    protected void makeSpace(int sizeNeeded)
+    {
+        super.makeSpace(applyLoadFactor(sizeNeeded));
+    }
+
+    private int applyLoadFactor(int sizeNeeded)
+    {
+        return Math.max(sizeNeeded, (int)((1 - getLoadFactor()) * maxSize()));
+    }
+
+    /**
+     * Attempts to evict an existing entry from the cache by invoking {@link
+     * IElementImplExtension#close_(org.eclipse.handly.context.IContext)} with
+     * {@link org.eclipse.handly.model.impl.IElementImplExtension.CloseHint#CACHE_OVERFLOW
+     * CACHE_OVERFLOW} as {@link IElementImplExtension#CLOSE_HINT CLOSE_HINT}.
+     */
+    @Override
+    protected void evict(Entry<IElement, Object> entry)
     {
         ((IElementImplExtension)entry.key).close_(of(CLOSE_HINT,
             CACHE_OVERFLOW));
-        // we don't know whether the element has been successfully closed, but
-        // successful closing of an element would have removed it from the cache,
-        return false; // so we can safely answer 'false' in either case
-    }
-
-    @Override
-    protected OverflowingLruCache<IElement, Object> newInstance(int spaceLimit,
-        int overflow)
-    {
-        return new ElementCache(spaceLimit, overflow);
-    }
-
-    @Override
-    protected String toStringContents()
-    {
-        StringBuilder result = new StringBuilder();
-        for (LruCacheEntry<IElement, Object> entry =
-            entryQueue; entry != null; entry = entry.next)
-        {
-            result.append(Elements.toString(entry.key, of(FORMAT_STYLE,
-                MEDIUM)));
-            INDENT_POLICY.defaultValue().appendLine(result);
-        }
-        return result.toString();
     }
 }

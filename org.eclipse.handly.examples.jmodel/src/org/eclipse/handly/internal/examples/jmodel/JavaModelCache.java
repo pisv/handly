@@ -97,20 +97,17 @@ class JavaModelCache
         else if (element instanceof IJavaProject)
         {
             projectCache.put(element, body);
-            rootCache.ensureSpaceLimit(((Body)body).getChildren().length,
-                element);
+            rootCache.ensureMaxSize(((Body)body).getChildren().length, element);
         }
         else if (element instanceof IPackageFragmentRoot)
         {
             rootCache.put(element, body);
-            pkgCache.ensureSpaceLimit(((Body)body).getChildren().length,
-                element);
+            pkgCache.ensureMaxSize(((Body)body).getChildren().length, element);
         }
         else if (element instanceof IPackageFragment)
         {
             pkgCache.put(element, body);
-            fileCache.ensureSpaceLimit(((Body)body).getChildren().length,
-                element);
+            fileCache.ensureMaxSize(((Body)body).getChildren().length, element);
         }
         else if (element instanceof ICompilationUnit)
             fileCache.put(element, body);
@@ -126,19 +123,19 @@ class JavaModelCache
         else if (element instanceof IJavaProject)
         {
             projectCache.remove(element);
-            rootCache.resetSpaceLimit((int)(DEFAULT_ROOT_SIZE * memoryRatio),
+            rootCache.resetMaxSize((int)(DEFAULT_ROOT_SIZE * memoryRatio),
                 element);
         }
         else if (element instanceof IPackageFragmentRoot)
         {
             rootCache.remove(element);
-            pkgCache.resetSpaceLimit((int)(DEFAULT_PKG_SIZE * memoryRatio),
+            pkgCache.resetMaxSize((int)(DEFAULT_PKG_SIZE * memoryRatio),
                 element);
         }
         else if (element instanceof IPackageFragment)
         {
             pkgCache.remove(element);
-            fileCache.resetSpaceLimit((int)(DEFAULT_FILE_SIZE * memoryRatio),
+            fileCache.resetMaxSize((int)(DEFAULT_FILE_SIZE * memoryRatio),
                 element);
         }
         else if (element instanceof ICompilationUnit)

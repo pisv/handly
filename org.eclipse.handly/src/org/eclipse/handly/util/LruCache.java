@@ -1,302 +1,133 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2018 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *     Vladimir Piskarev (1C) - adaptation (adapted from
- *         org.eclipse.jdt.internal.core.util.LRUCache)
+ *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.handly.util;
 
-import java.text.NumberFormat;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * A cache with a space limit. When an attempt is made to add a new entry
- * to a full cache, the least recently used entries in the cache are discarded
- * to make room for the new entry as necessary.
- * <p>
- * This implementation is NOT thread-safe. If multiple threads access the cache
- * concurrently, it must be synchronized externally.
- * </p>
+ * An LRU cache without a maximum size (i.e., unbounded). Entries are ordered
+ * in the cache from most recently accessed to least recently accessed.
+ * When a cache entry is accessed via <code>get</code> or <code>put</code>
+ * methods, it is moved to the most recently used position in the cache.
+ * No other public methods generate entry accesses.
  */
 public class LruCache<K, V>
-    implements Cloneable
 {
-    /**
-     * Amount of cache space used so far
-     */
-    protected int currentSpace;
+    private Map<K, Entry<K, V>> map = new HashMap<>();
+    private Entry<K, V> head, tail;
 
     /**
-     * Maximum space allowed in cache
-     */
-    protected int spaceLimit;
-
-    /**
-     * Counter for handing out sequential timestamps
-     */
-    protected int timestampCounter;
-
-    /**
-     * Hash table for fast random access to cache entries
-     */
-    protected HashMap<K, LruCacheEntry<K, V>> entryTable;
-
-    /**
-     * Start of queue (most recently used entry)
-     */
-    protected LruCacheEntry<K, V> entryQueue;
-
-    /**
-     * End of queue (least recently used entry)
-     */
-    protected LruCacheEntry<K, V> entryQueueTail;
-
-    /**
-     * Creates a new cache with the given space limit.
+     * Returns the size of the cache.
      *
-     * @param spaceLimit the maximum amount of space that the cache can store
-     *  (&gt;= 0)
+     * @return the size of the cache
      */
-    public LruCache(int spaceLimit)
+    public final int size()
     {
-        this.timestampCounter = this.currentSpace = 0;
-        this.entryQueue = this.entryQueueTail = null;
-        this.entryTable = new HashMap<>(spaceLimit);
-        this.spaceLimit = spaceLimit;
+        return map.size();
     }
 
     /**
-     * Returns a new cache containing the same contents.
+     * Returns whether the cache is empty.
      *
-     * @return a clone of this cache
+     * @return <code>true</code> if the cache is empty,
+     *  and <code>false</code> otherwise
      */
-    @Override
-    public Object clone()
+    public final boolean isEmpty()
     {
-        LruCache<K, V> newCache = newInstance(spaceLimit);
-        // Preserve order of entries by copying from oldest to newest
-        LruCacheEntry<K, V> entry = entryQueueTail;
-        while (entry != null)
-        {
-            newCache.privateAdd(entry.key, entry.value, entry.space);
-            entry = entry.previous;
-        }
-        return newCache;
+        return size() == 0;
     }
 
     /**
-     * Returns the corresponding value for the given key, or
-     * <code>null</code> if the cache contains no value for the key.
+     * Returns the corresponding value for the given key and moves the
+     * corresponding entry to the most recently used position in the cache.
+     * If the cache contains no value for the key, <code>null</code>
+     * is returned.
      *
      * @param key
      * @return the corresponding value for the given key, or
      *  <code>null</code> if the cache contains no value for the key
      */
-    public V get(Object key)
+    public final V get(Object key)
     {
-        LruCacheEntry<K, V> entry = entryTable.get(key);
+        Entry<K, V> entry = map.get(key);
         if (entry == null)
             return null;
-        updateTimestamp(entry);
+        moveToMru(entry);
         return entry.value;
     }
 
     /**
      * Returns the corresponding value for the given key without disturbing
-     * the cache ordering, or <code>null</code> if the cache contains
-     * no value for the key.
+     * the cache ordering, or <code>null</code> if the cache contains no value
+     * for the key.
      *
      * @param key
      * @return the corresponding value for the given key, or
      *  <code>null</code> if the cache contains no value for the key
      */
-    public V peek(Object key)
+    public final V peek(Object key)
     {
-        LruCacheEntry<K, V> entry = entryTable.get(key);
+        Entry<K, V> entry = map.get(key);
         if (entry == null)
             return null;
         return entry.value;
     }
 
     /**
-     * Returns the existing key that is equal to the given key.
-     * If the key is not in the cache, returns the given key.
+     * Caches the given value for the given key and moves the corresponding
+     * entry to the most recently used position in the cache. Returns the
+     * previous value of the updated cache entry, or <code>null</code>
+     * if the cache contained no value for the key.
      *
-     * @param key
-     * @return the existing key that is equal to the given key,
-     *  or the given key if the key is not in the cache
+     * @param key not <code>null</code>
+     * @param value not <code>null</code>
+     * @return the previous value of the updated cache entry, or
+     *  <code>null</code> if the cache contained no value for the key
      */
-    public K getKey(K key)
+    public final V put(K key, V value)
     {
-        LruCacheEntry<K, V> entry = entryTable.get(key);
-        if (entry == null)
-            return key;
-        return entry.key;
-    }
-
-    /**
-     * Returns an enumeration that iterates over all the keys
-     * currently in the cache.
-     * <p>
-     * Modifications to the cache must not be performed while using
-     * the enumeration. Doing so will lead to undefined behavior.
-     * </p>
-      */
-    public Enumeration<K> keys()
-    {
-        return new Enumeration<K>()
-        {
-            Iterator<K> keys = entryTable.keySet().iterator();
-
-            @Override
-            public boolean hasMoreElements()
-            {
-                return keys.hasNext();
-            }
-
-            @Override
-            public K nextElement()
-            {
-                return keys.next();
-            }
-        };
-    }
-
-    /**
-     * Returns an enumeration that iterates over all the keys and values
-     * currently in the cache.
-     * <p>
-     * Modifications to the cache must not be performed while using
-     * the enumeration. Doing so will lead to undefined behavior.
-     * </p>
-     */
-    public ICacheEnumeration<K, V> keysAndValues()
-    {
-        return new ICacheEnumeration<K, V>()
-        {
-            Iterator<LruCacheEntry<K, V>> entries =
-                entryTable.values().iterator();
-            LruCacheEntry<K, V> current;
-
-            @Override
-            public boolean hasMoreElements()
-            {
-                return entries.hasNext();
-            }
-
-            @Override
-            public K nextElement()
-            {
-                current = entries.next();
-                return current.key;
-            }
-
-            @Override
-            public V getValue()
-            {
-                if (current == null)
-                    throw new IllegalStateException();
-                return current.value;
-            }
-        };
-    }
-
-    /**
-     * Returns an enumeration of the values in the cache with the most
-     * recently used first.
-     * <p>
-     * Once the enumeration is created, elements which are later added
-     * to the cache are not returned by the enumeration. However, elements
-     * returned from the enumeration could have been closed by the cache.
-     * </p>
-     */
-    public Enumeration<V> elements()
-    {
-        if (entryQueue == null)
-            return new LruCacheEnumerator<>(null);
-        LruEnumeratorElement<V> head = new LruEnumeratorElement<>(
-            entryQueue.value);
-        LruCacheEntry<K, V> currentEntry = entryQueue.next;
-        LruEnumeratorElement<V> currentElement = head;
-        while (currentEntry != null)
-        {
-            currentElement.next = new LruEnumeratorElement<>(
-                currentEntry.value);
-            currentElement = currentElement.next;
-            currentEntry = currentEntry.next;
-        }
-        return new LruCacheEnumerator<>(head);
-    }
-
-    /**
-     * Associates the given value with the given key in this cache.
-     * If the cache previously contained a value for the key,
-     * the old value is replaced by the given value.
-     *
-     * @param key key with which the given value is to be associated
-     * @param value value to be associated with the given key
-     * @return the previous value associated with the key, or
-     *  <code>null</code> if there was no value for the key
-     */
-    public V put(K key, V value)
-    {
-        V oldValue = null;
-        int newSpace = spaceFor(value);
-        // Check whether there's an entry in the cache
-        LruCacheEntry<K, V> entry = entryTable.get(key);
+        if (key == null)
+            throw new IllegalArgumentException();
+        if (value == null)
+            throw new IllegalArgumentException();
+        Entry<K, V> entry = map.get(key);
         if (entry != null)
         {
-            oldValue = entry.value;
-            // Replace the entry in the cache if it would not overflow
-            // the cache. Otherwise flush the entry and re-add it so as
-            // to keep the cache within budget
-            int oldSpace = entry.space;
-            int newTotal = currentSpace - oldSpace + newSpace;
-            if (newTotal <= spaceLimit)
-            {
-                updateTimestamp(entry);
-                entry.value = value;
-                entry.space = newSpace;
-                currentSpace = newTotal;
-                return oldValue;
-            }
-            else
-            {
-                privateRemoveEntry(entry, false);
-            }
+            V oldValue = entry.value;
+            update(entry, value);
+            return oldValue;
         }
-        if (makeSpace(newSpace))
-        {
-            privateAdd(key, value, newSpace);
-        }
-        return oldValue;
+        add(newEntry(key, value));
+        return null;
     }
 
     /**
-     * Removes the corresponding value for the given key from this cache.
-     * Returns the removed value or <code>null</code> if the cache contained
-     * no value for the key.
+     * Removes the cache entry for the given key if it is present.
+     * Returns the value of the removed cache entry, or <code>null</code>
+     * if the cache contained no value for the key.
      *
      * @param key
-     * @return the previous value associated with the key, or
-     *  <code>null</code> if there was no value for the key
+     * @return the value of the removed cache entry, or <code>null</code>
+     *  if the cache contained no value for the key
      */
-    public V remove(Object key)
+    public final V remove(Object key)
     {
-        LruCacheEntry<K, V> entry = entryTable.get(key);
+        Entry<K, V> entry = map.get(key);
         if (entry == null)
             return null;
-        V value = entry.value;
-        privateRemoveEntry(entry, false);
-        return value;
+        V oldValue = entry.value;
+        remove(entry);
+        return oldValue;
     }
 
     /**
@@ -304,363 +135,252 @@ public class LruCache<K, V>
      */
     public void clear()
     {
-        currentSpace = 0;
-        entryTable = new HashMap<>();
-        entryQueue = entryQueueTail = null;
+        map.clear();
+        head = tail = null;
     }
 
     /**
-     * Returns the cache current filling ratio.
-     */
-    public double fillingRatio()
-    {
-        return currentSpace * 100.0 / spaceLimit;
-    }
-
-    /**
-     * Returns the amount of space that is currently used in the cache.
-     */
-    public final int getCurrentSpace()
-    {
-        return currentSpace;
-    }
-
-    /**
-     * Returns the timestamp of the most recently used entry in the cache.
-     */
-    public int getNewestTimestamp()
-    {
-        return entryQueue == null ? 0 : entryQueue.timestamp;
-    }
-
-    /**
-     * Returns the timestamp of the least recently used entry in the cache.
-     */
-    public int getOldestTimestamp()
-    {
-        return entryQueueTail == null ? 0 : entryQueueTail.timestamp;
-    }
-
-    /**
-     * Returns the key of the most recently used entry in the cache,
-     * or <code>null</code> if the cache is empty.
-     */
-    public K getNewestKey()
-    {
-        return entryQueue == null ? null : entryQueue.key;
-    }
-
-    /**
-     * Returns the key of the least recently used entry in the cache,
-     * or <code>null</code> if the cache is empty.
-     */
-    public K getOldestKey()
-    {
-        return entryQueueTail == null ? null : entryQueueTail.key;
-    }
-
-    /**
-     * Returns the maximum amount of space available in the cache.
-     */
-    public final int getSpaceLimit()
-    {
-        return spaceLimit;
-    }
-
-    /**
-     * Sets the maximum amount of space that the cache can store.
+     * Returns a snapshot of the current contents of the cache,
+     * ordered from most recently accessed to least recently accessed.
      *
-     * @param limit the number of units of cache space (&gt;= 0)
+     * @return a snapshot of the current contents of the cache
+     *  (never <code>null</code>)
      */
-    public void setSpaceLimit(int limit)
+    public final Map<K, V> snapshot()
     {
-        if (limit < 0)
-            throw new IllegalArgumentException();
-
-        if (limit < spaceLimit)
-            makeSpace(spaceLimit - limit);
-
-        spaceLimit = limit;
+        Map<K, V> snapshot = new LinkedHashMap<>(size());
+        for (Entry<K, V> e = head; e != null; e = e.next)
+            snapshot.put(e.key, e.value);
+        return snapshot;
     }
 
     @Override
     public String toString()
     {
-        return toStringFillingRatio("LruCache") + //$NON-NLS-1$
-            '\n' + toStringContents();
-    }
-
-    /**
-     * Debugging purposes.
-     */
-    public String toStringFillingRatio(String cacheName)
-    {
-        StringBuilder builder = new StringBuilder(cacheName);
-        builder.append('[');
-        builder.append(currentSpace);
-        builder.append('/');
-        builder.append(spaceLimit);
-        builder.append("]: "); //$NON-NLS-1$
-        builder.append(NumberFormat.getInstance().format(fillingRatio()));
-        builder.append("% full\n"); //$NON-NLS-1$
-        return builder.toString();
-    }
-
-    /**
-     * Debugging purposes.
-     */
-    protected String toStringContents()
-    {
-        StringBuilder result = new StringBuilder();
-        for (LruCacheEntry<K, V> entry = entryQueue; entry != null; entry =
-            entry.next)
+        Entry<K, V> e = head;
+        if (e == null)
+            return "{}"; //$NON-NLS-1$
+        StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        for (;;)
         {
-            result.append(entry.key);
-            result.append(" -> "); //$NON-NLS-1$
-            result.append(entry.value);
-            result.append('\n');
+            sb.append(e);
+            e = e.next;
+            if (e == null)
+                return sb.append('}').toString();
+            sb.append(", "); //$NON-NLS-1$
         }
-        return result.toString();
     }
 
     /**
-     * Returns a new LruCache instance.
-     */
-    protected LruCache<K, V> newInstance(int spaceLimit)
-    {
-        return new LruCache<>(spaceLimit);
-    }
-
-    /**
-     * Ensures there is the specified amount of free space in the receiver,
-     * by removing old entries if necessary.
+     * Returns the most recently used cache entry, or
+     * <code>null</code> if the cache is empty.
      *
-     * @param space the amount of space to free up
-     * @return <code>true</code> if the requested space was made available,
-     *  <code>false</code> otherwise
+     * @return the MRU entry, or <code>null</code> if the cache is empty
      */
-    protected boolean makeSpace(int space)
+    protected final Entry<K, V> getMruEntry()
     {
-        int limit = getSpaceLimit();
-
-        if (currentSpace + space <= limit)
-            return true; // space is already available
-
-        if (space > limit)
-            return false; // request is too big for the cache
-
-        // Free up space by removing oldest entries
-        while (currentSpace + space > limit && entryQueueTail != null)
-        {
-            privateRemoveEntry(entryQueueTail, false);
-        }
-        return true;
+        return head;
     }
 
     /**
-     * Adds a new entry with the given key, value, and space.
-     */
-    protected void privateAdd(K key, V value, int space)
-    {
-        privateAddEntry(new LruCacheEntry<>(key, value, space), false);
-    }
-
-    /**
-     * Adds the given entry.
+     * Returns the least recently used cache entry, or
+     * <code>null</code> if the cache is empty.
      *
-     * @param entry
-     * @param shuffle indicates whether we are just shuffling the queue
-     *  (in which case, the entry table is not modified)
+     * @return the LRU entry, or <code>null</code> if the cache is empty
      */
-    protected void privateAddEntry(LruCacheEntry<K, V> entry, boolean shuffle)
+    protected final Entry<K, V> getLruEntry()
     {
-        if (!shuffle)
-        {
-            entryTable.put(entry.key, entry);
-            currentSpace += entry.space;
-        }
-
-        entry.timestamp = timestampCounter++;
-        entry.next = entryQueue;
-        entry.previous = null;
-
-        if (entryQueue == null)
-            entryQueueTail = entry;
-        else
-            entryQueue.previous = entry;
-
-        entryQueue = entry;
+        return tail;
     }
 
     /**
-     * Removes the given entry.
+     * Returns the corresponding entry for the given key, or
+     * <code>null</code> if the cache contains no entry for the key.
      *
-     * @param entry
-     * @param shuffle indicates whether we are just shuffling the queue
-     *  (in which case, the entry table is not modified)
+     * @param key
+     * @return the corresponding entry for the given key, or
+     *  <code>null</code> if the cache contains no entry for the key
      */
-    protected void privateRemoveEntry(LruCacheEntry<K, V> entry,
-        boolean shuffle)
+    protected final Entry<K, V> entryByKey(Object key)
     {
-        LruCacheEntry<K, V> previous = entry.previous;
-        LruCacheEntry<K, V> next = entry.next;
-
-        if (!shuffle)
-        {
-            entryTable.remove(entry.key);
-            currentSpace -= entry.space;
-        }
-
-        if (previous == null)
-            entryQueue = next;
-        else
-            previous.next = next;
-
-        if (next == null)
-            entryQueueTail = previous;
-        else
-            next.previous = previous;
+        return map.get(key);
     }
 
     /**
-     * Updates the timestamp of the given entry, ensuring that the queue is
-     * kept in correct order. The entry must exist.
-     */
-    protected void updateTimestamp(LruCacheEntry<K, V> entry)
-    {
-        entry.timestamp = timestampCounter++;
-        if (entryQueue != entry)
-        {
-            privateRemoveEntry(entry, true);
-            privateAddEntry(entry, true);
-        }
-    }
-
-    /**
-     * Returns the space taken by the given value.
+     * Creates a new cache entry with the given key and value.
      *
+     * @param key
      * @param value
-     * @return the space taken by the given value
+     * @return the created entry
      */
-    protected int spaceFor(V value)
+    protected Entry<K, V> newEntry(K key, V value)
     {
-        return 1;
+        return new Entry<>(key, value);
     }
 
     /**
-     * The <code>ICacheEnumeration</code> is used to iterate over both the keys
-     * and values in an LruCache. The <code>getValue()</code> method returns the
-     * value corresponding to the last key retrieved using <code>nextElement()</code>.
-     * The <code>nextElement()</code> method must be called before the
-     * <code>getValue()</code> method.
+     * Adds a new entry to the cache in response to
+     * {@link #put(Object, Object)}.
      * <p>
-     * The iteration can be made efficient by making use of the fact that entries
-     * in the cache know their key. For this reason, hash table lookups don't
-     * have to be made at each step of the iteration.
+     * This implementation invokes {@link #doAdd(Entry)}.
      * </p>
+     *
+     * @param entry
      */
-    public interface ICacheEnumeration<K, V>
-        extends Enumeration<K>
+    protected void add(Entry<K, V> entry)
     {
-        /**
-         * Returns the value of the previously accessed key in the enumeration.
-         * Must be called after a call to nextElement().
-         *
-         * @return the value of the current cache entry
-         */
-        public V getValue();
+        doAdd(entry);
     }
 
     /**
-     * This type is used internally by the LruCache to represent entries
-     * stored in the cache.
+     * Updates an existing cache entry to change its value
+     * and moves it to the MRU position in response to
+     * {@link #put(Object, Object)}.
+     * <p>
+     * This implementation changes the entry value and then invokes
+     * {@link #moveToMru(Entry)}.
+     * </p>
+     *
+     * @param entry
+     * @param value a new value for the entry
      */
-    protected static class LruCacheEntry<K, V>
+    protected void update(Entry<K, V> entry, V value)
+    {
+        entry.value = value;
+        moveToMru(entry);
+    }
+
+    /**
+     * Removes an existing entry from the cache in response to
+     * {@link #remove(Object)}.
+     * <p>
+     * This implementation invokes {@link #doRemove(Entry)}.
+     * </p>
+     *
+     * @param entry
+     */
+    protected void remove(Entry<K, V> entry)
+    {
+        doRemove(entry);
+    }
+
+    /**
+     * Actually adds a new entry to the cache.
+     *
+     * @param entry
+     */
+    protected void doAdd(Entry<K, V> entry)
+    {
+        map.put(entry.key, entry);
+        linkHead(entry);
+    }
+
+    /**
+     * Actually removes an existing entry from the cache.
+     *
+     * @param entry
+     */
+    protected void doRemove(Entry<K, V> entry)
+    {
+        map.remove(entry.key);
+        unlink(entry);
+    }
+
+    /**
+     * Moves an existing cache entry to the MRU position.
+     *
+     * @param entry
+     */
+    protected void moveToMru(Entry<K, V> entry)
+    {
+        unlink(entry);
+        linkHead(entry);
+    }
+
+    private void linkHead(Entry<K, V> entry)
+    {
+        entry.prev = null;
+        entry.next = head;
+        if (head == null)
+            tail = entry;
+        else
+            head.prev = entry;
+        head = entry;
+    }
+
+    private void unlink(Entry<K, V> entry)
+    {
+        Entry<K, V> prev = entry.prev;
+        Entry<K, V> next = entry.next;
+        if (prev != null)
+            prev.next = next;
+        if (next != null)
+            next.prev = prev;
+        if (head == entry)
+            head = next;
+        if (tail == entry)
+            tail = prev;
+    }
+
+    /**
+     * Cache entry. Entries are ordered in the cache from
+     * most recently accessed to least recently accessed.
+     */
+    protected static class Entry<K, V>
     {
         /**
-         * Key of this entry
+         * The key of the entry.
          */
         public final K key;
 
         /**
-         * Value of this entry
+         * The value of the entry.
          */
         public V value;
 
-        /**
-         * Time value for queue sorting
-         */
-        public int timestamp;
+        Entry<K, V> prev, next;
 
         /**
-         * Cache footprint of this entry
-         */
-        public int space;
-
-        /**
-         * Previous entry in queue
-         */
-        public LruCacheEntry<K, V> previous;
-
-        /**
-         * Next entry in queue
-         */
-        public LruCacheEntry<K, V> next;
-
-        /**
-         * Creates a new cache entry with the given key, value, and space.
+         * Constructs a cache entry with the given key and value.
          *
          * @param key
          * @param value
-         * @param space
          */
-        public LruCacheEntry(K key, V value, int space)
+        public Entry(K key, V value)
         {
             this.key = key;
             this.value = value;
-            this.space = space;
+        }
+
+        /**
+         * Returns the cache entry that is immediately followed by this entry,
+         * or <code>null</code> if this is the MRU entry.
+         *
+         * @return the cache entry that is immediately followed by this entry,
+         *  or <code>null</code> if this is the MRU entry
+         */
+        public final Entry<K, V> prev()
+        {
+            return prev;
+        }
+
+        /**
+         * Returns the cache entry that immediately follows this entry,
+         * or <code>null</code> if this is the LRU entry.
+         *
+         * @return the cache entry that immediately follows this entry,
+         *  or <code>null</code> if this is the LRU entry
+         */
+        public final Entry<K, V> next()
+        {
+            return next;
         }
 
         @Override
         public String toString()
         {
-            return "LruCacheEntry [" + key + " -> " + value + ']'; //$NON-NLS-1$ //$NON-NLS-2$
-        }
-    }
-
-    static class LruEnumeratorElement<V>
-    {
-        final V value;
-        LruEnumeratorElement<V> next;
-
-        LruEnumeratorElement(V value)
-        {
-            this.value = value;
-        }
-    }
-
-    static class LruCacheEnumerator<V>
-        implements Enumeration<V>
-    {
-        LruEnumeratorElement<V> next;
-
-        LruCacheEnumerator(LruEnumeratorElement<V> head)
-        {
-            next = head;
-        }
-
-        @Override
-        public boolean hasMoreElements()
-        {
-            return next != null;
-        }
-
-        @Override
-        public V nextElement()
-        {
-            LruEnumeratorElement<V> current = next;
-            next = current.next;
-            return current.value;
+            return key + "=" + value;
         }
     }
 }

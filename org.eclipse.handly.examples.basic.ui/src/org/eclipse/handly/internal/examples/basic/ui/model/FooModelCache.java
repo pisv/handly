@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,8 +81,7 @@ class FooModelCache
         else if (element instanceof IFooProject)
         {
             projectCache.put(element, body);
-            fileCache.ensureSpaceLimit(((Body)body).getChildren().length,
-                element);
+            fileCache.ensureMaxSize(((Body)body).getChildren().length, element);
         }
         else if (element instanceof IFooFile)
             fileCache.put(element, body);
@@ -98,7 +97,7 @@ class FooModelCache
         else if (element instanceof IFooProject)
         {
             projectCache.remove(element);
-            fileCache.resetSpaceLimit((int)(DEFAULT_FILE_SIZE * memoryRatio),
+            fileCache.resetMaxSize((int)(DEFAULT_FILE_SIZE * memoryRatio),
                 element);
         }
         else if (element instanceof IFooFile)
