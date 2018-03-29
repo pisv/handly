@@ -46,7 +46,7 @@ public class ElementCache
      * with initial {@link #getLoadFactor() load factor} of one third.
      *
      * @param maxSize the maximum size of the cache (the bound)
-     * @throws IllegalArgumentException if <code>maxSize < 1</code>
+     * @throws IllegalArgumentException if <code>maxSize &lt; 1</code>
      */
     public ElementCache(int maxSize)
     {

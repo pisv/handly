@@ -28,7 +28,7 @@ public class BoundedLruCache<K, V>
      * Constructs a bounded LRU cache that is initially empty.
      *
      * @param maxSize the maximum size of the cache (the bound)
-     * @throws IllegalArgumentException if <code>maxSize < 1</code>
+     * @throws IllegalArgumentException if <code>maxSize &lt; 1</code>
      */
     public BoundedLruCache(int maxSize)
     {
@@ -53,7 +53,7 @@ public class BoundedLruCache<K, V>
      * by invoking {@link #makeSpace}.
      *
      * @param maxSize a new value for maximum size of the cache
-     * @throws IllegalArgumentException if <code>maxSize < 1</code>
+     * @throws IllegalArgumentException if <code>maxSize &lt; 1</code>
      */
     public final void setMaxSize(int maxSize)
     {
