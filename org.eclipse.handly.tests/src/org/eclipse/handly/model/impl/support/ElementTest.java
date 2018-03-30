@@ -54,7 +54,7 @@ public class ElementTest
                 IProgressMonitor monitor) throws CoreException
             {
                 Body body = new Body();
-                body.setChildren(new IElement[] { a, b });
+                body.setChildren(new Element[] { a, b });
                 Map<IElement, Object> newElements = context.get(NEW_ELEMENTS);
                 newElements.put(this, body);
                 SourceElementBody bBody = new SourceElementBody();
@@ -220,5 +220,38 @@ public class ElementTest
             body));
         // open an element that is already open:
         assertSame(body, root.open_(EMPTY_CONTEXT, null));
+    }
+
+    public void test13() throws Exception
+    {
+        assertEquals(Arrays.asList(a, b), Arrays.asList(root.getChildrenOfType_(
+            Element.class, EMPTY_CONTEXT, null)));
+        assertEquals(Arrays.asList(a), Arrays.asList(root.getChildrenOfType_(
+            SimpleElement.class, EMPTY_CONTEXT, null)));
+        assertEquals(Arrays.asList(b), Arrays.asList(root.getChildrenOfType_(
+            SimpleSourceConstruct.class, EMPTY_CONTEXT, null)));
+    }
+
+    public void testBug530821()
+    {
+        class TestElement
+            extends SimpleElement
+        {
+            TestElement(IElement parent)
+            {
+                super(parent, null, null);
+            }
+
+            @Override
+            public boolean equals(Object obj)
+            {
+                return obj instanceof TestElement;
+            }
+        }
+        TestElement e1 = new TestElement(null);
+        TestElement e2 = new TestElement(e1);
+        assertEquals(e1, e2);
+        assertFalse(e1.equalsAndSameParentChain_(e2));
+        assertTrue(e1.equalsAndSameParentChain_(new TestElement(null)));
     }
 }

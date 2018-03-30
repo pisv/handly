@@ -14,6 +14,14 @@ import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_DESCRIPTION;
 import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
 
+import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.handly.context.IContext;
+import org.eclipse.handly.model.ElementDeltas;
+import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.model.IElementDelta;
+import org.eclipse.handly.model.impl.IElementDeltaImpl;
+
 import junit.framework.TestCase;
 
 /**
@@ -342,7 +350,7 @@ public class ElementDeltaTest
         builder.movedFrom(root.getChild("D"), root.getChild("Y"));
     }
 
-    public void testBadlyFormedDeltaTree()
+    public void testMalformedDeltaTree()
     {
         SimpleElement parent = new SimpleElement(null, "parent",
             new SimpleModelManager());
@@ -357,6 +365,108 @@ public class ElementDeltaTest
         catch (IllegalArgumentException e)
         {
         }
+    }
+
+    /**
+     * Tests implementation of default method {@link IElementDeltaImpl#findDelta_(IElement)}.
+     * (<code>ElementDelta</code> overrides it with an optimized implementation)
+     */
+    public void testDefaultFindDelta()
+    {
+        class TestDelta
+            implements IElementDeltaImpl
+        {
+            final IElement element;
+            final IElementDelta[] children;
+
+            TestDelta(IElement element, IElementDelta[] children)
+            {
+                this.element = element;
+                this.children = children;
+            }
+
+            @Override
+            public IElement getElement_()
+            {
+                return element;
+            }
+
+            @Override
+            public IElementDelta[] getAffectedChildren_()
+            {
+                return children;
+            }
+
+            @Override
+            public int getKind_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public long getFlags_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IElementDelta[] getAddedChildren_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IElementDelta[] getRemovedChildren_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IElementDelta[] getChangedChildren_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IElement getMovedFromElement_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IElement getMovedToElement_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IMarkerDelta[] getMarkerDeltas_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IResourceDelta[] getResourceDeltas_()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String toString_(IContext context)
+            {
+                throw new UnsupportedOperationException();
+            }
+        }
+        SimpleElement a = root.getChild("A");
+        SimpleElement b = a.getChild("B");
+        SimpleElement c = root.getChild("C");
+        TestDelta bDelta = new TestDelta(b, ElementDeltas.EMPTY_ARRAY);
+        TestDelta aDelta = new TestDelta(a, new IElementDelta[] { bDelta });
+        TestDelta delta = new TestDelta(root, new IElementDelta[] { aDelta });
+        assertSame(bDelta, delta.findDelta_(b));
+        assertNull(delta.findDelta_(c));
+        assertNull(delta.findDelta_(null));
+        assertNull(aDelta.findDelta_(c));
     }
 
     private void assertDelta(String expected)
