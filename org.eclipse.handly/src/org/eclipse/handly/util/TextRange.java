@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,10 +13,8 @@ package org.eclipse.handly.util;
 /**
  * Describes a certain range in an indexed text store. Text stores are
  * for example documents or strings. A text range is defined by its offset
- * into the text store and its length.
- * <p>
- * A text range is a value object. Its offset and length do not change over time.
- * </p>
+ * into the text store and its length. A text range is a value object.
+ * Its offset and length do not change over time.
  */
 public final class TextRange
 {
@@ -24,7 +22,7 @@ public final class TextRange
     private final int length;
 
     /**
-     * Instantiates a new text range using the given offset and the given length.
+     * Constructs a text range using the given offset and the given length.
      *
      * @param offset the given offset (0-based)
      * @param length the given length (non-negative)
@@ -35,14 +33,14 @@ public final class TextRange
             throw new IllegalArgumentException();
         if (length < 0)
             throw new IllegalArgumentException();
-        if (offset < 0 && length > 0)
-            throw new IllegalArgumentException();
         this.offset = offset;
         this.length = length;
     }
 
     /**
-     * @return the 0-based index of the first character of this text range
+     * Returns the 0-based index of the first character of this text range.
+     *
+     * @return the index of the first character of this text range
      */
     public int getOffset()
     {
@@ -50,8 +48,10 @@ public final class TextRange
     }
 
     /**
-     * @return the number of characters in this text range. Returns 0 for
-     *  an {@link #isEmpty() empty} range
+     * Returns the number of characters in this text range.
+     * Returns <code>0</code> for an {@link #isEmpty() empty} range.
+     *
+     * @return the number of characters in this text range
      */
     public int getLength()
     {
@@ -59,9 +59,11 @@ public final class TextRange
     }
 
     /**
-     * @return the 0-based index of the next character of this text range.
-     *  The returned value is the result of the following calculation:
-     *  <code>getOffset() + getLength()</code>
+     * Returns the 0-based index of the next character of this text range.
+     * The returned value is the result of the following calculation:
+     * <code>getOffset() + getLength()</code>.
+     *
+     * @return the index of the next character of this text range
      */
     public int getEndOffset()
     {
@@ -69,8 +71,11 @@ public final class TextRange
     }
 
     /**
-     * @return <code>true</code> if this text range is empty
-     *  (i.e. its length is 0), and <code>false</code> otherwise
+     * Returns whether this text range is empty. A text range is empty iff
+     * its {@link #getLength() length} is <code>0</code>.
+     *
+     * @return <code>true</code> if this text range is empty,
+     *  and <code>false</code> otherwise
      */
     public boolean isEmpty()
     {
