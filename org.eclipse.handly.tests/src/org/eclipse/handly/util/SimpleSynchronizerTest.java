@@ -30,7 +30,8 @@ public class SimpleSynchronizerTest
     @Override
     protected void tearDown() throws Exception
     {
-        synchronizer.dispose();
+        if (synchronizer != null)
+            synchronizer.dispose();
         super.tearDown();
     }
 

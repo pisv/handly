@@ -40,7 +40,8 @@ public class UiDocumentChangeRunnerTest
     @Override
     protected void tearDown() throws Exception
     {
-        synchronizer.dispose();
+        if (synchronizer != null)
+            synchronizer.dispose();
         super.tearDown();
     }
 
