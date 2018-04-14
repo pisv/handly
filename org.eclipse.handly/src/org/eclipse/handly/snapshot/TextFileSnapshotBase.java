@@ -137,7 +137,7 @@ abstract class TextFileSnapshotBase
 
         // Do not keep first character for UTF-8 BOM encoding
         int start = 0;
-        if (contentsLength > 0 && "UTF-8".equals(reader.getEncoding())) //$NON-NLS-1$
+        if (contentsLength > 0 && "UTF8".equals(reader.getEncoding())) //$NON-NLS-1$
         {
             if (contents[0] == 0xFEFF)
             { // if BOM char then skip
