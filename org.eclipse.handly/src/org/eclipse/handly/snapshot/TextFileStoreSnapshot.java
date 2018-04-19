@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@ import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.handly.internal.Activator;
 
 /**
@@ -28,8 +30,9 @@ public final class TextFileStoreSnapshot
     extends TextFileSnapshotBase
 {
     private final IFileStore fileStore;
-    private final long modificationStamp;
-    private String charset;
+    private final long lastModified;
+    private final IStatus status;
+    private String contents;
 
     /**
      * Takes a snapshot of the given text file store. The snapshot may use a
@@ -40,10 +43,7 @@ public final class TextFileStoreSnapshot
      */
     public TextFileStoreSnapshot(IFileStore fileStore)
     {
-        if (fileStore == null)
-            throw new IllegalArgumentException();
-        this.fileStore = fileStore;
-        this.modificationStamp = getFileStoreModificationStamp(fileStore);
+        this(fileStore, (String)null);
     }
 
     /**
@@ -55,62 +55,73 @@ public final class TextFileStoreSnapshot
      */
     public TextFileStoreSnapshot(IFileStore fileStore, Charset charset)
     {
-        this(fileStore);
-        this.charset = charset.name();
+        this(fileStore, charset.name());
+    }
+
+    private TextFileStoreSnapshot(IFileStore fileStore, String charset)
+    {
+        if (fileStore == null)
+            throw new IllegalArgumentException();
+        this.fileStore = fileStore;
+        this.lastModified = getLastModified(fileStore);
+        if (this.lastModified == EFS.NONE)
+        {
+            this.status = Status.OK_STATUS;
+            this.contents = ""; //$NON-NLS-1$
+        }
+        else
+        {
+            IStatus status = Status.OK_STATUS;
+            String contents = null;
+            try
+            {
+                contents = readContents(fileStore, charset);
+            }
+            catch (CoreException e)
+            {
+                Activator.log(e.getStatus());
+                status = e.getStatus();
+            }
+            this.status = status;
+            this.contents = contents;
+        }
+    }
+
+    @Override
+    public synchronized String getContents()
+    {
+        if (contents != null && lastModified != getLastModified(fileStore))
+            contents = null;
+
+        return contents;
+    }
+
+    @Override
+    public IStatus getStatus()
+    {
+        return status;
     }
 
     @Override
     public boolean exists()
     {
-        return modificationStamp != EFS.NONE;
+        return lastModified != EFS.NONE;
     }
 
     @Override
     protected Boolean predictEquality(Snapshot other)
     {
-        if (other instanceof TextFileStoreSnapshot)
-        {
-            TextFileStoreSnapshot otherSnapshot = (TextFileStoreSnapshot)other;
-            if (fileStore.equals(otherSnapshot.fileStore)
-                && modificationStamp == otherSnapshot.modificationStamp)
-                return true;
-        }
-
-        if (!isSynchronized())
+        if (lastModified != getLastModified(fileStore) || !status.isOK())
             return false; // expired
 
         return null;
     }
 
-    @Override
-    boolean isSynchronized()
+    private static String readContents(IFileStore fileStore, String charset)
+        throws CoreException
     {
-        return modificationStamp == getFileStoreModificationStamp(fileStore)
-            && getStatus().isOK();
-    }
-
-    @Override
-    void cacheCharset() throws CoreException
-    {
-        if (charset != null)
-            return;
-
-        try (InputStream contents = fileStore.openInputStream(EFS.NONE, null))
-        {
-            charset = getCharset(contents, fileStore.getName());
-        }
-        catch (IOException e)
-        {
-            throw new CoreException(Activator.createErrorStatus(e.getMessage(),
-                e));
-        }
         if (charset == null)
-            charset = ITextFileBufferManager.DEFAULT.getDefaultEncoding();
-    }
-
-    @Override
-    String readContents() throws CoreException
-    {
+            charset = detectCharset(fileStore);
         try (
             InputStream stream = fileStore.openInputStream(EFS.NONE, null);
             InputStreamReader reader = new InputStreamReader(stream, charset))
@@ -124,7 +135,25 @@ public final class TextFileStoreSnapshot
         }
     }
 
-    private static long getFileStoreModificationStamp(IFileStore fileStore)
+    private static String detectCharset(IFileStore fileStore)
+        throws CoreException
+    {
+        String charset = null;
+        try (InputStream contents = fileStore.openInputStream(EFS.NONE, null))
+        {
+            charset = getCharset(contents, fileStore.getName());
+        }
+        catch (IOException e)
+        {
+            throw new CoreException(Activator.createErrorStatus(e.getMessage(),
+                e));
+        }
+        if (charset == null)
+            charset = ITextFileBufferManager.DEFAULT.getDefaultEncoding();
+        return charset;
+    }
+
+    private static long getLastModified(IFileStore fileStore)
     {
         return fileStore.fetchInfo().getLastModified();
     }

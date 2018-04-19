@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.handly.snapshot;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.handly.internal.Activator;
 
 /**
@@ -28,10 +25,7 @@ import org.eclipse.handly.internal.Activator;
 public final class TextFileSnapshot
     extends TextFileSnapshotBase
 {
-    private final IFile file;
-    private final boolean fromFs;
-    private final long modificationStamp;
-    private String charset;
+    private final TextFileSnapshotBase delegate;
 
     /**
      * Takes a snapshot of the given text file in the workspace.
@@ -52,93 +46,43 @@ public final class TextFileSnapshot
     {
         if (file == null)
             throw new IllegalArgumentException();
-        this.file = file;
-        this.fromFs = layer.equals(Layer.FILESYSTEM);
-        this.modificationStamp = getFileModificationStamp(file, fromFs);
+        this.delegate = createDelegate(file, layer);
+    }
+
+    @Override
+    public String getContents()
+    {
+        return delegate.getContents();
+    }
+
+    @Override
+    public IStatus getStatus()
+    {
+        return delegate.getStatus();
     }
 
     @Override
     public boolean exists()
     {
-        if (fromFs)
-            return modificationStamp != EFS.NONE;
-        else
-            return modificationStamp != IResource.NULL_STAMP;
+        return delegate.exists();
     }
 
     @Override
     protected Boolean predictEquality(Snapshot other)
     {
         if (other instanceof TextFileSnapshot)
-        {
-            TextFileSnapshot otherSnapshot = (TextFileSnapshot)other;
-            if (file.equals(otherSnapshot.file)
-                && fromFs == otherSnapshot.fromFs
-                && modificationStamp == otherSnapshot.modificationStamp)
-                return true;
-        }
-
-        if (!isSynchronized())
-            return false; // expired
+            return delegate.predictEquality(((TextFileSnapshot)other).delegate);
 
         return null;
     }
 
-    @Override
-    boolean isSynchronized()
+    private static TextFileSnapshotBase createDelegate(IFile file, Layer layer)
     {
-        return modificationStamp == getFileModificationStamp(file, fromFs)
-            && getStatus().isOK();
-    }
-
-    @Override
-    void cacheCharset() throws CoreException
-    {
-        if (charset != null)
-            return;
-
-        charset = file.getCharset(false);
-        if (charset == null)
-        {
-            try (InputStream contents = file.getContents(fromFs))
-            {
-                charset = getCharset(contents, file.getName());
-            }
-            catch (IOException e)
-            {
-                throw new CoreException(Activator.createErrorStatus(
-                    e.getMessage(), e));
-            }
-        }
-        if (charset == null)
-            charset = file.getParent().getDefaultCharset();
-    }
-
-    @Override
-    String readContents() throws CoreException
-    {
-        try (
-            InputStream stream = file.getContents(fromFs);
-            InputStreamReader reader = new InputStreamReader(stream, charset))
-        {
-            return String.valueOf(getInputStreamAsCharArray(stream, reader));
-        }
-        catch (IOException e)
-        {
-            throw new CoreException(Activator.createErrorStatus(e.getMessage(),
-                e));
-        }
-    }
-
-    private static long getFileModificationStamp(IFile file, boolean fromFs)
-    {
-        if (!fromFs)
-            return file.getModificationStamp();
-        else
+        if (layer == Layer.FILESYSTEM)
         {
             URI uri = file.getLocationURI();
             if (uri == null)
-                return EFS.NONE;
+                return NON_EXISTING;
             IFileStore fileStore;
             try
             {
@@ -147,10 +91,11 @@ public final class TextFileSnapshot
             catch (CoreException e)
             {
                 Activator.log(e.getStatus());
-                return EFS.NONE;
+                return NON_EXISTING;
             }
-            return fileStore.fetchInfo().getLastModified();
+            return new TextFileStoreSnapshot(fileStore);
         }
+        return new TextFileSnapshotWs(file);
     }
 
     /**
