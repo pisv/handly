@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -40,7 +40,6 @@ import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.snapshot.ISnapshot;
-import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -51,7 +50,6 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChangeGroup;
-import org.eclipse.ltk.core.refactoring.TextEditChangeGroup;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
@@ -110,6 +108,8 @@ public class SourceFileChange
     }
 
     /**
+     * Returns the root of change's edit tree.
+     *
      * @return the root of the change's edit tree (never <code>null</code>)
      */
     public TextEdit getEdit()
@@ -118,10 +118,11 @@ public class SourceFileChange
     }
 
     /**
-     * Inserts the given edit into the change's edit tree.
+     * Adds the given edit by auto inserting it into the change's edit tree.
+     * Convenience method.
      *
-     * @param edit the edit to insert - must not be <code>null</code>
-     * @throws MalformedTreeException if edit can't be inserted
+     * @param edit the edit to add - must not be <code>null</code>
+     * @throws MalformedTreeException if the edit can't be inserted
      */
     public void addEdit(TextEdit edit)
     {
@@ -129,10 +130,11 @@ public class SourceFileChange
     }
 
     /**
-     * Inserts the given edits into the change's edit tree.
+     * Adds the given edits by auto inserting them into the change's edit tree.
+     * Convenience method.
      *
-     * @param edits the edits to insert - must not be <code>null</code>
-     * @throws MalformedTreeException if edits can't be inserted
+     * @param edits the edits to add - must not be <code>null</code>
+     * @throws MalformedTreeException if the edits can't be inserted
      */
     public void addEdits(TextEdit[] edits)
     {
@@ -141,12 +143,12 @@ public class SourceFileChange
     }
 
     /**
-     * Inserts the edits of the given group into the change's edit tree
-     * and then {@link TextEditBasedChange#addChangeGroup(TextEditBasedChangeGroup)
-     * adds} the group itself to the change.
+     * Inserts the edits of the given group into the change's edit tree and
+     * then {@link TextEditBasedChange#addChangeGroup(TextEditBasedChangeGroup)
+     * adds} the group itself to the change. Convenience method.
      *
      * @param group the group to add - must not be <code>null</code>
-     * @throws MalformedTreeException if edits can't be inserted
+     * @throws MalformedTreeException if the edits can't be inserted
      */
     public void addGroupedEdits(TextEditBasedChangeGroup group)
     {
@@ -155,16 +157,17 @@ public class SourceFileChange
     }
 
     /**
-     * Inserts the edits of the given group into the change's edit tree
-     * and then {@link TextEditBasedChange#addTextEditGroup(TextEditGroup)
-     * adds} the group itself to the change.
+     * Inserts the edits of the given group into the change's edit tree and
+     * then {@link TextEditBasedChange#addTextEditGroup(TextEditGroup) adds}
+     * the group itself to the change. Convenience method.
      *
      * @param group the group to add - must not be <code>null</code>
-     * @throws MalformedTreeException if edits can't be inserted
+     * @throws MalformedTreeException if the edits can't be inserted
      */
     public void addGroupedEdits(TextEditGroup group)
     {
-        addGroupedEdits(new TextEditBasedChangeGroup(this, group));
+        addEdits(group.getTextEdits());
+        addTextEditGroup(group);
     }
 
     /**
@@ -209,15 +212,6 @@ public class SourceFileChange
     public SaveMode getSaveMode()
     {
         return saveMode;
-    }
-
-    @Override
-    public void dispose()
-    {
-        edit = null;
-        base = null;
-        copier = null;
-        super.dispose();
     }
 
     @Override
@@ -302,8 +296,7 @@ public class SourceFileChange
     {
         try (IBuffer buffer = getBuffer(sourceFile, EMPTY_CONTEXT, pm))
         {
-            NonExpiringSnapshot snapshot = new NonExpiringSnapshot(buffer);
-            return snapshot.getContents();
+            return buffer.getDocument().get();
         }
     }
 
@@ -329,12 +322,34 @@ public class SourceFileChange
         return getPreviewDocument(pm).get();
     }
 
+    /*
+     * Adapted from TextChange#getPreviewContent(..)
+     */
     @Override
     public String getPreviewContent(TextEditBasedChangeGroup[] changeGroups,
         IRegion region, boolean expandRegionToFullLine, int surroundingLines,
         IProgressMonitor pm) throws CoreException
     {
         IRegion changeRegion = getRegion(changeGroups);
+
+        if (region.getOffset() > changeRegion.getOffset() || //
+            region.getOffset() + region.getLength() < changeRegion.getOffset()
+                + changeRegion.getLength())
+        {
+            throw new IllegalArgumentException();
+        }
+
+        // Make sure that all edits in the change groups are rooted under the edit the text change stand for.
+        TextEdit root = getEdit();
+        for (TextEditBasedChangeGroup group : changeGroups)
+        {
+            TextEdit[] edits = group.getTextEdits();
+            for (TextEdit edit : edits)
+            {
+                if (root != edit.getRoot())
+                    throw new IllegalArgumentException();
+            }
+        }
 
         Preview preview = getPreview(changeGroups, pm);
 
@@ -362,8 +377,8 @@ public class SourceFileChange
      * Returns the edit that got executed during preview generation
      * instead of the given original. The method requires that <code>
      * setKeepPreviewEdits</code> is set to <code>true</code> and that
-     * a preview has been requested via one of the <code>getPreview*
-     * </code> methods.
+     * a preview has been requested via <code>getPreviewContent</code>
+     * or <code>getPreviewDocument</code> methods.
      * <p>
      * The method returns <code>null</code> if the original isn't managed
      * by this text change.
@@ -372,6 +387,8 @@ public class SourceFileChange
      * @param original the original edit managed by this text change
      *
      * @return the edit executed during preview generation
+     * @throws IllegalStateException if <code>setKeepPreviewEdits</code> is
+     *  set to <code>false</code> or a preview has not been requested
      */
     public TextEdit getPreviewEdit(TextEdit original)
     {
@@ -384,8 +401,8 @@ public class SourceFileChange
      * Returns the edits that were executed during preview generation
      * instead of the given array of original edits. The method requires
      * that <code>setKeepPreviewEdits</code> is set to <code>true</code>
-     * and that a preview has been requested via one of the <code>
-     * getPreview*</code> methods.
+     * and that a preview has been requested via <code>getPreviewContent</code>
+     * or <code>getPreviewDocument</code> methods.
      * <p>
      * The method returns an empty array if none of the original edits
      * is managed by this text change.
@@ -396,6 +413,8 @@ public class SourceFileChange
      *
      * @return an array of edits containing the corresponding edits
      *  executed during preview generation
+     * @throws IllegalStateException if <code>setKeepPreviewEdits</code> is
+     *  set to <code>false</code> or a preview has not been requested
      */
     public TextEdit[] getPreviewEdits(TextEdit[] originals)
     {
@@ -418,8 +437,7 @@ public class SourceFileChange
     /**
      * Returns a document containing a preview of the text change. The
      * preview is computed by executing the all managed text edits. The
-     * method considers the active state of the added {@link TextEditChangeGroup
-     * text edit change groups}.
+     * method considers the active state of the added text edit change groups.
      *
      * @param pm a progress monitor to report progress or <code>null</code>
      *  if no progress reporting is desired
@@ -434,11 +452,12 @@ public class SourceFileChange
     }
 
     /*
-     * Inserts {@link TextEdit} in edit's tree, trying not to break edit's tree well-formedness.
+     * Inserts the edit into the edit tree, trying not to break well-formedness of the tree.
+     * Adapted from org.eclipse.jdt.internal.corext.refactoring.changes.TextChangeCompatibility.
      *
-     * @param parent edit's tree root (not <code>null</code>)
-     * @param edit edit to insert (not <code>null</code>)
-     * @throws MalformedTreeException if edit cannot be inserted
+     * @param parent the target of the operation (not <code>null</code>)
+     * @param edit the edit to insert (not <code>null</code>)
+     * @throws MalformedTreeException if the edit can't be inserted
      */
     private static void insert(TextEdit parent, TextEdit edit)
     {
@@ -475,6 +494,9 @@ public class SourceFileChange
         parent.addChild(edit);
     }
 
+    /*
+     * Adapted from org.eclipse.jdt.internal.corext.refactoring.changes.TextChangeCompatibility.
+     */
     private static boolean covers(TextEdit thisEdit, TextEdit otherEdit)
     {
         if (thisEdit.getLength() == 0) // an insertion point can't cover anything
@@ -638,18 +660,18 @@ public class SourceFileChange
         Set<TextEdit> result = new HashSet<TextEdit>();
         for (TextEdit edit : edits)
         {
-            flatten(result, edit);
+            flatten(edit, result);
         }
         return result;
     }
 
-    private static void flatten(Set<TextEdit> result, TextEdit edit)
+    private static void flatten(TextEdit edit, Set<TextEdit> result)
     {
         result.add(edit);
         TextEdit[] children = edit.getChildren();
         for (TextEdit child : children)
         {
-            flatten(result, child);
+            flatten(child, result);
         }
     }
 
@@ -752,8 +774,7 @@ public class SourceFileChange
             Set<TextEdit> result = new HashSet<TextEdit>();
             for (TextEditBasedChangeGroup group : groups)
             {
-                if (this == Edits.ALL || (this == Edits.DISABLED
-                    ^ group.isEnabled()))
+                if (this == ALL || (this == DISABLED ^ group.isEnabled()))
                 {
                     result.addAll(Arrays.asList(group.getTextEdits()));
                 }

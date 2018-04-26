@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -39,11 +39,10 @@ public interface IBufferChange
     int CREATE_UNDO = TextEdit.CREATE_UNDO;
 
     /**
-     * Flag indicating that the changes's edit's region will be updated to
-     * reflect its position in the changed buffer. If not specified
-     * when applying a change to a buffer the edit's region will
-     * be arbitrary. It is even not guaranteed that the tree is still
-     * well formed.
+     * Flag indicating that the change's edit regions will be updated to
+     * reflect their positions in the changed buffer. If not specified when
+     * applying a change to a buffer the edit regions will be arbitrary.
+     * It is even not guaranteed that the edit tree is still well formed.
      */
     int UPDATE_REGIONS = TextEdit.UPDATE_REGIONS;
 
