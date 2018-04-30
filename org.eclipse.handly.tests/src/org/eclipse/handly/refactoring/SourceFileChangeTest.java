@@ -12,7 +12,7 @@
  *******************************************************************************/
 package org.eclipse.handly.refactoring;
 
-import static org.junit.Assert.assertArrayEquals;
+import java.util.Arrays;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -70,16 +70,16 @@ public class SourceFileChangeTest
         SourceFileChange change = new SourceFileChange("", sourceFile, edit);
         assertSame(edit, change.getEdit());
         assertEquals(sourceFile, change.getModifiedElement());
-        assertArrayEquals(new Object[] { Elements.getFile(sourceFile) },
-            change.getAffectedObjects());
+        assertEquals(Arrays.asList(Elements.getFile(sourceFile)), Arrays.asList(
+            change.getAffectedObjects()));
         assertTrue(change.isValid(null).isOK());
         Change undoChange = change.perform(null);
         assertEquals("foo", buffer.getDocument().get());
         assertFalse(buffer.isDirty());
 
         assertEquals(sourceFile, undoChange.getModifiedElement());
-        assertArrayEquals(new Object[] { Elements.getFile(sourceFile) },
-            undoChange.getAffectedObjects());
+        assertEquals(Arrays.asList(Elements.getFile(sourceFile)), Arrays.asList(
+            undoChange.getAffectedObjects()));
         undoChange.initializeValidationData(null);
         assertTrue(undoChange.isValid(null).isOK());
         Change redoChange = undoChange.perform(null);
@@ -87,8 +87,8 @@ public class SourceFileChangeTest
         assertFalse(buffer.isDirty());
 
         assertEquals(sourceFile, redoChange.getModifiedElement());
-        assertArrayEquals(new Object[] { Elements.getFile(sourceFile) },
-            redoChange.getAffectedObjects());
+        assertEquals(Arrays.asList(Elements.getFile(sourceFile)), Arrays.asList(
+            redoChange.getAffectedObjects()));
         redoChange.initializeValidationData(null);
         assertTrue(redoChange.isValid(null).isOK());
         redoChange.perform(null);
@@ -195,8 +195,8 @@ public class SourceFileChangeTest
             new TextEditGroup("foo", edit2)));
         change.addGroupedEdits(new TextEditGroup("baz", edit3));
 
-        assertArrayEquals(new TextEdit[] { edit1, edit2, edit3 },
-            change.getEdit().getChildren());
+        assertEquals(Arrays.asList(edit1, edit2, edit3), Arrays.asList(
+            change.getEdit().getChildren()));
         TextEditBasedChangeGroup[] groups = change.getChangeGroups();
         assertEquals(3, groups.length);
 
@@ -266,8 +266,8 @@ public class SourceFileChangeTest
         TextEdit previewEdit = change.getPreviewEdit(edit);
         assertRegion(previewEdit.getRegion(), 2, 2);
 
-        assertArrayEquals(new TextEdit[] { previewEdit },
-            change.getPreviewEdits(new TextEdit[] { edit }));
+        assertEquals(Arrays.asList(previewEdit), Arrays.asList(
+            change.getPreviewEdits(new TextEdit[] { edit })));
 
         change.setKeepPreviewEdits(false);
         try

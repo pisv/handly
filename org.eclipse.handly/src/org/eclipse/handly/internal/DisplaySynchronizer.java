@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -78,6 +78,10 @@ public class DisplaySynchronizer
                 throw new ExecutionException(e.throwable);
             else
                 throw new IllegalStateException(e);
+        }
+        catch (Throwable t)
+        {
+            throw new ExecutionException(t);
         }
     }
 }

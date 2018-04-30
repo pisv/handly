@@ -28,8 +28,7 @@ import junit.framework.TestCase;
 public class ElementDeltasTest
     extends TestCase
 {
-    private final SimpleElement root = new SimpleElement(null, "root",
-        new SimpleModelManager());
+    private SimpleElement root;
     private ElementDelta delta;
     private ElementDelta.Builder builder;
 
@@ -37,6 +36,7 @@ public class ElementDeltasTest
     protected void setUp() throws Exception
     {
         super.setUp();
+        root = new SimpleElement(null, "root", new SimpleModelManager());
         delta = new ElementDelta(root);
         builder = new ElementDelta.Builder(delta);
     }
@@ -80,5 +80,15 @@ public class ElementDeltasTest
     {
         builder.changed(root, Long.MAX_VALUE ^ (F_CHILDREN | F_CONTENT));
         assertFalse(ElementDeltas.isStructuralChange(delta));
+    }
+
+    public void test08()
+    {
+        assertTrue(ElementDeltas.isNullOrEmpty(null));
+
+        assertTrue(ElementDeltas.isNullOrEmpty(delta));
+
+        builder.added(root);
+        assertFalse(ElementDeltas.isNullOrEmpty(delta));
     }
 }

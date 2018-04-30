@@ -16,8 +16,16 @@ import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_DESCRIPTION;
 import static org.eclipse.handly.model.IElementDeltaConstants.REMOVED;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
+import org.eclipse.core.resources.mapping.ResourceChangeValidator;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.ElementDeltas;
 import org.eclipse.handly.model.IElement;
@@ -337,6 +345,76 @@ public class ElementDeltaTest
         assertEquals("a.foo[*]: {CHILDREN | FINE GRAINED}\n" +
             "  A[+]: {}", builder.getDelta().toString());
         //@formatter:on
+    }
+
+    public void test32()
+    {
+        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+        IResourceChangeDescriptionFactory factory =
+            ResourceChangeValidator.getValidator().createDeltaFactory();
+        for (int i = 1; i < 10; i++)
+        {
+            factory.create(workspaceRoot.getProject("p" + i));
+        }
+        IResourceDelta[] resourceDeltas =
+            factory.getDelta().getAffectedChildren();
+        for (IResourceDelta resourceDelta : resourceDeltas)
+        {
+            builder.addResourceDelta(root, resourceDelta);
+        }
+        //@formatter:off
+        assertDelta("root[*]: {CONTENT}\n" +
+            "  ResourceDelta(/p1)[+]\n" +
+            "  ResourceDelta(/p2)[+]\n" +
+            "  ResourceDelta(/p3)[+]\n" +
+            "  ResourceDelta(/p4)[+]\n" +
+            "  ResourceDelta(/p5)[+]\n" +
+            "  ResourceDelta(/p6)[+]\n" +
+            "  ResourceDelta(/p7)[+]\n" +
+            "  ResourceDelta(/p8)[+]\n" +
+            "  ResourceDelta(/p9)[+]");
+        //@formatter:on
+    }
+
+    public void test33() throws Exception
+    {
+        class ResourceChangeListener
+            implements IResourceChangeListener
+        {
+            IResourceDelta delta;
+
+            @Override
+            public void resourceChanged(IResourceChangeEvent event)
+            {
+                delta = event.getDelta();
+            }
+        }
+        ResourceChangeListener listener = new ResourceChangeListener();
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        workspace.addResourceChangeListener(listener);
+        IMarker marker = workspace.getRoot().createMarker(IMarker.PROBLEM);
+        try
+        {
+            IMarkerDelta[] markerDeltas = listener.delta.getMarkerDeltas();
+            assertEquals(1, markerDeltas.length);
+            builder.markersChanged(root, markerDeltas);
+            assertDelta("root[*]: {MARKERS}");
+            assertSame(markerDeltas[0], delta.getMarkerDeltas_()[0]);
+
+            try
+            {
+                builder.markersChanged(root, markerDeltas);
+                fail();
+            }
+            catch (Throwable e)
+            {
+            }
+        }
+        finally
+        {
+            workspace.removeResourceChangeListener(listener);
+            marker.delete();
+        }
     }
 
     /**

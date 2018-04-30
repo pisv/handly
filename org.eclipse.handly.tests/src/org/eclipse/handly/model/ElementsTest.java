@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2017, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -23,10 +23,19 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.handly.context.IContext;
+import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.model.impl.support.SimpleElement;
 import org.eclipse.handly.model.impl.support.SimpleModel;
 import org.eclipse.handly.model.impl.support.SimpleModelManager;
+import org.eclipse.handly.model.impl.support.SimpleSourceConstruct;
 import org.eclipse.handly.model.impl.support.SimpleSourceFile;
+import org.eclipse.handly.model.impl.support.SourceElementBody;
+import org.eclipse.handly.snapshot.StaleSnapshotException;
+
+import com.google.common.collect.Iterables;
 
 import junit.framework.TestCase;
 
@@ -36,11 +45,20 @@ import junit.framework.TestCase;
 public class ElementsTest
     extends TestCase
 {
-    private final SimpleModelManager manager = new SimpleModelManager();
-    private final SimpleElement root = new SimpleElement(null, "root", manager);
-    private final SimpleSourceFile aFile = new SimpleSourceFile(root, "aFile",
-        null, manager);
-    private final SimpleElement foo = new SimpleElement(aFile, "foo", manager);
+    private SimpleModelManager manager;
+    private SimpleElement root;
+    private SimpleSourceFile aFile;
+    private SimpleElement foo;
+
+    @Override
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+        manager = new SimpleModelManager();
+        root = new SimpleElement(null, "root", manager);
+        aFile = new SimpleSourceFile(root, "aFile", null, manager);
+        foo = new SimpleElement(aFile, "foo", manager);
+    }
 
     public void testGetName()
     {
@@ -61,6 +79,29 @@ public class ElementsTest
         assertEquals(root, Elements.getRoot(root));
         assertEquals(root, Elements.getRoot(aFile));
         assertEquals(root, Elements.getRoot(foo));
+    }
+
+    public void testGetParentChain()
+    {
+        assertFalse(Elements.getParentChain(null).iterator().hasNext());
+        assertEquals(root, Elements.getParentChain(root).iterator().next());
+        assertTrue(Iterables.elementsEqual(Arrays.asList(aFile, root),
+            Elements.getParentChain(aFile)));
+        assertTrue(Iterables.elementsEqual(Arrays.asList(foo, aFile, root),
+            Elements.getParentChain(foo)));
+    }
+
+    public void testGetParentChainUntil()
+    {
+        Predicate<Object> eqRoot = Predicate.isEqual(root);
+        assertFalse(Elements.getParentChainUntil(null,
+            eqRoot).iterator().hasNext());
+        assertFalse(Elements.getParentChainUntil(root,
+            eqRoot).iterator().hasNext());
+        assertEquals(aFile, Elements.streamParentChainUntil(aFile,
+            eqRoot).iterator().next());
+        assertTrue(Iterables.elementsEqual(Arrays.asList(foo, aFile),
+            Elements.getParentChainUntil(foo, eqRoot)));
     }
 
     public void testStreamParentChain()
@@ -113,6 +154,31 @@ public class ElementsTest
             Elements.collectParentChainUntil(foo, new ArrayList<>(), eqRoot));
     }
 
+    public void testFindMatchingAncestor()
+    {
+        assertNull(Elements.findMatchingAncestor(null,
+            e -> e instanceof SimpleElement));
+        assertEquals(root, Elements.findMatchingAncestor(root,
+            e -> e instanceof SimpleElement));
+        assertEquals(root, Elements.findMatchingAncestor(aFile,
+            e -> e instanceof SimpleElement));
+        assertEquals(foo, Elements.findMatchingAncestor(foo,
+            e -> e instanceof SimpleElement));
+    }
+
+    public void testFindMatchingAncestorUntil()
+    {
+        Predicate<Object> eqRoot = Predicate.isEqual(root);
+        assertNull(Elements.findMatchingAncestorUntil(null,
+            e -> e instanceof SimpleElement, eqRoot));
+        assertNull(Elements.findMatchingAncestorUntil(root,
+            e -> e instanceof SimpleElement, eqRoot));
+        assertNull(Elements.findMatchingAncestorUntil(aFile,
+            e -> e instanceof SimpleElement, eqRoot));
+        assertEquals(foo, Elements.findMatchingAncestorUntil(foo,
+            e -> e instanceof SimpleElement, eqRoot));
+    }
+
     public void testFindAncestorOfType()
     {
         assertNull(Elements.findAncestorOfType(null, SimpleElement.class));
@@ -135,6 +201,31 @@ public class ElementsTest
             eqRoot));
         assertEquals(foo, Elements.findAncestorOfTypeUntil(foo,
             SimpleElement.class, eqRoot));
+    }
+
+    public void testFindLastMatchingAncestor()
+    {
+        assertNull(Elements.findLastMatchingAncestor(null,
+            e -> e instanceof SimpleElement));
+        assertEquals(root, Elements.findLastMatchingAncestor(root,
+            e -> e instanceof SimpleElement));
+        assertEquals(root, Elements.findLastMatchingAncestor(aFile,
+            e -> e instanceof SimpleElement));
+        assertEquals(root, Elements.findLastMatchingAncestor(foo,
+            e -> e instanceof SimpleElement));
+    }
+
+    public void testFindLastMatchingAncestorUntil()
+    {
+        Predicate<Object> eqRoot = Predicate.isEqual(root);
+        assertNull(Elements.findLastMatchingAncestorUntil(null,
+            e -> e instanceof SimpleElement, eqRoot));
+        assertNull(Elements.findLastMatchingAncestorUntil(root,
+            e -> e instanceof SimpleElement, eqRoot));
+        assertNull(Elements.findLastMatchingAncestorUntil(aFile,
+            e -> e instanceof SimpleElement, eqRoot));
+        assertEquals(foo, Elements.findLastMatchingAncestorUntil(foo,
+            e -> e instanceof SimpleElement, eqRoot));
     }
 
     public void testFindLastAncestorOfType()
@@ -339,12 +430,13 @@ public class ElementsTest
         elements.clear();
         resources.clear();
 
+        boolean[] abcExists = new boolean[1];
         SimpleSourceFile abc = new SimpleSourceFile(root, "abc", null, manager2)
         {
             @Override
             public boolean exists_()
             {
-                return true;
+                return abcExists[0];
             }
         };
         IElementHandleFactory elementHandleFactory = new IElementHandleFactory()
@@ -366,6 +458,14 @@ public class ElementsTest
 
         Elements.splitIntoElementsAndResources(Arrays.asList(root, project,
             file), elements, null, resources, elementHandleFactory);
+        assertEquals(Collections.singletonList(root), elements);
+        assertEquals(Arrays.asList(project, file), resources);
+        elements.clear();
+        resources.clear();
+
+        abcExists[0] = true;
+        Elements.splitIntoElementsAndResources(Arrays.asList(root, project,
+            file), elements, null, resources, elementHandleFactory);
         assertEquals(Arrays.asList(root, abc), elements);
         assertEquals(Collections.singletonList(project), resources);
         elements.clear();
@@ -378,5 +478,136 @@ public class ElementsTest
         assertEquals(Arrays.asList(project, file), resources);
         elements.clear();
         resources.clear();
+    }
+
+    public void testGetSourceElementAt2()
+    {
+        class TestSourceFile
+            extends SimpleSourceFile
+        {
+            int testMode;
+
+            TestSourceFile()
+            {
+                super(null, null, null, manager);
+            }
+
+            @Override
+            public ISourceElement getSourceElementAt_(int position,
+                IContext context, IProgressMonitor monitor) throws CoreException
+            {
+                if (testMode == 1)
+                    throw newDoesNotExistException_();
+                else if (testMode == 2)
+                    throw new CoreException(Activator.createErrorStatus("error",
+                        null));
+                else if (testMode == 3)
+                    throw new StaleSnapshotException();
+                else
+                    return this;
+            }
+
+            @Override
+            public boolean exists_()
+            {
+                return testMode != 1;
+            }
+        }
+        TestSourceFile sourceFile = new TestSourceFile();
+        assertSame(sourceFile, Elements.getSourceElementAt2(sourceFile, 0,
+            null));
+        sourceFile.testMode = 1;
+        assertNull(Elements.getSourceElementAt2(sourceFile, 0, null));
+        sourceFile.testMode = 2;
+        assertNull(Elements.getSourceElementAt2(sourceFile, 0, null));
+        sourceFile.testMode = 3;
+        assertNull(Elements.getSourceElementAt2(sourceFile, 0, null));
+    }
+
+    public void testGetSourceElementInfo2()
+    {
+        class TestSourceFile
+            extends SimpleSourceFile
+        {
+            int testMode;
+
+            TestSourceFile()
+            {
+                super(null, null, null, manager);
+            }
+
+            @Override
+            public ISourceElementInfo getSourceElementInfo_(IContext context,
+                IProgressMonitor monitor) throws CoreException
+            {
+                if (testMode == 1)
+                    throw newDoesNotExistException_();
+                else if (testMode == 2)
+                    throw new CoreException(Activator.createErrorStatus("error",
+                        null));
+                else
+                    return new SourceElementBody();
+            }
+
+            @Override
+            public boolean exists_()
+            {
+                return testMode != 1;
+            }
+        }
+        TestSourceFile sourceFile = new TestSourceFile();
+        assertNotSame(Elements.NO_SOURCE_ELEMENT_INFO,
+            Elements.getSourceElementInfo2(sourceFile));
+        sourceFile.testMode = 1;
+        assertSame(Elements.NO_SOURCE_ELEMENT_INFO,
+            Elements.getSourceElementInfo2(sourceFile));
+        sourceFile.testMode = 2;
+        assertSame(Elements.NO_SOURCE_ELEMENT_INFO,
+            Elements.getSourceElementInfo2(sourceFile));
+    }
+
+    public void testNoSourceElementInfo()
+    {
+        ISourceElementInfo info = Elements.NO_SOURCE_ELEMENT_INFO;
+        assertNull(info.getSnapshot());
+        assertNull(info.getFullRange());
+        assertNull(info.getIdentifyingRange());
+        assertEquals(0, info.getChildren().length);
+    }
+
+    public void testGetSourceFile()
+    {
+        assertEquals(aFile, Elements.getSourceFile(foo));
+    }
+
+    public void testEnsureReconciled()
+    {
+        SimpleSourceConstruct elementNotInSourceFile =
+            new SimpleSourceConstruct(root, null);
+        Elements.ensureReconciled(elementNotInSourceFile, null);
+
+        class TestSourceFile
+            extends SimpleSourceFile
+        {
+            int testMode;
+
+            TestSourceFile()
+            {
+                super(null, null, null, manager);
+            }
+
+            @Override
+            public void reconcile_(IContext context, IProgressMonitor monitor)
+                throws CoreException
+            {
+                if (testMode == 1)
+                    throw new CoreException(Activator.createErrorStatus("error",
+                        null));
+            }
+        }
+        TestSourceFile sourceFile = new TestSourceFile();
+        Elements.ensureReconciled(sourceFile, null);
+        sourceFile.testMode = 1;
+        Elements.ensureReconciled(sourceFile, null);
     }
 }

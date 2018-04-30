@@ -8,6 +8,6 @@ Fragment-Host: org.eclipse.handly
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.handly.junit
 Import-Package: com.google.common.base;version="15.0.0",
+ com.google.common.collect;version="15.0.0",
  com.google.inject.binder;resolution:=optional,
- junit.framework,
- org.junit
+ junit.framework

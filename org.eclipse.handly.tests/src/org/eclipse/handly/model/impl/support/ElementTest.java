@@ -13,6 +13,12 @@
 package org.eclipse.handly.model.impl.support;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+import static org.eclipse.handly.context.Contexts.of;
+
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.LONG;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.SHORT;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -232,6 +238,57 @@ public class ElementTest
             SimpleElement.class, EMPTY_CONTEXT, null)));
         assertEquals(Arrays.asList(b), Arrays.asList(root.getChildrenOfType_(
             SimpleSourceConstruct.class, EMPTY_CONTEXT, null)));
+    }
+
+    public void test14() throws Exception
+    {
+        assertEquals("root (not open)", root.toString());
+
+        root.getBody_();
+        //@formatter:off
+        assertEquals("root\n" +
+            "  A (not open)\n" +
+            "  B", root.toString());
+        //@formatter:on
+        assertEquals("A (not open)", a.toString());
+        assertEquals("B", b.toString());
+
+        SimpleElement foo = a.getChild("Foo");
+        Body aBody = new Body();
+        aBody.addChild(foo);
+        a.getElementManager_().put(a, Collections.singletonMap(a, aBody));
+        //@formatter:off
+        assertEquals("root\n" +
+            "  A\n" +
+            "    Foo (not open)\n" +
+            "  B", root.toString());
+        assertEquals("A\n" +
+            "  Foo (not open)", a.toString());
+        //@formatter:on
+        assertEquals("Foo (not open) [in A]", foo.toString());
+
+        SimpleElement bar = foo.getChild("Bar");
+        Body fooBody = new Body();
+        fooBody.addChild(bar);
+        foo.getElementManager_().put(foo, Collections.singletonMap(foo,
+            fooBody));
+        //@formatter:off
+        assertEquals("root\n" +
+            "  A\n" +
+            "    Foo\n" +
+            "      Bar (not open)\n" +
+            "  B", root.toString());
+        assertEquals("Foo [in A]\n" +
+            "  Bar (not open)", foo.toString());
+        //@formatter:on
+        assertEquals("Bar (not open) [in Foo [in A]]", bar.toString());
+
+        //@formatter:off
+        assertEquals("Foo\n" +
+            "  Bar (not open)", foo.toString_(of(FORMAT_STYLE, LONG)));
+        //@formatter:on
+        assertEquals("Foo [in A]", foo.toString_(of(FORMAT_STYLE, MEDIUM)));
+        assertEquals("Foo", foo.toString_(of(FORMAT_STYLE, SHORT)));
     }
 
     public void testBug530821()
