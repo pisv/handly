@@ -13,6 +13,7 @@
 package org.eclipse.handly.internal.examples.lsp;
 
 import static org.eclipse.handly.model.IElementDeltaConstants.ADDED;
+import static org.eclipse.handly.model.IElementDeltaConstants.CHANGED;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_CONTENT;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_MARKERS;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_MOVED_FROM;
@@ -86,7 +87,6 @@ final class DeltaProcessor
                 & IResourceDelta.OPEN) != 0) && !project.isOpen())
         {
             ModelManager.INSTANCE.getServerManager().disconnect(project);
-            return false;
         }
         return true;
     }
@@ -119,18 +119,14 @@ final class DeltaProcessor
                 ModelManager.INSTANCE.getServerManager().updateUri(
                     (ILanguageSourceFile)element);
 
+            long flags = 0;
+
             if (!isWorkingCopy(element))
-            {
                 addToModel(element);
-                translateAddedDelta(delta, element);
-            }
             else
-            {
-                LanguageElementDelta result = new LanguageElementDelta(element);
-                result.setKind(ADDED);
-                result.setFlags(F_UNDERLYING_RESOURCE);
-                deltas.add(result);
-            }
+                flags = F_UNDERLYING_RESOURCE;
+
+            translateAddedDelta(delta, element, flags);
         }
         return false;
     }
@@ -141,18 +137,14 @@ final class DeltaProcessor
         ILanguageElement element = LanguageCore.create(file);
         if (element != null)
         {
+            long flags = 0;
+
             if (!isWorkingCopy(element))
-            {
                 removeFromModel(element);
-                translateRemovedDelta(delta, element);
-            }
             else
-            {
-                LanguageElementDelta result = new LanguageElementDelta(element);
-                result.setKind(REMOVED);
-                result.setFlags(F_UNDERLYING_RESOURCE);
-                deltas.add(result);
-            }
+                flags = F_UNDERLYING_RESOURCE;
+
+            translateRemovedDelta(delta, element, flags);
         }
         return false;
     }
@@ -164,6 +156,7 @@ final class DeltaProcessor
         if (element != null)
         {
             LanguageElementDelta result = new LanguageElementDelta(element);
+            result.setKind(CHANGED);
 
             long flags = 0;
 
@@ -213,7 +206,7 @@ final class DeltaProcessor
     }
 
     private void translateAddedDelta(IResourceDelta delta,
-        ILanguageElement element)
+        ILanguageElement element, long flags)
     {
         LanguageElementDelta result = new LanguageElementDelta(element);
         result.setKind(ADDED);
@@ -223,15 +216,16 @@ final class DeltaProcessor
                 delta.getMovedFromPath(), delta.getResource().getType()));
             if (movedFromElement != null)
             {
-                result.setFlags(F_MOVED_FROM);
+                flags |= F_MOVED_FROM;
                 result.setMovedFromElement(movedFromElement);
             }
         }
+        result.setFlags(flags);
         deltas.add(result);
     }
 
     private void translateRemovedDelta(IResourceDelta delta,
-        ILanguageElement element)
+        ILanguageElement element, long flags)
     {
         LanguageElementDelta result = new LanguageElementDelta(element);
         result.setKind(REMOVED);
@@ -241,10 +235,11 @@ final class DeltaProcessor
                 delta.getMovedToPath(), delta.getResource().getType()));
             if (movedToElement != null)
             {
-                result.setFlags(F_MOVED_TO);
+                flags |= F_MOVED_TO;
                 result.setMovedToElement(movedToElement);
             }
         }
+        result.setFlags(flags);
         deltas.add(result);
     }
 

@@ -56,7 +56,10 @@ import org.eclipse.lsp4j.services.LanguageServer;
 @SuppressWarnings("restriction")
 class ServerManager
 {
-    private static final int MAX_CONNECTIONS = 16;
+    /**
+     * Should have been private. Package-private for testing purposes only.
+     */
+    static final int MAX_CONNECTIONS = 16;
 
     static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
@@ -228,7 +231,7 @@ class ServerManager
     }
 
     /**
-     * Should have been private. Package-private to enable mocking in tests.
+     * Should have been private. Package-private for testing purposes only.
      *
      * @param sourceFile not <code>null</code>
      * @return the server wrapper, or <code>null</code>
@@ -339,8 +342,8 @@ class ServerManager
             }
         };
         LanguageServer[] serverSlot = new LanguageServer[1];
-        Launcher<? extends LanguageServer> launcher = Launcher.createLauncher(
-            client, LanguageServer.class, streamProvider.getInputStream(),
+        Launcher<LanguageServer> launcher = Launcher.createLauncher(client,
+            LanguageServer.class, streamProvider.getInputStream(),
             streamProvider.getOutputStream(), THREAD_POOL,
             consumer -> (message ->
             {

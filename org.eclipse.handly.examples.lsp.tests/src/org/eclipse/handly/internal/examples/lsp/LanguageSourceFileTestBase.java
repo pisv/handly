@@ -150,8 +150,8 @@ abstract class LanguageSourceFileTestBase
 
     abstract ServerManager getServerManager();
 
-    private void assertBody(LanguageSourceElement element, TextRange fullRange,
-        LanguageSymbol... children) throws CoreException
+    private static void assertBody(LanguageSourceElement element,
+        TextRange fullRange, LanguageSymbol... children) throws CoreException
     {
         SourceElementBody body = (SourceElementBody)element.getBody_();
         assertEquals(fullRange, body.getFullRange());

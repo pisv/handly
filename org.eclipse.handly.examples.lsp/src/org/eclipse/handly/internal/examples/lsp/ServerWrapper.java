@@ -39,7 +39,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 
 /**
  * A high-level wrapper for the language server. Hides aspects such as
- * obtaining and restoring a connection to the server when necessary.
+ * on-demand obtaining/restoring a connection to the server.
  */
 class ServerWrapper
 {
@@ -82,6 +82,17 @@ class ServerWrapper
             }
         });
         return result[0];
+    }
+
+    /**
+     * For testing purposes only.
+     *
+     * @return <code>true</code> if the connection is currently open, and
+     *  <code>false</code> otherwise
+     */
+    boolean hasConnection()
+    {
+        return connection() != null;
     }
 
     /**
@@ -150,16 +161,13 @@ class ServerWrapper
                 ServerConnection c = connection();
                 if (c == null || !c.status.getAsBoolean())
                     return;
-                if (uri != null && uri.equals(oldUri))
-                {
-                    VersionedTextDocumentIdentifier id =
-                        new VersionedTextDocumentIdentifier(info.getVersion());
-                    id.setUri(uri.toString());
-                    c.server.getTextDocumentService().didChange(
-                        new DidChangeTextDocumentParams(id,
-                            Collections.singletonList(
-                                new TextDocumentContentChangeEvent(newText))));
-                }
+                VersionedTextDocumentIdentifier id =
+                    new VersionedTextDocumentIdentifier(info.getVersion());
+                id.setUri(uri.toString());
+                c.server.getTextDocumentService().didChange(
+                    new DidChangeTextDocumentParams(id,
+                        Collections.singletonList(
+                            new TextDocumentContentChangeEvent(newText))));
             }
             else
             {

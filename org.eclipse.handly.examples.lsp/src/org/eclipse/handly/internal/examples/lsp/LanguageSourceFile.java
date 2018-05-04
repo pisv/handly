@@ -16,7 +16,6 @@ import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.model.Elements.BASE_SNAPSHOT;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -24,8 +23,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -149,14 +146,11 @@ class LanguageSourceFile
                 if (isWorkingCopy_())
                     throw new AssertionError();
                 serverManager().close(this); // workaround for race with releaseWorkingCopy()_
-                long fileStamp;
-                do
+                try (ISnapshotProvider provider = getFileSnapshotProvider_())
                 {
-                    fileStamp = fileStamp();
-                    NonExpiringSnapshot fileSnapshot;
-                    try (
-                        ISnapshotProvider provider = getFileSnapshotProvider_())
+                    do
                     {
+                        NonExpiringSnapshot fileSnapshot;
                         try
                         {
                             fileSnapshot = new NonExpiringSnapshot(provider);
@@ -169,12 +163,12 @@ class LanguageSourceFile
                             throw new CoreException(Activator.createErrorStatus(
                                 e.getMessage(), e));
                         }
+                        symbols = symbols(monitor);
+                        source = fileSnapshot.getContents();
+                        snapshot = fileSnapshot.getWrappedSnapshot();
                     }
-                    symbols = symbols(monitor);
-                    source = fileSnapshot.getContents();
-                    snapshot = fileSnapshot.getWrappedSnapshot();
+                    while (!snapshot.isEqualTo(provider.getSnapshot()));
                 }
-                while (fileStamp != fileStamp());
             }
         }
 
@@ -191,6 +185,12 @@ class LanguageSourceFile
             return false;
         serverManager().close(this);
         return true;
+    }
+
+    @Override
+    public void toStringName_(StringBuilder builder, IContext context)
+    {
+        builder.append(file.getFullPath());
     }
 
     ServerManager serverManager()
@@ -215,24 +215,6 @@ class LanguageSourceFile
         {
             throw Futures.toCoreException(e);
         }
-    }
-
-    private long fileStamp()
-    {
-        URI uri = file.getLocationURI();
-        if (uri == null)
-            return EFS.NONE;
-        IFileStore fileStore;
-        try
-        {
-            fileStore = EFS.getStore(uri);
-        }
-        catch (CoreException e)
-        {
-            Activator.log(e.getStatus());
-            return EFS.NONE;
-        }
-        return fileStore.fetchInfo().getLastModified();
     }
 
     private class LspReconcileOperation
