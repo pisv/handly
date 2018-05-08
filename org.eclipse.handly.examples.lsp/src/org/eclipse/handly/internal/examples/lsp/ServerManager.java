@@ -36,15 +36,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.handly.examples.lsp.ILanguageSourceFile;
-import org.eclipse.lsp4e.ServerMessageHandler;
 import org.eclipse.lsp4e.server.StreamConnectionProvider;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
-import org.eclipse.lsp4j.MessageActionItem;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -53,7 +48,6 @@ import org.eclipse.lsp4j.services.LanguageServer;
 /**
  * The manager for language servers.
  */
-@SuppressWarnings("restriction")
 class ServerManager
 {
     /**
@@ -299,6 +293,7 @@ class ServerManager
         }
         catch (CoreException e)
         {
+            Activator.log(e.getStatus());
             throw new IllegalStateException(e);
         }
         try
@@ -309,38 +304,16 @@ class ServerManager
         {
             throw new UncheckedIOException(e);
         }
-        LanguageClient client = new LanguageClient()
+        LanguageClient client;
+        try
         {
-            @Override
-            public void telemetryEvent(Object object)
-            {
-            }
-
-            @Override
-            public CompletableFuture<MessageActionItem> showMessageRequest(
-                ShowMessageRequestParams requestParams)
-            {
-                return ServerMessageHandler.showMessageRequest(requestParams);
-            }
-
-            @Override
-            public void showMessage(MessageParams messageParams)
-            {
-                ServerMessageHandler.showMessage(messageParams);
-            }
-
-            @Override
-            public void publishDiagnostics(PublishDiagnosticsParams diagnostics)
-            {
-            }
-
-            @Override
-            public void logMessage(MessageParams message)
-            {
-                ServerMessageHandler.logMessage(project, serverDef.getLabel(),
-                    message);
-            }
-        };
+            client = serverDef.createLanguageClient();
+        }
+        catch (CoreException e)
+        {
+            Activator.log(e.getStatus());
+            throw new IllegalStateException(e);
+        }
         LanguageServer[] serverSlot = new LanguageServer[1];
         Launcher<LanguageServer> launcher = Launcher.createLauncher(client,
             LanguageServer.class, streamProvider.getInputStream(),
@@ -405,16 +378,17 @@ class ServerManager
             this.element = Objects.requireNonNull(element);
         }
 
-        String getLabel()
-        {
-            return element.getAttribute("label"); //$NON-NLS-1$
-        }
-
         StreamConnectionProvider createStreamConnectionProvider()
             throws CoreException
         {
             return (StreamConnectionProvider)element.createExecutableExtension(
                 "class"); //$NON-NLS-1$
+        }
+
+        LanguageClient createLanguageClient() throws CoreException
+        {
+            return (LanguageClient)element.createExecutableExtension(
+                "clientImpl"); //$NON-NLS-1$
         }
     }
 

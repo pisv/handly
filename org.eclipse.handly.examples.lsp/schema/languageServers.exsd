@@ -84,6 +84,16 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="clientImpl" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the fully qualified name of a class that implements &lt;code&gt;org.eclipse.lsp4j.services.LanguageClient&lt;/code&gt;
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4j.services.LanguageClient"/>
+               </appinfo>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

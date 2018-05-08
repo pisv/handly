@@ -17,6 +17,7 @@
          point="org.eclipse.handly.examples.lsp.languageServers">
       <server
             class="org.eclipse.handly.internal.examples.lsp.LanguageSourceFile2Test$ServerConnectionProvider"
+            clientImpl="org.eclipse.handly.internal.examples.lsp.TestLanguageClient"
             id="org.eclipse.handly.examples.lsp.tests.LanguageSourceFile2TestServer"
             label="LanguageSourceFile2TestServer">
          <language
