@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.jmodel.ui.navigator;
 
+import java.util.Objects;
+
 import org.eclipse.handly.examples.jmodel.JavaModelCore;
 import org.eclipse.handly.internal.examples.jmodel.ui.Activator;
 import org.eclipse.handly.model.IElementChangeEvent;
@@ -21,7 +23,6 @@ import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Composite;
@@ -222,7 +223,7 @@ public class JavaNavigator
 
     private boolean internalSetWorkingSet(IWorkingSet workingSet)
     {
-        boolean refreshNeeded = !Util.equals(this.workingSet, workingSet);
+        boolean refreshNeeded = !Objects.equals(this.workingSet, workingSet);
         this.workingSet = workingSet;
         emptyWorkingSet = workingSet != null
             && workingSet.isAggregateWorkingSet() && workingSet.isEmpty();
