@@ -205,7 +205,7 @@ class LanguageSourceFile
             serverManager().symbols(this);
         try
         {
-            return Futures.get(future, 10, TimeUnit.SECONDS, monitor);
+            return Futures.get(future, 30, TimeUnit.SECONDS, monitor);
         }
         catch (ExecutionException e)
         {
