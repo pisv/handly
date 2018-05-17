@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Automatic-Module-Name: org.eclipse.handly.examples.lsp.tests
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.handly.examples.lsp.tests;singleton:=true
-Bundle-Version: 0.9.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Name: Handly LSP Example Tests (Incubation)
 Bundle-Vendor: Eclipse Handly
 Fragment-Host: org.eclipse.handly.examples.lsp
