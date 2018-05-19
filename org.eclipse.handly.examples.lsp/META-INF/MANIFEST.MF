@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filebuffers,
  org.eclipse.handly;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.jface.text,
- org.eclipse.lsp4e;bundle-version="[0.4.0,0.5.0)",
- org.eclipse.lsp4j;bundle-version="[0.3.0,0.4.0)",
- org.eclipse.lsp4j.jsonrpc;bundle-version="[0.3.0,0.4.0)"
+ org.eclipse.lsp4e;bundle-version="[0.4.0,1.0.0)",
+ org.eclipse.lsp4j;bundle-version="[0.3.0,1.0.0)",
+ org.eclipse.lsp4j.jsonrpc;bundle-version="[0.3.0,1.0.0)"
 Export-Package: org.eclipse.handly.examples.lsp
