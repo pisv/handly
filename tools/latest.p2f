@@ -2,22 +2,22 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='12'>
-    <iu id='org.eclipse.sdk.ide' version='4.8.0.I20180308-0630'>
+    <iu id='org.eclipse.sdk.ide' version='4.8.0.I20180509-2000'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='4.10.0.201712302008-r'>
+    <iu id='org.eclipse.egit.feature.group' version='5.0.0.201805151920-m7'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.jar' version='1.9.0.20180313-2237'>
+    <iu id='org.eclipse.m2e.feature.feature.jar' version='1.9.0.20180515-2017'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.13.0.v20171020-0920'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.14.0.v20180424-2303'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
@@ -42,12 +42,12 @@
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.emf.sdk.feature.group' version='2.14.0.v20180308-1144'>
+    <iu id='org.eclipse.emf.sdk.feature.group' version='2.14.0.v20180421-1151'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xsd.sdk.feature.group' version='2.14.0.v20180308-1144'>
+    <iu id='org.eclipse.xsd.sdk.feature.group' version='2.14.0.v20180131-0817'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
@@ -57,7 +57,7 @@
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.4.0.v20180308-1732'>
+    <iu id='org.eclipse.uml2.sdk.feature.group' version='5.4.0.v20180514-1331'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
