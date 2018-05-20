@@ -213,6 +213,7 @@ public class HandlyXtextReconciler
                         ((ISourceViewerExtension4)viewer).getContentAssistantFacade();
                     facade.removeCompletionListener(documentListener);
                 }
+                cancel();
                 isInstalled = false;
             }
         }
