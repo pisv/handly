@@ -2,22 +2,22 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='12'>
-    <iu id='org.eclipse.sdk.ide' version='4.8.0.I20180509-2000'>
+    <iu id='org.eclipse.sdk.ide' version='4.8.0.I20180516-2000'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='5.0.0.201805151920-m7'>
+    <iu id='org.eclipse.egit.feature.group' version='5.0.0.201805221745-rc1'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.jar' version='1.9.0.20180515-2017'>
+    <iu id='org.eclipse.m2e.feature.feature.jar' version='1.9.0.20180523-0050'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.14.0.v20180424-2303'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.14.0.v20180523-0937'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/photon/'/>
       </repositories>
