@@ -7,7 +7,7 @@ and thanks for your interest in this project.
 Project description
 -------------------
 
-Handly provides basic building blocks for handle-based models,
+Eclipse Handly provides basic building blocks for handle-based models,
 with an emphasis on high-level code-centric models that render Eclipse
 workspace from a programming language angle. It allows creating
 highly scalable, robust, and thoroughly optimized models similar in quality
@@ -25,18 +25,18 @@ for IDE components to work in a generic way with any Handly-based model.
 
 For more information, visit the project's website
 
-- https://www.eclipse.org/handly/
+- <https://www.eclipse.org/handly/>
 
 Developer resources
 -------------------
 
 Information regarding source code management and builds
 
-- https://projects.eclipse.org/projects/technology.handly/developer
+- <https://projects.eclipse.org/projects/technology.handly/developer>
 
 Coding standards, bugs lifecycle, and more
 
-- https://wiki.eclipse.org/Handly/Committer_FAQ
+- <https://wiki.eclipse.org/Handly/Committer_FAQ>
 
 Building locally
 ----------------
@@ -90,48 +90,47 @@ Contributing
 
 General process and policy for making a contribution
 
-- https://wiki.eclipse.org/Development\_Resources/Contributing\_via\_Git
+- <https://wiki.eclipse.org/Development_Resources/Contributing_via_Git>
 
 Project-specific details and further references
 
-- https://wiki.eclipse.org/Handly/Committer_FAQ
+- <https://wiki.eclipse.org/Handly/Committer_FAQ>
 
-Contributor License Agreement
+Eclipse Contributor Agreement
 -----------------------------
 
-Before your contribution can be accepted by the project, you need to create
-and electronically sign the Eclipse Foundation Contributor License Agreement
-(CLA)
+Before your contribution can be accepted by the project, you need to have
+signed the Eclipse Contributor Agreement (ECA)
 
-- https://www.eclipse.org/legal/CLA.php
+- <https://www.eclipse.org/legal/ECA.php>
 
-For more information, see CLA FAQ
+For more information, see ECA FAQ
 
-- https://www.eclipse.org/legal/clafaq.php
+- <https://www.eclipse.org/legal/ecafaq.php>
 
 Contact
 -------
 
 Contact the project developers via the project's "dev" list
 
-- https://dev.eclipse.org/mailman/listinfo/handly-dev
+- <https://dev.eclipse.org/mailman/listinfo/handly-dev>
 
 Search for bugs
 ---------------
 
 This project uses Bugzilla to track ongoing development and issues
 
-- https://bugs.eclipse.org/bugs/buglist.cgi?product=Handly
+- <https://bugs.eclipse.org/bugs/buglist.cgi?product=Handly>
 
 Create a new bug
 ----------------
 
 Bug reporting FAQ
 
-- https://wiki.eclipse.org/Bug\_Reporting\_FAQ
+- <https://wiki.eclipse.org/Bug_Reporting_FAQ>
 
 Be sure to search for existing bugs before you create another one
 
-- https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Handly
+- <https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Handly>
 
 Remember that contributions are always welcome!
