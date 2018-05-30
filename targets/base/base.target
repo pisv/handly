@@ -16,7 +16,7 @@
 <!--
    Currently, the Base Platform includes:
    * Eclipse Project SDK 4.6.3 (Neon.3)
-   * SDKs for Xtext/Xtend 2.11 and dependencies
+   * Xtext SDK 2.11 and dependencies
    * LSP4J 0.3/LSP4E 0.4 and dependencies
 -->
 <locations>
@@ -27,22 +27,21 @@
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <repository location="http://download.eclipse.org/releases/neon/201705151400"/>
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.core.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.core.ssl.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.filetransfer.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.ecf.filetransfer.ssl.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.xpand.sdk.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.draw2d" version="0.0.0"/>
+<unit id="org.eclipse.ecf" version="0.0.0"/>
+<unit id="org.eclipse.ecf.filetransfer" version="0.0.0"/>
+<unit id="org.eclipse.ecf.identity" version="0.0.0"/>
+<unit id="org.eclipse.ecf.provider.filetransfer" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.xsd.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.gef.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.uml2.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.emf.validation.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.xpand" version="0.0.0"/>
+<unit id="org.eclipse.xtend" version="0.0.0"/>
+<unit id="org.eclipse.xtend.typesystem.emf" version="0.0.0"/>
+<unit id="org.objectweb.asm" version="0.0.0"/>
 <unit id="com.google.guava" version="0.0.0"/>
 <unit id="com.google.inject" version="0.0.0"/>
-<unit id="org.objectweb.asm" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/releases/2.11.0"/>
