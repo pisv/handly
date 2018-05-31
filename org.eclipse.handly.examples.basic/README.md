@@ -13,11 +13,13 @@ Create a new file in the root of the project you've just created; the filename
 must have the `.foo` extension. For example, create the `Module1.foo` file 
 with the following contents:
 
+```
 var x;
 var y;
 def f() {}
 def f(x) {}
 def f(x, y) {}
+```
 
 Play with the Handly-based Outline view a little.
 

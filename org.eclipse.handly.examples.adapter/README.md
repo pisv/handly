@@ -7,7 +7,7 @@ Put differently, it implements the uniform Handly API on top of the Java model.
 The adapter model is then used to implement an outline page for the Java editor.
 Notably, the Handly-based outline page re-uses content- and label providers
 supplied by JDT. This is made possible by the model adaptation facility
-(https://bugs.eclipse.org/472840).
+(<https://bugs.eclipse.org/472840>).
 
 To try it out, launch runtime Eclipse, open a Java compilation unit with the
 "Java Editor (Handly Adapter Example)", and play with the outline.

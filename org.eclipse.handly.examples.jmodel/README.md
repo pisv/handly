@@ -7,7 +7,7 @@ model for the Java language along the lines of the JDT's Java model.
 As one would expect from an example, the model is somewhat contrived.
 In particular:
 
-* Only classpath entries of kind CPE_SOURCE, with paths of length 1
+* Only classpath entries of kind `CPE_SOURCE`, with paths of length 1
 are considered (i.e. only source folders that are direct children
 of the project resource);
 
@@ -27,7 +27,7 @@ the example model for Java, are provided:
 
 * Example Java navigator view (kindly contributed by Ondrej Ilcik, Codasip).
 
-To try it out, launch runtime Eclipse and open the `JNavigator (Handly)` view (in
+To try it out, launch runtime Eclipse and open the `JNavigator` view (in
 the `Handly Examples` category). The view shows the elements of the underlying
 example model for Java. You can navigate the structure of the projects in your
 workspace down to types, methods, and fields in Java source files. Select
@@ -50,8 +50,8 @@ the inevitable simplifications vs. the full-fledged JDT implementation,
 and will be useful to Handly adopters. Feedback is most welcome
 and can be directed to the project's forum:
 
-    http://eclipse.org/forums/eclipse.handly
+- <http://eclipse.org/forums/eclipse.handly>
 
 or right to the developer mailing list:
 
-    https://dev.eclipse.org/mailman/listinfo/handly-dev
+- <https://dev.eclipse.org/mailman/listinfo/handly-dev>

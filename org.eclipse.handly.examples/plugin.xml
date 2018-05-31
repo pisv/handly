@@ -123,12 +123,4 @@
       </example>
    </extension>
 
-   <extension
-         point="org.eclipse.ui.views">
-      <category
-            id="org.eclipse.handly.examples"
-            name="Handly Examples">
-      </category>
-   </extension>
-
 </plugin>
