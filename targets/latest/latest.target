@@ -19,7 +19,7 @@
 <repository location="http://download.eclipse.org/cbi/updates/license/2.0.1.v20180423-1114"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/photon/201805251000"/>
+<repository location="http://download.eclipse.org/releases/photon/201806011000"/>
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.draw2d" version="0.0.0"/>
 <unit id="org.eclipse.ecf" version="0.0.0"/>
@@ -27,7 +27,6 @@
 <unit id="org.eclipse.ecf.identity" version="0.0.0"/>
 <unit id="org.eclipse.ecf.provider.filetransfer" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.equinox.concurrent" version="0.0.0"/>

@@ -33,7 +33,6 @@
 <unit id="org.eclipse.ecf.identity" version="0.0.0"/>
 <unit id="org.eclipse.ecf.provider.filetransfer" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xpand" version="0.0.0"/>
