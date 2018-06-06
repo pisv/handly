@@ -24,7 +24,7 @@
    <feature id="org.eclipse.handly.tests.source">
       <category name="org.eclipse.handly.category"/>
    </feature>
-   <category-def name="org.eclipse.handly.category" label="Eclipse Handly (Incubation)">
+   <category-def name="org.eclipse.handly.category" label="Eclipse Handly">
       <description>
          Eclipse Handly Project - All Features
       </description>

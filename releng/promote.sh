@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Copyright (c) 2014, 2017 1C-Soft LLC and others.
+# Copyright (c) 2014, 2018 1C-Soft LLC and others.
 #
 # This program and the accompanying materials are made available under
 # the terms of the Eclipse Public License 2.0 which is available at
@@ -127,7 +127,7 @@ if [[ "$?" != "0" ]]; then
     exit -1
 fi
 
-REPO_PREFIX=${REPO_PREFIX:-"handly-repository-incubation"}
+REPO_PREFIX=${REPO_PREFIX:-"handly-repository"}
 REPO_FILE=$REPO_VERSION/$REPO_PREFIX-$REPO_VERSION.zip
 
 echo "Downloading p2 repository $BUILD_VERSION..."
@@ -178,7 +178,7 @@ if [[ "$?" != "0" ]]; then
     exit -1
 fi
 
-JAVADOC_PREFIX=${JAVADOC_PREFIX:-"handly-javadoc-incubation"}
+JAVADOC_PREFIX=${JAVADOC_PREFIX:-"handly-javadoc"}
 JAVADOC_FILE=$REPO_VERSION/$JAVADOC_PREFIX-$REPO_VERSION.zip
 
 #

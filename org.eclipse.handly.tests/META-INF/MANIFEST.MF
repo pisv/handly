@@ -3,7 +3,7 @@ Automatic-Module-Name: org.eclipse.handly.tests
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.handly.tests
 Bundle-Version: 1.0.0.qualifier
-Bundle-Name: Handly Tests (Incubation)
+Bundle-Name: Handly Core Tests
 Bundle-Vendor: Eclipse Handly
 Fragment-Host: org.eclipse.handly
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

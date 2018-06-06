@@ -67,7 +67,7 @@
               <goal>assemble-repository</goal>
             </goals>
             <configuration>
-              <repositoryName>Eclipse Handly ${handly.version.major}.${handly.version.minor}.${handly.version.service} (Incubation)</repositoryName>
+              <repositoryName>Eclipse Handly ${handly.version.major}.${handly.version.minor}.${handly.version.service}</repositoryName>
             </configuration>
           </execution>
           <execution>
@@ -77,7 +77,7 @@
               <goal>archive-repository</goal>
             </goals>
             <configuration>
-              <finalName>handly-repository-incubation-${handly.version}</finalName>
+              <finalName>handly-repository-${handly.version}</finalName>
             </configuration>
           </execution>
         </executions>
@@ -134,7 +134,7 @@
     <profile>
       <id>javadoc</id>
       <properties>
-        <javadoc.title>Eclipse Handly ${handly.version.major}.${handly.version.minor} API Specification (Incubation)</javadoc.title>
+        <javadoc.title>Eclipse Handly ${handly.version.major}.${handly.version.minor} API Specification</javadoc.title>
       </properties>
       <build>
         <plugins>
