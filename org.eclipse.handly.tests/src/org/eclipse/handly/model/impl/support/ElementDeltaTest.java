@@ -381,7 +381,7 @@ public class ElementDeltaTest
         class ResourceChangeListener
             implements IResourceChangeListener
         {
-            IResourceDelta delta;
+            volatile IResourceDelta delta;
 
             @Override
             public void resourceChanged(IResourceChangeEvent event)
@@ -392,28 +392,48 @@ public class ElementDeltaTest
         ResourceChangeListener listener = new ResourceChangeListener();
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
         workspace.addResourceChangeListener(listener);
-        IMarker marker = workspace.getRoot().createMarker(IMarker.PROBLEM);
         try
         {
-            IMarkerDelta[] markerDeltas = listener.delta.getMarkerDeltas();
-            assertEquals(1, markerDeltas.length);
-            builder.markersChanged(root, markerDeltas);
-            assertDelta("root[*]: {MARKERS}");
-            assertSame(markerDeltas[0], delta.getMarkerDeltas_()[0]);
-
+            IMarker marker = workspace.getRoot().createMarker(IMarker.PROBLEM);
             try
             {
+                IResourceDelta resourceDelta;
+                for (;;)
+                {
+                    resourceDelta = listener.delta;
+                    if (resourceDelta != null
+                        && resourceDelta.getMarkerDeltas().length > 0)
+                        break;
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException e)
+                    {
+                    }
+                }
+                IMarkerDelta[] markerDeltas = resourceDelta.getMarkerDeltas();
                 builder.markersChanged(root, markerDeltas);
-                fail();
+                assertDelta("root[*]: {MARKERS}");
+                assertSame(markerDeltas, delta.getMarkerDeltas_());
+
+                try
+                {
+                    builder.markersChanged(root, markerDeltas);
+                    fail();
+                }
+                catch (Throwable e)
+                {
+                }
             }
-            catch (Throwable e)
+            finally
             {
+                marker.delete();
             }
         }
         finally
         {
             workspace.removeResourceChangeListener(listener);
-            marker.delete();
         }
     }
 
