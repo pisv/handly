@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,8 +12,8 @@
  *******************************************************************************/
 package org.eclipse.handly.model.adapter;
 
+import org.eclipse.core.runtime.Adapters;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.util.AdapterUtil;
 
 /**
  * Implements {@link IContentAdapter} on top of a one-to-one mapping
@@ -33,7 +33,7 @@ public class DefaultContentAdapter
     @Override
     public IElement adapt(Object element)
     {
-        IElement result = AdapterUtil.getAdapter(element, IElement.class, true);
+        IElement result = Adapters.adapt(element, IElement.class);
         if (result == null)
             return null;
         if (!element.equals(getCorrespondingElement(result)))
@@ -44,8 +44,8 @@ public class DefaultContentAdapter
     @Override
     public Object getCorrespondingElement(IElement element)
     {
-        ICorrespondingElementProvider provider = AdapterUtil.getAdapter(element,
-            ICorrespondingElementProvider.class, true);
+        ICorrespondingElementProvider provider = Adapters.adapt(element,
+            ICorrespondingElementProvider.class);
         if (provider == null)
             return null;
         return provider.getCorrespondingElement(element);

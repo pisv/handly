@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -14,6 +14,7 @@ package org.eclipse.handly.ui;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.internal.ui.Activator;
@@ -21,7 +22,6 @@ import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFile;
-import org.eclipse.handly.util.AdapterUtil;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -59,8 +59,7 @@ public class EditorUtility
             return (IEditorInput)element;
 
         IResource resource;
-        IElement adapterElement = AdapterUtil.getAdapter(element,
-            IElement.class, true);
+        IElement adapterElement = Adapters.adapt(element, IElement.class);
         if (adapterElement != null)
             resource = Elements.getResource(adapterElement);
         else
@@ -103,8 +102,7 @@ public class EditorUtility
         IEditorPart editor = result.getEditor(false);
         if (editor instanceof ITextEditor)
         {
-            IElement adapterElement = AdapterUtil.getAdapter(element,
-                IElement.class, true);
+            IElement adapterElement = Adapters.adapt(element, IElement.class);
             if (adapterElement instanceof ISourceElement)
             {
                 IEditorReference found = findSourceEditor(references,
@@ -129,12 +127,11 @@ public class EditorUtility
         if (element == null)
             throw new IllegalArgumentException();
 
-        IElement adapterElement = AdapterUtil.getAdapter(element,
-            IElement.class, true);
+        IElement adapterElement = Adapters.adapt(element, IElement.class);
         if (adapterElement instanceof ISourceElement)
         {
-            ITextEditor textEditor = AdapterUtil.getAdapter(editor,
-                ITextEditor.class, false);
+            ITextEditor textEditor = Adapters.adapt(editor, ITextEditor.class,
+                false);
             if (textEditor != null)
             {
                 if (revealSourceElement(textEditor,
@@ -184,7 +181,7 @@ public class EditorUtility
                     IEditorPart editor = reference.getEditor(true);
                     if (editor == null)
                         continue;
-                    ITextEditor textEditor = AdapterUtil.getAdapter(editor,
+                    ITextEditor textEditor = Adapters.adapt(editor,
                         ITextEditor.class, false);
                     if (textEditor != null)
                     {

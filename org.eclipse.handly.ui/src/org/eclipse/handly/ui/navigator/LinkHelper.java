@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,11 +13,11 @@
 package org.eclipse.handly.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Adapters;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.ui.EditorUtility;
 import org.eclipse.handly.ui.IInputElementProvider;
-import org.eclipse.handly.util.AdapterUtil;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IEditorInput;
@@ -47,9 +47,8 @@ public abstract class LinkHelper
                     (IStructuredSelection)navigatorView.getSite().getSelectionProvider().getSelection();
                 if (currentSelection != null && currentSelection.size() == 1)
                 {
-                    IElement element = AdapterUtil.getAdapter(
-                        currentSelection.getFirstElement(), IElement.class,
-                        true);
+                    IElement element = Adapters.adapt(
+                        currentSelection.getFirstElement(), IElement.class);
                     if (element != null)
                     {
                         if (Elements.isAncestorOf(inputElement,
@@ -62,7 +61,7 @@ public abstract class LinkHelper
         }
         else
         {
-            IFile file = AdapterUtil.getAdapter(editorInput, IFile.class, true);
+            IFile file = Adapters.adapt(editorInput, IFile.class);
             if (file != null)
                 return new StructuredSelection(file);
         }
