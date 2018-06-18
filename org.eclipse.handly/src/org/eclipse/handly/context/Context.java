@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,11 +19,9 @@ import java.util.function.Supplier;
 import org.eclipse.handly.util.Property;
 
 /**
- * A context that is based on explicit bindings and does not allow re-binding:
- * it is illegal to bind a key (a property or class object) that has already
+ * Implementation of {@link IContext} that is based on explicit bindings and
+ * does not allow re-binding. It is illegal to bind a key that has already
  * been bound.
- *
- * @see IContext
  */
 public final class Context
     implements IContext
@@ -101,7 +99,7 @@ public final class Context
     }
 
     /**
-     * Associates a value with the specified key in the context.
+     * Associates a value with a key in this context.
      *
      * @param <T> the type of value
      */
@@ -115,27 +113,30 @@ public final class Context
         }
 
         /**
-         * Associates the given value with the specified key in the context.
+         * Associates the given value with a key in this context.
          *
          * @param value may be <code>null</code>
+         * @return this context
          */
-        public void to(T value)
+        public Context to(T value)
         {
-            bind(value);
+            return bind(value);
         }
 
         /**
-         * Associates the given supplier with the specified key in the context.
-         * When a context value is requested for the key, the context will invoke
-         * the supplier to obtain the value.
+         * Associates the given supplier with a key in this context. When a
+         * value is requested for the key, the context will invoke the supplier
+         * to obtain the value.
          *
          * @param supplier not <code>null</code>
+         * @return this context
          */
-        public void toSupplier(Supplier<? extends T> supplier)
+        public Context toSupplier(Supplier<? extends T> supplier)
         {
             if (supplier == null)
                 throw new IllegalArgumentException();
-            bind(new ContextFunction<T>() {
+            return bind(new ContextFunction<T>()
+            {
                 @Override
                 public T eval()
                 {
@@ -144,9 +145,10 @@ public final class Context
             });
         }
 
-        private void bind(Object value)
+        private Context bind(Object value)
         {
             bindings.put(key, value);
+            return Context.this;
         }
     }
 
