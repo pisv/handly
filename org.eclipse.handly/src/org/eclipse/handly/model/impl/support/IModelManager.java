@@ -41,13 +41,11 @@ public interface IModelManager
     /**
      * Provides access to the model manager.
      * <p>
-     * The same manager instance must be returned each time the provider
-     * is invoked.
+     * The same manager instance is returned each time the provider is invoked.
      * </p>
      * <p>
      * An instance of the provider is safe for use by multiple threads.
      * </p>
-     * @see IElementImplSupport
      */
     interface Provider
     {

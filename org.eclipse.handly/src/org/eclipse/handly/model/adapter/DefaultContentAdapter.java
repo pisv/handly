@@ -16,11 +16,9 @@ import org.eclipse.core.runtime.Adapters;
 import org.eclipse.handly.model.IElement;
 
 /**
- * Implements {@link IContentAdapter} on top of a one-to-one mapping
- * of elements from a Handly-based model to elements in some other model.
- * The mapping is defined via the <code>IAdaptable</code> mechanism. Namely,
- * for a given {@link IElement} the corresponding element is obtained from
- * the {@link ICorrespondingElementProvider} the <code>IElement</code> adapts to.
+ * A content adapter that is based on <code>IAdaptable</code> mechanism.
+ * For a given {@link IElement} the corresponding element is obtained from the
+ * {@link ICorrespondingElementProvider} the <code>IElement</code> adapts to.
  */
 public class DefaultContentAdapter
     implements IContentAdapter

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2017, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -25,28 +25,35 @@ import org.eclipse.handly.util.Property;
 public interface IReconcileStrategy
 {
     /**
-     * Indicates whether reconciling was forced, i.e. the source has not been
-     * modified since the last time the model was reconciled. Default value:
+     * Indicates whether reconciling is forced, i.e., the source text has not
+     * been modified since the last time the model was reconciled. Default value:
      * <code>false</code>.
+     *
      * @see #reconcile(IContext, IProgressMonitor)
      */
     Property<Boolean> RECONCILING_FORCED = Property.get(
         IReconcileStrategy.class.getName() + ".reconcilingForced", //$NON-NLS-1$
         Boolean.class).withDefault(false);
+
     /**
      * Specifies the source AST for reconciling.
+     *
      * @see #reconcile(IContext, IProgressMonitor)
      */
     Property<Object> SOURCE_AST = Property.get(
         IReconcileStrategy.class.getName() + ".sourceAst", Object.class); //$NON-NLS-1$
+
     /**
      * Specifies the source string for reconciling.
+     *
      * @see #reconcile(IContext, IProgressMonitor)
      */
     Property<String> SOURCE_CONTENTS = Property.get(
         IReconcileStrategy.class.getName() + ".sourceContents", String.class); //$NON-NLS-1$
+
     /**
      * Specifies the source snapshot for reconciling.
+     *
      * @see #reconcile(IContext, IProgressMonitor)
      */
     Property<ISnapshot> SOURCE_SNAPSHOT = Property.get(
@@ -56,29 +63,18 @@ public interface IReconcileStrategy
     /**
      * Reconciles a model according to options specified in the given context.
      * <p>
-     * The following context options can influence whether the model gets rebuilt:
+     * The following context options, if simultaneously present, must be
+     * mutually consistent:
      * </p>
      * <ul>
      * <li>
-     * {@link #RECONCILING_FORCED} - Indicates whether reconciling was forced,
-     * i.e. the source has not been modified since the last time the model
-     * was reconciled. If <code>false</code> (the default), the model will be
-     * rebuilt.
-     * </li>
-     * </ul>
-     * <p>
-     * The following context options influence rebuilding of the model and, if
-     * simultaneously present, must be mutually consistent:
-     * </p>
-     * <ul>
-     * <li>
-     * {@link #SOURCE_AST} - Specifies the AST to use when building the model.
-     * The AST is safe to read in the dynamic context of this method call, but
-     * must not be modified.
+     * {@link #SOURCE_AST} - Specifies the AST to use when reconciling.
+     * The AST is safe to read in the dynamic context of this method call,
+     * but must not be modified.
      * </li>
      * <li>
      * {@link #SOURCE_CONTENTS} - Specifies the source string to use when
-     * building the model.
+     * reconciling.
      * </li>
      * </ul>
      * <p>
@@ -90,6 +86,11 @@ public interface IReconcileStrategy
      * including the following:
      * </p>
      * <ul>
+     * <li>
+     * {@link #RECONCILING_FORCED} - Indicates whether reconciling is forced,
+     * i.e., the source text has not been modified since the last time the model
+     * was reconciled.
+     * </li>
      * <li>
      * {@link #SOURCE_SNAPSHOT} - Specifies the source snapshot from which
      * <code>SOURCE_AST</code> was created or <code>SOURCE_CONTENTS</code>
@@ -105,7 +106,7 @@ public interface IReconcileStrategy
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @throws CoreException if the model cannot be reconciled
+     * @throws CoreException if the model could not be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
     void reconcile(IContext context, IProgressMonitor monitor)

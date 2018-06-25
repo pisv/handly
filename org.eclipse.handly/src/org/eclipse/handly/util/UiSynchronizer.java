@@ -27,8 +27,8 @@ import org.osgi.framework.Bundle;
 public abstract class UiSynchronizer
 {
     /**
-     * A default instance of the synchronizer, or <code>null</code>
-     * if not available at this time (e.g. when running headless).
+     * Returns a default instance of the synchronizer, or <code>null</code>
+     * if it is not available at this time (e.g., when running headless).
      */
     public static UiSynchronizer getDefault()
     {
@@ -48,34 +48,32 @@ public abstract class UiSynchronizer
      *
      * @return the user-interface thread (not <code>null</code>)
      * @throws IllegalStateException if the synchronizer can no longer be
-     *  accessed (e.g. the underlying display has been disposed)
+     *  accessed (e.g., the underlying display has been disposed)
      */
     public abstract Thread getThread();
 
     /**
-     * Causes the <code>run()</code> method of the runnable to
-     * be invoked by the user-interface thread at the next
-     * reasonable opportunity. The caller of this method continues
-     * to run in parallel, and is not notified when the
+     * Causes the <code>run()</code> method of the runnable to be invoked by
+     * the user-interface thread at the next reasonable opportunity; the caller
+     * of this method continues to run in parallel, and is not notified when the
      * runnable has completed.
      *
      * @param runnable code to run on the user-interface thread
      *  (not <code>null</code>)
      * @throws IllegalStateException if the synchronizer can no longer be
-     *  accessed (e.g. the underlying display has been disposed)
+     *  accessed (e.g., the underlying display has been disposed)
      */
     public abstract void asyncExec(Runnable runnable);
 
     /**
-     * Causes the <code>run()</code> method of the runnable to
-     * be invoked by the user-interface thread at the next
-     * reasonable opportunity. The thread which calls this method
-     * is suspended until the runnable completes.
+     * Causes the <code>run()</code> method of the runnable to be invoked by
+     * the user-interface thread at the next reasonable opportunity; the thread
+     * which calls this method is suspended until the runnable completes.
      *
      * @param runnable code to run on the user-interface thread
      *  (not <code>null</code>)
      * @throws IllegalStateException if the synchronizer can no longer be
-     *  accessed (e.g. the underlying display has been disposed)
+     *  accessed (e.g., the underlying display has been disposed)
      * @throws ExecutionException if an exception occurred when executing
      *  the runnable
      */

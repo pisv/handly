@@ -18,7 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 /**
- * Model implementors may choose to extend this interface, which extends
+ * Model implementors may opt to extend this interface, which extends
  * {@link IElement} with a number of default methods.
  * <p>
  * This interface is not intended to be referenced for purposes other than

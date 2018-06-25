@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -15,11 +15,11 @@ package org.eclipse.handly.context;
 import org.eclipse.handly.util.Property;
 
 /**
- * A context supplies values associated with keys. Keys are instances of
+ * A context supplies values associated with keys; keys are instances of
  * {@link Property} or {@link Class}.
  * <p>
  * Context implementations may use an identity-based lookup, name-based lookup,
- * or anything in-between. For portability, keys should be unique instances
+ * or anything in-between. For portability, keys need to be unique instances
  * with unique names.
  * </p>
  */
@@ -28,24 +28,22 @@ public interface IContext
     /**
      * Returns the context value associated with the given property.
      *
-     * @param property {@code Property<T>} (not <code>null</code>)
+     * @param property the property being queried (not <code>null</code>)
      * @return an object corresponding to the given property, or <code>null</code>
      */
     <T> T get(Property<T> property);
 
     /**
-     * Returns the context value associated with the given property.
-     * If no value is associated with the given property, returns
+     * Returns the context value associated with the given property;
+     * if no value is associated with the given property, returns
      * the default value of the property.
      * <p>
-     * The default implementation makes no guarantees about synchronization
-     * or atomicity properties of this method. Any implementation providing
-     * atomicity guarantees must override this method and document its
-     * concurrency properties.
+     * This implementation makes no guarantees about synchronization
+     * or atomicity.
      * </p>
      *
-     * @param property {@code Property<T>} (not <code>null</code>)
-     * @return an object corresponding to the given property or the property's
+     * @param property the property being queried (not <code>null</code>)
+     * @return an object corresponding to the given property, or the property's
      *  default value (may be <code>null</code>)
      * @see Property#defaultValue()
      */
@@ -62,7 +60,7 @@ public interface IContext
     /**
      * Returns the context value associated with the given class.
      *
-     * @param clazz {@code Class<T>} (not <code>null</code>)
+     * @param clazz the class being queried (not <code>null</code>)
      * @return an object corresponding to the given class, or <code>null</code>
      */
     <T> T get(Class<T> clazz);

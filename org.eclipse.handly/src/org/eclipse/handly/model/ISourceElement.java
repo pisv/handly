@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,12 +13,12 @@
 package org.eclipse.handly.model;
 
 /**
- * Represents elements that may have associated source code.
- * The children are of type {@link ISourceConstruct} and appear
- * in declaration order.
- *
- * @see IElement
- */
+ * A marker interface for elements that may have associated source code.
+ * <p>
+ * The children of a source element are of type {@link ISourceConstruct}
+ * and appear in declaration order.
+ * </p>
+*/
 public interface ISourceElement
     extends IElement
 {

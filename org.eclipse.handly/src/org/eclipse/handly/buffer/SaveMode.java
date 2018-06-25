@@ -27,9 +27,7 @@ public enum SaveMode
 
     /**
      * Indicates that the buffer is to be saved after the change has been
-     * applied. The state of the underlying resource will be synchronized
-     * with the state of the changed buffer and the buffer will have no
-     * unsaved changes.
+     * applied.
      */
     FORCE_SAVE,
 

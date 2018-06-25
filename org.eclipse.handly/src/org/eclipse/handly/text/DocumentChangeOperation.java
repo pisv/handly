@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -27,7 +27,7 @@ import org.eclipse.text.edits.TextEditProcessor;
 import org.eclipse.text.edits.UndoEdit;
 
 /**
- * Applies the given change to the given document.
+ * Applies a given change to a given {@link IDocument}.
  */
 public class DocumentChangeOperation
 {
@@ -53,18 +53,20 @@ public class DocumentChangeOperation
     }
 
     /**
-     * Applies the change to the document. Note that an update conflict may occur
-     * if the document's contents have changed since the inception of the snapshot
-     * on which the change is based. In that case, a {@link StaleSnapshotException}
-     * is thrown.
+     * Executes the document change.
+     * <p>
+     * Note that an update conflict may occur if the document's contents have
+     * changed since the inception of the snapshot on which the change is based.
+     * In that case, a {@link StaleSnapshotException} is thrown.
+     * </p>
      *
-     * @return undo change, if requested. Otherwise, <code>null</code>
+     * @return undo change, if requested by the change. Otherwise, <code>null</code>
      * @throws StaleSnapshotException if the document has changed
      *  since the inception of the snapshot on which the change is based
-     * @throws MalformedTreeException if the change's edit tree isn't
+     * @throws MalformedTreeException if the change's edit tree is not
      *  in a valid state
-     * @throws BadLocationException if one of the edits in the tree
-     *  can't be executed
+     * @throws BadLocationException if one of the edits in the change's
+     *  edit tree could not be executed
      */
     public IDocumentChange execute() throws BadLocationException
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2017, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,12 +19,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.context.IContext;
-import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.util.Property;
 
 /**
- * Extension of {@link ISourceFileImpl} that introduces the notion of the
- * working copy. {@link ISourceFile}s may implement this interface.
+ * Extension of {@link ISourceFileImpl} that introduces the notion of
+ * working copy. {@code ISourceFile}s may implement this interface.
  *
  * @noextend This interface is not intended to be extended by clients.
  */
@@ -33,6 +32,7 @@ public interface ISourceFileImplExtension
 {
     /**
      * Specifies the working copy buffer.
+     *
      * @see #becomeWorkingCopy_(IContext, IProgressMonitor)
      */
     Property<IBuffer> WORKING_COPY_BUFFER = Property.get(
@@ -41,6 +41,7 @@ public interface ISourceFileImplExtension
 
     /**
      * Specifies the working copy callback.
+     *
      * @see #becomeWorkingCopy_(IContext, IProgressMonitor)
      */
     Property<IWorkingCopyCallback> WORKING_COPY_CALLBACK = Property.get(
@@ -50,6 +51,7 @@ public interface ISourceFileImplExtension
     /**
      * Specifies the working copy context.
      * Default value: <code>EMPTY_CONTEXT</code>.
+     *
      * @see #becomeWorkingCopy_(IContext, IProgressMonitor)
      */
     Property<IContext> WORKING_COPY_CONTEXT = Property.get(
@@ -63,11 +65,11 @@ public interface ISourceFileImplExtension
      * of the working copy buffer). Performs atomically.
      * <p>
      * In working copy mode, the source file's structure and properties
-     * shall no longer correspond to the underlying resource contents
-     * and must no longer be updated by a resource delta processor.
-     * Instead, the source file's structure and properties can be explicitly
-     * {@link #reconcile_(IContext, IProgressMonitor) reconciled} with the
-     * current contents of the working copy buffer.
+     * shall no longer correspond to the underlying resource contents and
+     * must no longer be updated by a resource delta processor. Instead,
+     * the source file's structure and properties can be explicitly {@link
+     * #reconcile_(IContext, IProgressMonitor) reconciled} with the current
+     * contents of the working copy buffer.
      * </p>
      * <p>
      * This method supports the following options, which may be specified
@@ -96,7 +98,7 @@ public interface ISourceFileImplExtension
      * counter; the given context is ignored.
      * </p>
      * <p>
-     * Each call to this method that didn't throw an exception must ultimately
+     * Each call to this method that did not throw an exception must ultimately
      * be followed by exactly one call to {@link #releaseWorkingCopy_()}.
      * </p>
      *
@@ -105,8 +107,8 @@ public interface ISourceFileImplExtension
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return <code>true</code> if this source file became a working copy,
-     *  or <code>false</code> if it was already in working copy mode
-     * @throws CoreException if the working copy could not be created successfully
+     *  and <code>false</code> if it was already in working copy mode
+     * @throws CoreException if the working copy could not be created
      * @throws OperationCanceledException if this method is canceled
      * @see #acquireExistingWorkingCopy_(IProgressMonitor)
      */
@@ -114,10 +116,10 @@ public interface ISourceFileImplExtension
         throws CoreException;
 
     /**
-     * If this source file is in working copy mode, acquires a new independent
-     * ownership of the working copy by incrementing an internal counter and
-     * returns <code>true</code>. Otherwise, returns <code>false</code>.
-     * Performs atomically.
+     * If this source file is already in working copy mode, acquires a new
+     * independent ownership of the working copy by incrementing an internal
+     * counter. Returns <code>false</code> if this source file is not a working
+     * copy. Performs atomically.
      * <p>
      * Each successful call to this method that did not return <code>false</code>
      * must ultimately be followed by exactly one call to {@link #releaseWorkingCopy_()}.
@@ -127,7 +129,7 @@ public interface ISourceFileImplExtension
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return <code>true</code> if an existing working copy was acquired,
-     *  or <code>false</code> if this source file is not a working copy
+     *  and <code>false</code> if this source file is not a working copy
      * @throws OperationCanceledException if this method is canceled
      * @see #becomeWorkingCopy_(IContext, IProgressMonitor)
      */
@@ -140,21 +142,21 @@ public interface ISourceFileImplExtension
      * and releases the working copy buffer. Performs atomically.
      * <p>
      * Each independent ownership of the working copy must ultimately end
-     * with exactly one call to this method. Clients that do not own the
+     * with exactly one call to this method. Clients which do not own the
      * working copy must not call this method.
      * </p>
      *
      * @return <code>true</code> if this source file was switched from
-     *  working copy mode back to its original mode, <code>false</code>
+     *  working copy mode back to its original mode, and <code>false</code>
      *  otherwise
      */
     boolean releaseWorkingCopy_();
 
     /**
-     * Returns the context associated with the working copy,
-     * or <code>null</code> if this source file is not a working copy.
-     * The association and the context itself (as a set of bindings)
-     * do not change over the lifetime of a working copy.
+     * Returns the context associated with the working copy, or <code>null</code>
+     * if this source file is not a working copy. The context, as a set of
+     * bindings, and its association with the working copy do not change
+     * over the lifetime of the working copy.
      * <p>
      * The returned context is composed of the context explicitly {@link
      * #WORKING_COPY_CONTEXT specified} when creating the working copy and

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -24,7 +24,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 
 /**
- * Executes a buffer change in the UI thread.
+ * Executes a {@link BufferChangeOperation} in the UI thread.
  * This class is intended to be used in buffer implementations.
  * General clients should use {@link IBuffer#applyChange(IBufferChange,
  * IProgressMonitor)} instead.
@@ -53,26 +53,29 @@ public final class UiBufferChangeRunner
     }
 
     /**
-     * Synchronously executes the change to the buffer in the UI thread.
+     * Synchronously executes the buffer change operation in the UI thread.
      * Temporarily transfers the current thread's scheduling rule to the UI thread.
+     * <p>
      * Note that an update conflict may occur if the buffer's contents have
      * changed since the inception of the snapshot on which the change is based.
      * In that case, a {@link StaleSnapshotException} is thrown.
+     * </p>
      *
      * @param monitor a progress monitor (not <code>null</code>).
      *  The caller must not rely on {@link IProgressMonitor#done()}
      *  having been called by the receiver
-     * @return undo change, if requested. Otherwise, <code>null</code>
+     * @return undo change, if requested by the change. Otherwise, <code>null</code>
      * @throws StaleSnapshotException if the buffer has changed
      *  since the inception of the snapshot on which the change is based
-     * @throws CoreException in case of underlying resource failure
-     * @throws MalformedTreeException if the change's edit tree isn't
+     * @throws CoreException if save is requested by the change but the buffer
+     *  could not be saved
+     * @throws MalformedTreeException if the change's edit tree is not
      *  in a valid state
-     * @throws BadLocationException if one of the edits in the tree
-     *  can't be executed
+     * @throws BadLocationException if one of the edits in the change's
+     *  edit tree could not be executed
      */
-    public IBufferChange run(IProgressMonitor monitor)
-        throws CoreException, BadLocationException
+    public IBufferChange run(IProgressMonitor monitor) throws CoreException,
+        BadLocationException
     {
         Thread callerThread = Thread.currentThread();
         Thread synchronizerThread = synchronizer.getThread();

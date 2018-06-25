@@ -15,8 +15,8 @@ package org.eclipse.handly.model.impl;
 import org.eclipse.core.runtime.CoreException;
 
 /**
- * A partial implementation of {@link IWorkingCopyCallback}, which clients
- * can extend for convenience.
+ * A partial implementation of {@link IWorkingCopyCallback}, which clients may
+ * opt to extend instead of implementing the interface directly.
  */
 public abstract class WorkingCopyCallback
     implements IWorkingCopyCallback
@@ -27,7 +27,7 @@ public abstract class WorkingCopyCallback
      * {@inheritDoc}
      * <p>
      * This implementation remembers the given working copy info.
-     * Clients can extend this method.
+     * Clients may extend this method.
      * </p>
      */
     @Override
@@ -40,7 +40,7 @@ public abstract class WorkingCopyCallback
      * {@inheritDoc}
      * <p>
      * This implementation nullifies the remembered working copy info.
-     * Clients can extend this method.
+     * Clients may extend this method.
      * </p>
      */
     @Override

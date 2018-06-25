@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -24,8 +24,9 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ISourceConstructImplExtension;
 
 /**
- * A helper class that is typically used when building the entire structure of a
- * source file. A typical usage pattern is <pre>
+ * A helper class that is typically used when building the inner structure of a
+ * source file. A typical usage pattern is
+ * <pre>
  *    Body parentBody = new ...;
  *
  *    // for each child element
@@ -56,12 +57,12 @@ public class StructureHelper
         new HashMap<>();
 
     /**
-     * Remembers the given element as a child of the given parent body.
-     * If the given element has already been remembered as a child of a body,
+     * Remembers the given element as a child for the given parent body.
+     * If the given element has already been remembered as a child for a body,
      * the behavior is unspecified.
      *
-     * @param parentBody the body of the parent element (not <code>null</code>)
-     * @param child the handle for the child element (not <code>null</code>)
+     * @param parentBody the body of a parent element (not <code>null</code>)
+     * @param child the handle for a child element (not <code>null</code>)
      * @see #popChildren(Object)
      */
     public final void pushChild(Object parentBody, IElement child)
@@ -81,7 +82,7 @@ public class StructureHelper
      * given body. The returned children are in the order in which they were
      * remembered.
      *
-     * @param body
+     * @param body a body (not <code>null</code>)
      * @return a list of child elements for the given body, possibly empty
      *  (never <code>null</code>)
      * @see #pushChild(Object, IElement)

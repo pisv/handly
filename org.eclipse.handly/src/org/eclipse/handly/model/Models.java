@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2017, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,17 +16,15 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.impl.IModelImpl;
 
 /**
- * Provides methods for generic access to {@link IModel}s.
+ * Provides static methods for generic access to {@link IModel}s.
  */
 public class Models
 {
     /**
      * Returns a context which provides information and services pertaining
      * to the model. The context, as a set of bindings, is immutable.
-     * <p>
-     * Note that the relationship between a model and its context does not
-     * change over the lifetime of a model.
-     * </p>
+     * The relationship between a model and its context does not change
+     * over the lifetime of the model.
      *
      * @param model not <code>null</code>
      * @return the model context (never <code>null</code>)
@@ -37,11 +35,11 @@ public class Models
     }
 
     /**
-     * Returns the API level supported by the model; one of the level constants
-     * declared in {@link org.eclipse.handly.ApiLevel}.
+     * Returns the Handly API level supported by the model; one of the level
+     * constants declared in {@link org.eclipse.handly.ApiLevel ApiLevel}.
      *
      * @param model not <code>null</code>
-     * @return the API level supported by the model
+     * @return the Handly API level supported by the model
      */
     public static int getModelApiLevel(IModel model)
     {

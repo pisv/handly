@@ -16,7 +16,7 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementDelta;
 
 /**
- * Represents a change event described by element deltas.
+ * Default implementation of {@link IElementChangeEvent}. 
  */
 public class ElementChangeEvent
     implements IElementChangeEvent
@@ -25,12 +25,14 @@ public class ElementChangeEvent
     private final IElementDelta[] deltas;
 
     /**
-     * Constructs a change event with the given type and the given top-level
-     * deltas.
+     * Constructs an element change event with the given type
+     * and the given top-level deltas.
      *
-     * @param type the type of event being reported (model-specific)
+     * @param type the type of event being reported
      * @param deltas the top-level deltas describing the change
      *  (at least one delta is required)
+     * @see IElementChangeEvent#POST_CHANGE
+     * @see IElementChangeEvent#POST_RECONCILE
      */
     public ElementChangeEvent(int type, IElementDelta... deltas)
     {

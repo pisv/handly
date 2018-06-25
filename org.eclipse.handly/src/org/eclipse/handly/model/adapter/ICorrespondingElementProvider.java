@@ -16,14 +16,14 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.model.IElement;
 
 /**
- * Defines a one-to-one mapping (mathematically speaking, injection)
- * of elements from a Handly based model to elements in some other model.
+ * Defines a one-to-one mapping (injection) of elements from a Handly based model
+ * to elements in some other model.
  * <p>
  * For every <code>IElement</code> <code>e</code> such that
  * <code>getCorrespondingElement(e) != null</code>,
  * the following must hold:
  * </p>
- * <pre>e.equals(getCorrespondingElement(e).getAdapter(IElement.class))</pre>
+ * <pre>    e.equals(getCorrespondingElement(e).getAdapter(IElement.class))</pre>
  * <p>
  * This interface may be implemented by clients.
  * </p>
@@ -33,7 +33,7 @@ public interface ICorrespondingElementProvider
     /**
      * Returns the element that corresponds to the given {@link IElement}.
      *
-     * @param element {@link IElement} (may be <code>null</code>)
+     * @param element an {@link IElement} (may be <code>null</code>)
      * @return the corresponding element, or <code>null</code> if none
      */
     IAdaptable getCorrespondingElement(IElement element);

@@ -18,10 +18,10 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.impl.ISourceConstructImplExtension;
 
 /**
- * This "trait-like" interface provides a skeletal implementation of {@link
+ * A "trait-like" interface providing a skeletal implementation of {@link
  * ISourceConstructImplExtension} to minimize the effort required to implement
- * that interface. Clients may "mix in" this interface directly or extend the
- * class {@link SourceConstruct}.
+ * that interface. Clients may implement ("mix in") this interface directly or
+ * extend {@link SourceConstruct}.
  * <p>
  * In general, the members first defined in this interface are not intended
  * to be referenced outside the subtype hierarchy.

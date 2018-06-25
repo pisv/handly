@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -49,7 +49,7 @@ public interface ISourceFileImpl
      * Returns whether this source file is a working copy.
      *
      * @return <code>true</code> if this source file is a working copy,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     boolean isWorkingCopy_();
 
@@ -59,14 +59,13 @@ public interface ISourceFileImpl
      * its buffer has been modified since the last time it was reconciled.
      *
      * @return <code>true</code> if this source file needs reconciling,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     boolean needsReconciling_();
 
     /**
-     * Makes this working copy consistent with its buffer by updating
-     * the element's structure and properties as necessary. Does nothing
-     * if the source file is not in working copy mode.
+     * Reconciles this source file. Does nothing if the source file is not
+     * in working copy mode.
      * <p>
      * Implementations are encouraged to support the following standard options,
      * which may be specified in the given context:
@@ -75,7 +74,8 @@ public interface ISourceFileImpl
      * <li>
      * {@link org.eclipse.handly.model.Elements#FORCE_RECONCILING
      * FORCE_RECONCILING} - Indicates whether reconciling has to be performed
-     * even if the working copy is already consistent with its buffer.
+     *  even if the working copy buffer has not been modified since the last time
+     *  the working copy was reconciled.
      * </li>
      * </ul>
      *
@@ -83,7 +83,7 @@ public interface ISourceFileImpl
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @throws CoreException if this working copy cannot be reconciled
+     * @throws CoreException if the working copy could not be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
     void reconcile_(IContext context, IProgressMonitor monitor)
@@ -97,7 +97,7 @@ public interface ISourceFileImpl
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for releasing it when finished. The buffer will be
      * disposed only after it is released by every owner. The buffer must not
-     * be accessed by clients which don't own it.
+     * be accessed by clients which do not own it.
      * </p>
      * <p>
      * A new object may be returned, even for the same underlying buffer,
@@ -124,10 +124,9 @@ public interface ISourceFileImpl
      * @return the buffer opened for this source file. May return <code>null</code>
      *  if <code>CREATE_BUFFER == false</code> and there is no buffer currently
      *  opened for this source file
-     * @throws CoreException if this source file does not exist
-     *  or if its contents cannot be accessed
+     * @throws CoreException if this source file does not exist or if an
+     *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
-     * @see IBuffer
      */
     IBuffer getBuffer_(IContext context, IProgressMonitor monitor)
         throws CoreException;

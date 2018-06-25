@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,7 +26,8 @@ public class DocumentChange
     private int style = CREATE_UNDO | UPDATE_REGIONS;
 
     /**
-     * Creates a new document change with <code>CREATE_UNDO|UPDATE_REGIONS</code> style.
+     * Creates a new document change with the given text edit and
+     * <code>CREATE_UNDO|UPDATE_REGIONS</code> style.
      *
      * @param edit a text edit - must not be <code>null</code>
      */
@@ -37,7 +38,7 @@ public class DocumentChange
     }
 
     /**
-     * Sets the snapshot on which the change is based.
+     * Sets the snapshot on which this change is based.
      *
      * @param base the snapshot on which the change is based,
      *  or <code>null</code> if unknown
@@ -48,10 +49,10 @@ public class DocumentChange
     }
 
     /**
-     * Sets the flags controlling the execution of the change.
+     * Sets the style flags for this change. Valid flags are {@link #NONE}
+     * or any combination of {@link #CREATE_UNDO} and {@link #UPDATE_REGIONS}.
      *
-     * @param style flags controlling the execution of the change. Valid
-     *  flags are: <code>CREATE_UNDO</code> and <code>UPDATE_REGIONS</code>
+     * @param style style flags
      */
     public void setStyle(int style)
     {

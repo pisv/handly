@@ -16,11 +16,10 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ISourceConstructImplExtension;
 
 /**
- * This class provides a skeletal implementation of the {@link
- * ISourceConstructImplExtension} interface to minimize the effort required
- * to implement that interface. Clients might as well "mix in" {@link
- * ISourceConstructImplSupport} directly if extending this class is not
- * possible/desirable for some reason.
+ * Provides a skeletal implementation of {@link ISourceConstructImplExtension}
+ * to minimize the effort required to implement that interface. Clients might
+ * as well implement ("mix in") {@link ISourceConstructImplSupport} directly
+ * if extending this class is not possible/desirable for some reason.
  */
 public abstract class SourceConstruct
     extends Element

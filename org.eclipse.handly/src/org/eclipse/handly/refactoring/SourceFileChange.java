@@ -77,10 +77,12 @@ public class SourceFileChange
     private TextEditCopier copier;
 
     /**
-     * Creates a change that initially contains only an empty root edit.
+     * Creates a source file change that initially contains only an empty root edit.
      *
      * @param name the change's name, mainly used to render the change in the UI
+     *  - must not be <code>null</code>
      * @param sourceFile the source file this change works on
+     *  - must not be <code>null</code>
      */
     public SourceFileChange(String name, ISourceFile sourceFile)
     {
@@ -88,12 +90,15 @@ public class SourceFileChange
     }
 
     /**
-     * Creates a change with the given edit tree. The structure of the tree
+     * Creates a source file change with the given edit tree. The structure of the tree
      * may be modified later.
      *
      * @param name the change's name, mainly used to render the change in the UI
+     *  - must not be <code>null</code>
      * @param sourceFile the source file this change works on
+     *  - must not be <code>null</code>
      * @param edit the root of the change's edit tree
+     *  - must not be <code>null</code>
      */
     public SourceFileChange(String name, ISourceFile sourceFile, TextEdit edit)
     {
@@ -108,7 +113,7 @@ public class SourceFileChange
     }
 
     /**
-     * Returns the root of change's edit tree.
+     * Returns the root of the change's edit tree.
      *
      * @return the root of the change's edit tree (never <code>null</code>)
      */
@@ -122,7 +127,7 @@ public class SourceFileChange
      * Convenience method.
      *
      * @param edit the edit to add - must not be <code>null</code>
-     * @throws MalformedTreeException if the edit can't be inserted
+     * @throws MalformedTreeException if the edit could not be inserted
      */
     public void addEdit(TextEdit edit)
     {
@@ -134,7 +139,7 @@ public class SourceFileChange
      * Convenience method.
      *
      * @param edits the edits to add - must not be <code>null</code>
-     * @throws MalformedTreeException if the edits can't be inserted
+     * @throws MalformedTreeException if the edits could not be inserted
      */
     public void addEdits(TextEdit[] edits)
     {
@@ -148,7 +153,7 @@ public class SourceFileChange
      * adds} the group itself to the change. Convenience method.
      *
      * @param group the group to add - must not be <code>null</code>
-     * @throws MalformedTreeException if the edits can't be inserted
+     * @throws MalformedTreeException if the edits could not be inserted
      */
     public void addGroupedEdits(TextEditBasedChangeGroup group)
     {
@@ -162,7 +167,7 @@ public class SourceFileChange
      * the group itself to the change. Convenience method.
      *
      * @param group the group to add - must not be <code>null</code>
-     * @throws MalformedTreeException if the edits can't be inserted
+     * @throws MalformedTreeException if the edits could not be inserted
      */
     public void addGroupedEdits(TextEditGroup group)
     {
@@ -171,7 +176,7 @@ public class SourceFileChange
     }
 
     /**
-     * Sets the snapshot on which the change is based.
+     * Sets the snapshot on which the change's edit tree is based.
      *
      * @param base the snapshot on which the change is based,
      *  or <code>null</code> if unknown
@@ -194,10 +199,9 @@ public class SourceFileChange
     }
 
     /**
-     * Sets the save mode of the change.
+     * Sets the save mode of this change.
      *
-     * @param saveMode indicates whether the buffer is to be saved
-     *  after the change has been successfully applied
+     * @param saveMode a save mode
      */
     public void setSaveMode(SaveMode saveMode)
     {
@@ -205,7 +209,7 @@ public class SourceFileChange
     }
 
     /**
-     * Returns the save mode associated with the change.
+     * Returns the save mode associated with this change.
      *
      * @return the change's save mode
      */
@@ -375,18 +379,19 @@ public class SourceFileChange
 
     /**
      * Returns the edit that got executed during preview generation
-     * instead of the given original. The method requires that <code>
-     * setKeepPreviewEdits</code> is set to <code>true</code> and that
-     * a preview has been requested via <code>getPreviewContent</code>
+     * instead of the given original edit. This method requires that
+     * <code>setKeepPreviewEdits</code> is set to <code>true</code> and
+     * that a preview has been requested via <code>getPreviewContent</code>
      * or <code>getPreviewDocument</code> methods.
      * <p>
-     * The method returns <code>null</code> if the original isn't managed
-     * by this text change.
+     * This method returns <code>null</code> if the original edit is not managed
+     * by this change.
      * </p>
      *
-     * @param original the original edit managed by this text change
+     * @param original the original edit - must not be <code>null</code>
      *
-     * @return the edit executed during preview generation
+     * @return the edit executed during preview generation, or <code>null</code>
+     *  if the original edit is not managed by this change
      * @throws IllegalStateException if <code>setKeepPreviewEdits</code> is
      *  set to <code>false</code> or a preview has not been requested
      */
@@ -398,21 +403,24 @@ public class SourceFileChange
     }
 
     /**
-     * Returns the edits that were executed during preview generation
-     * instead of the given array of original edits. The method requires
+     * Returns the edits that got executed during preview generation
+     * instead of the given array of original edits. This method requires
      * that <code>setKeepPreviewEdits</code> is set to <code>true</code>
      * and that a preview has been requested via <code>getPreviewContent</code>
      * or <code>getPreviewDocument</code> methods.
      * <p>
-     * The method returns an empty array if none of the original edits
-     * is managed by this text change.
+     * This method returns an empty array if none of the original edits
+     * is managed by this change. If some of the original edits are not managed
+     * by this change, the length of the returned array will be less than the
+     * length of the given array; the returned array never contains <code>
+     * null</code> elements.
      * </p>
      *
-     * @param originals an array of original edits managed by this text
-     *  change
+     * @param originals an array of original edits - must not contain <code>
+     *  null</code> elements
      *
      * @return an array of edits containing the corresponding edits
-     *  executed during preview generation
+     *  executed during preview generation (never <code>null</code>)
      * @throws IllegalStateException if <code>setKeepPreviewEdits</code> is
      *  set to <code>false</code> or a preview has not been requested
      */
@@ -435,15 +443,17 @@ public class SourceFileChange
     }
 
     /**
-     * Returns a document containing a preview of the text change. The
-     * preview is computed by executing the all managed text edits. The
-     * method considers the active state of the added text edit change groups.
+     * Returns a document containing a preview of this change. The preview is
+     * computed by executing text edits managed by this change. The method
+     * considers the active state of the added text edit change groups.
      *
-     * @param pm a progress monitor to report progress or <code>null</code>
-     *  if no progress reporting is desired
-     * @return a document containing the preview of the text change
+     * @param pm a progress monitor to report progress, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
+     * @return a document containing the preview of this change
+     *  (never <code>null</code>)
      *
-     * @throws CoreException if the preview can't be created
+     * @throws CoreException if the preview could not be created
      */
     public IDocument getPreviewDocument(IProgressMonitor pm)
         throws CoreException
@@ -457,7 +467,7 @@ public class SourceFileChange
      *
      * @param parent the target of the operation (not <code>null</code>)
      * @param edit the edit to insert (not <code>null</code>)
-     * @throws MalformedTreeException if the edit can't be inserted
+     * @throws MalformedTreeException if the edit could not be inserted
      */
     private static void insert(TextEdit parent, TextEdit edit)
     {

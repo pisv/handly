@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -27,8 +27,9 @@ public class BufferChange
     private SaveMode saveMode = SaveMode.KEEP_SAVED_STATE;
 
     /**
-     * Creates a new buffer change with <code>CREATE_UNDO|UPDATE_REGIONS</code>
-     * style and <code>KEEP_SAVED_STATE</code> save mode.
+     * Creates a new buffer change with the given text edit,
+     * <code>CREATE_UNDO|UPDATE_REGIONS</code> style and
+     * <code>KEEP_SAVED_STATE</code> save mode.
      *
      * @param edit a text edit (not <code>null</code>)
      */
@@ -39,7 +40,7 @@ public class BufferChange
     }
 
     /**
-     * Sets the snapshot on which the change is based.
+     * Sets the snapshot on which this change is based.
      *
      * @param base the snapshot on which the change is based,
      *  or <code>null</code> if unknown
@@ -50,10 +51,10 @@ public class BufferChange
     }
 
     /**
-     * Sets the flags controlling the execution of the change.
+     * Sets the style flags for this change. Valid flags are {@link #NONE}
+     * or any combination of {@link #CREATE_UNDO} and {@link #UPDATE_REGIONS}.
      *
-     * @param style flags controlling the execution of the change. Valid
-     *  flags are: <code>CREATE_UNDO</code> and <code>UPDATE_REGIONS</code>
+     * @param style style flags
      */
     public void setStyle(int style)
     {
@@ -61,10 +62,9 @@ public class BufferChange
     }
 
     /**
-     * Sets the save mode of the change.
+     * Sets the save mode of this change.
      *
-     * @param saveMode indicates whether the buffer is to be saved
-     *  after the change has been successfully applied
+     * @param saveMode a save mode
      */
     public void setSaveMode(SaveMode saveMode)
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,10 +22,10 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.text.edits.ReplaceEdit;
 
 /**
- * A child buffer is created on top of a parent buffer and inherits the parent's
- * contents initially, but is modified independently. Saving the child buffer
- * propagates its contents to the parent buffer and also to the parent buffer's
- * underlying resource.
+ * A child buffer is created on top of a parent {@link IBuffer} and inherits
+ * the parent's contents initially, but is modified independently. Saving the
+ * child buffer propagates its contents to the parent buffer and also to the
+ * parent buffer's underlying resource.
  * <p>
  * An instance of this class is safe for use by multiple threads.
  * </p>
@@ -50,8 +50,8 @@ public final class ChildBuffer
      * </p>
      *
      * @param parent the parent buffer (not <code>null</code>)
-     * @throws IllegalStateException if no snapshot of the parent buffer
-     *  can be taken at this time
+     * @throws IllegalStateException if the child buffer could not be created
+     *  because of an inappropriate state of the parent buffer
      */
     public ChildBuffer(IBuffer parent)
     {

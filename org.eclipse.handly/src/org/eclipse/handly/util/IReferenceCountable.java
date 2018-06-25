@@ -16,8 +16,8 @@ package org.eclipse.handly.util;
  * A common protocol for reference countable objects.
  * <p>
  * A reference countable object may be shared by multiple clients and
- * will be disposed only after it is released by every owner. Clients that
- * don't own the object must not access it. Attempting that may result
+ * will be disposed only after it is released by every owner. Clients which
+ * do not own the object must not access it; attempting that will result
  * in unspecified behavior.
  * </p>
  */
@@ -35,6 +35,7 @@ public interface IReferenceCountable
      * Relinquishes an independent ownership of this object.
      * Each independent ownership of the object must ultimately
      * end with exactly one call to this method.
+     * @see #close()
      */
     void release();
 

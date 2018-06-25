@@ -22,26 +22,16 @@ package org.eclipse.handly.model;
 public interface IElementChangeEvent
 {
     /**
-     * Event type constant (bit mask) indicating an after-the-fact report
-     * of creations, deletions, and modifications to one or more element(s)
-     * as returned by <code>getDeltas()</code>.
-     * <p>
-     * Note: this notification occurs during the corresponding POST_CHANGE
-     * resource change notification.
-     * </p>
+     * Event type constant (bit-mask) indicating a notification that occurs
+     * during the corresponding POST_CHANGE resource change notification.
      */
-    int POST_CHANGE = 1;
+    int POST_CHANGE = 1 << 0;
 
     /**
-     * Event type constant (bit mask) indicating an after-the-fact report
-     * of creations, deletions, and modifications to one or more element(s)
-     * as returned by <code>getDeltas()</code>.
-     * <p>
-     * Note: this notification occurs as a result of a working copy reconcile
-     * operation.
-     * </p>
+     * Event type constant (bit-mask) indicating a notification that occurs
+     * as a result of a working copy reconcile operation.
      */
-    int POST_RECONCILE = 2;
+    int POST_RECONCILE = 1 << 1;
 
     /**
      * Returns the type of event being reported.
@@ -60,7 +50,8 @@ public interface IElementChangeEvent
     int getType();
 
     /**
-     * Returns the top-level deltas describing the change.
+     * Returns the top-level deltas describing the change. Each top-level delta
+     * describes a change in a separate element tree.
      *
      * @return the top-level deltas describing the change (never <code>null</code>,
      *  never empty). Clients <b>must not</b> modify the returned array.

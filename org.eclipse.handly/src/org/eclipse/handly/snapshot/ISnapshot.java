@@ -18,7 +18,7 @@ package org.eclipse.handly.snapshot;
  * but a snapshot may 'expire' if the underlying resource or buffer
  * has changed or ceased to exist since the snapshot inception.
  * <p>
- * Implementations must be thread-safe.
+ * Implementations of this interface must be thread-safe.
  * </p>
  *
  * @noimplement This interface is not intended to be implemented by clients.
@@ -59,7 +59,7 @@ public interface ISnapshot
      *
      * @param other a snapshot to compare or <code>null</code>
      * @return <code>true</code> if the snapshots are equal,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     boolean isEqualTo(ISnapshot other);
 }

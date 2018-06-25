@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,39 +19,12 @@ import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.impl.IElementDeltaImpl;
 
 /**
- * Provides methods for generic access to {@link IElementDelta}s. Given a delta,
- * clients can access the element that has changed, and any children that have
- * changed.
+ * Provides static methods for generic access to {@link IElementDelta}s.
+ * Given a delta, clients can access the element that has changed, and any
+ * children that have changed.
  * <p>
- * Deltas have a different status depending on the kind of change they represent.
- * The list below summarizes each status (as returned by {@link #getKind})
- * and its meaning (see individual constants for a more detailed description):
- * </p>
- * <ul>
- * <li>{@link IElementDeltaConstants#ADDED ADDED}
- * - The element described by the delta has been added.
- * <li>{@link IElementDeltaConstants#REMOVED REMOVED}
- * - The element described by the delta has been removed.
- * <li>{@link IElementDeltaConstants#CHANGED CHANGED}
- * - The element described by the delta has been changed in some way.
- * </ul>
- * <p>
- * Specification of the type of change is provided by {@link #getFlags}.
- * </p>
- * <p>
- * Move operations are indicated by special change flags. If element A is moved
- * to become B, the delta for the change in A will have status <code>REMOVED</code>,
- * with change flag <code>F_MOVED_TO</code>. In this case, {@link #getMovedToElement}
- * on delta A will return the handle for B. The delta for B will have status
- * <code>ADDED</code>, with change flag <code>F_MOVED_FROM</code>, and {@link
- * #getMovedFromElement} on delta B will return the handle for A. (Note,
- * the handle to A in this case represents an element that no longer exists.)
- * Move change flags only describe changes to a single element,
- * they do not imply anything about the parent or children of the element.
- * </p>
- * <p>
- * Note that despite having a dependency on {@link IResourceDelta}
- * and {@link IMarkerDelta} this class can safely be used even when
+ * Note that, despite having a dependency on {@link IResourceDelta}
+ * and {@link IMarkerDelta}, this class can safely be used even when
  * <code>org.eclipse.core.resources</code> bundle is not available.
  * This is based on the "outward impression" of late resolution of
  * symbolic references a JVM must provide according to the JVMS.
@@ -77,12 +50,12 @@ public class ElementDeltas
     }
 
     /**
-     * Returns whether the delta is empty,
-     * i.e. represents an unchanged element.
+     * Returns whether the element delta is empty,
+     * i.e., represents an unchanged element.
      *
      * @param delta not <code>null</code>
-     * @return <code>true</code> if the delta is empty,
-     *  <code>false</code> otherwise
+     * @return <code>true</code> if the element delta is empty,
+     *  and <code>false</code> otherwise
      */
     public static boolean isEmpty(IElementDelta delta)
     {
@@ -90,12 +63,12 @@ public class ElementDeltas
     }
 
     /**
-     * Returns whether the delta is <code>null</code> or empty.
+     * Returns whether the element delta is <code>null</code> or empty.
      * Convenience method.
      *
      * @param delta may be <code>null</code>
-     * @return <code>true</code> if the delta is <code>null</code> or empty,
-     *  <code>false</code> otherwise
+     * @return <code>true</code> if the element delta is <code>null</code>
+     *  or empty, and <code>false</code> otherwise
      */
     public static boolean isNullOrEmpty(IElementDelta delta)
     {
@@ -103,7 +76,7 @@ public class ElementDeltas
     }
 
     /**
-     * Returns the kind of the delta. Normally, one of
+     * Returns the kind of the element delta. Normally, one of
      * {@link IElementDeltaConstants#ADDED ADDED},
      * {@link IElementDeltaConstants#REMOVED REMOVED},
      * or {@link IElementDeltaConstants#CHANGED CHANGED}.
@@ -111,7 +84,7 @@ public class ElementDeltas
      * if, and only if, the delta is empty.
      *
      * @param delta not <code>null</code>
-     * @return the kind of the delta
+     * @return the kind of the element delta
      */
     public static int getKind(IElementDelta delta)
     {
@@ -119,25 +92,35 @@ public class ElementDeltas
     }
 
     /**
-     * Returns the delta's flags that describe how the element has changed.
+     * Returns flags which describe in more detail how an element has changed.
      * Such flags should be tested using the <code>&amp;</code> operator.
      * For example:
      * <pre>
-     * if ((flags &amp; F_CONTENT) != 0)
-     * {
-     *     // indicates a content change
-     * }</pre>
+     *  if ((flags &amp; F_CONTENT) != 0)
+     *  {
+     *      // a content change
+     *  }</pre>
      * <p>
-     * Some flags are meaningful for most models and predefined in
-     * {@link IElementDeltaConstants}, while others are model-specific
-     * and defined by the model implementor. The range for model-specific
+     * Some change flags make sense for most models and are predefined in
+     * {@link IElementDeltaConstants}, while others are model-specific and are
+     * defined by the model implementor. The range for model-specific change
      * flags starts from {@code 1L << 32} and includes the upper 32 bits of the
      * <code>long</code> value. The lower 32 bits are reserved for predefined
-     * generic flags.
+     * generic change flags.
+     * </p>
+     * <p>
+     * Move operations are indicated by special change flags. If an element is
+     * moved from A to B (with no other changes to A or B), then A will have
+     * kind <code>REMOVED</code>, with flag <code>F_MOVED_TO</code>, and {@link
+     * #getMovedToElement(IElementDelta) getMovedToElement} on A will return
+     * the handle for B. B will have kind <code>ADDED</code>, with flag <code>
+     * F_MOVED_FROM</code>, and {@link #getMovedFromElement(IElementDelta)
+     * getMovedFromElement} on B will return the handle for A. (Note that the
+     * handle for A in this case represents an element that no longer exists.)
      * </p>
      *
      * @param delta not <code>null</code>
-     * @return the delta's flags that describe how the element has changed
+     * @return flags that describe how an element has changed
      */
     public static long getFlags(IElementDelta delta)
     {
@@ -145,13 +128,13 @@ public class ElementDeltas
     }
 
     /**
-     * Returns whether the delta designates a structural change,
-     * i.e. a change that affects or might affect the element tree
-     * as opposed to just the element itself.
+     * Returns whether the element delta designates a structural change,
+     * i.e., a change that affects or might affect the element tree
+     * as opposed to only the element itself.
      *
      * @param delta may be <code>null</code>
-     * @return <code>true</code> if the delta designates a structural change,
-     *  <code>false</code> otherwise
+     * @return <code>true</code> if the element delta designates
+     *  a structural change, and <code>false</code> otherwise
      */
     public static boolean isStructuralChange(IElementDelta delta)
     {
@@ -168,8 +151,8 @@ public class ElementDeltas
     }
 
     /**
-     * Finds and returns the delta for the given element in the delta subtree
-     * (subtree root inclusive), or <code>null</code> if no such delta can be
+     * Finds and returns the delta for the given element in a delta subtree
+     * (subtree root included), or <code>null</code> if no such delta can be
      * found.
      * <p>
      * This is a convenience method to avoid manual traversal of the delta tree
@@ -190,10 +173,11 @@ public class ElementDeltas
     }
 
     /**
-     * Returns deltas for the affected (added, removed, or changed) children.
+     * Returns element deltas for all affected (added, removed, or changed)
+     * immediate children.
      *
      * @param delta not <code>null</code>
-     * @return deltas for the affected (added, removed, or changed) children
+     * @return element deltas for all affected immediate children
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
@@ -203,10 +187,10 @@ public class ElementDeltas
     }
 
     /**
-     * Returns deltas for the children that have been added.
+     * Returns element deltas for the immediate children that have been added.
      *
      * @param delta not <code>null</code>
-     * @return deltas for the children that have been added
+     * @return element deltas for the immediate children that have been added
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
@@ -216,10 +200,10 @@ public class ElementDeltas
     }
 
     /**
-     * Returns deltas for the children that have been removed.
+     * Returns element deltas for the immediate children that have been removed.
      *
      * @param delta not <code>null</code>
-     * @return deltas for the children that have been removed
+     * @return element deltas for the immediate children that have been removed
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
@@ -229,10 +213,10 @@ public class ElementDeltas
     }
 
     /**
-     * Returns deltas for the children that have been changed.
+     * Returns element deltas for the immediate children that have been changed.
      *
      * @param delta not <code>null</code>
-     * @return deltas for the children that have been changed
+     * @return element deltas for the immediate children that have been changed
      *  (never <code>null</code>). Clients <b>must not</b> modify
      *  the returned array.
      */
@@ -244,12 +228,14 @@ public class ElementDeltas
     /**
      * Returns an element describing the delta's element before it was moved
      * to its current location, or <code>null</code> if the {@link
-     * IElementDeltaConstants#F_MOVED_FROM F_MOVED_FROM} flag is not set.
+     * IElementDeltaConstants#F_MOVED_FROM F_MOVED_FROM} change flag is not set.
      *
      * @param delta not <code>null</code>
      * @return an element describing the delta's element before it was moved
      *  to its current location, or <code>null</code> if the <code>F_MOVED_FROM</code>
-     *  flag is not set
+     *  change flag is not set
+     * @see #getMovedToElement(IElementDelta)
+     * @see #getFlags(IElementDelta)
      */
     public static IElement getMovedFromElement(IElementDelta delta)
     {
@@ -259,11 +245,13 @@ public class ElementDeltas
     /**
      * Returns an element describing the delta's element in its new location,
      * or <code>null</code> if the {@link IElementDeltaConstants#F_MOVED_TO
-     * F_MOVED_TO} flag is not set.
+     * F_MOVED_TO} change flag is not set.
      *
      * @param delta not <code>null</code>
      * @return an element describing the delta's element in its new location,
-     *  or <code>null</code> if the <code>F_MOVED_TO</code> flag is not set
+     *  or <code>null</code> if the <code>F_MOVED_TO</code> change flag is not set
+     * @see #getMovedFromElement(IElementDelta)
+     * @see #getFlags(IElementDelta)
      */
     public static IElement getMovedToElement(IElementDelta delta)
     {
@@ -272,11 +260,14 @@ public class ElementDeltas
 
     /**
      * Returns the changes to markers on the corresponding resource of the
-     * delta's element. Returns <code>null</code> if none. Note that this is
+     * delta's element.
+     * <p>
+     * Returns <code>null</code> if no markers changed. Note that this is
      * an exception to the general convention of returning an empty array
      * rather than <code>null</code>. This makes the method safe to call
      * even when <code>org.eclipse.core.resources</code> bundle is not
      * available.
+     * </p>
      * <p>
      * Note that marker deltas, like element deltas, are generally only valid
      * for the dynamic scope of change notification. Clients <b>must not</b>
@@ -294,11 +285,13 @@ public class ElementDeltas
 
     /**
      * Returns the changes to children of the delta element's corresponding
-     * resource that cannot be described in terms of element deltas. Returns
-     * <code>null</code> if none. Note that this is an exception to the general
-     * convention of returning an empty array rather than <code>null</code>.
-     * This makes the method safe to call even when <code>org.eclipse.core.resources</code>
-     * bundle is not available.
+     * resource that cannot be described in terms of element deltas.
+     * <p>
+     * Returns <code>null</code> if there were no such changes. Note that this
+     * is an exception to the general convention of returning an empty array
+     * rather than <code>null</code>. This makes the method safe to call even
+     * when <code>org.eclipse.core.resources</code> bundle is not available.
+     * </p>
      * <p>
      * Note that resource deltas, like element deltas, are generally only valid
      * for the dynamic scope of change notification. Clients <b>must not</b>
@@ -315,13 +308,15 @@ public class ElementDeltas
     }
 
     /**
-     * Debugging purposes. Returns a string representation of the delta.
-     * Note that the format options specified in the given context serve as
-     * a hint that implementations may or may not fully support.
+     * Returns a string representation of the element delta in a form suitable
+     * for debugging purposes. Clients can influence the result with format options
+     * specified in the given context; unrecognized options are ignored and an
+     * empty context is permitted.
      * <p>
-     * Implementations are advised to support common hints defined in
+     * Model implementations are encouraged to support common options defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
-     * interpret the format style as follows:
+     * interpret the {@link org.eclipse.handly.util.ToStringOptions#FORMAT_STYLE
+     * FORMAT_STYLE} as follows:
      * </p>
      * <ul>
      * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
@@ -336,7 +331,8 @@ public class ElementDeltas
      *
      * @param delta not <code>null</code>
      * @param context not <code>null</code>
-     * @return a string representation of the delta (never <code>null</code>)
+     * @return a string representation of the element delta
+     *  (never <code>null</code>)
      */
     public static String toString(IElementDelta delta, IContext context)
     {

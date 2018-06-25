@@ -13,14 +13,12 @@
 package org.eclipse.handly.util;
 
 /**
- * Debugging purposes. Common hints for a string representation of an object.
+ * Provides common hints for a textual representation of an object.
  */
 public class ToStringOptions
 {
     /**
-     * Indent policy property. Default value: a default indent policy.
-     *
-     * @see IndentPolicy
+     * Indent policy property. Default value: a default {@link IndentPolicy}.
      */
     public static final Property<IndentPolicy> INDENT_POLICY = Property.get(
         ToStringOptions.class.getName() + ".indentPolicy", //$NON-NLS-1$
@@ -35,8 +33,6 @@ public class ToStringOptions
 
     /**
      * Format style property. Default value: {@link FormatStyle#FULL}.
-     *
-     * @see FormatStyle
      */
     public static final Property<FormatStyle> FORMAT_STYLE = Property.get(
         ToStringOptions.class.getName() + ".formatStyle", //$NON-NLS-1$

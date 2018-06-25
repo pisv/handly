@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -28,28 +28,28 @@ import org.eclipse.core.runtime.OperationCanceledException;
 public interface ICoreTextFileBufferProvider
 {
     /**
-     * Connects the underlying file to this provider. After this method
+     * Connects the underlying file buffer to this provider. After this method
      * has successfully completed it is guaranteed that each invocation of
-     * <code>getBuffer</code> returns the same file buffer until
-     * <code>disconnect</code> is called.
+     * {@link #getBuffer()} returns the same buffer instance until
+     * {@link #disconnect(IProgressMonitor) disconnect} is called.
      *
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @throws CoreException if the file could not be successfully connected
+     * @throws CoreException if the file buffer could not be connected
      * @throws OperationCanceledException if this method is canceled
      */
     void connect(IProgressMonitor monitor) throws CoreException;
 
     /**
-     * Disconnects the underlying file from this provider. After this method has
-     * successfully completed there is no guarantee that <code>getBuffer</code>
-     * will return a valid file buffer.
+     * Disconnects the underlying file buffer from this provider. After this
+     * method has successfully completed there is no guarantee that {@link
+     * #getBuffer()} will return a valid buffer.
      *
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @throws CoreException if the file could not be successfully disconnected
+     * @throws CoreException if the file buffer could not be disconnected
      * @throws OperationCanceledException if this method is canceled
      */
     void disconnect(IProgressMonitor monitor) throws CoreException;

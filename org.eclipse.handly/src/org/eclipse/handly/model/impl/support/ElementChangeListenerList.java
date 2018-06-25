@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -31,21 +31,22 @@ public final class ElementChangeListenerList
 {
     private static final Entry[] EMPTY_ARRAY = new Entry[0];
 
-    private volatile Entry[] entiries = EMPTY_ARRAY;
+    private volatile Entry[] entries = EMPTY_ARRAY;
 
     /**
-     * Adds the given listener for the specified element change events to this
-     * list. Has no effect if the same listener is already registered for
-     * these events.
+     * Adds the given element change listener for the specified event types
+     * to this list. Has no effect if an identical listener is already registered
+     * for these event types.
      * <p>
      * After completion of this method, the given listener will be registered
-     * for exactly the specified events. If they were previously registered
-     * for other events, they will be unregistered.
+     * for exactly the specified event types. If they were previously registered
+     * for other event types, they will be de-registered.
      * </p>
      *
-     * @param listener the listener (not <code>null</code>)
+     * @param listener the listener to add (not <code>null</code>)
      * @param eventMask the bit-wise OR of all event types of interest to the
      *  listener
+     * @see #remove(IElementChangeListener)
      */
     public synchronized void add(IElementChangeListener listener, int eventMask)
     {
@@ -57,50 +58,51 @@ public final class ElementChangeListenerList
             return;
         }
         Entry entry = new Entry(listener, eventMask);
-        final int oldSize = entiries.length;
+        final int oldSize = entries.length;
         // check for duplicates using identity
         for (int i = 0; i < oldSize; ++i)
         {
-            if (entiries[i].listener == listener)
+            if (entries[i].listener == listener)
             {
-                entiries[i] = entry;
+                entries[i] = entry;
                 return;
             }
         }
         // Thread safety: copy on write to protect concurrent readers.
         Entry[] newEntries = new Entry[oldSize + 1];
-        System.arraycopy(entiries, 0, newEntries, 0, oldSize);
+        System.arraycopy(entries, 0, newEntries, 0, oldSize);
         newEntries[oldSize] = entry;
         //atomic assignment
-        this.entiries = newEntries;
+        this.entries = newEntries;
     }
 
     /**
-     * Removes the given listener from this list. Has no effect if the same
-     * listener was not already registered.
+     * Removes the given element change listener from this list. Has no effect
+     * if an identical listener is not registered.
      *
      * @param listener the listener to remove (not <code>null</code>)
+     * @see #add(IElementChangeListener, int)
      */
     public synchronized void remove(IElementChangeListener listener)
     {
         if (listener == null)
             throw new IllegalArgumentException();
-        final int oldSize = entiries.length;
+        final int oldSize = entries.length;
         for (int i = 0; i < oldSize; ++i)
         {
-            if (entiries[i].listener == listener)
+            if (entries[i].listener == listener)
             {
                 if (oldSize == 1)
-                    entiries = EMPTY_ARRAY;
+                    entries = EMPTY_ARRAY;
                 else
                 {
                     // Thread safety: create new array to avoid affecting concurrent readers
                     Entry[] newEntries = new Entry[oldSize - 1];
-                    System.arraycopy(entiries, 0, newEntries, 0, i);
-                    System.arraycopy(entiries, i + 1, newEntries, i, oldSize - i
+                    System.arraycopy(entries, 0, newEntries, 0, i);
+                    System.arraycopy(entries, i + 1, newEntries, i, oldSize - i
                         - 1);
                     //atomic assignment to field
-                    this.entiries = newEntries;
+                    this.entries = newEntries;
                 }
                 return;
             }
@@ -108,21 +110,18 @@ public final class ElementChangeListenerList
     }
 
     /**
-     * Returns the entries of this listener list.
-     * <p>
-     * The resulting array is unaffected by subsequent adds or removes.
-     * If there are no listeners registered, the result is an empty array
-     * singleton instance (no garbage is created). Use this method when
+     * Returns the entries of this listener list. The returned array is
+     * unaffected by subsequent {@link #add(IElementChangeListener, int) adds}
+     * or {@link #remove(IElementChangeListener) removes}. Use this method when
      * notifying listeners, so that any modifications to the listener list
      * during the notification will have no effect on the notification itself.
-     * </p>
      *
      * @return the listener list entries (never <code>null</code>).
      *  Clients <b>must not</b> modify the returned array.
      */
     public Entry[] getEntries()
     {
-        return entiries;
+        return entries;
     }
 
     /**
@@ -133,7 +132,7 @@ public final class ElementChangeListenerList
      */
     public boolean isEmpty()
     {
-        return entiries.length == 0;
+        return entries.length == 0;
     }
 
     /**
@@ -141,11 +140,11 @@ public final class ElementChangeListenerList
      */
     public synchronized void clear()
     {
-        entiries = EMPTY_ARRAY;
+        entries = EMPTY_ARRAY;
     }
 
     /**
-     * An entry of the listener list. Immutable.
+     * An entry of the element change listener list. Immutable.
      */
     public static class Entry
     {
@@ -159,7 +158,7 @@ public final class ElementChangeListenerList
         }
 
         /**
-         * Returns the listener.
+         * Returns the listener held by this entry.
          *
          * @return the listener (never <code>null</code>)
          */

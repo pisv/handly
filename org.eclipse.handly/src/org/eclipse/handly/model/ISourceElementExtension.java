@@ -17,7 +17,7 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
 
 /**
- * Model implementors may choose to extend this interface, which extends
+ * Model implementors may opt to extend this interface, which extends
  * {@link ISourceElement} with a number of default methods.
  * <p>
  * This interface is not intended to be referenced for purposes other than
@@ -40,13 +40,13 @@ public interface ISourceElementExtension
      *
      * @param position a source position (0-based)
      * @param base a snapshot on which the given position is based,
-     *  or <code>null</code> if the snapshot is unknown or doesn't matter
+     *  or <code>null</code> if the snapshot is unknown or does not matter
      * @return the innermost element enclosing the given source position,
      *  or <code>null</code> if none (including this element itself)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      * @throws StaleSnapshotException if snapshot inconsistency is detected,
-     *  i.e. this element's current structure and properties are based on
+     *  i.e., this element's current structure and properties are based on
      *  a different snapshot
      */
     default ISourceElement getSourceElementAt(int position, ISnapshot base)
@@ -58,7 +58,8 @@ public interface ISourceElementExtension
     /**
      * Returns an object holding cached structure and properties for this element.
      *
-     * @return {@link ISourceElementInfo} for this element (never <code>null</code>)
+     * @return an {@link ISourceElementInfo} for this element
+     *  (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */

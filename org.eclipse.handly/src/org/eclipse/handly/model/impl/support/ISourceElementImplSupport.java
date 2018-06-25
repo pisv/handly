@@ -29,7 +29,7 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * This "trait-like" interface provides a skeletal implementation of {@link
+ * A "trait-like" interface providing a skeletal implementation of {@link
  * ISourceElementImpl} to minimize the effort required to implement that
  * interface.
  * <p>
@@ -58,10 +58,11 @@ public interface ISourceElementImplSupport
      * this element as reported by {@link #checkInRange(int, ISourceElementInfo,
      * IContext)}. Otherwise, returns <code>null</code>.
      * </p>
+     *
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      * @throws StaleSnapshotException if snapshot inconsistency is detected,
-     *  i.e. this element's current structure and properties are based on
+     *  i.e., this element's current structure and properties are based on
      *  a different snapshot
      */
     @Override
@@ -78,19 +79,19 @@ public interface ISourceElementImplSupport
     }
 
     /**
-     * Returns the element that is located at the given source position
-     * in this element. The position given is known to be within this element's
-     * source range already, and if no finer grained element is found at the
-     * position, this element is returned.
+     * Returns the smallest element within this element that includes the
+     * given source position, which is known to be within the source range of
+     * this element as recorded by the given element info. If no finer grained
+     * element is found at the position, this element itself is returned.
      *
      * @param position a source position (0-based)
-     * @param info the info object for this element (never <code>null</code>)
-     * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>).
+     * @param info the info object for this element (not <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor (not <code>null</code>).
      *  The caller must not rely on {@link IProgressMonitor#done()}
      *  having been called by the receiver
      * @return the innermost element enclosing the given source position
-     *  (not <code>null</code>)
+     *  (never <code>null</code>)
      * @throws CoreException if an exception occurs while accessing
      *  the element's corresponding resource
      * @throws StaleSnapshotException if snapshot inconsistency is detected
@@ -123,10 +124,10 @@ public interface ISourceElementImplSupport
      * in the source snapshot as recorded by the given element info.
      *
      * @param position a source position (0-based)
-     * @param info the source element info (never <code>null</code>)
-     * @param context the operation context (never <code>null</code>)
+     * @param info the source element info (not <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
      * @return <code>true</code> if the given position is within the element's
-     *  source range; <code>false</code> otherwise
+     *  source range, and <code>false</code> otherwise
      * @throws StaleSnapshotException if snapshot inconsistency is detected
      */
     static boolean checkInRange(int position, ISourceElementInfo info,

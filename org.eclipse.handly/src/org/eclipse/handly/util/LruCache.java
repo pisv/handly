@@ -19,9 +19,9 @@ import java.util.Map;
 /**
  * An LRU cache without a maximum size (i.e., unbounded). Entries are ordered
  * in the cache from most recently accessed to least recently accessed.
- * When a cache entry is accessed via <code>get</code> or <code>put</code>
- * methods, it is moved to the most recently used position in the cache.
- * No other public methods generate entry accesses.
+ * When a cache entry is accessed via {@link #get(Object) get} or {@link
+ * #put(Object, Object) put} methods, it is moved to the most recently used
+ * position in the cache. No other public methods generate entry accesses.
  */
 public class LruCache<K, V>
 {
@@ -29,7 +29,7 @@ public class LruCache<K, V>
     private Entry<K, V> head, tail;
 
     /**
-     * Returns the size of the cache.
+     * Returns the size of this cache.
      *
      * @return the size of the cache
      */
@@ -39,7 +39,7 @@ public class LruCache<K, V>
     }
 
     /**
-     * Returns whether the cache is empty.
+     * Returns whether this cache is empty.
      *
      * @return <code>true</code> if the cache is empty,
      *  and <code>false</code> otherwise
@@ -51,11 +51,11 @@ public class LruCache<K, V>
 
     /**
      * Returns the corresponding value for the given key and moves the
-     * corresponding entry to the most recently used position in the cache.
+     * corresponding entry to the most recently used position in this cache.
      * If the cache contains no value for the key, <code>null</code>
      * is returned.
      *
-     * @param key
+     * @param key the key whose corresponding value is to be returned
      * @return the corresponding value for the given key, or
      *  <code>null</code> if the cache contains no value for the key
      */
@@ -70,10 +70,10 @@ public class LruCache<K, V>
 
     /**
      * Returns the corresponding value for the given key without disturbing
-     * the cache ordering, or <code>null</code> if the cache contains no value
+     * cache ordering, or <code>null</code> if this cache contains no value
      * for the key.
      *
-     * @param key
+     * @param key the key whose corresponding value is to be returned
      * @return the corresponding value for the given key, or
      *  <code>null</code> if the cache contains no value for the key
      */
@@ -87,12 +87,14 @@ public class LruCache<K, V>
 
     /**
      * Caches the given value for the given key and moves the corresponding
-     * entry to the most recently used position in the cache. Returns the
+     * entry to the most recently used position in this cache. Returns the
      * previous value of the updated cache entry, or <code>null</code>
      * if the cache contained no value for the key.
      *
-     * @param key not <code>null</code>
-     * @param value not <code>null</code>
+     * @param key the key for which the given value is to be cached
+     *  (not <code>null</code>)
+     * @param value the value to be cached for the given key
+     *  (not <code>null</code>)
      * @return the previous value of the updated cache entry, or
      *  <code>null</code> if the cache contained no value for the key
      */
@@ -116,9 +118,9 @@ public class LruCache<K, V>
     /**
      * Removes the cache entry for the given key if it is present.
      * Returns the value of the removed cache entry, or <code>null</code>
-     * if the cache contained no value for the key.
+     * if this cache contained no value for the key.
      *
-     * @param key
+     * @param key the key whose entry is to be removed from the cache
      * @return the value of the removed cache entry, or <code>null</code>
      *  if the cache contained no value for the key
      */
@@ -133,7 +135,7 @@ public class LruCache<K, V>
     }
 
     /**
-     * Removes all entries from the cache.
+     * Removes all entries from this cache.
      */
     public void clear()
     {
@@ -142,7 +144,7 @@ public class LruCache<K, V>
     }
 
     /**
-     * Returns a snapshot of the current contents of the cache,
+     * Returns a snapshot of the current contents of this cache,
      * ordered from most recently accessed to least recently accessed.
      *
      * @return a snapshot of the current contents of the cache
@@ -176,7 +178,7 @@ public class LruCache<K, V>
 
     /**
      * Returns the most recently used cache entry, or
-     * <code>null</code> if the cache is empty.
+     * <code>null</code> if this cache is empty.
      *
      * @return the MRU entry, or <code>null</code> if the cache is empty
      */
@@ -187,7 +189,7 @@ public class LruCache<K, V>
 
     /**
      * Returns the least recently used cache entry, or
-     * <code>null</code> if the cache is empty.
+     * <code>null</code> if this cache is empty.
      *
      * @return the LRU entry, or <code>null</code> if the cache is empty
      */
@@ -198,9 +200,9 @@ public class LruCache<K, V>
 
     /**
      * Returns the corresponding entry for the given key, or
-     * <code>null</code> if the cache contains no entry for the key.
+     * <code>null</code> if this cache contains no entry for the key.
      *
-     * @param key
+     * @param key the key whose corresponding entry is to be returned
      * @return the corresponding entry for the given key, or
      *  <code>null</code> if the cache contains no entry for the key
      */
@@ -212,9 +214,9 @@ public class LruCache<K, V>
     /**
      * Creates a new cache entry with the given key and value.
      *
-     * @param key
-     * @param value
-     * @return the created entry
+     * @param key the key of the new entry (never <code>null</code>)
+     * @param value the value of the new entry (never <code>null</code>)
+     * @return the created entry (not <code>null</code>)
      */
     protected Entry<K, V> newEntry(K key, V value)
     {
@@ -222,13 +224,13 @@ public class LruCache<K, V>
     }
 
     /**
-     * Adds a new entry to the cache in response to
+     * Adds a new entry to this cache in response to
      * {@link #put(Object, Object)}.
      * <p>
      * This implementation invokes {@link #doAdd(Entry)}.
      * </p>
      *
-     * @param entry
+     * @param entry the entry to add (never <code>null</code>)
      */
     protected void add(Entry<K, V> entry)
     {
@@ -244,8 +246,8 @@ public class LruCache<K, V>
      * {@link #moveToMru(Entry)}.
      * </p>
      *
-     * @param entry
-     * @param value a new value for the entry
+     * @param entry the entry to update (never <code>null</code>)
+     * @param value a new value for the entry (never <code>null</code>)
      */
     protected void update(Entry<K, V> entry, V value)
     {
@@ -254,13 +256,13 @@ public class LruCache<K, V>
     }
 
     /**
-     * Removes an existing entry from the cache in response to
+     * Removes an existing entry from this cache in response to
      * {@link #remove(Object)}.
      * <p>
      * This implementation invokes {@link #doRemove(Entry)}.
      * </p>
      *
-     * @param entry
+     * @param entry the entry to remove (never <code>null</code>)
      */
     protected void remove(Entry<K, V> entry)
     {
@@ -268,9 +270,9 @@ public class LruCache<K, V>
     }
 
     /**
-     * Actually adds a new entry to the cache.
+     * Actually adds a new entry to this cache.
      *
-     * @param entry
+     * @param entry the entry to add (never <code>null</code>)
      */
     protected void doAdd(Entry<K, V> entry)
     {
@@ -279,9 +281,9 @@ public class LruCache<K, V>
     }
 
     /**
-     * Actually removes an existing entry from the cache.
+     * Actually removes an existing entry from this cache.
      *
-     * @param entry
+     * @param entry the entry to remove (never <code>null</code>)
      */
     protected void doRemove(Entry<K, V> entry)
     {
@@ -292,7 +294,7 @@ public class LruCache<K, V>
     /**
      * Moves an existing cache entry to the MRU position.
      *
-     * @param entry
+     * @param entry the entry to move (never <code>null</code>)
      */
     protected void moveToMru(Entry<K, V> entry)
     {
@@ -326,18 +328,18 @@ public class LruCache<K, V>
     }
 
     /**
-     * Cache entry. Entries are ordered in the cache from
+     * An LRU cache entry. Entries are ordered in the cache from
      * most recently accessed to least recently accessed.
      */
     protected static class Entry<K, V>
     {
         /**
-         * The key of the entry.
+         * The key of this entry (never <code>null</code>).
          */
         public final K key;
 
         /**
-         * The value of the entry.
+         * The value of this entry (never <code>null</code>).
          */
         public V value;
 
@@ -346,8 +348,8 @@ public class LruCache<K, V>
         /**
          * Constructs a cache entry with the given key and value.
          *
-         * @param key
-         * @param value
+         * @param key the key of the entry (never <code>null</code>)
+         * @param value the value of the entry (never <code>null</code>)
          */
         public Entry(K key, V value)
         {

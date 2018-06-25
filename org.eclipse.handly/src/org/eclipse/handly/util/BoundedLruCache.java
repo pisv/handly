@@ -13,13 +13,18 @@
 package org.eclipse.handly.util;
 
 /**
- * An LRU cache with a fixed maximum size (the bound). If an entry is added
- * when the cache is full, this implementation removes the least recently used
- * entry, so that cache {@link #size} is never greater than {@link #maxSize()
- * maxSize}. Subclasses may override the {@link #evict} method to impose a
- * different policy for removing stale entries when new entries are added to
- * the cache, e.g. permit cache overflow by retaining cache entries that cannot
- * currently be evicted.
+ * An LRU cache with a fixed maximum size (the bound).
+ * <p>
+ * If an entry is added when the cache is full, this implementation removes
+ * the least recently used entry, so that cache {@link #size() size} is never
+ * greater than {@link #maxSize() maxSize}.
+ * </p>
+ * <p>
+ * Subclasses may override the {@link #evict(org.eclipse.handly.util.LruCache.Entry)
+ * evict} method to impose a different policy for removing stale entries when
+ * new entries are added to the cache; e.g., permit cache overflow by retaining
+ * cache entries that cannot currently be evicted.
+ * </p>
  */
 public class BoundedLruCache<K, V>
     extends LruCache<K, V>
@@ -40,7 +45,7 @@ public class BoundedLruCache<K, V>
     }
 
     /**
-     * Returns the maximum size of the cache (the bound).
+     * Returns the maximum size of this cache.
      *
      * @return the maximum size of the cache
      */
@@ -50,9 +55,9 @@ public class BoundedLruCache<K, V>
     }
 
     /**
-     * Changes the maximum size of the cache. If the current cache size is
+     * Changes the maximum size of this cache. If the current cache size is
      * greater than the new value for maximum size, attempts to trim the cache
-     * by invoking {@link #makeSpace}.
+     * by invoking {@link #makeSpace(int) makeSpace}.
      *
      * @param maxSize a new value for maximum size of the cache
      * @throws IllegalArgumentException if <code>maxSize &lt; 1</code>
@@ -68,15 +73,14 @@ public class BoundedLruCache<K, V>
     }
 
     /**
-     * Adds a new entry to the cache in response to
-     * {@link #put(Object, Object)}.
+     * Adds a new entry to this cache in response to {@link #put(Object, Object)}.
      * <p>
-     * If the cache is full, this implementation attempts to {@link
-     * #makeSpace} for the new entry. The actual addition is handled by
-     * the super implementation.
+     * If the cache is full, this implementation attempts to {@link #makeSpace(int)
+     * makeSpace} for the new entry. The actual addition is handled by the
+     * super implementation.
      * </p>
      *
-     * @param entry
+     * @param entry the entry to add
      */
     @Override
     protected void add(Entry<K, V> entry)
@@ -88,8 +92,9 @@ public class BoundedLruCache<K, V>
     }
 
     /**
-     * Attempts to {@link #evict} stale entries to make space as requested.
-     * Follows the access order starting from the least recently used entry.
+     * Attempts to {@link #evict(org.eclipse.handly.util.LruCache.Entry) evict}
+     * stale entries to make space as requested. Follows the access order,
+     * starting from the least recently used entry.
      *
      * @param sizeNeeded the requested space (&gt;= 0)
      */
@@ -111,15 +116,16 @@ public class BoundedLruCache<K, V>
     }
 
     /**
-     * Attempts to evict an existing entry from the cache in response to
-     * request to {@link #makeSpace}. It <i>is</i> permitted for this method
-     * to remove other cache entries along with the given entry or, if the
-     * given entry cannot currently be evicted, retain it in the cache.
+     * Attempts to evict an existing entry from this cache in response to
+     * request to {@link #makeSpace(int) makeSpace}. It <i>is</i> permitted
+     * for this method to remove other cache entries along with the given entry
+     * or, if the given entry cannot currently be evicted, retain it in the cache.
      * <p>
-     * This implementation invokes {@link #doRemove(Entry)}.
+     * This implementation invokes {@link
+     * #doRemove(org.eclipse.handly.util.LruCache.Entry) doRemove}.
      * </p>
      *
-     * @param entry
+     * @param entry an existing entry
      */
     protected void evict(Entry<K, V> entry)
     {

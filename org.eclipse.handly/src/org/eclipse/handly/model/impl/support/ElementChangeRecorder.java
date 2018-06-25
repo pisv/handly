@@ -30,11 +30,11 @@ import org.eclipse.handly.model.impl.IElementImplExtension;
 
 /**
  * Records changes in the state of an element tree between two discrete points
- * in time and produces an element delta representing the changes.
+ * in time and produces a delta tree representing the changes.
  * <p>
- * This implementation caches locally the state of the element tree at the time
+ * This implementation caches locally the state of an element tree at the time
  * the recorder begins recording. When {@link #endRecording()} is called,
- * creates a delta over the cached state and the new state.
+ * creates a delta tree over the cached state and the new state.
  * </p>
  * <p>
  * Clients can use this class as it stands or subclass it as circumstances
@@ -56,10 +56,10 @@ public class ElementChangeRecorder
     private boolean recording;
 
     /**
-     * Returns whether this change recorder is recording.
+     * Returns whether this change recorder is currently recording.
      *
-     * @return <code>true</code> if this change recorder is recording
-     *  or <code>false</code> otherwise
+     * @return <code>true</code> if this change recorder is recording,
+     *  and <code>false</code> otherwise
      */
     public final boolean isRecording()
     {
@@ -67,8 +67,8 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Begins recording any changes in the element tree rooted at the given
-     * input element, reporting the changes to a new instance of a default
+     * Begins recording changes in the element tree rooted at the given
+     * input element, reporting the changes to a new instance of default
      * delta builder. The delta builder is rooted at the given input element.
      *
      * @param inputElement not <code>null</code>
@@ -79,10 +79,10 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Begins recording any changes in the element tree rooted at the given
+     * Begins recording changes in the element tree rooted at the given
      * input element, reporting the changes to the given delta builder. The
      * delta builder may be <code>null</code>, in which case a new instance
-     * of a default delta builder rooted at the given input element will be
+     * of default delta builder rooted at the given input element will be
      * used.
      *
      * @param inputElement not <code>null</code>
@@ -95,10 +95,10 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Begins recording any changes in the element tree rooted at the given
+     * Begins recording changes in the element tree rooted at the given
      * input element for the specified maximum depth, reporting the changes
      * to the given delta builder. The delta builder may be <code>null</code>,
-     * in which case a new instance of a default delta builder rooted at the
+     * in which case a new instance of default delta builder rooted at the
      * given input element will be used.
      *
      * @param inputElement not <code>null</code>
@@ -169,9 +169,9 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Returns the current max depth.
+     * Returns the current maximum depth.
      *
-     * @return the current max depth
+     * @return the current maximum depth
      */
     protected final int getMaxDepth()
     {
@@ -179,12 +179,18 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Returns a new instance of a default delta builder rooted at the given
-     * element.
+     * Returns a new instance of default delta builder rooted at the given
+     * element. This method is called internally; it is not intended to be
+     * invoked by clients.
+     * <p>
+     * This implementation returns a new instance of {@link ElementDelta.Builder}.
+     * The root delta is created via the {@link ElementDelta.Factory} registered
+     * in the element's model context. If no delta factory is registered,
+     * a new instance of {@link ElementDelta} is used.
+     * </p>
      *
      * @param element never <code>null</code>
-     * @return a new instance of a default delta builder
-     *  (never <code>null</code>)
+     * @return a new instance of default delta builder (never <code>null</code>)
      */
     protected IElementDeltaBuilder newDeltaBuilder(IElement element)
     {
@@ -200,7 +206,7 @@ public class ElementChangeRecorder
 
     /**
      * Remembers the given body for the given element. This method is called
-     * by the framework and is not intended to be invoked by clients. Subclasses
+     * internally; it is not intended to be invoked by clients. Subclasses
      * may extend this method.
      *
      * @param body never <code>null</code>
@@ -212,13 +218,18 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Finds whether the given element has had a content change.
+     * Finds whether the given element has had a content change. This method is
+     * called internally; it is not intended to be invoked by clients.
      * <p>
      * Implementations can compare the given bodies (excepting children)
-     * and if there are differences, insert an appropriate change delta
+     * and, if there are differences, insert an appropriate change delta
      * (such as <code>F_CONTENT</code>) for the given element into the delta
      * tree being built. Implementations should not take the element's
      * children into account.
+     * </p>
+     * <p>
+     * This implementation invokes <code>
+     * ((Body)newBody).findContentChange((Body)oldBody, element, getDeltaBuilder())</code>.
      * </p>
      *
      * @param oldBody the old version of the element's body (never <code>null</code>)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,9 +13,7 @@
 package org.eclipse.handly.model;
 
 /**
- * Represents a source file.
- *
- * @see ISourceElement
+ * A marker interface for elements that represent a source file.
  */
 public interface ISourceFile
     extends ISourceElement

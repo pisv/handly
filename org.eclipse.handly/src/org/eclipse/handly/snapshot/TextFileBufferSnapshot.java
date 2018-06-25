@@ -25,7 +25,7 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 
 /**
- * A snapshot of a text file buffer. Thread-safe.
+ * A snapshot of an {@link ITextFileBuffer}. Thread-safe.
  */
 public final class TextFileBufferSnapshot
     extends Snapshot
@@ -38,7 +38,7 @@ public final class TextFileBufferSnapshot
     private ISnapshot delegate;
 
     /**
-     * Takes a snapshot of the given text file buffer.
+     * Constructs a new snapshot of the given text file buffer.
      *
      * @param buffer a buffer connected through the given buffer manager -
      *  must not be <code>null</code> and must be connected at least

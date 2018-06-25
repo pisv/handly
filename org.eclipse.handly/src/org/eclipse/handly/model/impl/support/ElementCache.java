@@ -26,9 +26,9 @@ import org.eclipse.handly.model.impl.IElementImplExtension;
 import org.eclipse.handly.util.BoundedLruCache;
 
 /**
- * A bounded LRU cache of handle/body relationships that is intended to be
- * used in advanced implementations of {@link IBodyCache}. The cache is not
- * strictly bounded, but can overflow if an entry is added when the cache
+ * A bounded LRU cache of element handle/body relationships that is intended
+ * to be used in advanced implementations of {@link IBodyCache}. The cache is
+ * not strictly bounded, but can overflow if an entry is added when the cache
  * is full but the current state of elements in the cache does not permit
  * {@link IElementImplExtension#close_(org.eclipse.handly.context.IContext)
  * closing}.
@@ -44,8 +44,8 @@ public class ElementCache
     private IElement maxSizeParent;
 
     /**
-     * Constructs an element cache that is initially empty
-     * with initial {@link #getLoadFactor() load factor} of one third.
+     * Constructs an empty <code>ElementCache</code> with the given maximum size
+     * and the default {@link #getLoadFactor() load factor} of one third.
      *
      * @param maxSize the maximum size of the cache (the bound)
      * @throws IllegalArgumentException if <code>maxSize &lt; 1</code>
@@ -69,7 +69,7 @@ public class ElementCache
     }
 
     /**
-     * Returns the load factor of the cache. The load factor determines
+     * Returns the load factor of this cache. The load factor determines
      * how much space is reclaimed when the cache overflows.
      *
      * @return the load factor of the cache
@@ -80,7 +80,7 @@ public class ElementCache
     }
 
     /**
-     * Changes the load factor for the cache. The load factor determines
+     * Changes the load factor for this cache. The load factor determines
      * how much space is reclaimed when the cache overflows.
      *
      * @param loadFactor a new value for load factor
@@ -96,7 +96,7 @@ public class ElementCache
 
     /**
      * Ensures that there is enough room for adding the given number of child
-     * elements. If the maximum size of the cache must be increased, record
+     * elements. If the maximum size of the cache must be increased, records
      * the parent element that needed the new maximum size.
      *
      * @param childCount the number of child elements (&gt;= 0)
@@ -121,10 +121,10 @@ public class ElementCache
 
     /**
      * If the given parent element was the one that increased the maximum size
-     * of the cache in {@link #ensureMaxSize}, reset the maximum size to the
-     * given value.
+     * of this cache in {@link #ensureMaxSize(int, IElement) ensureMaxSize},
+     * resets the maximum size of the cache to the given value.
      *
-     * @param maxSize &gt; 0
+     * @param maxSize a new value for maximum size of the cache (&gt; 0)
      * @param parent the parent element (not <code>null</code>)
      */
     public void resetMaxSize(int maxSize, IElement parent)
@@ -166,10 +166,14 @@ public class ElementCache
     }
 
     /**
-     * Attempts to evict an existing entry from the cache by invoking {@link
-     * IElementImplExtension#close_(org.eclipse.handly.context.IContext)} with
-     * {@link org.eclipse.handly.model.impl.IElementImplExtension.CloseHint#CACHE_OVERFLOW
-     * CACHE_OVERFLOW} as {@link IElementImplExtension#CLOSE_HINT CLOSE_HINT}.
+     * Attempts to evict an existing entry from this cache in response to
+     * request to {@link #makeSpace(int) makeSpace}. It <i>is</i> permitted
+     * for this method to remove other cache entries along with the given entry
+     * or, if the given entry cannot currently be evicted, retain it in the cache.
+     * <p>
+     * This implementation invokes <code>
+     * ((IElementImplExtension)entry.key).close_(of(CLOSE_HINT, CACHE_OVERFLOW))</code>.
+     * </p>
      */
     @Override
     protected void evict(Entry<IElement, Object> entry)

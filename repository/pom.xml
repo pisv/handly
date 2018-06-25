@@ -147,6 +147,7 @@
                 <encoding>UTF-8</encoding>
                 <ignoreError>false</ignoreError>
                 <includes>
+                  <include>org.eclipse.handly</include>
                   <include>org.eclipse.handly.*</include>
                 </includes>
                 <excludes>

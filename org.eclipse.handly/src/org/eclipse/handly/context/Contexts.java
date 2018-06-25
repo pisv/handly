@@ -20,9 +20,8 @@ import java.util.Objects;
 import org.eclipse.handly.util.Property;
 
 /**
- * Static utility methods for creating and working with contexts.
- *
- * @see IContext
+ * Provides static utility methods for creating and operating on
+ * {@link IContext}s.
  */
 public class Contexts
 {

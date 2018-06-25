@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -21,9 +21,10 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 
 /**
- * A context that is based on a Guice injector.
+ * Implementation of {@link IContext} backed by a Guice injector.
  * <p>
- * A property object is translated into an injection key as
+ * A {@link Property property} is translated into an injection {@link Key}
+ * in the following way:
  * </p>
  * <pre>{@code Key.get(property.getType(), Names.named(property.getName()))}</pre>
  */
@@ -33,7 +34,7 @@ public final class GuiceContext
     private final Injector injector;
 
     /**
-     * Constructs a context atop the given Guice injector.
+     * Constructs a context backed by the given Guice injector.
      *
      * @param injector a Guice injector (not <code>null</code>)
      */

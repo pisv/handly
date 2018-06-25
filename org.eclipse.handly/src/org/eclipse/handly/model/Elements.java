@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -47,14 +47,14 @@ import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * Provides methods for generic access to {@link IElement}s.
+ * Provides static methods for generic access to {@link IElement}s.
  * <p>
  * Methods annotated as "handle-only" do not require underlying elements
  * to exist. Methods that require underlying elements to exist throw a
  * <code>CoreException</code> when the underlying element is missing.
  * </p>
  * <p>
- * Note that despite having a dependency on {@link IResource} and {@link IFile}
+ * Note that, despite having a dependency on {@link IResource} and {@link IFile},
  * this class can safely be used even when <code>org.eclipse.core.resources</code>
  * bundle is not available. This is based on the "outward impression" of late
  * resolution of symbolic references a JVM must provide according to the JVMS.
@@ -630,14 +630,16 @@ public class Elements
     }
 
     /**
-     * Returns whether the element is the same as or an ancestor of the
-     * other element. This is a handle-only method.
+     * Returns whether both elements belong to the same parent chain and the
+     * first element is equal to or is an ancestor of the other element.
+     * This is a handle-only method.
      *
      * @param element not <code>null</code>
      * @param other may be <code>null</code>, in which case <code>false</code>
      *  will be returned
-     * @return <code>true</code> if the element is the same as or an ancestor
-     *  of the other element, and <code>false</code> otherwise
+     * @return <code>true</code> if both elements belong to the same parent
+     *  chain and the first element is equal to or an ancestor of the other
+     *  element, and <code>false</code> otherwise
      */
     public static boolean isAncestorOf(IElement element, IElement other)
     {
@@ -652,11 +654,12 @@ public class Elements
     }
 
     /**
-     * Removes descendants from the given collection of elements. In other words,
+     * Removes descendants from the given collection of elements; in other words,
      * removes those elements for which an ancestor is also present in the given
      * collection. This is a handle-only method.
      *
-     * @param elements not <code>null</code>, must not contain nulls
+     * @param elements not <code>null</code>, must not contain <code>null</code>
+     *  elements
      */
     public static void removeDescendants(
         Collection<? extends IElement> elements)
@@ -730,14 +733,14 @@ public class Elements
      * This is a handle-only method.
      * <p>
      * In the most general case, equal elements may belong to different parent
-     * chains. E.g. in JDT, equal JarPackageFragmentRoots may belong to different
-     * Java projects.
+     * chains. For example, in JDT, equal JarPackageFragmentRoots may belong to
+     * different Java projects.
      * </p>
      *
      * @param element not <code>null</code>
      * @param other may be <code>null</code>
      * @return <code>true</code> if the elements are equal and belong to the same
-     *  parent chain, <code>false</code> otherwise
+     *  parent chain, and <code>false</code> otherwise
      */
     public static boolean equalsAndSameParentChain(IElement element,
         IElement other)
@@ -758,13 +761,13 @@ public class Elements
 
     /**
      * Returns whether the element belongs to the given model. More formally,
-     * returns <code>true</code> iff <code>model.equals(getModel(element))</code>.
+     * returns <code>true</code> if, and only if, <code>model.equals(getModel(element))</code>.
      * This is a handle-only method.
      *
      * @param element not <code>null</code>
      * @param model not <code>null</code>
-     * @return <code>true</code> if the element belongs to the given model;
-     *  <code>false</code> otherwise
+     * @return <code>true</code> if the element belongs to the given model,
+     *  and <code>false</code> otherwise
      */
     public static boolean isOfModel(IElement element, IModel model)
     {
@@ -785,12 +788,12 @@ public class Elements
     }
 
     /**
-     * Returns the API level supported by the element's model; one of the
-     * level constants declared in {@link org.eclipse.handly.ApiLevel}.
-     * This is a handle-only method.
+     * Returns the Handly API level supported by the element's model;
+     * one of the level constants declared in {@link org.eclipse.handly.ApiLevel
+     * ApiLevel}. This is a handle-only method.
      *
      * @param element not <code>null</code>
-     * @return the API level supported by the element's model
+     * @return the Handly API level supported by the element's model
      */
     public static int getModelApiLevel(IElement element)
     {
@@ -798,10 +801,10 @@ public class Elements
     }
 
     /**
-     * Returns a string representation of the element handle. The format of
-     * the string is not specified; however, the representation is stable across
-     * workbench sessions, and can be used to recreate the handle via the model's
-     * {@link IElementHandleFactory}. This is a handle-only method.
+     * Returns a string representation of the element handle that can be used
+     * to recreate the handle via the model's {@link IElementHandleFactory}.
+     * The format of the string is not specified, but the representation is
+     * stable across workbench sessions. This is a handle-only method.
      *
      * @param element not <code>null</code>
      * @return the handle memento for the element, or <code>null</code>
@@ -839,7 +842,8 @@ public class Elements
      * existing element, the element will be added instead of the resource.
      * This is a handle-only method.
      *
-     * @param objects not <code>null</code>, may contain nulls
+     * @param objects not <code>null</code>, may contain <code>null</code>
+     *  elements
      * @param elements not <code>null</code>
      * @param model may be <code>null</code>. If not <code>null</code>, only
      *  elements belonging to the model will be added to the <code>elements</code>
@@ -908,7 +912,7 @@ public class Elements
 
     /**
      * Returns the immediate children of the element. Unless otherwise specified
-     * by the implementing element, the children are in no particular order.
+     * by the parent element, the children are in no particular order.
      *
      * @param element not <code>null</code>
      * @return the immediate children of the element (never <code>null</code>).
@@ -923,7 +927,7 @@ public class Elements
 
     /**
      * Returns the immediate children of the element. Unless otherwise specified
-     * by the implementing element, the children are in no particular order.
+     * by the parent element, the children are in no particular order.
      *
      * @param element not <code>null</code>
      * @param context the operation context (not <code>null</code>)
@@ -943,7 +947,7 @@ public class Elements
 
     /**
      * Returns the immediate children of the element that have the given type.
-     * Unless otherwise specified by the implementing element, the children are
+     * Unless otherwise specified by the parent element, the children are
      * in no particular order.
      *
      * @param element not <code>null</code>
@@ -962,7 +966,7 @@ public class Elements
 
     /**
      * Returns the immediate children of the element that have the given type.
-     * Unless otherwise specified by the implementing element, the children are
+     * Unless otherwise specified by the parent element, the children are
      * in no particular order.
      *
      * @param element not <code>null</code>
@@ -986,13 +990,14 @@ public class Elements
 
     /**
      * Returns a string representation of the element in a form suitable for
-     * debugging purposes. Clients can influence the result with format options
+     * debugging purposes. Clients can influence the result with options
      * specified in the given context; unrecognized options are ignored and
      * an empty context is permitted.
      * <p>
-     * Implementations are encouraged to support common options defined in
+     * Model implementations are encouraged to support common options defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
-     * interpret the format style as follows:
+     * interpret the {@link org.eclipse.handly.util.ToStringOptions#FORMAT_STYLE
+     * FORMAT_STYLE} as follows:
      * </p>
      * <ul>
      * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
@@ -1016,16 +1021,17 @@ public class Elements
 
     /**
      * Returns a string representation of the element in a form suitable for
-     * displaying to the user, e.g. in message dialogs. Clients can influence
-     * the result with format options specified in the given context;
-     * unrecognized options are ignored and an empty context is permitted.
+     * displaying to the user, e.g., in message dialogs. Clients can influence
+     * the result with options specified in the given context; unrecognized
+     * options are ignored and an empty context is permitted.
      * <p>
-     * Implementations are encouraged to support common options defined in
+     * Model implementations are encouraged to support common options defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and may
-     * interpret the format style as they see fit in a way that is specific to
-     * the model. No hard rules apply, but usually the string representation
-     * does not list the element's children regardless of the format style, and
-     * a {@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
+     * interpret the {@link org.eclipse.handly.util.ToStringOptions#FORMAT_STYLE
+     * FORMAT_STYLE} as they see fit in a way that is specific to the model.
+     * No hard rules apply, but usually the string representation does not list
+     * the element's children regardless of the format style, and a {@link
+     * org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
      * representation fully identifies the element within the model.
      * </p>
      *
@@ -1047,13 +1053,13 @@ public class Elements
      * @param element a source element (not <code>null</code>)
      * @param position a source position (0-based)
      * @param base a snapshot on which the given position is based,
-     *  or <code>null</code> if the snapshot is unknown or doesn't matter
+     *  or <code>null</code> if the snapshot is unknown or does not matter
      * @return the innermost element enclosing the given source position,
      *  or <code>null</code> if none (including the given element itself)
      * @throws CoreException if the given element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      * @throws StaleSnapshotException if snapshot inconsistency is detected,
-     *  i.e. the given element's current structure and properties are based on
+     *  i.e., the given element's current structure and properties are based on
      *  a different snapshot
      */
     public static ISourceElement getSourceElementAt(ISourceElement element,
@@ -1069,13 +1075,13 @@ public class Elements
      * of the given element. If no finer grained element is found at the
      * position, the given element itself is returned.
      * <p>
-     * Implementations are encouraged to support the following standard options,
-     * which may be specified in the given context:
+     * Model implementations are encouraged to support the following standard
+     * options, which may be specified in the given context:
      * </p>
      * <ul>
      * <li>
      * {@link #BASE_SNAPSHOT} - A snapshot on which the given position is based,
-     * or <code>null</code> if the snapshot is unknown or doesn't matter.
+     * or <code>null</code> if the snapshot is unknown or does not matter.
      * </li>
      * </ul>
      *
@@ -1090,7 +1096,7 @@ public class Elements
      * @throws CoreException if the given element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      * @throws StaleSnapshotException if snapshot inconsistency is detected,
-     *  i.e. the given element's current structure and properties are based on
+     *  i.e., the given element's current structure and properties are based on
      *  a different snapshot
      */
     public static ISourceElement getSourceElementAt(ISourceElement element,
@@ -1103,6 +1109,7 @@ public class Elements
 
     /**
      * Specifies a base snapshot.
+     *
      * @see #getSourceElementAt(ISourceElement, int, IContext, IProgressMonitor)
      */
     public static final Property<ISnapshot> BASE_SNAPSHOT = Property.get(
@@ -1119,7 +1126,7 @@ public class Elements
      * @param element a source element (not <code>null</code>)
      * @param position a source position (0-based)
      * @param base a snapshot on which the given position is based,
-     *  or <code>null</code> if the snapshot is unknown or doesn't matter
+     *  or <code>null</code> if the snapshot is unknown or does not matter
      * @return the innermost element enclosing the given source position,
      *  or <code>null</code> if none (including the given element itself)
      */
@@ -1149,7 +1156,7 @@ public class Elements
      * source element.
      *
      * @param element not <code>null</code>
-     * @return {@link ISourceElementInfo} for the element
+     * @return an {@link ISourceElementInfo} for the element
      *  (never <code>null</code>)
      * @throws CoreException if the element does not exist or if an
      *  exception occurs while accessing its corresponding resource
@@ -1169,7 +1176,7 @@ public class Elements
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @return {@link ISourceElementInfo} for the element
+     * @return an {@link ISourceElementInfo} for the element
      *  (never <code>null</code>)
      * @throws CoreException if the element does not exist or if an
      *  exception occurs while accessing its corresponding resource
@@ -1188,7 +1195,7 @@ public class Elements
      * is available.
      *
      * @param element not <code>null</code>
-     * @return {@link ISourceElementInfo} for the element
+     * @return an {@link ISourceElementInfo} for the element
      *  (never <code>null</code>)
      */
     public static ISourceElementInfo getSourceElementInfo2(
@@ -1210,13 +1217,13 @@ public class Elements
 
     /**
      * A 'null object' indicating that no info is available for source element,
-     * e.g. because the element does not exist.
+     * e.g., because the element does not exist.
      * <p>
      * The instance methods return either <code>null</code> (if allowed
-     * by the method contract) or an appropriate 'null object' (such as
+     * by method contract) or an appropriate 'null object' (such as
      * a zero-length array).
      * </p>
-     * @see ISourceElementInfo
+     *
      * @see #getSourceElementInfo2(ISourceElement)
      */
     public static final ISourceElementInfo NO_SOURCE_ELEMENT_INFO =
@@ -1277,7 +1284,7 @@ public class Elements
     /**
      * Ensures that, if the given element is contained in a source file,
      * the source file is reconciled. Note that the call may result in
-     * change of existence status for the given element: if the element
+     * the change of existence status for the given element: if the element
      * did not exist before, it may be brought into existence; conversely,
      * if the element existed, it may cease to exist.
      *
@@ -1286,7 +1293,7 @@ public class Elements
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return <code>true</code> if the call completed successfully,
-     *  <code>false</code> in case of a failure
+     *  and <code>false</code> in case of a failure
      * @throws OperationCanceledException if this method is canceled
      */
     public static boolean ensureReconciled(ISourceElement element,
@@ -1331,7 +1338,7 @@ public class Elements
      *
      * @param sourceFile not <code>null</code>
      * @return <code>true</code> if the source file is a working copy,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     public static boolean isWorkingCopy(ISourceFile sourceFile)
     {
@@ -1345,7 +1352,7 @@ public class Elements
      *
      * @param sourceFile not <code>null</code>
      * @return <code>true</code> if the source file needs reconciling,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     public static boolean needsReconciling(ISourceFile sourceFile)
     {
@@ -1353,16 +1360,15 @@ public class Elements
     }
 
     /**
-     * Makes the working copy consistent with its buffer by updating
-     * the element's structure and properties as necessary. Does nothing
-     * if the source file is not in working copy mode or if the working copy
-     * is already consistent with its buffer.
+     * Reconciles the source file. Does nothing if the source file is not
+     * in working copy mode or if its buffer has not been modified since
+     * the last time it was reconciled.
      *
      * @param sourceFile not <code>null</code>
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @throws CoreException if the working copy cannot be reconciled
+     * @throws CoreException if the working copy could not be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
     public static void reconcile(ISourceFile sourceFile,
@@ -1372,17 +1378,17 @@ public class Elements
     }
 
     /**
-     * Makes the working copy consistent with its buffer by updating
-     * the element's structure and properties as necessary. Does nothing
-     * if the source file is not in working copy mode.
+     * Reconciles the source file. Does nothing if the source file is not
+     * in working copy mode.
      * <p>
-     * Implementations are encouraged to support the following standard options,
-     * which may be specified in the given context:
+     * Model implementations are encouraged to support the following standard
+     * options, which may be specified in the given context:
      * </p>
      * <ul>
      * <li>
      * {@link #FORCE_RECONCILING} - Indicates whether reconciling has to be
-     *  performed even if the working copy is already consistent with its buffer.
+     *  performed even if the working copy buffer has not been modified since
+     *  the last time the working copy was reconciled.
      * </li>
      * </ul>
      *
@@ -1391,7 +1397,7 @@ public class Elements
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @throws CoreException if the working copy cannot be reconciled
+     * @throws CoreException if the working copy could not be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
     public static void reconcile(ISourceFile sourceFile, IContext context,
@@ -1402,8 +1408,9 @@ public class Elements
 
     /**
      * Indicates whether reconciling has to be performed even if
-     * the working copy is already consistent with its buffer.
-     * Default value: <code>false</code>.
+     * the working copy buffer has not been modified since the last time
+     * the working copy was reconciled. Default value: <code>false</code>.
+     *
      * @see #reconcile(ISourceFile, IContext, IProgressMonitor)
      */
     public static final Property<Boolean> FORCE_RECONCILING = Property.get(
@@ -1418,7 +1425,7 @@ public class Elements
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for releasing it when finished. The buffer will be
      * disposed only after it is released by every owner. The buffer must not
-     * be accessed by clients which don't own it.
+     * be accessed by clients which do not own it.
      * </p>
      * <p>
      * A new object may be returned, even for the same underlying buffer,
@@ -1429,9 +1436,8 @@ public class Elements
      *
      * @param sourceFile not <code>null</code>
      * @return the buffer opened for the source file (never <code>null</code>)
-     * @throws CoreException if the source file does not exist
-     *  or if its contents cannot be accessed
-     * @see IBuffer
+     * @throws CoreException if the source file does not exist or if an
+     *  exception occurs while accessing its corresponding resource
      */
     public static IBuffer getBuffer(ISourceFile sourceFile) throws CoreException
     {
@@ -1446,7 +1452,7 @@ public class Elements
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for releasing it when finished. The buffer will be
      * disposed only after it is released by every owner. The buffer must not
-     * be accessed by clients which don't own it.
+     * be accessed by clients which do not own it.
      * </p>
      * <p>
      * A new object may be returned, even for the same underlying buffer,
@@ -1455,8 +1461,8 @@ public class Elements
      * change over the lifetime of a working copy.
      * </p>
      * <p>
-     * Implementations are encouraged to support the following standard options,
-     * which may be specified in the given context:
+     * Model implementations are encouraged to support the following standard
+     * options, which may be specified in the given context:
      * </p>
      * <ul>
      * <li>
@@ -1473,10 +1479,9 @@ public class Elements
      * @return the buffer opened for the source file. May return <code>null</code>
      *  if <code>CREATE_BUFFER == false</code> and there is no buffer currently
      *  opened for the source file
-     * @throws CoreException if the source file does not exist
-     *  or if its contents cannot be accessed
+     * @throws CoreException if the source file does not exist or if an
+     *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled
-     * @see IBuffer
      */
     public static IBuffer getBuffer(ISourceFile sourceFile, IContext context,
         IProgressMonitor monitor) throws CoreException
@@ -1487,6 +1492,7 @@ public class Elements
     /**
      * Indicates whether a new buffer should be created if none already exists
      * for the source file. Default value: <code>true</code>.
+     *
      * @see #getBuffer(ISourceFile, IContext, IProgressMonitor)
      */
     public static final Property<Boolean> CREATE_BUFFER = Property.get(

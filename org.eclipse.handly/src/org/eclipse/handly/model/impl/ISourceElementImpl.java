@@ -40,7 +40,7 @@ public interface ISourceElementImpl
      * <li>
      * {@link org.eclipse.handly.model.Elements#BASE_SNAPSHOT BASE_SNAPSHOT} -
      * A snapshot on which the given position is based, or <code>null</code>
-     * if the snapshot is unknown or doesn't matter.
+     * if the snapshot is unknown or does not matter.
      * </li>
      * </ul>
      *
@@ -54,7 +54,7 @@ public interface ISourceElementImpl
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      * @throws StaleSnapshotException if snapshot inconsistency is detected,
-     *  i.e. this element's current structure and properties are based on
+     *  i.e., this element's current structure and properties are based on
      *  a different snapshot
      */
     ISourceElement getSourceElementAt_(int position, IContext context,
@@ -67,7 +67,8 @@ public interface ISourceElementImpl
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @return {@link ISourceElementInfo} for this element (never <code>null</code>)
+     * @return an {@link ISourceElementInfo} for this element
+     *  (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */

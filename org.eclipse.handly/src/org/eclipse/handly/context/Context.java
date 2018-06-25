@@ -57,7 +57,7 @@ public final class Context
     /**
      * Returns a binding builder for the given property.
      *
-     * @param property not <code>null</code>
+     * @param property the property to bind (not <code>null</code>)
      * @return a binding builder (never <code>null</code>)
      */
     public <T> BindingBuilder<T> bind(Property<T> property)
@@ -68,7 +68,7 @@ public final class Context
     /**
      * Returns a binding builder for the given class.
      *
-     * @param clazz not <code>null</code>
+     * @param clazz the class to bind (not <code>null</code>)
      * @return a binding builder (never <code>null</code>)
      */
     public <T> BindingBuilder<T> bind(Class<T> clazz)

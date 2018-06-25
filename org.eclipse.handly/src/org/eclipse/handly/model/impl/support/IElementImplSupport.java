@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -43,10 +43,10 @@ import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
- * This "trait-like" interface provides a skeletal implementation of {@link
+ * A "trait-like" interface providing a skeletal implementation of {@link
  * IElementImplExtension} to minimize the effort required to implement that
- * interface. Clients may "mix in" this interface directly or extend the class
- * {@link Element}.
+ * interface. Clients may implement ("mix in") this interface directly or
+ * extend {@link Element}.
  * <p>
  * In general, the members first defined in this interface are not intended
  * to be referenced outside the subtype hierarchy.
@@ -62,13 +62,13 @@ public interface IElementImplSupport
      * an interface, but clients can implement <code>hashCode</code> by
      * delegating to this default method.
      * <p>
-     * By default, the hash code for an element is a combination of its
-     * name and parent's hash code. This method is specialized in {@link
+     * By default, the hash code for an element is a combination of hash codes
+     * for its name and its parent element. This method is specialized in {@link
      * ISourceConstructImplSupport} to include the element's occurrence count,
-     * and also in {@link ISourceFileImplSupport} to return hash code of the
-     * underlying <code>IFile</code> if the source file has an underlying file
-     * in the workspace. This method is not intended to be replaced by clients;
-     * if necessary, clients should override <code>hashCode</code> directly.
+     * and in {@link ISourceFileImplSupport} to return the hash code for the
+     * underlying <code>IFile</code>, if there is one. This method is not intended
+     * to be replaced by clients; if necessary, clients should override <code>
+     * hashCode</code> directly.
      * </p>
      *
      * @return a hash code value
@@ -85,7 +85,7 @@ public interface IElementImplSupport
      * <p>
      * By default, two elements that implement this interface are equal if they
      * are identical or if they {@link #canEqual_(Object) can equal} each other
-     * and both have equal parents and names. This method is specialized in
+     * and both have equal names and parents. This method is specialized in
      * {@link ISourceConstructImplSupport} and {@link ISourceFileImplSupport}
      * to also compare occurrence counts and underlying <code>IFile</code>s
      * respectively. This method is not intended to be replaced by clients;
@@ -93,8 +93,8 @@ public interface IElementImplSupport
      * <p>
      *
      * @param obj the object with which to compare
-     * @return <code>true</code> if this object is the same as the obj argument,
-     *  <code>false</code> otherwise
+     * @return <code>true</code> if this element is equal to the given object,
+     *  and <code>false</code> otherwise
      */
     default boolean defaultEquals_(Object obj)
     {
@@ -114,11 +114,11 @@ public interface IElementImplSupport
      * returns <code>false</code>, the <code>equals</code> method must also
      * return <code>false</code> for the same argument object.
      * <p>
-     * This implementation compares run-time classes of the objects; as such,
-     * it doesn't allow creating a subclass whose instances can equal superclass
-     * instances. Clients may provide their own implementation for this method
-     * and use a less discriminating technique such as <code>instanceof</code>
-     * check.
+     * This implementation compares run-time classes of the objects for equality;
+     * as such, it does not allow creating a subclass whose instances can equal
+     * superclass instances. Clients may provide their own implementation for
+     * this method and use a less discriminating technique such as <code>
+     * instanceof</code> check.
      * </p>
      * <p>
      * For details, see <a href="http://www.artima.com/pins1ed/object-equality.html">
@@ -126,8 +126,8 @@ public interface IElementImplSupport
      * <p>
      *
      * @param obj not <code>null</code>
-     * @return <code>true</code> if this element can equal the given object;
-     *  <code>false</code> otherwise
+     * @return <code>true</code> if this element can equal the given object,
+     *  and <code>false</code> otherwise
      */
     default boolean canEqual_(Object obj)
     {
@@ -190,22 +190,22 @@ public interface IElementImplSupport
     }
 
     /**
-     * Validates if the element represented by the handle may be "opened",
-     * i.e. begin existence in the model. For example, a necessary condition
-     * for element existence might be that the underlying resource exists.
+     * Validates if this element may be "opened", i.e., begin existence
+     * in the model. For example, a necessary condition for element existence
+     * might be that the underlying resource exists.
      * <p>
-     * Note that ancestor elements may or may not exist. This method need not
+     * Note that ancestor elements may or may not exist; this method need not
      * explicitly verify their existence.
      * </p>
      *
-     * @param context the operation context (never <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
      * @throws CoreException if this element shall not exist
      * @see #newDoesNotExistException_()
      */
     void validateExistence_(IContext context) throws CoreException;
 
     /**
-     * Returns a new instance of a generic "element does not exist" exception.
+     * Returns a new instance of generic "element does not exist" exception.
      * The exception's message identifies the non-existing element without
      * giving any details about the reason for nonexistence.
      *
@@ -277,14 +277,16 @@ public interface IElementImplSupport
     /**
      * Open the parent element if necessary.
      * <p>
-     * This method is called internally; it is not intended to be invoked by clients.
+     * This method is called internally; it is not intended to be invoked
+     * by clients.
      * </p>
     *
-     * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>).
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor (not <code>null</code>).
      *  The caller must not rely on {@link IProgressMonitor#done()}
      *  having been called by the receiver
-     * @throws CoreException if an exception occurs while opening this element's parent
+     * @throws CoreException if an exception occurs while opening this element's
+     *  parent
      * @throws OperationCanceledException if this method is canceled
      */
     default void openParent_(IContext context, IProgressMonitor monitor)
@@ -302,7 +304,7 @@ public interface IElementImplSupport
     /**
      * Returns whether this element is "openable".
      * <p>
-     * An openable element knows how to open itself on demand (i.e. initialize
+     * An openable element knows how to open itself on demand (i.e., initialize
      * its body and put it in the body cache). When opening an element, it is
      * ensured that all openable parent elements are open. On the other hand,
      * opening an element should open only those child elements that are not
@@ -314,7 +316,7 @@ public interface IElementImplSupport
      * </p>
      *
      * @return <code>true</code> if this element is openable,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     default boolean isOpenable_()
     {
@@ -322,7 +324,8 @@ public interface IElementImplSupport
     }
 
     /**
-     * A map containing handle/body relationships.
+     * A map containing element handle/body relationships.
+     *
      * @see #buildStructure_(IContext, IProgressMonitor)
      */
     Property<Map<IElement, Object>> NEW_ELEMENTS =
@@ -337,12 +340,11 @@ public interface IElementImplSupport
      * recursively). Uses the {@link #NEW_ELEMENTS} map in the given context
      * to associate the created bodies with their respective elements.
      *
-     * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>).
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor (not <code>null</code>).
      *  The caller must not rely on {@link IProgressMonitor#done()}
      *  having been called by the receiver
-     * @throws CoreException if an exception occurs while accessing
-     *  the element's corresponding resource
+     * @throws CoreException if the structure could not be determined
      * @throws OperationCanceledException if this method is canceled
      */
     void buildStructure_(IContext context, IProgressMonitor monitor)
@@ -351,8 +353,9 @@ public interface IElementImplSupport
     /**
      * {@inheritDoc}
      * <p>
-     * If the current state of this element permits closing, this implementation
-     * invokes {@link #remove_(IContext)} method, which closes this element.
+     * After checking that the current state of this element permits closing,
+     * this implementation invokes {@link #remove_(IContext)} method to actually
+     * close this element.
      * </p>
      */
     @Override
@@ -372,7 +375,8 @@ public interface IElementImplSupport
      * <p>
      * This is a low-level operation, which removes this element's body and
      * thus closes this element even if the current state of this element does
-     * not permit closing. Consider using a higher-level {@link #close_()} method.
+     * not permit closing. Consider using a higher-level {@link #close_(IContext)}
+     * method.
      * <p>
      * If there is a cached body for this element, this implementation invokes
      * {@link #removing_(Object)} method to notify this element of the upcoming
@@ -389,14 +393,14 @@ public interface IElementImplSupport
     }
 
     /**
-     * The cached body for this element is going to be removed from the cache.
+     * The cached body for this element is going to be removed from the body cache.
      * Do any necessary cleanup.
      * <p>
      * This method is called internally; it is not intended to be invoked by clients.
      * This method is called under the element manager lock.
      * </p>
      *
-     * @param body the cached body for this element (never <code>null</code>)
+     * @param body the cached body for this element (not <code>null</code>)
      */
     default void removing_(Object body)
     {
@@ -433,9 +437,6 @@ public interface IElementImplSupport
         return builder.toString();
     }
 
-    /**
-     * Debugging purposes.
-     */
     default void toStringAncestors_(StringBuilder builder, IContext context)
     {
         IElement parent = getParent_();
@@ -448,9 +449,6 @@ public interface IElementImplSupport
         }
     }
 
-    /**
-     * Debugging purposes.
-     */
     default void toStringChildren_(StringBuilder builder, Object body,
         IContext context)
     {
@@ -468,14 +466,11 @@ public interface IElementImplSupport
 
     /**
      * Special-purpose value for the <code>body</code> argument of the
-     * {@link #toStringBody_(StringBuilder, Object, IContext)} method.
-     * Indicates that information about the body is not relevant.
+     * {@link #toStringBody_(StringBuilder, Object, IContext)} method;
+     * indicates that information about the body is not relevant.
      */
     Object NO_BODY = new Object();
 
-    /**
-     * Debugging purposes.
-     */
     default void toStringBody_(StringBuilder builder, Object body,
         IContext context)
     {
@@ -484,9 +479,6 @@ public interface IElementImplSupport
             builder.append(" (not open)"); //$NON-NLS-1$
     }
 
-    /**
-     * Debugging purposes.
-     */
     default void toStringName_(StringBuilder builder, IContext context)
     {
         builder.append(getName_());

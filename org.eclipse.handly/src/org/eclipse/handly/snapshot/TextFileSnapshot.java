@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.handly.internal.Activator;
 
 /**
- * A snapshot of a text file in the workspace. Thread-safe.
+ * A snapshot of a text {@link IFile}. Thread-safe.
  */
 public final class TextFileSnapshot
     extends TextFileSnapshotBase
@@ -30,10 +30,10 @@ public final class TextFileSnapshot
     private final TextFileSnapshotBase delegate;
 
     /**
-     * Takes a snapshot of the given text file in the workspace.
+     * Constructs a new snapshot of the given text {@link IFile}.
      * <p>
      * The workspace may be out of sync with the file system. The {@code layer}
-     * argument controls how to deal with such a case. If {@code Layer.FILESYSTEM}
+     * argument controls how to deal with that. If {@code Layer.FILESYSTEM}
      * is specified, the snapshot will be taken directly from the file system,
      * bypassing the workspace. If {@code Layer.WORKSPACE} is specified, the
      * snapshot will expire if the workspace is not in sync with the
@@ -41,8 +41,8 @@ public final class TextFileSnapshot
      * </p>
      *
      * @param file not <code>null</code>
-     * @param layer controls whether the snapshot is taken directly from the
-     *  file system, bypassing the workspace
+     * @param layer controls whether the snapshot is to be taken directly from
+     *  the file system, bypassing the workspace
      */
     public TextFileSnapshot(IFile file, Layer layer)
     {
@@ -101,19 +101,19 @@ public final class TextFileSnapshot
     }
 
     /**
-     * Specifies whether the snapshot should be taken directly from the
+     * Specifies whether the snapshot is to be taken directly from the
      * file system, bypassing the workspace.
      */
     public enum Layer
     {
         /**
-         * Indicates that the snapshot should be taken from the workspace,
+         * Indicates that the snapshot is to be taken from the workspace,
          * which may be out of sync with the file system.
          */
         WORKSPACE,
 
         /**
-         * Indicates that the snapshot should be taken directly from
+         * Indicates that the snapshot is to be taken directly from
          * the file system, bypassing the workspace.
          */
         FILESYSTEM

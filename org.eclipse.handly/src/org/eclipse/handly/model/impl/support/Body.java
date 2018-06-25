@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,7 +19,7 @@ import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 
 /**
- * Holds cached structure and properties for an {@link IElement element}.
+ * Holds cached structure and properties for an {@link IElement}.
  * <p>
  * This implementation is thread-safe under the condition that mutator methods
  * are not invoked concurrently. If multiple threads access a body concurrently,
@@ -35,20 +35,17 @@ import org.eclipse.handly.model.IElement;
  */
 public class Body
 {
-    /*
-     * Handles of immediate children of the element.
-     * This is an empty array if the element has no children.
-     */
     private volatile IElement[] children = Elements.EMPTY_ARRAY;
 
     /**
-     * Returns the immediate children of the element.
+     * Returns the child elements for this body.
      * <p>
      * This implementation returns an array of exactly the same runtime type as
-     * the array given in the most recent call to {@link #setChildren}.
+     * the array given in the most recent call to {@link #setChildren(IElement[])
+     * setChildren}.
      * </p>
      *
-     * @return the immediate children of the element (never <code>null</code>).
+     * @return the child elements for this body (never <code>null</code>).
      *  Clients <b>must not</b> modify the returned array.
      */
     public IElement[] getChildren()
@@ -57,8 +54,8 @@ public class Body
     }
 
     /**
-     * Sets the immediate children of the element.
-     * The given array <b>must not</b> be modified afterwards.
+     * Sets the child elements for this body. Clients <b>must not</b> modify
+     * the given array afterwards.
      *
      * @param children not <code>null</code>
      */
@@ -70,10 +67,9 @@ public class Body
     }
 
     /**
-     * Adds the given element to the immediate children of the element
-     * if it is not already present. Throws a runtime exception if the class
-     * of the given element prevents it from being added as a child of the
-     * element.
+     * Adds the given child element to this body if it is not already present.
+     * Throws a runtime exception if the class of the given element prevents it
+     * from being added.
      *
      * @param child not <code>null</code>
      */
@@ -91,10 +87,9 @@ public class Body
     }
 
     /**
-     * Removes the given element from the immediate children of the element
-     * if it is present.
+     * Removes the given child element from this body if it is present.
      *
-     * @param child
+     * @param child may be <code>null</code>
      */
     public void removeChild(IElement child)
     {
@@ -112,11 +107,11 @@ public class Body
     /**
      * Finds whether this body has had a content change.
      * <p>
-     * Implementations can compare this body and the given body
-     * (excepting children) and if there are differences,
-     * insert an appropriate change delta (such as <code>F_CONTENT</code>)
-     * for the given element into the delta tree being built.
-     * Implementations should not take children into account.
+     * Implementations can compare this body and the given old body (excepting
+     * {@link #getChildren() children}) and, if there are differences, insert an
+     * appropriate change delta (such as <code>F_CONTENT</code>) for the given
+     * element into the delta tree being built. Implementations should not take
+     * children into account.
      * </p>
      *
      * @param oldBody the old version of the body (never <code>null</code>)

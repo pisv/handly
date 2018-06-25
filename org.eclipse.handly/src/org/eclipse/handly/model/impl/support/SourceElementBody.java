@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -35,15 +35,13 @@ import org.eclipse.handly.util.TextRange;
  * This implementation is not synchronized. If multiple threads access a
  * source element body concurrently, and at least one of them modifies the
  * body, it must be synchronized externally. Note, however, that the typical
- * usage pattern is that a source element body is not modified after it is
- * fully constructed and published.
+ * usage pattern is that a source element body is not modified after
+ * initialization.
  * </p>
  * <p>
  * Clients can use this class as it stands or subclass it
  * as circumstances warrant.
  * </p>
- *
- * @see ISourceElementInfo
  */
 public class SourceElementBody
     extends Body
@@ -58,12 +56,15 @@ public class SourceElementBody
     private TextRange identifyingRange;
 
     /**
-     * {@inheritDoc}
+     * Returns the child elements for this body.
      * <p>
      * This implementation returns an array of exactly the same runtime type as
-     * the array given in the most recent call to {@link #setChildren} if that
-     * type is assignable to <code>ISourceConstruct[]</code>.
+     * the array given in the most recent call to {@link #setChildren(IElement[])
+     * setChildren} if that type is assignable to <code>ISourceConstruct[]</code>.
      * </p>
+     *
+     * @return the child elements for this body (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      */
     @Override
     public ISourceConstruct[] getChildren()
@@ -103,10 +104,11 @@ public class SourceElementBody
     }
 
     /**
-     * Sets the value of the given property.
+     * Sets the cached value for the given property.
      *
      * @param p a source element's property (not <code>null</code>)
-     * @param value the value of the given property (may be <code>null</code>)
+     * @param value a value for the given property (may be <code>null</code>)
+     * @see #get(Property)
      */
     public <T> void set(Property<T> p, T value)
     {
@@ -135,7 +137,8 @@ public class SourceElementBody
     /**
      * Sets the source snapshot on which this object is based.
      *
-     * @param snapshot
+     * @param snapshot may be <code>null</code>
+     * @see #getSnapshot()
      */
     public void setSnapshot(ISnapshot snapshot)
     {
@@ -143,9 +146,10 @@ public class SourceElementBody
     }
 
     /**
-     * Sets the text range of the source element.
+     * Sets the text range of the whole element.
      *
-     * @param fullRange
+     * @param fullRange may be <code>null</code>
+     * @see #getFullRange()
      */
     public void setFullRange(TextRange fullRange)
     {
@@ -153,9 +157,10 @@ public class SourceElementBody
     }
 
     /**
-     * Sets the text range of the source element's identifier.
+     * Sets the text range of the element's identifier.
      *
-     * @param identifyingRange
+     * @param identifyingRange may be <code>null</code>
+     * @see #getIdentifyingRange()
      */
     public void setIdentifyingRange(TextRange identifyingRange)
     {
@@ -204,16 +209,16 @@ public class SourceElementBody
     }
 
     /**
-     * Returns whether the given property has changed value.
+     * Returns whether the given property has changed its value.
      * <p>
-     * Default implementation compares the new value and the old value
-     * for equality (arrays are compared with <code>Arrays.equals</code>).
+     * This implementation compares the new value and the old value
+     * for equality; arrays are compared with <code>Arrays.equals</code>.
      * </p>
      *
-     * @param propertyName the name of the property (never <code>null</code>)
+     * @param propertyName the name of the property (not <code>null</code>)
      * @param newValue the new value of the property (may be <code>null</code>)
      * @param oldValue the old value of the property (may be <code>null</code>)
-     * @return <code>true</code> if the property has changed value, and
+     * @return <code>true</code> if the property has changed its value, and
      *  <code>false</code> otherwise
      */
     protected boolean isPropertyChanged(String propertyName, Object newValue,
@@ -229,7 +234,7 @@ public class SourceElementBody
             // @formatter:off
             boolean eq;
             if (newValue instanceof Object[] && oldValue instanceof Object[])
-                eq = Arrays.deepEquals((Object[])newValue, (Object[])oldValue);
+                eq = Arrays.equals((Object[])newValue, (Object[])oldValue);
             else if (newValue instanceof byte[] && oldValue instanceof byte[])
                 eq = Arrays.equals((byte[])newValue, (byte[])oldValue);
             else if (newValue instanceof short[] && oldValue instanceof short[])

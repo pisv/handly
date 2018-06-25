@@ -16,57 +16,59 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.text.edits.TextEdit;
 
 /**
- * Describes a change to be applied to a buffer.
+ * Describes a text change to be applied to an {@link IBuffer}.
  *
- * @see IBuffer
- * @see BufferChange
+ * @see IBuffer#applyChange(IBufferChange, org.eclipse.core.runtime.IProgressMonitor)
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
 public interface IBufferChange
 {
     /**
-     * Flags indicating that neither <code>CREATE_UNDO</code> nor
+     * Flag indicating that neither <code>CREATE_UNDO</code> nor
      * <code>UPDATE_REGIONS</code> is set.
+     * @see #getStyle()
      */
     int NONE = TextEdit.NONE;
 
     /**
-     * Flags indicating that applying a change to a buffer is supposed to
-     * create a corresponding undo change. If not specified <code>null</code>
-     * is returned from method {@link IBuffer#applyChange}.
+     * Flag indicating that applying a change to a buffer is supposed to
+     * create a corresponding undo change. If not specified, <code>null</code>
+     * is returned from {@link IBuffer#applyChange} method.
+     * @see #getStyle()
      */
     int CREATE_UNDO = TextEdit.CREATE_UNDO;
 
     /**
-     * Flag indicating that the change's edit regions will be updated to
-     * reflect their positions in the changed buffer. If not specified when
-     * applying a change to a buffer the edit regions will be arbitrary.
-     * It is even not guaranteed that the edit tree is still well formed.
+     * Flag indicating that edit regions in the change's edit tree will be
+     * updated to reflect their positions in the changed buffer. If not specified,
+     * the edit regions will be arbitrary; it is even not guaranteed that
+     * the edit tree is still well formed after applying the change.
+     * @see #getStyle()
      */
     int UPDATE_REGIONS = TextEdit.UPDATE_REGIONS;
 
     /**
-     * Returns the edit tree associated with the change.
+     * Returns the edit tree associated with this change.
      *
      * @return the change's edit tree (never <code>null</code>)
      */
     TextEdit getEdit();
 
     /**
-     * Tells whether the change contains the given edit. Note that in general
+     * Tells whether this change contains the given edit. Note that, in general,
      * this is orthogonal to whether the change's edit tree contains that edit.
      * The edits that are not contained by the change must not be executed
      * when the change is applied.
      *
      * @param edit a text edit
      * @return <code>true</code> if the change contains the given edit,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     boolean contains(TextEdit edit);
 
     /**
-     * Returns the snapshot on which the change's edit tree is based,
+     * Returns the snapshot on which this change's edit tree is based,
      * or <code>null</code> if the snapshot is unknown.
      *
      * @return the snapshot on which the change is based,
@@ -75,7 +77,7 @@ public interface IBufferChange
     ISnapshot getBase();
 
     /**
-     * Returns the style flags associated with the change. May return
+     * Returns the style flags associated with this change. May return
      * {@link #NONE} or any combination of {@link #CREATE_UNDO} and
      * {@link #UPDATE_REGIONS} flags.
      *
@@ -84,7 +86,7 @@ public interface IBufferChange
     int getStyle();
 
     /**
-     * Returns the save mode associated with the change.
+     * Returns the save mode associated with this change.
      *
      * @return the change's save mode
      */

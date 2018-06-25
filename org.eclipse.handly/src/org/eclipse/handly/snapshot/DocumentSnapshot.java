@@ -17,7 +17,7 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.ISynchronizable;
 
 /**
- * A snapshot of a document. Thread-safe.
+ * A snapshot of an {@link IDocument}. Thread-safe.
  */
 public final class DocumentSnapshot
     extends Snapshot
@@ -26,10 +26,10 @@ public final class DocumentSnapshot
     private final long modificationStamp;
 
     /**
-     * Takes a snapshot of the given document.
+     * Constructs a new snapshot of the given document.
      *
-     * @param document must not be <code>null</code>.
-     *  Must implement {@link IDocumentExtension4}.
+     * @param document must not be <code>null</code> and
+     *  must implement {@link IDocumentExtension4}.
      */
     public DocumentSnapshot(IDocument document)
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -18,13 +18,11 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 
 /**
- * Default implementation of notification manager.
+ * Default implementation of {@link INotificationManager}. Thread-safe.
  * <p>
  * Clients can use this class as it stands or subclass it
  * as circumstances warrant.
  * </p>
- *
- * @see INotificationManager
  */
 public class NotificationManager
     implements INotificationManager
@@ -34,7 +32,7 @@ public class NotificationManager
 
     /**
      * Adds the given element change listener.
-     * Has no effect if the same listener is already registered.
+     * Has no effect if an identical listener is already registered.
      *
      * @param listener the listener to add (not <code>null</code>)
      * @see #addElementChangeListener(IElementChangeListener, int)
@@ -46,15 +44,16 @@ public class NotificationManager
     }
 
     /**
-     * Adds the given listener for the specified element change events.
-     * Has no effect if the same listener is already registered for these events.
+     * Adds the given element change listener for the specified event types.
+     * Has no effect if an identical listener is already registered for these
+     * event types.
      * <p>
      * After completion of this method, the given listener will be registered
-     * for exactly the specified events. If they were previously registered
-     * for other events, they will be unregistered.
+     * for exactly the specified event types. If they were previously registered
+     * for other event types, they will be de-registered.
      * </p>
      *
-     * @param listener the listener (not <code>null</code>)
+     * @param listener the listener to add (not <code>null</code>)
      * @param eventMask the bit-wise OR of all event types of interest to the
      *  listener
      * @see #removeElementChangeListener(IElementChangeListener)
@@ -67,7 +66,7 @@ public class NotificationManager
 
     /**
      * Removes the given element change listener.
-     * Has no effect if the same listener was not already registered.
+     * Has no effect if an identical listener is not registered.
      *
      * @param listener the listener to remove (not <code>null</code>)
      */

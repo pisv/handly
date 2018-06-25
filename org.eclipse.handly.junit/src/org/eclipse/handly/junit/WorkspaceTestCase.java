@@ -37,10 +37,11 @@ import org.eclipse.core.runtime.jobs.Job;
 import junit.framework.TestCase;
 
 /**
- * A workspace test case.
+ * Convenient base class for test cases that operate on the Eclipse workspace.
  * <p>
  * Provides a number of useful methods, such as {@link #setUpProject(String)}.
- * </p><p>
+ * </p>
+ * <p>
  * Also, in its {@link #setUp()} and {@link #tearDown()} methods,
  * this class enforces some common rules for workspace tests:
  * </p>
@@ -99,7 +100,7 @@ public abstract class WorkspaceTestCase
     }
 
     /**
-     * Shortcut to <code>ResourcesPlugin.getWorkspace()</code>
+     * Shortcut to <code>ResourcesPlugin.getWorkspace()</code>.
      */
     protected final IWorkspace getWorkspace()
     {
@@ -107,7 +108,7 @@ public abstract class WorkspaceTestCase
     }
 
     /**
-     * Shortcut to <code>getWorkspace().getRoot()</code>
+     * Shortcut to <code>getWorkspace().getRoot()</code>.
      */
     protected final IWorkspaceRoot getWorkspaceRoot()
     {
@@ -115,10 +116,10 @@ public abstract class WorkspaceTestCase
     }
 
     /**
-     * Shortcut to <code>getWorkspaceRoot().getProject(name)</code>
+     * Shortcut to <code>getWorkspaceRoot().getProject(name)</code>.
      *
      * @param name the name of the project
-     * @return the project (never <code>null</code>)
+     * @return the requested project (never <code>null</code>)
      */
     protected final IProject getProject(String name)
     {

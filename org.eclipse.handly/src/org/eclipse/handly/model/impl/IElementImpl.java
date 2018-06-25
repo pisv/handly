@@ -77,10 +77,10 @@ public interface IElementImpl
      * method.
      * <p>
      * This implementation is provided for the most general case where equal
-     * elements may belong to different parent chains. E.g. in JDT, equal
+     * elements may belong to different parent chains. For example, in JDT, equal
      * JarPackageFragmentRoots may belong to different Java projects. Specific
      * models can provide an optimized implementation. For example, it would be
-     * possible to just <code>return equals(other);</code> if it were known for
+     * possible to just return <code>equals(other)</code> if it were known for
      * a model that equal elements cannot belong to different parent chains.
      * </p>
      *
@@ -109,10 +109,10 @@ public interface IElementImpl
     IModel getModel_();
 
     /**
-     * Returns a string representation of this element handle. The format of
-     * the string is not specified; however, the representation is stable across
-     * workbench sessions, and can be used to recreate this handle via the model's
-     * <code>IElementHandleFactory</code>. This is a handle-only method.
+     * Returns a string representation of this element handle that can be used
+     * to recreate the handle via the model's <code>IElementHandleFactory</code>.
+     * The format of the string is not specified, but the representation is
+     * stable across workbench sessions. This is a handle-only method.
      *
      * @return the handle memento for this element, or <code>null</code>
      *  if this element is unable to provide a handle memento
@@ -226,7 +226,8 @@ public interface IElementImpl
      * <p>
      * Implementations are advised to support common options defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
-     * interpret the format style as follows:
+     * interpret the {@link org.eclipse.handly.util.ToStringOptions#FORMAT_STYLE
+     * FORMAT_STYLE} as follows:
      * </p>
      * <ul>
      * <li>{@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
@@ -246,16 +247,17 @@ public interface IElementImpl
 
     /**
      * Returns a string representation of this element in a form suitable for
-     * displaying to the user, e.g. in message dialogs. Clients can influence
+     * displaying to the user, e.g., in message dialogs. Clients can influence
      * the result with format options specified in the given context;
      * unrecognized options are ignored and an empty context is permitted.
      * <p>
      * Implementations are encouraged to support common options defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and may
-     * interpret the format style as they see fit in a way that is specific to
-     * the model. No hard rules apply, but usually the string representation
-     * does not list the element's children regardless of the format style, and
-     * a {@link org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
+     * interpret the {@link org.eclipse.handly.util.ToStringOptions#FORMAT_STYLE
+     * FORMAT_STYLE} as they see fit in a way that is specific to the model.
+     * No hard rules apply, but usually the string representation does not list
+     * the element's children regardless of the format style, and a {@link
+     * org.eclipse.handly.util.ToStringOptions.FormatStyle#FULL FULL}
      * representation fully identifies the element within the model.
      * </p>
      *

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2017, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -18,9 +18,10 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.context.IContext;
 
 /**
- * When {@link ISourceFileImplExtension#WORKING_COPY_CALLBACK set},
- * a working copy callback receives notifications related to lifecycle of the
- * working copy and intercepts calls related to reconciling of the working copy.
+ * Receives notifications related to the lifecycle of a working copy
+ * and intercepts calls related to reconciling of the working copy.
+ * 
+ * @see ISourceFileImplExtension#WORKING_COPY_CALLBACK
  */
 public interface IWorkingCopyCallback
 {
@@ -50,7 +51,7 @@ public interface IWorkingCopyCallback
     void onDispose();
 
     /**
-     * Returns whether the working copy needs reconciling, i.e.
+     * Returns whether the working copy needs reconciling, i.e.,
      * its buffer has been modified since the last time it was reconciled.
      * <p>
      * Clients should not call this method (the model implementation calls it
@@ -58,13 +59,12 @@ public interface IWorkingCopyCallback
      * </p>
      *
      * @return <code>true</code> if the working copy needs reconciling,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     boolean needsReconciling();
 
     /**
-     * Makes the working copy consistent with its buffer by updating the
-     * element structure and properties as necessary.
+     * Reconciles the working copy.
      * <p>
      * Clients should not call this method (the model implementation calls it
      * at appropriate times).
@@ -77,7 +77,8 @@ public interface IWorkingCopyCallback
      * <li>
      * {@link org.eclipse.handly.model.Elements#FORCE_RECONCILING
      * FORCE_RECONCILING} - Indicates whether reconciling has to be performed
-     * even if the working copy is already consistent with its buffer.
+     *  even if the working copy buffer has not been modified since the last time
+     *  the working copy was reconciled.
      * </li>
      * </ul>
      * <p>
@@ -88,11 +89,11 @@ public interface IWorkingCopyCallback
      * the necessary synchronization guarantees.
      * </p>
      *
-     * @param context the operation context (not <code>null</code>)
+     * @param context the operation context (never <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @throws CoreException if the working copy cannot be reconciled
+     * @throws CoreException if the working copy could not be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
     void reconcile(IContext context, IProgressMonitor monitor)

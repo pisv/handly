@@ -36,7 +36,7 @@ public class IndentPolicy
      * </p>
      *
      * @param builder a string builder (not <code>null</code>)
-     * @param n the number of indentation units to append (may be 0)
+     * @param n the number of indentation units to append
      */
     public void appendIndent(StringBuilder builder, int n)
     {

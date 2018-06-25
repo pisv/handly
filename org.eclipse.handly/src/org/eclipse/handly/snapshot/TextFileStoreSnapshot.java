@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.handly.internal.Activator;
 
 /**
- * A snapshot of a text file store. Thread-safe.
+ * A snapshot of a text {@link IFileStore}. Thread-safe.
  */
 public final class TextFileStoreSnapshot
     extends TextFileSnapshotBase
@@ -37,9 +37,9 @@ public final class TextFileStoreSnapshot
     private String contents;
 
     /**
-     * Takes a snapshot of the given text file store. The snapshot may use a
-     * default charset for decoding the file store's contents if a more specific
-     * charset could not be detected for the file store.
+     * Constructs a new snapshot of the given text file store. The snapshot may
+     * use a default charset for decoding the file store's contents if a more
+     * specific charset could not be detected for the file store.
      *
      * @param fileStore must not be <code>null</code>
      */
@@ -49,8 +49,8 @@ public final class TextFileStoreSnapshot
     }
 
     /**
-     * Takes a snapshot of the given text file store using the given charset
-     * for decoding the file store's contents.
+     * Constructs a new snapshot of the given text file store using the given
+     * charset for decoding the file store's contents.
      *
      * @param fileStore must not be <code>null</code>
      * @param charset must not be <code>null</code>

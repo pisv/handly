@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2016, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,26 +13,25 @@
 package org.eclipse.handly.model;
 
 /**
- * A model serves as the common owner of any number of {@link IElement}s.
+ * A marker interface for Handly-based models.
  * <p>
- * Each {@link IElement} belongs to a model, called the owning model. The
- * children of an element always have the same {@link Elements#getModel(IElement)
- * owner} as their parent element.
+ * A model serves as the common owner of any number of {@link IElement}s.
+ * Each <code>IElement</code> belongs to a model, called the owning model.
+ * The children of an element always belong to the same model as their parent
+ * element.
  * </p>
  * <p>
  * There can be any number of elements owned by a model that are {@link
  * Elements#getParent(IElement) unparented}. Each of these elements is the root
- * of a separate tree of elements. The method {@link Elements#getRoot(IElement)}
- * navigates from any element to the root of the tree that it is contained in.
- * One can navigate from any element to its owning model, but not conversely.
+ * of a separate tree of elements. The {@link Elements#getRoot(IElement)} method
+ * navigates from any element to the root of the containing element tree. One
+ * can {@link Elements#getModel(IElement) navigate} from any element to its
+ * owning model but not in the opposite direction.
  * </p>
  * <p>
- * The class {@link Models} provides methods for generic access to
- * {@link IModel}s.
+ * An instance of <code>IModel</code> is safe for use by multiple threads.
  * </p>
- * <p>
- * An instance of {@link IModel} is safe for use by multiple threads.
- * </p>
+ * @see Models
  */
 public interface IModel
 {

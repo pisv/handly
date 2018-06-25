@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -15,12 +15,15 @@ package org.eclipse.handly.model.impl.support;
 import org.eclipse.handly.model.IElementChangeEvent;
 
 /**
- * Notifies the registered listeners about an element change event.
+ * Notifies registered listeners about an element change event.
+ * <p>
+ * An instance of the notification manager is safe for use by multiple threads.
+ * </p>
  */
 public interface INotificationManager
 {
     /**
-     * Notifies the registered listeners about the given event.
+     * Notifies registered listeners about the given event.
      *
      * @param event the change event (not <code>null</code>)
      */

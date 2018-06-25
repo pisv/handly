@@ -21,13 +21,13 @@ import org.eclipse.handly.model.IElement;
  * For every <code>Object</code> <code>o</code> such that
  * <code>adapt(o) != null</code>, the following must hold:
  * </p>
- * <pre>o.equals(getCorrespondingElement(adapt(o))</pre>
+ * <pre>    o.equals(getCorrespondingElement(adapt(o))</pre>
  * <p>
  * Likewise, for every <code>IElement</code> <code>e</code>
  * such that <code>getCorrespondingElement(e) != null</code>,
  * the following must hold:
  * </p>
- * <pre>e.equals(adapt(getCorrespondingElement(e))</pre>
+ * <pre>    e.equals(adapt(getCorrespondingElement(e))</pre>
  * <p>
  * This interface may be implemented by clients.
  * </p>
@@ -35,7 +35,7 @@ import org.eclipse.handly.model.IElement;
 public interface IContentAdapter
 {
     /**
-     * Returns {@link IElement} that corresponds to the given element.
+     * Returns the {@link IElement} that corresponds to the given element.
      *
      * @param element may be <code>null</code>
      * @return the corresponding {@link IElement}, or <code>null</code> if none
@@ -45,7 +45,7 @@ public interface IContentAdapter
     /**
      * Returns the element that corresponds to the given {@link IElement}.
      *
-     * @param element {@link IElement} (may be <code>null</code>)
+     * @param element an {@link IElement} (may be <code>null</code>)
      * @return the corresponding element, or <code>null</code> if none
      */
     Object getCorrespondingElement(IElement element);

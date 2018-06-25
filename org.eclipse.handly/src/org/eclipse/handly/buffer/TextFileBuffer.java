@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -50,7 +50,7 @@ public final class TextFileBuffer
     private int refCount = 1;
 
     /**
-     * Returns a buffer for the given file location.
+     * Returns a {@link TextFileBuffer} for the given file location.
      * <p>
      * It is the client responsibility to {@link IBuffer#release() release}
      * the buffer after it is no longer needed.
@@ -59,7 +59,7 @@ public final class TextFileBuffer
      * @param location not <code>null</code>
      * @param locationKind not <code>null</code>
      * @return a buffer for the given file location (never <code>null</code>)
-     * @throws CoreException if the buffer could not be successfully created
+     * @throws CoreException if the buffer could not be created
      */
     public static TextFileBuffer forLocation(IPath location,
         LocationKind locationKind) throws CoreException
@@ -69,7 +69,7 @@ public final class TextFileBuffer
     }
 
     /**
-     * Returns a buffer for the given file store.
+     * Returns a {@link TextFileBuffer} for the given file store.
      * <p>
      * It is the client responsibility to {@link IBuffer#release() release}
      * the buffer after it is no longer needed.
@@ -77,7 +77,7 @@ public final class TextFileBuffer
      *
      * @param fileStore not <code>null</code>
      * @return a buffer for the given file store (never <code>null</code>)
-     * @throws CoreException if the buffer could not be successfully created
+     * @throws CoreException if the buffer could not be created
      */
     public static TextFileBuffer forFileStore(IFileStore fileStore)
         throws CoreException
@@ -87,7 +87,7 @@ public final class TextFileBuffer
     }
 
     /**
-     * Returns a buffer for the given file resource.
+     * Returns a {@link TextFileBuffer} for the given file resource.
      * <p>
      * It is the client responsibility to {@link IBuffer#release() release}
      * the buffer after it is no longer needed.
@@ -95,7 +95,7 @@ public final class TextFileBuffer
      *
      * @param file not <code>null</code>
      * @return a buffer for the given file resource (never <code>null</code>)
-     * @throws CoreException if the buffer could not be successfully created
+     * @throws CoreException if the buffer could not be created
      */
     public static TextFileBuffer forFile(IFile file) throws CoreException
     {
@@ -103,21 +103,21 @@ public final class TextFileBuffer
     }
 
     /**
-     * Creates a new buffer instance and connects it to the underlying {@link
-     * ITextFileBuffer} via the given provider.
+     * Creates a new text file buffer instance and connects it to an underlying
+     * {@link ITextFileBuffer} via the given provider.
      * <p>
      * It is the client responsibility to {@link IBuffer#release() release}
      * the created buffer after it is no longer needed.
      * </p>
      *
-     * @param provider {@link ICoreTextFileBufferProvider}
+     * @param provider a provider of the underlying <code>ITextFileBuffer</code>
      *  (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver.
      *  The progress monitor is only valid for the duration of the invocation
      *  of this constructor
-     * @throws CoreException if the buffer could not be successfully created
+     * @throws CoreException if the buffer could not be created
      * @throws OperationCanceledException if this constructor is canceled
      */
     public TextFileBuffer(ICoreTextFileBufferProvider provider,
@@ -146,9 +146,10 @@ public final class TextFileBuffer
     }
 
     /**
-     * Returns the provider of the underlying {@link ITextFileBuffer}.
+     * Returns the provider of the underlying {@link ITextFileBuffer}
+     * for this buffer.
      *
-     * @return the underlying buffer provider (never <code>null</code>)
+     * @return the underlying buffer's provider (never <code>null</code>)
      * @throws IllegalStateException if this buffer is no longer accessible
      */
     public ICoreTextFileBufferProvider getCoreTextFileBufferProvider()

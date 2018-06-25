@@ -53,10 +53,10 @@ import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * This "trait-like" interface provides a skeletal implementation of {@link
+ * A "trait-like" interface providing a skeletal implementation of {@link
  * ISourceFileImplExtension} to minimize the effort required to implement
- * that interface. Clients may "mix in" this interface directly or extend
- * the class {@link SourceFile} (or {@link WorkspaceSourceFile}).
+ * that interface. Clients may implement ("mix in") this interface directly or
+ * extend {@link SourceFile}.
  * <p>
  * In general, the members first defined in this interface are not intended
  * to be referenced outside the subtype hierarchy.
@@ -267,7 +267,8 @@ public interface ISourceFileImplSupport
      * clients.
      * </p>
      *
-     * @return a reconcile operation for this source file (not <code>null</code>)
+     * @return a reconcile operation for this source file
+     *  (never <code>null</code>)
      */
     default ReconcileOperation getReconcileOperation_()
     {
@@ -296,8 +297,8 @@ public interface ISourceFileImplSupport
      * clients.
      * </p>
      *
-     * @param context the operation context (never <code>null</code>)
-     * @return the working copy context (not <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
+     * @return the working copy context (never <code>null</code>)
      */
     default IContext newWorkingCopyContext_(IContext context)
     {
@@ -368,7 +369,7 @@ public interface ISourceFileImplSupport
      * The client takes (potentially shared) ownership of the returned provider
      * and is responsible for releasing it. The provider will be disposed
      * only after it is released by every owner. The provider must not
-     * be accessed by clients that don't own it.
+     * be accessed by clients which do not own it.
      * </p>
      * <p>
      * This implementation returns a snapshot provider for the stored contents
@@ -377,8 +378,7 @@ public interface ISourceFileImplSupport
      * </p>
      *
      * @return a snapshot provider for the underlying file's stored contents
-     *  (not <code>null</code>)
-     * @see ISnapshotProvider
+     *  (never <code>null</code>)
      */
     default ISnapshotProvider getFileSnapshotProvider_()
     {
@@ -410,7 +410,7 @@ public interface ISourceFileImplSupport
      * The client takes (potentially shared) ownership of the returned buffer
      * and is responsible for releasing it. The buffer will be disposed
      * only after it is released by every owner. The buffer must not
-     * be accessed by clients that don't own it.
+     * be accessed by clients which do not own it.
      * </p>
      * <p>
      * Implementations are encouraged to support the following standard options,
@@ -428,16 +428,15 @@ public interface ISourceFileImplSupport
      * has no underlying file in the workspace.
      * </p>
      *
-     * @param context the operation context (never <code>null</code>)
+     * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
      * @return the buffer opened for the underlying file of this source file,
      *  or <code>null</code> if <code>CREATE_BUFFER == false</code> and
      *  there is currently no buffer opened for that file
-     * @throws CoreException if the buffer could not be opened successfully
+     * @throws CoreException if the buffer could not be opened
      * @throws OperationCanceledException if this method is canceled
-     * @see IBuffer
      */
     default IBuffer getFileBuffer_(IContext context, IProgressMonitor monitor)
         throws CoreException
@@ -526,19 +525,24 @@ public interface ISourceFileImplSupport
 
     /**
      * Specifies the source AST.
+     *
      * @see #buildSourceStructure_(IContext, IProgressMonitor)
      */
     Property<Object> SOURCE_AST = Property.get(
         ISourceFileImplSupport.class.getName() + ".sourceAst", Object.class); //$NON-NLS-1$
+
     /**
      * Specifies the source string.
+     *
      * @see #buildSourceStructure_(IContext, IProgressMonitor)
      */
     Property<String> SOURCE_CONTENTS = Property.get(
         ISourceFileImplSupport.class.getName() + ".sourceContents", //$NON-NLS-1$
         String.class);
+
     /**
      * Specifies the source snapshot.
+     *
      * @see #buildSourceStructure_(IContext, IProgressMonitor)
      */
     Property<ISnapshot> SOURCE_SNAPSHOT = Property.get(
@@ -551,8 +555,8 @@ public interface ISourceFileImplSupport
      * given context. Uses the {@link #NEW_ELEMENTS} map in the given context
      * to associate the created bodies with their respective elements.
      * <p>
-     * The following context options influence how the structure is built and,
-     * if simultaneously present, must be mutually consistent:
+     * The following context options, if simultaneously present, must be
+     * mutually consistent:
      * </p>
      * <ul>
      * <li>
@@ -567,7 +571,7 @@ public interface ISourceFileImplSupport
      * </ul>
      * <p>
      * At least one of <code>SOURCE_AST</code> or <code>SOURCE_CONTENTS</code>
-     * will have a non-null value in the given context.
+     * must have a non-null value in the given context.
      * </p>
      * <p>
      * The given context may provide additional data that this method can use,
@@ -581,11 +585,11 @@ public interface ISourceFileImplSupport
      * </li>
      * </ul>
      *
-     * @param context the operation context (never <code>null</code>)
-     * @param monitor a progress monitor (never <code>null</code>).
+     * @param context the operation context (not <code>null</code>)
+     * @param monitor a progress monitor (not <code>null</code>).
      *  The caller must not rely on {@link IProgressMonitor#done()}
      *  having been called by the receiver
-     * @throws CoreException if this method fails
+     * @throws CoreException if the structure could not be determined
      * @throws OperationCanceledException if this method is canceled
      */
     void buildSourceStructure_(IContext context, IProgressMonitor monitor)
@@ -624,16 +628,6 @@ public interface ISourceFileImplSupport
      */
     class ReconcileOperation
     {
-        /**
-         * Indicates whether the structure should be rebuilt when reconciling
-         * is forced. Default value: <code>false</code>.
-         * @see #reconcile(IContext, IProgressMonitor)
-         */
-        protected static final Property<Boolean> REBUILD_STRUCTURE_IF_FORCED =
-            Property.get(ReconcileOperation.class.getName()
-                + ".rebuildStructureIfForced", //$NON-NLS-1$
-                Boolean.class).withDefault(false);
-
         static final Property<Boolean> INITIAL_RECONCILE = Property.get(
             ReconcileOperation.class.getName() + ".initialReconcile", //$NON-NLS-1$
             Boolean.class).withDefault(false);
@@ -666,30 +660,18 @@ public interface ISourceFileImplSupport
          * Reconciles the working copy according to options specified
          * in the given context.
          * <p>
-         * The following context options can influence whether the structure
-         * of the working copy gets rebuilt:
+         * The following context options, if simultaneously present, must be
+         * mutually consistent:
          * </p>
          * <ul>
          * <li>
-         * {@link #REBUILD_STRUCTURE_IF_FORCED} - Indicates whether the structure
-         * should be rebuilt even if reconciling was forced, i.e. the working copy
-         * buffer has not been modified since the last time it was reconciled.
-         * </li>
-         * </ul>
-         * <p>
-         * The following context options influence rebuilding of the structure
-         * of the working copy and, if simultaneously present, must be mutually
-         * consistent:
-         * </p>
-         * <ul>
-         * <li>
-         * {@link #SOURCE_AST} - Specifies the AST to use when building the
-         * structure. The AST is safe to read in the dynamic context of this
-         * method call, but must not be modified.
+         * {@link #SOURCE_AST} - Specifies the AST to use when reconciling.
+         * The AST is safe to read in the dynamic context of this method call,
+         * but must not be modified.
          * </li>
          * <li>
          * {@link #SOURCE_CONTENTS} - Specifies the source string to use when
-         * building the structure.
+         * reconciling.
          * </li>
          * </ul>
          * <p>
@@ -712,15 +694,17 @@ public interface ISourceFileImplSupport
          * the <b>super</b> implementation.
          * </p>
          * <p>
-         * This implementation calls {@link #reconcileStructure} iff
-         * {@link #shouldReconcileStructure} returns <code>true</code>.
+         * This implementation calls {@link #reconcileStructure(IContext,
+         * IProgressMonitor) reconcileStructure} if, and only if, {@link
+         * #shouldReconcileStructure(IContext) shouldReconcileStructure}
+         * returns <code>true</code>.
          * </p>
          *
          * @param context the operation context (not <code>null</code>)
          * @param monitor a progress monitor, or <code>null</code>
          *  if progress reporting is not desired. The caller must not rely on
          *  {@link IProgressMonitor#done()} having been called by the receiver
-         * @throws CoreException if the working copy cannot be reconciled
+         * @throws CoreException if the working copy could not be reconciled
          * @throws OperationCanceledException if this method is canceled
          */
         protected void reconcile(IContext context, IProgressMonitor monitor)
@@ -737,7 +721,7 @@ public interface ISourceFileImplSupport
          * reconciled by rebuilding it according to options specified in the
          * given context.
          * <p>
-         * Subclasses may override this method but must return <code>true</code>
+         * Subclasses may override this method, but must return <code>true</code>
          * whenever the <b>super</b> implementation returns <code>true</code>;
          * they may return <code>true</code> when the <b>super</b> implementation
          * returns <code>false</code>.
@@ -745,22 +729,21 @@ public interface ISourceFileImplSupport
          *
          * @param context the operation context (not <code>null</code>)
          * @return <code>true</code> if the working copy structure needs to be
-         *  reconciled; <code>false</code> otherwise
+         *  reconciled, and <code>false</code> otherwise
          * @see #reconcile(IContext, IProgressMonitor)
          * @see #reconcileStructure(IContext, IProgressMonitor)
          */
         protected boolean shouldReconcileStructure(IContext context)
         {
-            return isInitialReconcile(context) || !isReconcilingForced(context)
-                || context.getOrDefault(REBUILD_STRUCTURE_IF_FORCED);
+            return isInitialReconcile(context) || !isReconcilingForced(context);
         }
 
         /**
-         * Returns whether the reconcile operation is initial reconcile.
+         * Returns whether this is initial reconcile.
          *
          * @param context the operation context (not <code>null</code>)
-         * @return <code>true</code> if the reconcile operation is initial
-         *  reconcile; <code>false</code> otherwise
+         * @return <code>true</code> if this is initial reconcile,
+         *  and <code>false</code> otherwise
          * @see #reconcile(IContext, IProgressMonitor)
          * @see #reconcileStructure(IContext, IProgressMonitor)
          */
@@ -770,12 +753,13 @@ public interface ISourceFileImplSupport
         }
 
         /**
-         * Returns whether reconciling was forced, i.e. the source has not been
-         * modified since the last time the model was reconciled.
+         * Returns whether reconciling is forced, i.e., the working copy buffer
+         * has not been modified since the last time the working copy was
+         * reconciled.
          *
          * @param context the operation context (not <code>null</code>)
-         * @return <code>true</code> if the reconciling was forced;
-         *  <code>false</code> otherwise
+         * @return <code>true</code> if reconciling is forced,
+         *  and <code>false</code> otherwise
          * @see #reconcile(IContext, IProgressMonitor)
          * @see #reconcileStructure(IContext, IProgressMonitor)
          */
@@ -788,19 +772,18 @@ public interface ISourceFileImplSupport
          * Reconciles the structure of the working copy by rebuilding it
          * according to options specified in the given context.
          * <p>
-         * The following context options influence rebuilding of the structure
-         * of the working copy and, if simultaneously present, must be mutually
-         * consistent:
+         * The following context options, if simultaneously present, must be
+         * mutually consistent:
          * </p>
          * <ul>
          * <li>
-         * {@link #SOURCE_AST} - Specifies the AST to use when building the
-         * structure. The AST is safe to read in the dynamic context of this
-         * method call, but must not be modified.
+         * {@link #SOURCE_AST} - Specifies the AST to use when reconciling.
+         * The AST is safe to read in the dynamic context of this method call,
+         * but must not be modified.
          * </li>
          * <li>
          * {@link #SOURCE_CONTENTS} - Specifies the source string to use when
-         * building the structure.
+         * reconciling.
          * </li>
          * </ul>
          * <p>
@@ -827,7 +810,7 @@ public interface ISourceFileImplSupport
          * @param monitor a progress monitor, or <code>null</code>
          *  if progress reporting is not desired. The caller must not rely on
          *  {@link IProgressMonitor#done()} having been called by the receiver
-         * @throws CoreException if the working copy cannot be reconciled
+         * @throws CoreException if the working copy could not be reconciled
          * @throws OperationCanceledException if this method is canceled
          * @see #reconcile(IContext, IProgressMonitor)
          * @see #shouldReconcileStructure(IContext)

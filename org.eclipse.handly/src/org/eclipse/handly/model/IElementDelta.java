@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -14,16 +14,13 @@
 package org.eclipse.handly.model;
 
 /**
- * An element delta describes changes in the corresponding {@link IElement}
- * between two discrete points in time.
+ * A marker interface for delta objects which describe changes
+ * in an {@link IElement} between two discrete points in time.
  * <p>
- * The class {@link ElementDeltas} provides methods for generic access to
- * {@link IElementDelta}s.
+ * Element delta objects are generally not valid outside the dynamic scope
+ * of change notification.
  * </p>
- * <p>
- * Delta objects are generally not valid outside the dynamic scope of change
- * notification.
- * </p>
+ * @see ElementDeltas
  */
 public interface IElementDelta
 {

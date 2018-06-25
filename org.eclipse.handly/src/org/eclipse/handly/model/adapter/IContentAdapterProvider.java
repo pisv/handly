@@ -13,10 +13,8 @@
 package org.eclipse.handly.model.adapter;
 
 /**
- * An object capable of providing a content adapter.
+ * An object capable of providing an {@link IContentAdapter}.
  * This interface may be implemented by clients.
- *
- * @see IContentAdapter
  */
 public interface IContentAdapterProvider
 {

@@ -20,11 +20,19 @@ public class StaleSnapshotException
 {
     private static final long serialVersionUID = 5933226779812396727L;
 
+    /**
+     * Constructs a new exception with no detail message.
+     */
     public StaleSnapshotException()
     {
         super();
     }
 
+    /**
+     * Constructs a new exception with the given detail message.
+     * 
+     * @param message the detail message
+     */
     public StaleSnapshotException(String message)
     {
         super(message);

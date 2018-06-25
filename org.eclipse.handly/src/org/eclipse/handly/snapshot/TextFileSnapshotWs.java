@@ -39,7 +39,7 @@ final class TextFileSnapshotWs
     private volatile IStatus status = Status.OK_STATUS;
 
     /**
-     * Takes a snapshot of the given text file in the workspace.
+     * Constructs a new snapshot of the given text file in the workspace.
      *
      * @param file not <code>null</code>
      */

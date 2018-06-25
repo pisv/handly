@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -18,12 +18,12 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ISourceFileImpl;
 
 /**
- * This class provides a skeletal implementation of the {@link ISourceFileImpl}
- * interface for workspace source files. Such files always have an underlying
- * {@link IFile}. This class is just an implementation convenience. Clients might
- * as well implement a workspace source file by extending {@link SourceFile} or
- * "mixing in" {@link ISourceFileImplSupport} directly if extending this class
- * is not possible/desirable for some reason.
+ * Provides a skeletal implementation of {@link ISourceFileImpl} for source files
+ * residing in the workspace. Such files always have an underlying {@link IFile}.
+ * This class is just an implementation convenience. Clients might as well
+ * implement a workspace source file by extending {@link SourceFile} or
+ * implementing ("mixing in") {@link ISourceFileImplSupport} directly
+ * if extending this class is not possible/desirable for some reason.
  */
 public abstract class WorkspaceSourceFile
     extends SourceFile
@@ -32,11 +32,11 @@ public abstract class WorkspaceSourceFile
 
     /**
      * Constructs a handle for a source file with the given parent element and
-     * the given underlying workspace file.
+     * the given underlying {@link IFile}.
      *
      * @param parent the parent of the element,
      *  or <code>null</code> if the element has no parent
-     * @param file the workspace file underlying the element (not <code>null</code>)
+     * @param file the underlying <code>IFile</code> (not <code>null</code>)
      */
     public WorkspaceSourceFile(IElement parent, IFile file)
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2017, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -18,10 +18,10 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 
 /**
- * Builds a delta tree based on elementary changes reported to it.
+ * Builds an {@link IElementDelta} tree based on elementary changes.
  * <p>
- * Note that despite having a dependency on {@link IResourceDelta}
- * and {@link IMarkerDelta} this interface can be used even when
+ * Note that, despite having a dependency on {@link IResourceDelta}
+ * and {@link IMarkerDelta}, this interface can be used even when
  * <code>org.eclipse.core.resources</code> bundle is not available.
  * This is based on the "outward impression" of late resolution of
  * symbolic references a JVM must provide according to the JVMS.
@@ -42,7 +42,7 @@ public interface IElementDeltaBuilder
     }
 
     /**
-     * Informs this builder that the given element has been added.
+     * Informs this builder that an element has been added.
      *
      * @param element the added element (not <code>null</code>)
      * @param flags delta flags
@@ -63,7 +63,7 @@ public interface IElementDeltaBuilder
     }
 
     /**
-     * Informs this builder that the given element has been removed.
+     * Informs this builder that an element has been removed.
      *
      * @param element the removed element (not <code>null</code>)
      * @param flags delta flags
@@ -72,7 +72,7 @@ public interface IElementDeltaBuilder
     IElementDeltaBuilder removed(IElement element, long flags);
 
     /**
-     * Informs this builder that the given element has been changed.
+     * Informs this builder that an element has been changed.
      *
      * @param element the changed element (not <code>null</code>)
      * @param flags delta flags
@@ -81,7 +81,7 @@ public interface IElementDeltaBuilder
     IElementDeltaBuilder changed(IElement element, long flags);
 
     /**
-     * Informs this builder that the given element has been removed
+     * Informs this builder that an element has been removed
      * as it has moved to a new location.
      *
      * @param movedFromElement the element before it was moved to its
@@ -94,7 +94,7 @@ public interface IElementDeltaBuilder
         IElement movedToElement);
 
     /**
-     * Informs this builder that the given element has been added
+     * Informs this builder that an element has been added
      * as it has moved from an old location.
      *
      * @param movedToElement the element in its new location
@@ -120,11 +120,10 @@ public interface IElementDeltaBuilder
         IMarkerDelta[] markerDeltas);
 
     /**
-     * Informs this builder about changes in the state of a child tree of the
-     * given element's corresponding resource that cannot be described in terms
-     * of element deltas.
+     * Informs this builder about changes to children of the given element's
+     * corresponding resource that cannot be described in terms of element deltas.
      *
-     * @param element the element with resource change
+     * @param element the element with a resource change
      *  (not <code>null</code>)
      * @param resourceDelta the resource delta for the element
      *  (not <code>null</code>)
@@ -135,11 +134,10 @@ public interface IElementDeltaBuilder
 
     /**
      * Returns the root of the built delta tree. The delta tree describes
-     * the net result of all changes reported to this builder from the
-     * beginning of the builder lifecycle up to now. There is no requirement
-     * for the returned delta object to reflect subsequent changes reported
-     * to this builder. Instead, a new instance may be returned each time
-     * this method is invoked.
+     * the net result of all changes reported to this builder up to now.
+     * There is no requirement for the returned delta object to reflect
+     * subsequent changes reported to this builder. Instead, a new instance
+     * may be returned each time this method is invoked.
      *
      * @return the root of the built delta tree, or <code>null</code> if none
      */

@@ -50,7 +50,7 @@ public class Property<T>
      * you can create an empty anonymous inner class:
      * </p>
      * <p>
-     * <code>Property&lt;List&lt;String&gt;&gt; list =
+     * <code>Property&lt;List&lt;String&gt;&gt; p1 =
      * new Property&lt;List&lt;String&gt;&gt;("p1") {};</code>
      * </p>
      *
@@ -84,7 +84,7 @@ public class Property<T>
     /**
      * Returns a property with the given name and type. The type is represented
      * by a specified class object. The returned property has no default value
-     * (i.e. <code>defaultValue()</code> will always return <code>null</code>).
+     * (i.e., <code>defaultValue()</code> will always return <code>null</code>).
      * <p>
      * If the type of property values is not generic, using this method
      * of obtaining a property might be preferable to using the constructor
@@ -108,11 +108,11 @@ public class Property<T>
     /**
      * Returns a copy of this property with a new default value.
      * <p>
-     * This instance is immutable and unaffected by this method call.
+     * This property is immutable and is unaffected by this method call.
      * </p>
      *
-     * @param defaultValue the new default value (may be <code>null</code>)
-     * @return a property based on this property with the requested default value
+     * @param defaultValue the default value (may be <code>null</code>)
+     * @return a copy of this property with a new default value
      *  (never <code>null</code>)
      */
     public Property<T> withDefault(T defaultValue)

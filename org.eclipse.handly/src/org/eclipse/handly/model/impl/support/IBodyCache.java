@@ -17,7 +17,7 @@ import java.util.Map;
 import org.eclipse.handly.model.IElement;
 
 /**
- * Represents a cache of handle/body relationships.
+ * Represents a cache of element handle/body relationships.
  *
  * @see IElement
  * @see Body
@@ -28,7 +28,7 @@ public interface IBodyCache
 {
     /**
      * Returns the corresponding body for the given element, or
-     * <code>null</code> if the cache contains no body for the element.
+     * <code>null</code> if this cache contains no body for the element.
      *
      * @param element the element whose body is to be returned
      * @return the corresponding body for the given element, or
@@ -37,9 +37,9 @@ public interface IBodyCache
     Object get(IElement element);
 
     /**
-     * Returns the corresponding body for the given element without
-     * disturbing the cache ordering, or <code>null</code>
-     * if the cache contains no body for the element.
+     * Returns the corresponding body for the given element without disturbing
+     * cache ordering, or <code>null</code> if this cache contains no body for
+     * the element.
      *
      * @param element the element whose body is to be returned
      * @return the corresponding body for the given element, or
@@ -50,7 +50,7 @@ public interface IBodyCache
     /**
      * Remembers the given body for the given element in this cache.
      * If the cache previously contained a body for the element,
-     * the old body is replaced by the given body.
+     * the old body is replaced with the given body.
      *
      * @param element the element with which the given body is to be associated
      *  (not <code>null</code>)
@@ -60,10 +60,10 @@ public interface IBodyCache
     void put(IElement element, Object body);
 
     /**
-     * Remembers the given handle/body relationships in this cache.
+     * Remembers the given element handle/body relationships in this cache.
      *
-     * @param elementBodies handle/body relationships to be stored in the cache
-     *  (not <code>null</code>)
+     * @param elementBodies element handle/body relationships to be stored
+     *  in the cache (not <code>null</code>)
      */
     default void putAll(Map<? extends IElement, Object> elementBodies)
     {

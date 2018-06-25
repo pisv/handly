@@ -20,10 +20,10 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.IElementImplExtension;
 
 /**
- * This class provides a skeletal implementation of the {@link
- * IElementImplExtension} interface to minimize the effort required to implement
- * that interface. Clients might as well "mix in" {@link IElementImplSupport}
- * directly if extending this class is not possible/desirable for some reason.
+ * Provides a skeletal implementation of {@link IElementImplExtension}
+ * to minimize the effort required to implement that interface. Clients might
+ * as well implement ("mix in") {@link IElementImplSupport} directly if extending
+ * this class is not possible/desirable for some reason.
  */
 public abstract class Element
     extends PlatformObject

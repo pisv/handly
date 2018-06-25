@@ -13,7 +13,7 @@
 package org.eclipse.handly.snapshot;
 
 /**
- * Abstract superclass of snapshots.
+ * Abstract superclass of all snapshots.
  * Implements an equivalence relation on snapshots.
  */
 public abstract class Snapshot
@@ -41,7 +41,9 @@ public abstract class Snapshot
      *
      * @param other the other snapshot (not <code>null</code>
      *  and not identical to the receiver)
-     * @return whether the two snapshots are predicted to be equal
+     * @return <code>true</code> if the two snapshots are predicted to be equal,
+     *  <code>false</code> if the two snapshots are predicted to be unequal,
+     *  and <code>null</code> if there is no prediction
      */
     protected Boolean predictEquality(Snapshot other)
     {

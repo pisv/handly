@@ -86,7 +86,7 @@ public final class TextRange
 
     /**
      * Returns whether this text range covers the given position,
-     * excluding the {@link #getEndOffset() end offset} of the range.
+     * excluding the {@link #getEndOffset() end} offset of the range.
      *
      * @param position a text position (0-based)
      * @return <code>true</code> if this text range strictly covers the given
@@ -100,7 +100,7 @@ public final class TextRange
 
     /**
      * Returns whether this text range covers the given position,
-     * including the {@link #getEndOffset() end offset} of the range.
+     * including the {@link #getEndOffset() end} offset of the range.
      *
      * @param position a text position (0-based)
      * @return <code>true</code> if this text range covers the given position,

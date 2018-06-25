@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,7 +22,7 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.util.Property;
 
 /**
- * Extension of {@link IElementImpl} that introduces the notion of the element's
+ * Extension of {@link IElementImpl} that introduces the notion of element's
  * cached body. {@link IElement}s may implement this interface.
  *
  * @noextend This interface is not intended to be extended by clients.
@@ -41,8 +41,9 @@ public interface IElementImplExtension
      * Given a body, returns the immediate children of this element.
      *
      * @param body the body corresponding to this element
-     *  (never <code>null</code>)
-     * @return the immediate children of this element (not <code>null</code>)
+     *  (not <code>null</code>)
+     * @return the immediate children of this element (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      */
     IElement[] getChildrenFromBody_(Object body);
 
@@ -66,8 +67,8 @@ public interface IElementImplExtension
 
     /**
      * Returns the cached body for this element. If this element is not
-     * already present in the body cache, it will be {@link #open_(IContext,
-     * IProgressMonitor) opened}. Shortcut to <code>getBody_(EMPTY_CONTEXT, null)</code>.
+     * already present in the body cache, attempts to {@link #open_(IContext,
+     * IProgressMonitor) open} it. Shortcut to <code>getBody_(EMPTY_CONTEXT, null)</code>.
      *
      * @return the cached body for this element (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
@@ -80,9 +81,8 @@ public interface IElementImplExtension
 
     /**
      * Returns the cached body for this element. If this element is not
-     * already present in the body cache, it will be {@link #open_(IContext,
-     * IProgressMonitor) opened} according to options specified in the given
-     * context.
+     * already present in the body cache, attempts to {@link #open_(IContext,
+     * IProgressMonitor) open} it propagating the given context.
      *
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
@@ -104,7 +104,7 @@ public interface IElementImplExtension
 
     /**
      * Indicates whether to forcibly reopen this element if it is already open
-     * (i.e. already present in the body cache). Default value: <code>false</code>.
+     * (i.e., already present in the body cache). Default value: <code>false</code>.
      * <p>
      * This property is for implementation purposes;
      * it is not intended for use by general clients.
@@ -116,7 +116,7 @@ public interface IElementImplExtension
         Boolean.class).withDefault(false);
 
     /**
-     * Ensures that this element is open, i.e. it exists and is present in the
+     * Ensures that this element is open, i.e., it exists and is present in the
      * body cache. Performs atomically. Returns the cached body for this element.
      * <p>
      * Implementations are encouraged to support the following standard options,
@@ -125,7 +125,7 @@ public interface IElementImplExtension
      * <ul>
      * <li>
      * {@link #FORCE_OPEN} - Indicates whether to forcibly reopen this element
-     * if it is already open (i.e. already present in the body cache).
+     * if it is already open (i.e., already present in the body cache).
      * </li>
      * </ul>
      *
@@ -142,7 +142,8 @@ public interface IElementImplExtension
         throws CoreException;
 
     /**
-     * Closes this element iff the current state of this element permits closing.
+     * Closes this element if, and only if, the current state of this element
+     * permits closing.
      * <p>
      * Closing of an element removes its body from the body cache. In general,
      * closing of a parent element also closes its children. If the current state
@@ -162,7 +163,7 @@ public interface IElementImplExtension
     }
 
     /**
-     * Closing hint.
+     * Indicates reason for element closing.
      */
     enum CloseHint
     {
@@ -177,7 +178,7 @@ public interface IElementImplExtension
     }
 
     /**
-     * Close hint property.
+     * Closing hint.
      * <p>
      * This property is for implementation purposes;
      * it is not intended for use by general clients.
@@ -189,8 +190,8 @@ public interface IElementImplExtension
         CloseHint.class);
 
     /**
-     * Closes this element iff the current state of this element permits closing
-     * according to options specified in the given context.
+     * Closes this element if, and only if, the current state of this element
+     * permits closing according to options specified in the given context.
      * <p>
      * Closing of an element removes its body from the body cache. In general,
      * closing of a parent element also closes its children. If the current state

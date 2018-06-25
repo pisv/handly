@@ -30,7 +30,7 @@ import org.eclipse.text.edits.MalformedTreeException;
 /**
  * A simple {@link IBuffer} implementation. This implementation is not backed
  * by an underlying resource, so saving the buffer only modifies its {@link
- * #isDirty() "dirty"} state -- it does not really save its contents.
+ * #isDirty() "dirty"} state; it does not really save its contents.
  * <p>
  * An instance of this class is safe for use by multiple threads. Clients can
  * use this class as it stands or subclass it as circumstances warrant.

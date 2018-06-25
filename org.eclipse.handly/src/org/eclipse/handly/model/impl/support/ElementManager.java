@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -27,7 +27,7 @@ import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.IElementImplExtension;
 
 /**
- * Manages handle/body relationships for a Handly-based model.
+ * Manages element handle/body relationships for a Handly-based model.
  * Generally, each model will have its own instance of the element manager.
  * <p>
  * An instance of this class is safe for use by multiple threads.
@@ -82,7 +82,7 @@ public class ElementManager
      * given context. If the current state of an open element does not permit
      * closing (e.g., a working copy), it remains open. Closing of an element
      * generally involves closing its children and removal of its body from the
-     * cache.
+     * body cache.
      * <p>
      * This method is called internally; it is not intended to be invoked by clients.
      * This method is called under the element manager lock.
@@ -101,8 +101,8 @@ public class ElementManager
      * <code>null</code> if no body is registered for the element.
      * <p>
      * Checks the temporary cache first. If the current thread has no temporary
-     * cache or it contains no body for the element, checks the body cache
-     * associated with this manager. Performs atomically.
+     * cache or the temporary cache contains no body for the element, checks
+     * the body cache associated with this manager. Performs atomically.
      * </p>
      *
      * @param element the element whose body is to be returned
@@ -127,8 +127,8 @@ public class ElementManager
      * is registered for the element.
      * <p>
      * Checks the temporary cache first. If the current thread has no temporary
-     * cache or it contains no body for the element, checks the body cache
-     * associated with this manager. Performs atomically.
+     * cache or the temporary cache contains no body for the element, checks
+     * the body cache associated with this manager. Performs atomically.
      * </p>
      *
      * @param element the element whose body is to be returned
@@ -149,10 +149,10 @@ public class ElementManager
 
     /**
      * Atomically updates the body cache associated with this manager with the
-     * provided handle/body relationships.
+     * provided element handle/body relationships.
      *
      * @param element the element being (re-)opened (not <code>null</code>)
-     * @param newElements a map containing handle/body relationships
+     * @param newElements a map containing element handle/body relationships
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
      *  it must contain a body for the given element
      */
@@ -181,11 +181,11 @@ public class ElementManager
 
     /**
      * If a body for the given element is not already present in the body cache
-     * associated with this manager, puts the provided handle/body relationships
-     * into the body cache. Performs atomically.
+     * associated with this manager, puts the provided element handle/body
+     * relationships into the body cache. Performs atomically.
      *
      * @param element the element being opened (not <code>null</code>)
-     * @param newElements a map containing handle/body relationships
+     * @param newElements a map containing element handle/body relationships
      *  to be stored in the body cache (not <code>null</code>). At a minimum,
      *  it must contain a body for the given element
      * @return the previous body for the given element, or <code>null</code>

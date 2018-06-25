@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -60,11 +60,11 @@ import org.eclipse.handly.util.IndentPolicy;
 import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
- * Implementation of element delta. To create a delta tree, use the
- * {@link ElementDelta.Builder}.
+ * A complete implementation of {@link IElementDeltaImpl}.
+ * To create a delta tree, use {@link ElementDelta.Builder}.
  * <p>
- * Note that despite having a dependency on {@link IResourceDelta}
- * and {@link IMarkerDelta} this class can be used even when
+ * Note that, despite having a dependency on {@link IResourceDelta}
+ * and {@link IMarkerDelta}, this class can be used even when
  * <code>org.eclipse.core.resources</code> bundle is not available.
  * This is based on the "outward impression" of late resolution of
  * symbolic references a JVM must provide according to the JVMS.
@@ -74,7 +74,7 @@ import org.eclipse.handly.util.ToStringOptions.FormatStyle;
  * warrant. Clients that subclass this class should consider registering
  * an appropriate {@link ElementDelta.Factory} in the model context.
  * Subclasses that introduce new fields should consider extending
- * the {@link #copyFrom_} method.
+ * the {@link #copyFrom_(ElementDelta, boolean) copyFrom_} method.
  * </p>
  */
 public class ElementDelta
@@ -90,10 +90,10 @@ public class ElementDelta
     private ElementDelta[] affectedChildren = NO_CHILDREN;
     private int affectedChildrenCounter;
 
-    /**
+    /*
      * On-demand index into <code>affectedChildren</code>.
      * @see #indexOfChild(Key)
-     * @see #hNeedsChildIndex()
+     * @see #needsChildIndex_()
      */
     private Map<Key, Integer> childIndex;
 
@@ -104,8 +104,7 @@ public class ElementDelta
     /**
      * Constructs an initially empty delta for the given element.
      *
-     * @param element the element that this delta describes a change to
-     *  (not <code>null</code>)
+     * @param element not <code>null</code>
      * @see ElementDelta.Builder
      */
     public ElementDelta(IElement element)
@@ -146,8 +145,9 @@ public class ElementDelta
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation returns an array of exactly the same runtime type as
-     * the array given in the most recent call to {@link #setAffectedChildren_}.
+     * This implementation returns an array of exactly the same
+     * runtime type as the array given in the most recent call to
+     * {@link #setAffectedChildren_(ElementDelta[]) setAffectedChildren_}.
      * </p>
      */
     @Override
@@ -165,8 +165,9 @@ public class ElementDelta
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation returns an array of exactly the same runtime type as
-     * the array given in the most recent call to {@link #setAffectedChildren_}.
+     * This implementation returns an array of exactly the same
+     * runtime type as the array given in the most recent call to
+     * {@link #setAffectedChildren_(ElementDelta[]) setAffectedChildren_}.
      * </p>
      */
     @Override
@@ -178,8 +179,9 @@ public class ElementDelta
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation returns an array of exactly the same runtime type as
-     * the array given in the most recent call to {@link #setAffectedChildren_}.
+     * This implementation returns an array of exactly the same
+     * runtime type as the array given in the most recent call to
+     * {@link #setAffectedChildren_(ElementDelta[]) setAffectedChildren_}.
      * </p>
      */
     @Override
@@ -191,8 +193,9 @@ public class ElementDelta
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation returns an array of exactly the same runtime type as
-     * the array given in the most recent call to {@link #setAffectedChildren_}.
+     * This implementation returns an array of exactly the same
+     * runtime type as the array given in the most recent call to
+     * {@link #setAffectedChildren_(ElementDelta[]) setAffectedChildren_}.
      * </p>
      */
     @Override
@@ -271,9 +274,6 @@ public class ElementDelta
         return builder.toString();
     }
 
-    /**
-     * Debugging purposes.
-     */
     protected void toStringChildren_(StringBuilder builder, IContext context)
     {
         IndentPolicy indentPolicy = context.getOrDefault(INDENT_POLICY);
@@ -285,9 +285,6 @@ public class ElementDelta
         }
     }
 
-    /**
-     * Debugging purposes.
-     */
     protected void toStringResourceDeltas_(StringBuilder builder,
         IContext context)
     {
@@ -321,9 +318,6 @@ public class ElementDelta
         }
     }
 
-    /**
-     * Debugging purposes.
-     */
     protected void toStringKind_(StringBuilder builder, IContext context)
     {
         switch (getKind_())
@@ -344,12 +338,14 @@ public class ElementDelta
     }
 
     /**
-     * Debugging purposes.
+     * Appends a string representation for this delta's flags to the given
+     * string builder.
      *
      * @param builder a string builder to append the delta flags to
      * @param context not <code>null</code>
      * @return <code>true</code> if a flag was appended to the builder,
-     *  <code>false</code> if the builder was not modified by this method
+     *  and <code>false</code> if the builder was not modified by this method
+     * @see #getFlags_()
      */
     protected boolean toStringFlags_(StringBuilder builder, IContext context)
     {
@@ -453,12 +449,11 @@ public class ElementDelta
      * <p>
      * This implementation uses {@link ElementDelta.Factory} registered in the
      * element's model context. If no delta factory is registered in the model
-     * context, a new instance of this class (i.e. <code>ElementDelta</code>)
+     * context, a new instance of this class (i.e., <code>ElementDelta</code>)
      * is returned.
      * </p>
      *
-     * @param element the element that this delta describes a change to
-     *  (not <code>null</code>)
+     * @param element not <code>null</code>
      * @return a new, initially empty delta for the given element
      *  (never <code>null</code>)
      */
@@ -471,10 +466,10 @@ public class ElementDelta
     }
 
     /**
-     * Returns whether the child index needs to be used for child lookup.
+     * Returns whether an index needs to be used for child lookup.
      *
      * @return <code>true</code> if the child index needs to be used,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     protected boolean needsChildIndex_()
     {
@@ -483,8 +478,13 @@ public class ElementDelta
 
     /**
      * Sets the kind of this delta.
+     * <p>
+     * This is a low-level mutator method. In particular, it is the caller's
+     * responsibility to ensure validity of the given value.
+     * </p>
      *
-     * @param kind
+     * @param kind the delta kind
+     * @see #getKind_()
      */
     protected void setKind_(int kind)
     {
@@ -493,8 +493,13 @@ public class ElementDelta
 
     /**
      * Sets the flags for this delta.
+     * <p>
+     * This is a low-level mutator method. In particular, it is the caller's
+     * responsibility to ensure validity of the given value.
+     * </p>
      *
-     * @param flags
+     * @param flags the delta flags
+     * @see #getFlags_()
      */
     protected void setFlags_(long flags)
     {
@@ -506,10 +511,12 @@ public class ElementDelta
      * to its current location.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set appropriate flags.
+     * responsibility to set the appropriate kind and flags for this delta.
      * </p>
      *
-     * @param movedFromElement
+     * @param movedFromElement an element describing this delta's element
+     *  before it was moved to its current location
+     * @see #getMovedFromElement_()
      */
     protected void setMovedFromElement_(IElement movedFromElement)
     {
@@ -520,10 +527,12 @@ public class ElementDelta
      * Sets an element describing this delta's element in its new location.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set appropriate flags.
+     * responsibility to set the appropriate kind and flags for this delta.
      * </p>
      *
-     * @param movedToElement
+     * @param movedToElement an element describing this delta's element
+     *  in its new location
+     * @see #getMovedToElement_()
      */
     protected void setMovedToElement_(IElement movedToElement)
     {
@@ -531,13 +540,15 @@ public class ElementDelta
     }
 
     /**
-     * Sets the marker deltas.
+     * Sets the marker deltas for this delta. Clients <b>must not</b> modify
+     * the given array afterwards.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set appropriate flags.
+     * responsibility to set the appropriate kind and flags for this delta.
      * </p>
      *
-     * @param markerDeltas
+     * @param markerDeltas the marker deltas
+     * @see #getMarkerDeltas_()
      */
     protected void setMarkerDeltas_(IMarkerDelta[] markerDeltas)
     {
@@ -545,13 +556,15 @@ public class ElementDelta
     }
 
     /**
-     * Sets the resource deltas.
+     * Sets the resource deltas for this delta. Clients <b>must not</b> modify
+     * the given array afterwards.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set appropriate flags.
+     * responsibility to set the appropriate kind and flags for this delta.
      * </p>
      *
-     * @param resourceDeltas
+     * @param resourceDeltas the resource deltas
+     * @see #getResourceDeltas_()
      */
     protected void setResourceDeltas_(IResourceDelta[] resourceDeltas)
     {
@@ -561,9 +574,11 @@ public class ElementDelta
     }
 
     /**
-     * Adds the child resource delta to the collection of resource deltas.
+     * Adds the given resource delta to the collection of resource deltas
+     * of this delta.
      *
      * @param resourceDelta the resource delta to add (not <code>null</code>)
+     * @see #getResourceDeltas_()
      */
     protected void addResourceDelta_(IResourceDelta resourceDelta)
     {
@@ -603,28 +618,27 @@ public class ElementDelta
     /**
      * Based on the given delta, creates a delta tree that can be directly
      * parented by this delta, and then {@link #addAffectedChild_ adds} the
-     * tree as an affected child of this delta. Doesn't modify the given delta
-     * in any way.
+     * tree as an affected child of this delta.
      * <p>
      * Note that after calling <code>insertSubTree_(delta)</code>
      * there is no guarantee that
      * </p>
-     * <pre>findDelta_(d.getElement_()) == d</pre>
+     * <pre>    findDelta_(d.getElement_()) == d</pre>
      * <p>
      * or even that
      * </p>
-     * <pre>findDelta_(d.getElement_()) != null</pre>
+     * <pre>    findDelta_(d.getElement_()) != null</pre>
      * <p>
      * for any delta <code>d</code> in the subtree <code>delta</code>.
-     * </p>
-     * <p>
-     * For example, if this delta tree already contains a delta for
-     * <code>d.getElement_()</code>, the existing child delta will be {@link
+     * For example, if this delta tree already contains a delta
+     * for <code>d.getElement_()</code>, that delta will be {@link
      * #mergeWith_(ElementDelta) merged} with <code>d</code>, which may even
-     * result in a logically empty delta, i.e. no delta for the element.
+     * result in a logically empty delta, i.e., no delta for the element.
      * </p>
      *
      * @param delta the delta to insert (not <code>null</code>)
+     * @throws IllegalArgumentException if the given delta cannot be rooted
+     *  in this delta
      */
     protected void insertSubTree_(ElementDelta delta)
     {
@@ -635,7 +649,7 @@ public class ElementDelta
      * Adds the given delta as an affected child of this delta. If this delta
      * already contains a child delta for the same element as the given delta,
      * {@link #mergeWith_(ElementDelta) merges} the existing child delta with
-     * the given delta. Doesn't modify the given delta in any way.
+     * the given delta.
      * <p>
      * It is the caller's responsibility to ensure that the given delta can be
      * directly parented by this delta.
@@ -644,16 +658,17 @@ public class ElementDelta
      * Note that after calling <code>addAffectedChild_(delta)</code>
      * there is no guarantee that
      * </p>
-     * <pre>findDelta_(d.getElement_()) == d</pre>
+     * <pre>    findDelta_(d.getElement_()) == d</pre>
      * <p>
      * or even that
      * </p>
-     * <pre>findDelta_(d.getElement_()) != null</pre>
+     * <pre>    findDelta_(d.getElement_()) != null</pre>
      * <p>
      * for any delta <code>d</code> in the subtree <code>delta</code>.
      * </p>
      *
      * @param child the delta to add as an affected child (not <code>null</code>)
+     * @see #getAffectedChildren_()
      * @see #insertSubTree_(ElementDelta)
      */
     protected void addAffectedChild_(ElementDelta child)
@@ -696,15 +711,15 @@ public class ElementDelta
     }
 
     /**
-     * Merges this delta with the given delta. Doesn't modify the given delta
+     * Merges this delta with the given delta; the given delta is not modified
      * in any way.
      * <p>
      * It is the caller's responsibility to ensure that the given delta pertains
      * to the same element as this delta.
      * </p>
      * <p>
-     * This implementation implements merge behavior in terms of calls to
-     * {@link #copyFrom_}.
+     * This implementation implements merge semantics in terms of calls to
+     * {@link #copyFrom_(ElementDelta, boolean) copyFrom_}.
      * </p>
      *
      * @param delta the delta to merge with (not <code>null</code>)
@@ -757,8 +772,8 @@ public class ElementDelta
     }
 
     /**
-     * Implements "=" (assignment) and "+=" (augmented assignment) operations
-     * for this delta. Doesn't modify the given delta in any way.
+     * Copies data from the given delta to this delta; the given delta is not
+     * modified in any way.
      * <p>
      * It is the caller's responsibility to ensure that the given delta pertains
      * to the same element as this delta.
@@ -821,13 +836,14 @@ public class ElementDelta
     }
 
     /**
-     * Sets the affected children.
+     * Sets the affected children for this delta.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set appropriate flags.
+     * responsibility to set the appropriate kind and flags for this delta.
      * </p>
      *
      * @param children the affected children (not <code>null</code>)
+     * @see #getAffectedChildren_()
      */
     protected void setAffectedChildren_(ElementDelta[] children)
     {
@@ -838,12 +854,14 @@ public class ElementDelta
         childIndex = null;
     }
 
-    /**
-     * Based on the given delta, creates a delta tree to add as an affected
-     * child of this delta. Returns the root of the created delta tree.
+    /*
+     * Based on the given delta, creates a delta tree that can be directly
+     * parented by this delta. Returns the root of the created delta tree.
      *
      * @param delta the delta to create a delta tree for (not <code>null</code>)
      * @return the root of the created delta tree (never <code>null</code>)
+     * @throws IllegalArgumentException if the given delta cannot be rooted
+     *  in this delta
      */
     private ElementDelta createDeltaTree(ElementDelta delta)
     {
@@ -865,14 +883,14 @@ public class ElementDelta
         return childDelta;
     }
 
-    /**
-     * Returns the list of the parents of the given element up to
+    /*
+     * Returns a list of ancestor elements of the given element up to
      * (but not including) the element of this delta in bottom-up order.
      * If the given element is not a descendant of this delta's element,
      * <code>null</code> is returned.
      *
-     * @param child the given element (not <code>null</code>)
-     * @return the list of the parents of the given element up to
+     * @param child not <code>null</code>
+     * @return a list of ancestor elements of the given element up to
      *  (but not including) the element of this delta in bottom-up order,
      *  or <code>null</code> if the given element is not a descendant of
      *  this delta's element
@@ -895,12 +913,12 @@ public class ElementDelta
         return parents;
     }
 
-    /**
-     * Returns the deltas for the affected children of the given kind.
+    /*
+     * Returns element deltas for all affected children of the given kind.
      *
      * @param kind one of <code>ADDED</code>, <code>REMOVED</code>, or
      *  <code>CHANGED</code>
-     * @return the deltas for the affected children of the given kind
+     * @return element deltas for all affected children of the given kind
      *  (never <code>null</code>)
      */
     private ElementDelta[] getChildrenOfKind(int kind)
@@ -926,7 +944,7 @@ public class ElementDelta
         return children.toArray(result);
     }
 
-    /**
+    /*
      * Returns the descendant delta for the given key,
      * or <code>null</code> if no delta is found for the given key.
      *
@@ -951,7 +969,7 @@ public class ElementDelta
         return null;
     }
 
-    /**
+    /*
      * Given a delta key, returns the index of the delta in the list of
      * affected children, or <code>null</code> if no child delta is found
      * for the given key.
@@ -985,13 +1003,13 @@ public class ElementDelta
         return childIndex.get(key);
     }
 
-    /**
+    /*
      * Adds the given delta as a new affected child of this delta without
      * any checks.
      * <p>
      * It is the caller's responsibility to ensure that this delta doesn't
      * already contain a child delta for the same element as the given delta
-     * and the given delta can be a direct child of this delta.
+     * and that the given delta can be a direct child of this delta.
      * </p>
      *
      * @param child the delta to add as a new affected child
@@ -1014,7 +1032,7 @@ public class ElementDelta
         }
     }
 
-    /**
+    /*
      * Removes the specified child delta from the list of affected children.
      *
      * @param key
@@ -1052,15 +1070,14 @@ public class ElementDelta
     }
 
     /**
-     * Element delta factory.
+     * Represents a factory for creating instances of {@link ElementDelta}.
      */
     public interface Factory
     {
         /**
          * Returns a new, initially empty delta for the given element.
          *
-         * @param element the element that this delta describes a change to
-         *  (not <code>null</code>)
+         * @param element not <code>null</code>
          * @return a new, initially empty delta for the given element
          *  (never <code>null</code>)
          */
@@ -1068,7 +1085,7 @@ public class ElementDelta
     }
 
     /**
-     * Facility for building a delta tree.
+     * Builds a tree of {@link ElementDelta} objects based on elementary changes.
      */
     public static class Builder
         implements IElementDeltaBuilder

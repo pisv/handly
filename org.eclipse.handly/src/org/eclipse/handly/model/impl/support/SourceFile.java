@@ -16,10 +16,10 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.impl.ISourceFileImpl;
 
 /**
- * This class provides a skeletal implementation of the {@link
- * ISourceFileImpl} interface to minimize the effort required to implement
- * that interface. Clients might as well "mix in" {@link ISourceFileImplSupport}
- * directly if extending this class is not possible/desirable for some reason.
+ * Provides a skeletal implementation of {@link ISourceFileImpl} to minimize
+ * the effort required to implement that interface. Clients might as well
+ * implement ("mix in") {@link ISourceFileImplSupport} directly if extending
+ * this class is not possible/desirable for some reason.
  *
  * @see WorkspaceSourceFile
  */
