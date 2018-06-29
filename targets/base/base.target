@@ -63,13 +63,13 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <!-- LSP4E 0.4 requires mylyn.commons.notifications which requires mylyn.commons -->
-<repository location="http://download.eclipse.org/mylyn/releases/neon"/>
+<repository location="http://download.eclipse.org/mylyn/drops/3.21.3/v20170505-2151"/>
 <unit id="org.eclipse.mylyn.commons.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.mylyn.commons.notifications.feature.group" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
 <!-- LSP4E 0.4 requires mylyn.wikitext and mylyn.wikitext.markdown 3.0 or greater -->
-<repository location="http://download.eclipse.org/mylyn/releases/oxygen"/>
+<repository location="http://download.eclipse.org/mylyn/docs/releases/3.0.6"/>
 <unit id="org.eclipse.mylyn.wikitext" version="0.0.0"/>
 <unit id="org.eclipse.mylyn.wikitext.markdown" version="0.0.0"/>
 <unit id="org.jsoup" version="0.0.0"/>
