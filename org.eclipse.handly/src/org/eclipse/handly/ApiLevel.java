@@ -21,11 +21,19 @@ public class ApiLevel
      * The 1.0 API level.
      */
     public static final int _1_0 = 0;
+
+    /**
+     * The 1.1 API level.
+     *
+     * @since 1.1
+     */
+    public static final int _1_1 = 1;
+
     /**
      * Corresponds to the API level the code using this constant
      * was built against.
      */
-    public static final int CURRENT = _1_0;
+    public static final int CURRENT = _1_1;
 
     private ApiLevel()
     {

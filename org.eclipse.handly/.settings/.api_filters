@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.handly" version="2">
+    <resource path="src/org/eclipse/handly/ApiLevel.java" type="org.eclipse.handly.ApiLevel">
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.handly.ApiLevel"/>
+                <message_argument value="CURRENT"/>
+                <message_argument value="0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/handly/buffer/BufferChangeOperation.java" type="org.eclipse.handly.buffer.BufferChangeOperation$ChangeEditProcessor">
         <filter id="571473929">
             <message_arguments>
