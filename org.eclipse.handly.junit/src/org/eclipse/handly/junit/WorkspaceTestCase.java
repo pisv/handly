@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.Job;
 
 import junit.framework.TestCase;
@@ -128,7 +127,7 @@ public abstract class WorkspaceTestCase
 
     /**
      * Creates a new project in the workspace by copying its content from
-     * the OSGi-bundle of this test case. The content must reside in the folder
+     * the OSGi-bundle of this test case. The content needs to reside in the folder
      * <code>/workspace/</code>&lt;project-name&gt; inside the bundle.
      *
      * @param name the name of the project
@@ -204,18 +203,14 @@ public abstract class WorkspaceTestCase
      */
     protected final void waitForBuildCompletion()
     {
-        boolean wasInterrupted = false;
+        boolean wasInterrupted;
         do
         {
+            wasInterrupted = false;
             try
             {
                 Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD,
                     null);
-                wasInterrupted = false;
-            }
-            catch (OperationCanceledException e)
-            {
-                e.printStackTrace();
             }
             catch (InterruptedException e)
             {
