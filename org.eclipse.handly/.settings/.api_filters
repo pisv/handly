@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.handly" version="2">
+    <resource path="src/org/eclipse/handly/buffer/BufferChangeOperation.java" type="org.eclipse.handly.buffer.BufferChangeOperation$ChangeEditProcessor">
+        <filter id="571473929">
+            <message_arguments>
+                <message_argument value="TextEditProcessor"/>
+                <message_argument value="ChangeEditProcessor"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/refactoring/SourceFileChange.java" type="org.eclipse.handly.refactoring.SourceFileChange$PreviewEditProcessor">
+        <filter id="571473929">
+            <message_arguments>
+                <message_argument value="TextEditProcessor"/>
+                <message_argument value="PreviewEditProcessor"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
