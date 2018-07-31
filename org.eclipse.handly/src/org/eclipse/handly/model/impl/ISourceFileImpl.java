@@ -90,7 +90,7 @@ public interface ISourceFileImpl
         throws CoreException;
 
     /**
-     * Returns the buffer opened for this source file. Note that buffers may
+     * Returns a buffer opened for this source file. Note that buffers may
      * be shared by multiple clients, so the returned buffer may have unsaved
      * changes if it has been modified by another client.
      * <p>
@@ -121,9 +121,9 @@ public interface ISourceFileImpl
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @return the buffer opened for this source file. May return <code>null</code>
-     *  if <code>CREATE_BUFFER == false</code> and there is no buffer currently
-     *  opened for this source file
+     * @return a buffer opened for this source file. May return <code>null</code>
+     *  if <code>CREATE_BUFFER</code> is <code>false</code> in the given context
+     *  and there is no buffer currently opened for the source file
      * @throws CoreException if this source file does not exist or if an
      *  exception occurs while accessing its corresponding resource
      * @throws OperationCanceledException if this method is canceled

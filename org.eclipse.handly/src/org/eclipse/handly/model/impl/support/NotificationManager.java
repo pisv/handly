@@ -49,8 +49,8 @@ public class NotificationManager
      * event types.
      * <p>
      * After completion of this method, the given listener will be registered
-     * for exactly the specified event types. If they were previously registered
-     * for other event types, they will be de-registered.
+     * for exactly the specified event types. If it was previously registered
+     * for other event types, it will be de-registered for those event types.
      * </p>
      *
      * @param listener the listener to add (not <code>null</code>)

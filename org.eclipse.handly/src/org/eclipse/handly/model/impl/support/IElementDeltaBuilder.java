@@ -136,7 +136,7 @@ public interface IElementDeltaBuilder
      * Returns the root of the built delta tree. The delta tree describes
      * the net result of all changes reported to this builder up to now.
      * There is no requirement for the returned delta object to reflect
-     * subsequent changes reported to this builder. Instead, a new instance
+     * subsequent changes reported to this builder; a new instance
      * may be returned each time this method is invoked.
      *
      * @return the root of the built delta tree, or <code>null</code> if none

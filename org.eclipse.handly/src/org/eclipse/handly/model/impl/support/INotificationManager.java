@@ -25,7 +25,7 @@ public interface INotificationManager
     /**
      * Notifies registered listeners about the given event.
      *
-     * @param event the change event (not <code>null</code>)
+     * @param event an element change event (not <code>null</code>)
      */
     void fireElementChangeEvent(IElementChangeEvent event);
 }

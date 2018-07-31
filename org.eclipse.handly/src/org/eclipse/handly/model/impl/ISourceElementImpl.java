@@ -14,6 +14,7 @@ package org.eclipse.handly.model.impl;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceElementInfo;
@@ -56,6 +57,7 @@ public interface ISourceElementImpl
      * @throws StaleSnapshotException if snapshot inconsistency is detected,
      *  i.e., this element's current structure and properties are based on
      *  a different snapshot
+     * @throws OperationCanceledException if this method is canceled
      */
     ISourceElement getSourceElementAt_(int position, IContext context,
         IProgressMonitor monitor) throws CoreException;
@@ -71,6 +73,7 @@ public interface ISourceElementImpl
      *  (never <code>null</code>)
      * @throws CoreException if this element does not exist or if an
      *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is canceled
      */
     ISourceElementInfo getSourceElementInfo_(IContext context,
         IProgressMonitor monitor) throws CoreException;

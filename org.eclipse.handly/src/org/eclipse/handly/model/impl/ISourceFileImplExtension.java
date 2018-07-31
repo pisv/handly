@@ -83,8 +83,8 @@ public interface ISourceFileImplExtension
      * </li>
      * <li>
      * {@link #WORKING_COPY_CALLBACK} - Specifies the working copy callback.
-     * If set, a different callback instance is required for each call of this
-     * method: callbacks may not be shared.
+     * If set, the given callback must be a new instance: callbacks may not be
+     * shared or reused between working copies.
      * </li>
      * <li>
      * {@link #WORKING_COPY_CONTEXT} - Specifies the working copy context.

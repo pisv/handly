@@ -43,7 +43,7 @@ final class TextFileSnapshotWs
      *
      * @param file not <code>null</code>
      */
-    public TextFileSnapshotWs(IFile file)
+    TextFileSnapshotWs(IFile file)
     {
         if (file == null)
             throw new IllegalArgumentException();

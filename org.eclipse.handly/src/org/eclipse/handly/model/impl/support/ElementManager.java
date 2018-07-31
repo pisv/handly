@@ -82,10 +82,13 @@ public class ElementManager
      * given context. If the current state of an open element does not permit
      * closing (e.g., a working copy), it remains open. Closing of an element
      * generally involves closing its children and removal of its body from the
-     * body cache.
+     * body cache. This method is called under the element manager lock.
      * <p>
-     * This method is called internally; it is not intended to be invoked by clients.
-     * This method is called under the element manager lock.
+     * Subclasses may override this method, but are not intended to invoke it.
+     * </p>
+     * <p>
+     * This implementation invokes <code>((IElementImplExtension)element).{@link
+     * IElementImplExtension#close_(IContext) close_}(context)</code>.
      * </p>
      *
      * @param element the element that needs closing (never <code>null</code>)

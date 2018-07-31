@@ -88,7 +88,7 @@ public interface ISourceFileExtension
     }
 
     /**
-     * Returns the buffer opened for this source file. Note that buffers may
+     * Returns a buffer opened for this source file. Note that buffers may
      * be shared by multiple clients, so the returned buffer may have unsaved
      * changes if it has been modified by another client.
      * <p>
@@ -104,7 +104,7 @@ public interface ISourceFileExtension
      * change over the lifetime of a working copy.
      * </p>
      *
-     * @return the buffer opened for this source file (never <code>null</code>)
+     * @return a buffer opened for this source file (never <code>null</code>)
      * @throws CoreException if this source file does not exist or if an
      *  exception occurs while accessing its corresponding resource
      */

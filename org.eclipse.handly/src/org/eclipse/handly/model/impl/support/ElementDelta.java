@@ -511,7 +511,7 @@ public class ElementDelta
      * to its current location.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set the appropriate kind and flags for this delta.
+     * responsibility to set appropriate kind and flags for this delta.
      * </p>
      *
      * @param movedFromElement an element describing this delta's element
@@ -527,7 +527,7 @@ public class ElementDelta
      * Sets an element describing this delta's element in its new location.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set the appropriate kind and flags for this delta.
+     * responsibility to set appropriate kind and flags for this delta.
      * </p>
      *
      * @param movedToElement an element describing this delta's element
@@ -544,7 +544,7 @@ public class ElementDelta
      * the given array afterwards.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set the appropriate kind and flags for this delta.
+     * responsibility to set appropriate kind and flags for this delta.
      * </p>
      *
      * @param markerDeltas the marker deltas
@@ -560,7 +560,7 @@ public class ElementDelta
      * the given array afterwards.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set the appropriate kind and flags for this delta.
+     * responsibility to set appropriate kind and flags for this delta.
      * </p>
      *
      * @param resourceDeltas the resource deltas
@@ -575,7 +575,16 @@ public class ElementDelta
 
     /**
      * Adds the given resource delta to the collection of resource deltas
-     * of this delta.
+     * of this delta if permitted by the current state of this delta. Note
+     * that in contrast to {@link #setResourceDeltas_(IResourceDelta[]) 
+     * setResourceDeltas_}, this method can change this delta's kind and flags
+     * as appropriate.
+     * <p>
+     * If the kind of this delta is <code>ADDED</code> or <code>REMOVED</code>,
+     * this implementation returns without adding the given resource delta;
+     * otherwise, it sets the kind of this delta to <code>CHANGED</code> and
+     * adds the <code>F_CONTENT</code> change flag.
+     * </p>
      *
      * @param resourceDelta the resource delta to add (not <code>null</code>)
      * @see #getResourceDeltas_()
@@ -617,7 +626,7 @@ public class ElementDelta
 
     /**
      * Based on the given delta, creates a delta tree that can be directly
-     * parented by this delta, and then {@link #addAffectedChild_ adds} the
+     * parented by this delta and {@link #addAffectedChild_ adds} the created
      * tree as an affected child of this delta.
      * <p>
      * Note that after calling <code>insertSubTree_(delta)</code>
@@ -629,9 +638,9 @@ public class ElementDelta
      * </p>
      * <pre>    findDelta_(d.getElement_()) != null</pre>
      * <p>
-     * for any delta <code>d</code> in the subtree <code>delta</code>.
-     * For example, if this delta tree already contains a delta
-     * for <code>d.getElement_()</code>, that delta will be {@link
+     * for any delta <code>d</code> in the subtree <code>delta</code>
+     * (subtree root included). For example, if this delta tree already contains
+     * a delta for <code>d.getElement_()</code>, that delta will be {@link
      * #mergeWith_(ElementDelta) merged} with <code>d</code>, which may even
      * result in a logically empty delta, i.e., no delta for the element.
      * </p>
@@ -646,10 +655,13 @@ public class ElementDelta
     }
 
     /**
-     * Adds the given delta as an affected child of this delta. If this delta
-     * already contains a child delta for the same element as the given delta,
-     * {@link #mergeWith_(ElementDelta) merges} the existing child delta with
-     * the given delta.
+     * Adds the given delta as an affected child of this delta if permitted
+     * by the current state of this delta. If this delta already contains a
+     * child delta for the same element as the given delta, {@link #mergeWith_(
+     * ElementDelta) merges} the existing child delta with the given delta.
+     * Note that in contrast to {@link #setAffectedChildren_(ElementDelta[])
+     * setAffectedChildren_}, this method can change this delta's kind and flags
+     * as appropriate.
      * <p>
      * It is the caller's responsibility to ensure that the given delta can be
      * directly parented by this delta.
@@ -664,7 +676,15 @@ public class ElementDelta
      * </p>
      * <pre>    findDelta_(d.getElement_()) != null</pre>
      * <p>
-     * for any delta <code>d</code> in the subtree <code>delta</code>.
+     * for any delta <code>d</code> in the subtree <code>delta</code>
+     * (subtree root included).
+     * </p>
+     * <p>
+     * If the kind of this delta is <code>ADDED</code> or <code>REMOVED</code>,
+     * this implementation returns without adding the given delta; otherwise,
+     * it sets the kind of this delta to <code>CHANGED</code> and adds the
+     * <code>F_CHILDREN</code> change flag and, if this delta's element is an
+     * {@link ISourceElement}, the <code>F_FINE_GRAINED</code> change flag.
      * </p>
      *
      * @param child the delta to add as an affected child (not <code>null</code>)
@@ -836,10 +856,11 @@ public class ElementDelta
     }
 
     /**
-     * Sets the affected children for this delta.
+     * Sets the affected children for this delta. Clients <b>must not</b> modify
+     * the given array afterwards.
      * <p>
      * This is a low-level mutator method. In particular, it is the caller's
-     * responsibility to set the appropriate kind and flags for this delta.
+     * responsibility to set appropriate kind and flags for this delta.
      * </p>
      *
      * @param children the affected children (not <code>null</code>)
@@ -1105,11 +1126,9 @@ public class ElementDelta
         }
 
         /**
-         * {@inheritDoc}
-         * <p>
-         * This implementation always returns the root delta instance
-         * specified in the constructor.
-         * </p>
+         * Returns the root delta instance specified in the constructor.
+         *
+         * @return the root delta instance (never <code>null</code>)
          */
         @Override
         public ElementDelta getDelta()
@@ -1201,7 +1220,7 @@ public class ElementDelta
                 rootDelta.mergeWith_(delta);
         }
 
-        /**
+        /*
          * Returns a new <code>ADDED</code> delta for the given element.
          *
          * @param element the element that this delta describes a change to
@@ -1218,7 +1237,7 @@ public class ElementDelta
             return delta;
         }
 
-        /**
+        /*
          * Returns a new <code>REMOVED</code> delta for the given element.
          *
          * @param element the element that this delta describes a change to
@@ -1235,7 +1254,7 @@ public class ElementDelta
             return delta;
         }
 
-        /**
+        /*
          * Returns a new <code>CHANGED</code> delta for the given element.
          *
          * @param element the element that this delta describes a change to
@@ -1252,7 +1271,7 @@ public class ElementDelta
             return delta;
         }
 
-        /**
+        /*
          * Returns a new "moved from" (<code>REMOVED</code>) delta for the
          * given element.
          *
@@ -1273,7 +1292,7 @@ public class ElementDelta
             return delta;
         }
 
-        /**
+        /*
          * Returns a new "moved to" (<code>ADDED</code>) delta for the given
          * element.
          *
@@ -1295,20 +1314,20 @@ public class ElementDelta
         }
     }
 
-    /**
+    /*
      * Represents a delta key.
      * @see ElementDelta#childIndex
      */
     private static class Key
     {
-        public final IElement element;
+        final IElement element;
 
-        /**
+        /*
          * Constructs a new delta key for the given element.
          *
          * @param element not <code>null</code>
          */
-        public Key(IElement element)
+        Key(IElement element)
         {
             if (element == null)
                 throw new IllegalArgumentException();

@@ -180,8 +180,7 @@ public class ElementChangeRecorder
 
     /**
      * Returns a new instance of default delta builder rooted at the given
-     * element. This method is called internally; it is not intended to be
-     * invoked by clients.
+     * element.
      * <p>
      * This implementation returns a new instance of {@link ElementDelta.Builder}.
      * The root delta is created via the {@link ElementDelta.Factory} registered
@@ -205,9 +204,9 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Remembers the given body for the given element. This method is called
-     * internally; it is not intended to be invoked by clients. Subclasses
-     * may extend this method.
+     * Remembers the given body for the given element. Subclasses may override
+     * this method, but must make sure to call the <b>super</b> implementation.
+     * This method is not intended to be invoked by subclasses.
      *
      * @param body never <code>null</code>
      * @param element never <code>null</code>
@@ -218,18 +217,19 @@ public class ElementChangeRecorder
     }
 
     /**
-     * Finds whether the given element has had a content change. This method is
-     * called internally; it is not intended to be invoked by clients.
+     * Finds whether the given element has had a content change. Subclasses may
+     * override this method, but are not intended to invoke it.
      * <p>
-     * Implementations can compare the given bodies (excepting children)
-     * and, if there are differences, insert an appropriate change delta
+     * Implementations can compare the given bodies and, if there are
+     * differences (excepting children), insert an appropriate change delta
      * (such as <code>F_CONTENT</code>) for the given element into the delta
-     * tree being built. Implementations should not take the element's
-     * children into account.
+     * tree being built. Implementations should not take changes in children
+     * into account.
      * </p>
      * <p>
-     * This implementation invokes <code>
-     * ((Body)newBody).findContentChange((Body)oldBody, element, getDeltaBuilder())</code>.
+     * This implementation invokes <code>((Body)newBody).{@link
+     * Body#findContentChange(Body, IElement, IElementDeltaBuilder)
+     * findContentChange}((Body)oldBody, element, getDeltaBuilder())</code>.
      * </p>
      *
      * @param oldBody the old version of the element's body (never <code>null</code>)

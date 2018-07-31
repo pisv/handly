@@ -167,6 +167,18 @@ public class SourceElementBody
         this.identifyingRange = identifyingRange;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation inserts a change delta with flags
+     * <code>F_CONTENT</code> and <code>F_FINE_GRAINED</code> if there is
+     * a {@link #isPropertyChanged(String, Object, Object) change} in the
+     * {@link #getPropertyValue(String) value} of one of the element's
+     * {@link #getPropertyNames() properties}. For a source file, this
+     * implicitly includes a change in its source {@link #getFullRange()
+     * range} or {@link #getSnapshot() snapshot}.
+     * </p>
+     */
     @Override
     public void findContentChange(Body oldBody, IElement element,
         IElementDeltaBuilder builder)

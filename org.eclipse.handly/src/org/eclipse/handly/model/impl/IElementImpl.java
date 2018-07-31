@@ -76,12 +76,12 @@ public interface IElementImpl
      * to the same parent chain as the given element. This is a handle-only
      * method.
      * <p>
-     * This implementation is provided for the most general case where equal
+     * This implementation accounts for the most general case where equal
      * elements may belong to different parent chains. For example, in JDT, equal
      * JarPackageFragmentRoots may belong to different Java projects. Specific
      * models can provide an optimized implementation. For example, it would be
      * possible to just return <code>equals(other)</code> if it were known for
-     * a model that equal elements cannot belong to different parent chains.
+     * a model that equal elements might not belong to different parent chains.
      * </p>
      *
      * @param other may be <code>null</code>
@@ -110,7 +110,8 @@ public interface IElementImpl
 
     /**
      * Returns a string representation of this element handle that can be used
-     * to recreate the handle via the model's <code>IElementHandleFactory</code>.
+     * to recreate the handle via the model's {@link
+     * org.eclipse.handly.model.IElementHandleFactory IElementHandleFactory}.
      * The format of the string is not specified, but the representation is
      * stable across workbench sessions. This is a handle-only method.
      *
@@ -224,7 +225,7 @@ public interface IElementImpl
      * specified in the given context; unrecognized options are ignored and
      * an empty context is permitted.
      * <p>
-     * Implementations are advised to support common options defined in
+     * Implementations are encouraged to support common options defined in
      * {@link org.eclipse.handly.util.ToStringOptions ToStringOptions} and
      * interpret the {@link org.eclipse.handly.util.ToStringOptions#FORMAT_STYLE
      * FORMAT_STYLE} as follows:

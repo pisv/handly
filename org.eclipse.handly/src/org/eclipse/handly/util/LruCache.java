@@ -17,11 +17,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An LRU cache without a maximum size (i.e., unbounded). Entries are ordered
- * in the cache from most recently accessed to least recently accessed.
- * When a cache entry is accessed via {@link #get(Object) get} or {@link
- * #put(Object, Object) put} methods, it is moved to the most recently used
- * position in the cache. No other public methods generate entry accesses.
+ * An LRU cache. Entries are ordered in the cache from most recently accessed
+ * to least recently accessed. When a cache entry is accessed via {@link
+ * #get(Object) get} or {@link #put(Object, Object) put} methods, it is moved
+ * to the most recently used position in the cache. No other public methods
+ * generate entry accesses.
  */
 public class LruCache<K, V>
 {

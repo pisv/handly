@@ -85,7 +85,7 @@ public interface IElementImplSupport
      * <p>
      * By default, two elements that implement this interface are equal if they
      * are identical or if they {@link #canEqual_(Object) can equal} each other
-     * and both have equal names and parents. This method is specialized in
+     * and do have equal names and equal parents. This method is specialized in
      * {@link ISourceConstructImplSupport} and {@link ISourceFileImplSupport}
      * to also compare occurrence counts and underlying <code>IFile</code>s
      * respectively. This method is not intended to be replaced by clients;
@@ -121,8 +121,8 @@ public interface IElementImplSupport
      * instanceof</code> check.
      * </p>
      * <p>
-     * For details, see <a href="http://www.artima.com/pins1ed/object-equality.html">
-     * http://www.artima.com/pins1ed/object-equality.html</a>.
+     * For details, see <a href="https://www.artima.com/pins1ed/object-equality.html#28.2">
+     * https://www.artima.com/pins1ed/object-equality.html#28.2</a>, Pitfall #4.
      * <p>
      *
      * @param obj not <code>null</code>
@@ -134,6 +134,12 @@ public interface IElementImplSupport
         return getClass() == obj.getClass();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns <code>getModelManager_().getModel()</code>.
+     * </p>
+     */
     @Override
     default IModel getModel_()
     {
@@ -143,7 +149,10 @@ public interface IElementImplSupport
     /**
      * Returns the element manager for this element. The manager must be shared
      * between all elements of a Handly-based model. Typical implementations
-     * would answer a model-specific singleton.
+     * would answer a model-specific singleton. This is a handle-only method.
+     * <p>
+     * This implementation returns <code>getModelManager_().getElementManager()</code>.
+     * </p>
      *
      * @return the element manager for this element (never <code>null</code>)
      */
@@ -152,6 +161,13 @@ public interface IElementImplSupport
         return getModelManager_().getElementManager();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns <code>((Body)body).{@link Body#getChildren()
+     * getChildren()}</code>.
+     * </p>
+     */
     @Override
     default IElement[] getChildrenFromBody_(Object body)
     {
@@ -170,6 +186,15 @@ public interface IElementImplSupport
         return getElementManager_().peek(this);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns <code>true</code> if there is a cached body
+     * for this element, and <code>false</code> if this element has a parent and
+     * the parent does not exist; otherwise, it invokes {@link #validateExistence_(
+     * IContext) validateExistence_} to determine the result.
+     * </p>
+     */
     @Override
     default boolean exists_()
     {
@@ -190,7 +215,7 @@ public interface IElementImplSupport
     }
 
     /**
-     * Validates if this element may be "opened", i.e., begin existence
+     * Validates that this element may be "opened", i.e., begin existence
      * in the model. For example, a necessary condition for element existence
      * might be that the underlying resource exists.
      * <p>
@@ -218,6 +243,22 @@ public interface IElementImplSupport
                 toDisplayString_(of(FORMAT_STYLE, FULL))), null));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation attempts to {@link #openParent_(IContext,
+     * IProgressMonitor) open} the parent element first. Then, if this element
+     * is {@link #isOpenable_() openable} and is {@link #validateExistence_(
+     * IContext) permitted} to open, invokes {@link #buildStructure_(IContext,
+     * IProgressMonitor)} with an appropriately augmented context, acquires the
+     * element manager lock, updates the body cache with the built structure,
+     * and releases the lock. When this element is already open, the update may
+     * involve closing existing children or do nothing at all, depending on the
+     * value of <code>FORCE_OPEN</code>. If this element is not openable
+     * and the openable parent did not create a body for this element,
+     * this implementation throws a {@link #newDoesNotExistException_()}.
+     * </p>
+     */
     @Override
     default Object open_(IContext context, IProgressMonitor monitor)
         throws CoreException
@@ -275,19 +316,25 @@ public interface IElementImplSupport
     }
 
     /**
-     * Open the parent element if necessary.
+     * Opens the parent element if necessary.
      * <p>
      * This method is called internally; it is not intended to be invoked
      * by clients.
      * </p>
+     * <p>
+     * This implementation attempts to {@link #open_(IContext, IProgressMonitor)
+     * open} the parent element if it supports {@link IElementImplExtension} and
+     * is not already open.
+     * </p>
     *
-     * @param context the operation context (not <code>null</code>)
-     * @param monitor a progress monitor (not <code>null</code>).
+     * @param context the operation context (never <code>null</code>)
+     * @param monitor a progress monitor (never <code>null</code>).
      *  The caller must not rely on {@link IProgressMonitor#done()}
      *  having been called by the receiver
      * @throws CoreException if an exception occurs while opening this element's
      *  parent
      * @throws OperationCanceledException if this method is canceled
+     * @see #open_(IContext, IProgressMonitor)
      */
     default void openParent_(IContext context, IProgressMonitor monitor)
         throws CoreException
@@ -302,14 +349,13 @@ public interface IElementImplSupport
     }
 
     /**
-     * Returns whether this element is "openable".
-     * <p>
-     * An openable element knows how to open itself on demand (i.e., initialize
-     * its body and put it in the body cache). When opening an element, it is
-     * ensured that all openable parent elements are open. On the other hand,
-     * opening an element should open only those child elements that are not
-     * openable: all other children will open themselves on demand.
-     * </p>
+     * Returns whether this element is "openable". Openable elements know
+     * how to {@link #buildStructure_(IContext, IProgressMonitor) build} their
+     * structure and can be {@link #open_(IContext, IProgressMonitor) opened}
+     * one by one. In particular, there is no need to open an openable child
+     * when opening its parent. Non-openable elements rely on the openable
+     * parent to build their structure. Opening of a parent element opens all
+     * non-openable children at once.
      * <p>
      * This implementation returns <code>true</code>. Non-openable elements
      * must override this method and return <code>false</code>.
@@ -339,6 +385,11 @@ public interface IElementImplSupport
      * #isOpenable_() openable} child element (and their non-openable children,
      * recursively). Uses the {@link #NEW_ELEMENTS} map in the given context
      * to associate the created bodies with their respective elements.
+     * <p>
+     * Note that this method does not make sense and must not be called for
+     * non-openable elements -- they rely on the openable parent to build their
+     * structure.
+     * </p>
      *
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor (not <code>null</code>).
@@ -354,7 +405,7 @@ public interface IElementImplSupport
      * {@inheritDoc}
      * <p>
      * After checking that the current state of this element permits closing,
-     * this implementation invokes {@link #remove_(IContext)} method to actually
+     * this implementation invokes {@link #remove_(IContext)} to actually
      * close this element.
      * </p>
      */
@@ -371,7 +422,7 @@ public interface IElementImplSupport
      * Removes this element from the body cache according to options specified
      * in the given context. In general, not only removes the cached body for this
      * element but also attempts to close this element's children. Does nothing
-     * if the cache contained no body for this element. Performs atomically.
+     * if the cache contained no body for this element.
      * <p>
      * This is a low-level operation, which removes this element's body and
      * thus closes this element even if the current state of this element does
@@ -393,14 +444,13 @@ public interface IElementImplSupport
     }
 
     /**
-     * The cached body for this element is going to be removed from the body cache.
-     * Do any necessary cleanup.
+     * Informs this element that its body is going to be removed from the body cache.
+     * This method is called under the element manager lock.
      * <p>
      * This method is called internally; it is not intended to be invoked by clients.
-     * This method is called under the element manager lock.
      * </p>
      *
-     * @param body the cached body for this element (not <code>null</code>)
+     * @param body the cached body for this element (never <code>null</code>)
      */
     default void removing_(Object body)
     {

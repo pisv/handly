@@ -14,9 +14,11 @@
 package org.eclipse.handly.model.impl.support;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.util.ArrayUtil;
 
 /**
  * Holds cached structure and properties for an {@link IElement}.
@@ -57,12 +59,15 @@ public class Body
      * Sets the child elements for this body. Clients <b>must not</b> modify
      * the given array afterwards.
      *
-     * @param children not <code>null</code>
+     * @param children not <code>null</code>, must not contain <code>null</code>
+     *  elements
      */
     public void setChildren(IElement[] children)
     {
         if (children == null)
             throw new IllegalArgumentException();
+        if (ArrayUtil.contains(children, null))
+            throw new IllegalArgumentException(Arrays.toString(children));
         this.children = children;
     }
 
@@ -107,16 +112,16 @@ public class Body
     /**
      * Finds whether this body has had a content change.
      * <p>
-     * Implementations can compare this body and the given old body (excepting
-     * {@link #getChildren() children}) and, if there are differences, insert an
-     * appropriate change delta (such as <code>F_CONTENT</code>) for the given
-     * element into the delta tree being built. Implementations should not take
+     * Implementations can compare this body and the given old body and,
+     * if there are differences (excepting children), insert an appropriate
+     * change delta (such as <code>F_CONTENT</code>) for the given element into
+     * the delta tree being built. Implementations should not take changes in
      * children into account.
      * </p>
      *
-     * @param oldBody the old version of the body (never <code>null</code>)
-     * @param element the element this body corresponds to (never <code>null</code>)
-     * @param builder represents the delta tree being built (never <code>null</code>)
+     * @param oldBody the old version of the body (not <code>null</code>)
+     * @param element the element this body corresponds to (not <code>null</code>)
+     * @param builder represents the delta tree being built (not <code>null</code>)
      */
     public void findContentChange(Body oldBody, IElement element,
         IElementDeltaBuilder builder)

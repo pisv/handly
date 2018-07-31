@@ -20,9 +20,9 @@ import org.eclipse.handly.util.IReferenceCountable;
  * <p>
  * Snapshot providers support {@link IReferenceCountable} protocol, although
  * some implementations do not have a need in reference counting and inherit
- * a no-op implementation of the protocol methods. When it is known that
- * a snapshot provider does not actually use reference counting, clients
- * do not need to follow the requirements set forth in that protocol.
+ * a no-op implementation of the protocol methods in this interface. When it
+ * is known that a snapshot provider does not actually use reference counting,
+ * clients do not need to follow the requirements set forth in that protocol.
  * </p>
   * <p>
  * Snapshot providers are generally designed to be safe for use by multiple

@@ -13,8 +13,8 @@
 package org.eclipse.handly.util;
 
 /**
- * Describes a certain range in an indexed text store. Text stores are
- * for example documents or strings. A text range is defined by its offset
+ * Describes a certain range in an indexed text store. Text stores are,
+ * for example, documents or strings. A text range is defined by its offset
  * into the text store and its length. A text range is a value object.
  * Its offset and length do not change over time.
  */
@@ -24,7 +24,7 @@ public final class TextRange
     private final int length;
 
     /**
-     * Constructs a text range using the given offset and the given length.
+     * Constructs a text range with the given offset and the given length.
      *
      * @param offset the given offset (0-based)
      * @param length the given length (non-negative)

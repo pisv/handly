@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.model.IElement;
 
 /**
- * Defines a one-to-one mapping (injection) of elements from a Handly based model
+ * Defines a one-to-one mapping (injection) of elements from a Handly-based model
  * to elements in some other model.
  * <p>
  * For every <code>IElement</code> <code>e</code> such that
@@ -27,6 +27,8 @@ import org.eclipse.handly.model.IElement;
  * <p>
  * This interface may be implemented by clients.
  * </p>
+ *
+ * @see DefaultContentAdapter
  */
 public interface ICorrespondingElementProvider
 {

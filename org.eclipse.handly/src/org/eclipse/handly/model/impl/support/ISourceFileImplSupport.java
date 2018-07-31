@@ -42,6 +42,7 @@ import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IElementDelta;
 import org.eclipse.handly.model.impl.DefaultWorkingCopyCallback;
+import org.eclipse.handly.model.impl.IElementImplExtension;
 import org.eclipse.handly.model.impl.IReconcileStrategy;
 import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 import org.eclipse.handly.model.impl.IWorkingCopyCallback;
@@ -202,6 +203,14 @@ public interface ISourceFileImplSupport
         return getWorkingCopyContext_() != null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation delegates to the namesake method of the working copy
+     * callback, provided that this source file is a working copy.
+     * </p>
+     * @see IWorkingCopyCallback#needsReconciling()
+     */
     @Override
     default boolean needsReconciling_()
     {
@@ -227,6 +236,16 @@ public interface ISourceFileImplSupport
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation delegates to the namesake method of the working copy
+     * callback, provided that this source file is a working copy.
+     * </p>
+     * @throws CoreException {@inheritDoc}
+     * @throws OperationCanceledException {@inheritDoc}
+     * @see IWorkingCopyCallback#reconcile(IContext, IProgressMonitor)
+     */
     @Override
     default void reconcile_(IContext context, IProgressMonitor monitor)
         throws CoreException
@@ -257,14 +276,14 @@ public interface ISourceFileImplSupport
     /**
      * Returns a reconcile operation for this source file.
      * <p>
-     * This implementation returns a new instance of {@link
-     * NotifyingReconcileOperation} if there is a notification manager
-     * registered in the model context. Otherwise, a new instance of
-     * {@link ReconcileOperation} is returned.
-     * </p>
-     * <p>
      * This method is called internally; it is not intended to be invoked by
      * clients.
+     * </p>
+     * <p>
+     * This implementation returns a new instance of {@link
+     * NotifyingReconcileOperation} if there is a notification manager
+     * registered in the model context; otherwise, a new instance of
+     * {@link ReconcileOperation} is returned.
      * </p>
      *
      * @return a reconcile operation for this source file
@@ -282,7 +301,7 @@ public interface ISourceFileImplSupport
     /**
      * Returns a context to be associated with a new working copy of this
      * source file. The given operation context is propagated from the
-     * {@link #becomeWorkingCopy_} method.
+     * {@link #becomeWorkingCopy_(IContext, IProgressMonitor)} method.
      * <p>
      * The returned context is composed of the context explicitly {@link
      * ISourceFileImplExtension#WORKING_COPY_CONTEXT specified} when creating
@@ -290,15 +309,16 @@ public interface ISourceFileImplSupport
      * in that order.
      * </p>
      * <p>
-     * This implementation returns <code>context.getOrDefault(WORKING_COPY_CONTEXT)</code>.
-     * </p>
-     * <p>
      * This method is called internally; it is not intended to be invoked by
      * clients.
      * </p>
+     * <p>
+     * This implementation returns <code>context.getOrDefault(WORKING_COPY_CONTEXT)</code>.
+     * </p>
      *
-     * @param context the operation context (not <code>null</code>)
+     * @param context the operation context (never <code>null</code>)
      * @return the working copy context (never <code>null</code>)
+     * @see #getWorkingCopyContext_()
      */
     default IContext newWorkingCopyContext_(IContext context)
     {
@@ -306,17 +326,20 @@ public interface ISourceFileImplSupport
     }
 
     /**
-     * Notifies about a working copy mode change: either the source file
-     * became a working copy or reverted back from the working copy mode.
-     * <p>
-     * This implementation does nothing if no notification manager is
-     * registered in the model context. Otherwise, it sends out a delta
-     * notification indicating the nature of the working copy mode change.
-     * </p>
+     * Informs this source file about a working copy mode change: either
+     * the source file became a working copy or reverted back from the
+     * working copy mode.
      * <p>
      * This method is called internally; it is not intended to be invoked by
      * clients.
      * </p>
+     * <p>
+     * This implementation sends out a delta notification indicating the nature
+     * of the working copy mode change, provided that a notification manager is
+     * registered in the model context.
+     * </p>
+     *
+     * @see INotificationManager
      */
     default void workingCopyModeChanged_()
     {
@@ -403,7 +426,7 @@ public interface ISourceFileImplSupport
     }
 
     /**
-     * Returns the buffer opened for the underlying file of this source file.
+     * Returns a buffer opened for the underlying file of this source file.
      * Note that buffers may be shared by multiple clients, so the returned buffer
      * may have unsaved changes if it has been modified by another client.
      * <p>
@@ -413,18 +436,25 @@ public interface ISourceFileImplSupport
      * be accessed by clients which do not own it.
      * </p>
      * <p>
+     * A new object may be returned, even for the same underlying buffer,
+     * each time this method is invoked.
+     * </p>
+     * <p>
      * Implementations are encouraged to support the following standard options,
      * which may be specified in the given context:
      * </p>
      * <ul>
      * <li>
      * {@link org.eclipse.handly.model.Elements#CREATE_BUFFER CREATE_BUFFER} -
-     * Indicates whether a new buffer should be created if none already exists.
+     * Indicates whether a new buffer should be created if none already exists
+     * for the underlying file.
      * </li>
      * </ul>
      * <p>
-     * This implementation returns the buffer opened for the underlying
-     * {@link #getFile_() IFile}; it throws an assertion error if this source file
+     * This implementation returns a buffer opened for the underlying {@link
+     * #getFile_() IFile}, or <code>null</code> if <code>CREATE_BUFFER</code> is
+     * <code>false</code> in the given context and there is currently no buffer
+     * opened for that file; it throws an assertion error if this source file
      * has no underlying file in the workspace.
      * </p>
      *
@@ -432,9 +462,9 @@ public interface ISourceFileImplSupport
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
-     * @return the buffer opened for the underlying file of this source file,
-     *  or <code>null</code> if <code>CREATE_BUFFER == false</code> and
-     *  there is currently no buffer opened for that file
+     * @return a buffer opened for the underlying file of this source file,
+     *  or <code>null</code> if <code>CREATE_BUFFER</code> is <code>false</code>
+     *  in the given context and there is currently no buffer opened for that file
      * @throws CoreException if the buffer could not be opened
      * @throws OperationCanceledException if this method is canceled
      */
@@ -455,6 +485,14 @@ public interface ISourceFileImplSupport
         return new TextFileBuffer(provider, monitor);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation does nothing if this source file is a working copy;
+     * otherwise, it throws a {@link #newDoesNotExistException_()} if the
+     * underlying file does not {@link #fileExists_() exist}.
+     * </p>
+     */
     @Override
     default void validateExistence_(IContext context) throws CoreException
     {
@@ -465,6 +503,21 @@ public interface ISourceFileImplSupport
         }
     }
 
+    /**
+     * Opens the parent element if necessary.
+     * <p>
+     * This method is called internally; it is not intended to be invoked
+     * by clients.
+     * </p>
+     * <p>
+     * This implementation does nothing if this source file is a working copy;
+     * otherwise, it attempts to {@link #open_(IContext, IProgressMonitor) open}
+     * the parent element if it supports {@link IElementImplExtension} and
+     * is not already open.
+     * </p>
+     * @throws CoreException {@inheritDoc}
+     * @throws OperationCanceledException {@inheritDoc}
+     */
     @Override
     default void openParent_(IContext context, IProgressMonitor monitor)
         throws CoreException
@@ -474,6 +527,20 @@ public interface ISourceFileImplSupport
         ISourceElementImplSupport.super.openParent_(context, monitor);
     }
 
+    /**
+     * This implementation delegates to {@link #buildSourceStructure_(IContext,
+     * IProgressMonitor)} with an appropriately augmented context. In particular,
+     * if the given context contains neither {@link #SOURCE_CONTENTS} nor {@link
+     * #SOURCE_AST}, it is augmented with {@link #SOURCE_CONTENTS} and the
+     * corresponding {@link #SOURCE_SNAPSHOT} obtained from the underlying
+     * file's {@link #getFileSnapshotProvider_() stored contents}. Also,
+     * performs some post-processing of created {@link SourceElementBody}s
+     * to complete their initialization, such as setting the source snapshot
+     * on which they are based.
+     *
+     * @throws CoreException {@inheritDoc}
+     * @throws OperationCanceledException {@inheritDoc}
+     */
     @Override
     default void buildStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException
@@ -595,6 +662,12 @@ public interface ISourceFileImplSupport
     void buildSourceStructure_(IContext context, IProgressMonitor monitor)
         throws CoreException;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Note that a working copy is never permitted to close.
+     * </p>
+     */
     @Override
     default void close_(IContext context)
     {
@@ -620,8 +693,8 @@ public interface ISourceFileImplSupport
      * This class or a subclass of this class are not intended to be used by
      * clients for purposes other than extension or instance creation;
      * instances of this class or a subclass of this class are not intended
-     * to be used by clients for purposes other than returning from {@link
-     * ISourceFileImplSupport#getReconcileOperation_() getReconcileOperation_()}.
+     * to be used by clients for purposes other than returning from an
+     * implementation of {@link ISourceFileImplSupport#getReconcileOperation_()}.
      * </p>
      *
      * @see NotifyingReconcileOperation
@@ -856,8 +929,8 @@ public interface ISourceFileImplSupport
      * This class or a subclass of this class are not intended to be used by
      * clients for purposes other than extension or instance creation;
      * instances of this class or a subclass of this class are not intended
-     * to be used by clients for purposes other than returning from {@link
-     * ISourceFileImplSupport#getReconcileOperation_() getReconcileOperation_()}.
+     * to be used by clients for purposes other than returning from an
+     * implementation of {@link ISourceFileImplSupport#getReconcileOperation_()}.
      * </p>
      *
      * @see INotificationManager

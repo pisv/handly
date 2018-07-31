@@ -36,8 +36,8 @@ public interface IElementChangeEvent
     /**
      * Returns the type of event being reported.
      * <p>
-     * Some event types are meaningful for most models and predefined
-     * in this interface, while others are model-specific and defined by
+     * Some event types make sense for most models and are predefined
+     * in this interface, while others are model-specific and are defined by
      * the model implementor. The range for model-specific types starts from
      * <code>0x10000</code> and includes the upper 16 bits of <code>int</code>
      * value. The lower 16 bits are reserved for predefined generic event types.

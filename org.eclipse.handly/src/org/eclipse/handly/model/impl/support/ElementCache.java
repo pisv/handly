@@ -45,7 +45,7 @@ public class ElementCache
 
     /**
      * Constructs an empty <code>ElementCache</code> with the given maximum size
-     * and the default {@link #getLoadFactor() load factor} of one third.
+     * and a default {@link #getLoadFactor() load factor}.
      *
      * @param maxSize the maximum size of the cache (the bound)
      * @throws IllegalArgumentException if <code>maxSize &lt; 1</code>
@@ -72,7 +72,7 @@ public class ElementCache
      * Returns the load factor of this cache. The load factor determines
      * how much space is reclaimed when the cache overflows.
      *
-     * @return the load factor of the cache
+     * @return the load factor of the cache (a value in the interval (0, 1])
      */
     public double getLoadFactor()
     {
@@ -171,8 +171,9 @@ public class ElementCache
      * for this method to remove other cache entries along with the given entry
      * or, if the given entry cannot currently be evicted, retain it in the cache.
      * <p>
-     * This implementation invokes <code>
-     * ((IElementImplExtension)entry.key).close_(of(CLOSE_HINT, CACHE_OVERFLOW))</code>.
+     * This implementation invokes <code>((IElementImplExtension)entry.key).{@link
+     * IElementImplExtension#close_(org.eclipse.handly.context.IContext) close_
+     * }(of(CLOSE_HINT, CACHE_OVERFLOW))</code>.
      * </p>
      */
     @Override

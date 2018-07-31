@@ -40,7 +40,7 @@ public class SavedStateJob
      *
      * @param pluginId the unique identifier of the plug-in
      *  (not <code>null</code>)
-     * @param listener the resource change listener to process a <code>POST-BUILD</code>
+     * @param listener the resource change listener to process a <code>POST_BUILD</code>
      *  event supplied by the saved state for the given plug-in (not <code>null</code>)
      */
     public SavedStateJob(String pluginId, IResourceChangeListener listener)

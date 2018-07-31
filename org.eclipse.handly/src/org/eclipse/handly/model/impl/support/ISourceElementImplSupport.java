@@ -18,6 +18,7 @@ import static org.eclipse.handly.model.Elements.BASE_SNAPSHOT;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.Elements;
@@ -42,6 +43,16 @@ import org.eclipse.handly.util.TextRange;
 public interface ISourceElementImplSupport
     extends IElementImplSupport, ISourceElementImpl
 {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation delegates to {@link #getBody_(IContext,
+     * IProgressMonitor)}; it is assumed that the body implements
+     * {@link ISourceElementInfo}.
+     * </p>
+     * @throws CoreException {@inheritDoc}
+     * @throws OperationCanceledException {@inheritDoc}
+     */
     @Override
     default ISourceElementInfo getSourceElementInfo_(IContext context,
         IProgressMonitor monitor) throws CoreException
@@ -56,14 +67,11 @@ public interface ISourceElementImplSupport
      * delegates to {@link #getSourceElementAt_(int, ISourceElementInfo, IContext,
      * IProgressMonitor)} if the given position is within the source range of
      * this element as reported by {@link #checkInRange(int, ISourceElementInfo,
-     * IContext)}. Otherwise, returns <code>null</code>.
+     * IContext)}; otherwise, <code>null</code> is returned.
      * </p>
-     *
-     * @throws CoreException if this element does not exist or if an
-     *  exception occurs while accessing its corresponding resource
-     * @throws StaleSnapshotException if snapshot inconsistency is detected,
-     *  i.e., this element's current structure and properties are based on
-     *  a different snapshot
+     * @throws CoreException {@inheritDoc}
+     * @throws StaleSnapshotException {@inheritDoc}
+     * @throws OperationCanceledException {@inheritDoc}
      */
     @Override
     default ISourceElement getSourceElementAt_(int position, IContext context,
@@ -83,9 +91,21 @@ public interface ISourceElementImplSupport
      * given source position, which is known to be within the source range of
      * this element as recorded by the given element info. If no finer grained
      * element is found at the position, this element itself is returned.
+     * <p>
+     * Implementations are encouraged to support the following standard options,
+     * which may be specified in the given context:
+     * </p>
+     * <ul>
+     * <li>
+     * {@link org.eclipse.handly.model.Elements#BASE_SNAPSHOT BASE_SNAPSHOT} -
+     * A snapshot on which the given position is based, or <code>null</code>
+     * if the snapshot is unknown or does not matter.
+     * </li>
+     * </ul>
      *
      * @param position a source position (0-based)
-     * @param info the info object for this element (not <code>null</code>)
+     * @param info an {@link ISourceElementInfo} for this element
+     *  (not <code>null</code>)
      * @param context the operation context (not <code>null</code>)
      * @param monitor a progress monitor (not <code>null</code>).
      *  The caller must not rely on {@link IProgressMonitor#done()}
@@ -95,6 +115,7 @@ public interface ISourceElementImplSupport
      * @throws CoreException if an exception occurs while accessing
      *  the element's corresponding resource
      * @throws StaleSnapshotException if snapshot inconsistency is detected
+     * @throws OperationCanceledException if this method is canceled
      */
     default ISourceElement getSourceElementAt_(int position,
         ISourceElementInfo info, IContext context, IProgressMonitor monitor)
@@ -122,9 +143,20 @@ public interface ISourceElementImplSupport
     /**
      * Checks whether the given position is within the element's range
      * in the source snapshot as recorded by the given element info.
+     * <p>
+     * Supports the following standard options, which may be specified
+     * in the given context:
+     * </p>
+     * <ul>
+     * <li>
+     * {@link org.eclipse.handly.model.Elements#BASE_SNAPSHOT BASE_SNAPSHOT} -
+     * A snapshot on which the given position is based, or <code>null</code>
+     * if the snapshot is unknown or does not matter.
+     * </li>
+     * </ul>
      *
      * @param position a source position (0-based)
-     * @param info the source element info (not <code>null</code>)
+     * @param info an {@link ISourceElementInfo} (not <code>null</code>)
      * @param context the operation context (not <code>null</code>)
      * @return <code>true</code> if the given position is within the element's
      *  source range, and <code>false</code> otherwise

@@ -38,9 +38,10 @@ public final class ElementChangeListenerList
      * to this list. Has no effect if an identical listener is already registered
      * for these event types.
      * <p>
-     * After completion of this method, the given listener will be registered
-     * for exactly the specified event types. If they were previously registered
-     * for other event types, they will be de-registered.
+     * After successful completion of this method, the given listener will be
+     * registered for exactly the specified event types. If it was previously
+     * registered for other event types, it will be de-registered for those
+     * event types.
      * </p>
      *
      * @param listener the listener to add (not <code>null</code>)

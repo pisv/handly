@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -48,6 +48,18 @@ public interface ISourceConstructImplSupport
             && ISourceElementImplSupport.super.defaultEquals_(obj);
     }
 
+    /**
+     * Returns whether this element exists in the model.
+     * <p>
+     * Handles may or may not be backed by an actual element. Handles that are
+     * backed by an actual element are said to "exist".
+     * </p>
+     * <p>
+     * This implementation returns <code>true</code> if there is a cached body
+     * for this element; otherwise, attempts to {@link #open_(IContext,
+     * IProgressMonitor) open} this element to determine the result.
+     * </p>
+     */
     @Override
     default boolean exists_()
     {
@@ -63,20 +75,7 @@ public interface ISourceConstructImplSupport
     }
 
     /**
-     * Returns whether this element is "openable".
-     * <p>
-     * An openable element knows how to open itself on demand (i.e. initialize
-     * its body and put it in the body cache). When opening an element, it is
-     * ensured that all openable parent elements are open. On the other hand,
-     * opening an element should open only those child elements that are not
-     * openable: all other children will open themselves on demand.
-     * </p>
-     * <p>
      * This implementation always returns <code>false</code>.
-     * </p>
-     *
-     * @return <code>true</code> if this element is openable,
-     *  <code>false</code> otherwise
      */
     @Override
     default boolean isOpenable_()
@@ -85,11 +84,8 @@ public interface ISourceConstructImplSupport
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
      * This implementation throws assertion error; the openable parent builds
      * the whole structure and determines child existence.
-     * </p>
      */
     @Override
     default void validateExistence_(IContext context) throws CoreException
@@ -98,11 +94,8 @@ public interface ISourceConstructImplSupport
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
      * This implementation throws assertion error; the openable parent builds
      * the whole structure in one go.
-     * </p>
      */
     @Override
     default void buildStructure_(IContext context, IProgressMonitor monitor)

@@ -14,7 +14,7 @@ package org.eclipse.handly.snapshot;
 
 /**
  * A snapshot of the character contents of a resource or buffer.
- * The client may hold on a snapshot for an extended period of time,
+ * Clients may hold on snapshots for extended periods of time,
  * but a snapshot may 'expire' if the underlying resource or buffer
  * has changed or ceased to exist since the snapshot inception.
  * <p>

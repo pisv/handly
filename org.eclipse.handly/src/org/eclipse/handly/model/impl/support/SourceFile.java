@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,13 +13,13 @@
 package org.eclipse.handly.model.impl.support;
 
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.ISourceFileImpl;
+import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 
 /**
- * Provides a skeletal implementation of {@link ISourceFileImpl} to minimize
- * the effort required to implement that interface. Clients might as well
- * implement ("mix in") {@link ISourceFileImplSupport} directly if extending
- * this class is not possible/desirable for some reason.
+ * Provides a skeletal implementation of {@link ISourceFileImplExtension}
+ * to minimize the effort required to implement that interface. Clients might
+ * as well implement ("mix in") {@link ISourceFileImplSupport} directly
+ * if extending this class is not possible/desirable for some reason.
  *
  * @see WorkspaceSourceFile
  */

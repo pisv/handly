@@ -29,7 +29,7 @@ import java.lang.reflect.Type;
  * relations need to be specified on a case-by-case basis.
  * </p>
  *
- * @param <T> the type of property values
+ * @param <T> the type of the property
  */
 public class Property<T>
 {
@@ -38,7 +38,7 @@ public class Property<T>
     private final Class<T> rawType;
 
     /**
-     * Constructs a new property with the given name. The type information
+     * Constructs a property with the given name. The type information
      * is captured implicitly.
      * <p>
      * The protected constructor forces clients to create a subclass
@@ -94,7 +94,7 @@ public class Property<T>
      * @param name the name of the property (not <code>null</code>)
      * @param type the type of the property (not <code>null</code>)
      * @return a property with the given name and type (never <code>null</code>)
-     * @param <T> the type of property values
+     * @param <T> the type of the property
      */
     public static <T> Property<T> get(String name, Class<T> type)
     {

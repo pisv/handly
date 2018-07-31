@@ -64,7 +64,7 @@ abstract class TextFileSnapshotBase
      * Returns whether the file existed at the moment this snapshot was taken.
      *
      * @return <code>true</code> if the file existed at the moment this snapshot
-     *  was taken, <code>false</code> otherwise
+     *  was taken, and <code>false</code> otherwise
      */
     public abstract boolean exists();
 

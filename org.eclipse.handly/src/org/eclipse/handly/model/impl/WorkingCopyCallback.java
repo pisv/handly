@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 1C-Soft LLC.
+ * Copyright (c) 2017, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,8 +26,8 @@ public abstract class WorkingCopyCallback
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation remembers the given working copy info.
-     * Clients may extend this method.
+     * Subclasses may override this method, but must make sure
+     * to call the <b>super</b> implementation.
      * </p>
      */
     @Override
@@ -39,8 +39,8 @@ public abstract class WorkingCopyCallback
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation nullifies the remembered working copy info.
-     * Clients may extend this method.
+     * Subclasses may override this method, but must make sure
+     * to call the <b>super</b> implementation.
      * </p>
      */
     @Override
@@ -50,9 +50,10 @@ public abstract class WorkingCopyCallback
     }
 
     /**
-     * Returns the working copy info.
+     * Returns the working copy info {@link #onInit(IWorkingCopyInfo) set}
+     * for this callback.
      *
-     * @return the working copy info, or <code>null</code>
+     * @return the working copy info
      */
     protected final IWorkingCopyInfo getWorkingCopyInfo()
     {

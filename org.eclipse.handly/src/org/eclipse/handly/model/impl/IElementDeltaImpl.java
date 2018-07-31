@@ -65,11 +65,7 @@ public interface IElementDeltaImpl
      * Returns flags which describe in more detail how an element has changed.
      * Such flags should be tested using the <code>&amp;</code> operator.
      * For example:
-     * <pre>
-     *  if ((flags &amp; F_CONTENT) != 0)
-     *  {
-     *      // a content change
-     *  }</pre>
+     * <pre>    if ((flags &amp; F_CONTENT) != 0) // a content change</pre>
      * <p>
      * Some change flags make sense for most models and are predefined in
      * {@link IElementDeltaConstants}, while others are model-specific and are

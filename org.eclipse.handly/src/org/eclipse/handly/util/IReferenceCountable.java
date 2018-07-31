@@ -13,13 +13,10 @@
 package org.eclipse.handly.util;
 
 /**
- * A common protocol for reference countable objects.
- * <p>
- * A reference countable object may be shared by multiple clients and
- * will be disposed only after it is released by every owner. Clients which
- * do not own the object must not access it; attempting that will result
- * in unspecified behavior.
- * </p>
+ * A common protocol for reference countable objects. A reference countable
+ * object may be shared by multiple clients and will be disposed only after
+ * it is released by every owner. Clients which do not own the object must not
+ * access it; attempting that will result in unspecified behavior.
  */
 public interface IReferenceCountable
     extends AutoCloseable

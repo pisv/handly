@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 
 /**
  * Provides static utility methods for manipulating arrays. These utilities
- * supplement those found in {@link Arrays}.
+ * supplement those found in {@link java.util.Arrays}.
  */
 public class ArrayUtil
 {

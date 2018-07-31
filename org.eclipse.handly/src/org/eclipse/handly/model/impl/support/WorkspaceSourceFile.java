@@ -15,13 +15,13 @@ package org.eclipse.handly.model.impl.support;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.handly.model.IElement;
-import org.eclipse.handly.model.impl.ISourceFileImpl;
+import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 
 /**
- * Provides a skeletal implementation of {@link ISourceFileImpl} for source files
- * residing in the workspace. Such files always have an underlying {@link IFile}.
- * This class is just an implementation convenience. Clients might as well
- * implement a workspace source file by extending {@link SourceFile} or
+ * Provides a skeletal implementation of {@link ISourceFileImplExtension} for
+ * source files residing in the workspace. Such files always have an underlying
+ * {@link IFile}. This class is just an implementation convenience. Clients might
+ * as well implement a workspace source file by extending {@link SourceFile} or
  * implementing ("mixing in") {@link ISourceFileImplSupport} directly
  * if extending this class is not possible/desirable for some reason.
  */
@@ -44,6 +44,11 @@ public abstract class WorkspaceSourceFile
         this.file = file;
     }
 
+    /**
+     * Returns the underlying {@link IFile}. This is a handle-only method.
+     *
+     * @return the underlying <code>IFile</code> (never <code>null</code>)
+     */
     @Override
     public final IResource getResource_()
     {

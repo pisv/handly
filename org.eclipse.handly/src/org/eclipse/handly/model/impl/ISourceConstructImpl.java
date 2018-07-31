@@ -34,6 +34,12 @@ public interface ISourceConstructImpl
     @Override
     IElement getParent_();
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns <code>Elements.getResource(getParent_())</code>.
+     * </p>
+     */
     @Override
     default IResource getResource_()
     {

@@ -38,11 +38,10 @@ public interface IElementImplExtension
     }
 
     /**
-     * Given a body, returns the immediate children of this element.
+     * Given a body for this element, returns the immediate children.
      *
-     * @param body the body corresponding to this element
-     *  (not <code>null</code>)
-     * @return the immediate children of this element (never <code>null</code>).
+     * @param body a body for this element (not <code>null</code>)
+     * @return the immediate children (never <code>null</code>).
      *  Clients <b>must not</b> modify the returned array.
      */
     IElement[] getChildrenFromBody_(Object body);
@@ -117,7 +116,7 @@ public interface IElementImplExtension
 
     /**
      * Ensures that this element is open, i.e., it exists and is present in the
-     * body cache. Performs atomically. Returns the cached body for this element.
+     * body cache. Returns the cached body for this element.
      * <p>
      * Implementations are encouraged to support the following standard options,
      * which may be specified in the given context:
