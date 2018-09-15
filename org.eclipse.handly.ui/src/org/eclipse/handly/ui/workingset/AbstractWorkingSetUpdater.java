@@ -42,17 +42,17 @@ import org.eclipse.ui.IWorkingSetUpdater;
 
 /**
  * An almost complete implementation of {@link IWorkingSetUpdater}
- * for Handly-based models. Subclasses need to implement a couple
+ * for Handly-based models. Updates element working sets on
+ * element change events. Subclasses need to implement a couple
  * of abstract methods for subscription to change notifications
  * in the underlying model.
- * @see #addElementChangeListener(IElementChangeListener)
- * @see #removeElementChangeListener(IElementChangeListener)
  */
 public abstract class AbstractWorkingSetUpdater
     implements IWorkingSetUpdater
 {
-    private List<IWorkingSet> workingSets = new ArrayList<IWorkingSet>();
-    private IElementChangeListener listener = new IElementChangeListener()
+    private final List<IWorkingSet> workingSets = new ArrayList<>();
+
+    private final IElementChangeListener listener = new IElementChangeListener()
     {
         @Override
         public void elementChanged(IElementChangeEvent event)
@@ -71,13 +71,22 @@ public abstract class AbstractWorkingSetUpdater
                 {
                     processElementDelta(delta, workingSetDelta);
                 }
-                workingSetDelta.process();
+                workingSetDelta.apply();
             }
         }
     };
 
     /**
-     * Creates a new working set updater.
+     * Creates a new instance of the working set updater.
+     * This constructor {@link #addElementChangeListener(IElementChangeListener)
+     * registers} an element change listener that updates the content of each
+     * of the {@link #contains(IWorkingSet) contained} working sets by {@link
+     * #processElementDelta(IElementDelta, WorkingSetDelta) building} and
+     * applying a working set delta.
+     * <p>
+     * It is the client responsibility to {@link #dispose() dispose}
+     * the created instance after it is no longer needed.
+     * </p>
      */
     public AbstractWorkingSetUpdater()
     {
@@ -94,6 +103,13 @@ public abstract class AbstractWorkingSetUpdater
         removeElementChangeListener(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation invokes {@link #checkElementExistence(IWorkingSet)}
+     * before adding the working set to this updater.
+     * </p>
+     */
     @Override
     public void add(IWorkingSet workingSet)
     {
@@ -142,19 +158,29 @@ public abstract class AbstractWorkingSetUpdater
 
     /**
      * Returns the content adapter that defines a mapping between elements
-     * of a Handly based model and the working set's content.
+     * of a Handly-based model and the working set's content.
      * <p>
      * Default implementation returns a {@link NullContentAdapter}.
      * Subclasses may override.
      * </p>
      *
-     * @return {@link IContentAdapter} (never <code>null</code>)
+     * @return an {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {
         return NullContentAdapter.INSTANCE;
     }
 
+    /**
+     * Builds a working set delta by recursively processing the given
+     * element delta. Delegates the processing of resource deltas contained
+     * in the element delta to {@link #processResourceDelta(IResourceDelta,
+     * WorkingSetDelta)}. Uses the {@link #getContentAdapter() content adapter}
+     * to adapt {@link IElement}s to working set elements.
+     *
+     * @param delta an element delta (never <code>null</code>)
+     * @param result the working set delta being built (never <code>null</code>)
+     */
     protected void processElementDelta(IElementDelta delta,
         WorkingSetDelta result)
     {
@@ -211,6 +237,13 @@ public abstract class AbstractWorkingSetUpdater
         }
     }
 
+    /**
+     * Builds a working set delta by recursively processing the given
+     * resource delta.
+     *
+     * @param delta a resource delta (never <code>null</code>)
+     * @param result the working set delta being built (never <code>null</code>)
+     */
     protected void processResourceDelta(IResourceDelta delta,
         WorkingSetDelta result)
     {
@@ -255,11 +288,17 @@ public abstract class AbstractWorkingSetUpdater
         }
     }
 
+    /**
+     * Removes elements that do not exist anymore from the given working set,
+     * except for elements under closed projects. Uses the {@link
+     * #getContentAdapter() content adapter} to adapt working set elements
+     * apart from {@link IResource}s to {@link IElement}s.
+     *
+     * @param workingSet never <code>null</code>
+     */
     protected void checkElementExistence(IWorkingSet workingSet)
     {
-        // Remove elements that don't exist anymore,
-        // but retain elements under closed projects.
-        List<IAdaptable> wsElements = new ArrayList<IAdaptable>(Arrays.asList(
+        List<IAdaptable> wsElements = new ArrayList<>(Arrays.asList(
             workingSet.getElements()));
         boolean changed = false;
         for (Iterator<IAdaptable> iter = wsElements.iterator(); iter.hasNext();)
@@ -304,24 +343,47 @@ public abstract class AbstractWorkingSetUpdater
         return project.exists() && !project.isOpen();
     }
 
+    /**
+     * Utility class used to help process element change events.
+     * The content of a working set can be updated by creating, modifying, and
+     * applying a working set delta. When a working set delta is created, it is
+     * initialized with a copy of the content of its underlying working set.
+     */
     protected static class WorkingSetDelta
     {
         private IWorkingSet workingSet;
         private List<IAdaptable> elements;
         private boolean changed;
 
-        public WorkingSetDelta(IWorkingSet workingSet)
+        WorkingSetDelta(IWorkingSet workingSet)
         {
             this.workingSet = workingSet;
-            this.elements = new ArrayList<IAdaptable>(Arrays.asList(
+            this.elements = new ArrayList<>(Arrays.asList(
                 workingSet.getElements()));
         }
 
+        /**
+         * Returns the index of the first occurrence of the given element in
+         * this delta, or -1 if this delta does not contain the element.
+         *
+         * @param element the element to search for
+         * @return the index of the first occurrence of the given element in
+         *  this delta, or -1 if this delta does not contain the element
+         */
         public int indexOf(Object element)
         {
             return elements.indexOf(element);
         }
 
+        /**
+         * Replaces the element at the given index in this delta with the given
+         * element.
+         *
+         * @param index the index of the element to replace
+         * @param element the element to be stored at the given index
+         *  (not <code>null</code>)
+         * @throws IndexOutOfBoundsException if the index is out of range
+         */
         public void set(int index, IAdaptable element)
         {
             if (element == null)
@@ -330,6 +392,13 @@ public abstract class AbstractWorkingSetUpdater
             changed = true;
         }
 
+        /**
+         * Removes the element at the given index in this delta. Shifts any
+         * subsequent elements to the left (subtracts one from their indices).
+         *
+         * @param index the index of the element to be removed
+         * @throws IndexOutOfBoundsException if the index is out of range
+         */
         public void remove(int index)
         {
             if (elements.remove(index) != null)
@@ -338,7 +407,7 @@ public abstract class AbstractWorkingSetUpdater
             }
         }
 
-        public void process()
+        void apply()
         {
             if (changed)
             {
