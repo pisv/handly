@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.quickoutline;
 
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.bindings.keys.KeyStroke;
@@ -44,9 +45,17 @@ public abstract class FilteringOutlinePopup
     extends OutlinePopup
 {
     private Text filterText;
-    private IMatcher<Object> patternMatcher;
+    private Predicate<Object> patternMatcher;
     private Composite viewMenuButtonComposite;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <code>FilteringOutlinePopup</code> extends this method to add
+     * a {@link #getPatternMatcher() pattern matcher} based filter to
+     * the outline popup's tree viewer.
+     * </p>
+     */
     @Override
     public void init(IOutlinePopupHost host, KeyStroke invokingKeyStroke)
     {
@@ -72,8 +81,9 @@ public abstract class FilteringOutlinePopup
      *
      * @return the current pattern matcher for this outline popup,
      *  or <code>null</code> if none
+     * @see #updatePatternMatcher(String)
      */
-    protected final IMatcher<Object> getPatternMatcher()
+    protected final Predicate<Object> getPatternMatcher()
     {
         return patternMatcher;
     }
@@ -92,6 +102,15 @@ public abstract class FilteringOutlinePopup
             getTreeViewer().getTree() });
     }
 
+    /**
+     * Creates a tree viewer for this outline popup. The viewer has no input,
+     * no content provider, a default label provider, no sorter, and no filters.
+     * This method is called once, when the popup's control is created.
+     * <p>
+     * This implementation returns a new instance of
+     * {@link FilteringOutlineTreeViewer}.
+     * </p>
+     */
     @Override
     protected TreeViewer createTreeViewer(Composite parent)
     {
@@ -106,6 +125,13 @@ public abstract class FilteringOutlinePopup
         return viewMenuButtonComposite;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation creates the {@link #getFilterText() filter text}
+     * control. It uses {@link #createFilterText(Composite)} to create the control.
+     * </p>
+     */
     @Override
     protected Control createTitleControl(Composite parent)
     {
@@ -115,6 +141,21 @@ public abstract class FilteringOutlinePopup
 
     /**
      * Creates the text control to be used for entering the filter pattern.
+     * <p>
+     * This implementation creates a text control that:
+     * </p>
+     * <ul>
+     * <li>Invokes {@link #updatePatternMatcher(String)} when the text is modified.</li>
+     * <li>Invokes {@link #gotoSelectedElement()} when the ENTER key is pressed.</li>
+     * <li>Sets the keyboard focus to the tree viewer when the DOWN ARROW or
+     * UP ARROW key is pressed.</li>
+     * <li>Invokes {@link #close()} when the ESC key is pressed.</li>
+     * </ul>
+     * <p>
+     * If an {@link #getInvokingKeyStroke() invoking key} is set,
+     * this implementation adds the {@link #getInvokingKeyListener()
+     * invoking key listener} to the created control.
+     * </p>
      *
      * @param parent the parent composite (never <code>null</code>)
      * @return the created filter text control (not <code>null</code>)
@@ -165,10 +206,12 @@ public abstract class FilteringOutlinePopup
     }
 
     /**
-     * Updates the current pattern matcher to match the given pattern, then
-     * calls {@link #patternMatcherUpdated()} to refresh the tree viewer.
+     * Updates the current pattern matcher to an instance {@link
+     * #createPatternMatcher(String) created} for the given pattern
+     * and {@link #patternMatcherUpdated() notifies} of the update.
      *
      * @param pattern the pattern string (not <code>null</code>)
+     * @see #getPatternMatcher()
      */
     protected final void updatePatternMatcher(String pattern)
     {
@@ -178,12 +221,20 @@ public abstract class FilteringOutlinePopup
 
     /**
      * Returns a new pattern matcher based on the given pattern.
+     * May return <code>null</code> if no filtering is required.
+     * <p>
+     * This implementation returns <code>null</code> if the pattern is an
+     * empty string. Otherwise, it appends '*' to the pattern if the pattern
+     * does not already end with '*', and returns an {@link ElementMatcher}
+     * based on a {@link StringMatcher} for the pattern. Case-insensitive
+     * matching is enabled if, and only if, the pattern is all lower-case.
+     * </p>
      *
      * @param pattern the pattern string (not <code>null</code>)
      * @return the created pattern matcher, or <code>null</code>
-     *  if filtering is not required
+     *  if no filtering is required
      */
-    protected IMatcher<Object> createPatternMatcher(String pattern)
+    protected Predicate<Object> createPatternMatcher(String pattern)
     {
         int length = pattern.length();
         if (length == 0)
@@ -197,8 +248,9 @@ public abstract class FilteringOutlinePopup
     /**
      * Notifies that the pattern matcher has been updated.
      * <p>
-     * Default implementation refreshes the tree viewer, expands all nodes
-     * of the tree, and selects the first matching element.
+     * This implementation refreshes the tree viewer, expands all nodes
+     * of the tree, and {@link #selectFirstMatch() selects} the first
+     * matching element.
      * </p>
      */
     protected void patternMatcherUpdated()
@@ -213,6 +265,11 @@ public abstract class FilteringOutlinePopup
 
     /**
      * Selects the first element that matches the current filter pattern.
+     * <p>
+     * This implementation starts the search from the {@link #getFocalElement()
+     * focal element}. If there is no focal element, the search is started from
+     * the root of the tree.
+     * </p>
      */
     protected void selectFirstMatch()
     {
@@ -239,8 +296,8 @@ public abstract class FilteringOutlinePopup
     /**
      * Returns the current focal element for this outline popup.
      * <p>
-     * Default implementation returns the initially selected element.
-     * Subclasses may override.
+     * Default implementation returns the {@link #getInitialSelection()
+     * initially selected} element. Subclasses may override.
      * </p>
      *
      * @return the current focal element for this outline popup,
@@ -267,7 +324,7 @@ public abstract class FilteringOutlinePopup
         {
             TreeItem item = items[i];
             Object element = item.getData();
-            if (patternMatcher.matches(element))
+            if (patternMatcher.test(element))
                 return item;
         }
 
@@ -329,18 +386,30 @@ public abstract class FilteringOutlinePopup
     }
 
     /**
-     * Overrides {@link OutlinePopup.OutlineTreeViewer#canExpand(TreeItem)
-     * canExpand} method to allow expanding any tree item when the pattern-based
-     * filter is active.
+     * Extends {@link OutlinePopup.OutlineTreeViewer} to allow expanding
+     * any tree item when the pattern-based filter is active.
      */
     protected class FilteringOutlineTreeViewer
         extends OutlineTreeViewer
     {
+        /**
+         * Creates a new tree viewer on the given tree control.
+         * Sets auto-expand level to <code>ALL_LEVELS</code>.
+         *
+         * @param tree the tree control (not <code>null</code>)
+         */
         public FilteringOutlineTreeViewer(Tree tree)
         {
             super(tree);
         }
 
+        /**
+         * {@inheritDoc}
+         * <p>
+         * <code>FilteringOutlineTreeViewer</code> extends this method to allow
+         * expanding any tree item when the pattern-based filter is active. 
+         * </p>
+         */
         @Override
         protected boolean canExpand(TreeItem item)
         {
@@ -351,34 +420,21 @@ public abstract class FilteringOutlinePopup
     }
 
     /**
-     * Determines a true or false for a given object.
-     */
-    protected interface IMatcher<T>
-    {
-        /**
-         * Determines a true or false for the given object.
-         *
-         * @param object may be <code>null</code>
-         * @return <code>true</code> if the specified object matches;
-         *  <code>false</code> otherwise
-         */
-        boolean matches(T object);
-    }
-
-    /**
-     * Pattern-based element matcher.
+     * A pattern-based element matcher for the outline popup. Passes the {@link
+     * ElementMatcher#getText(Object) text} (by default, the label string)
+     * obtained for the given outline element to the underlying string matcher.
      */
     protected class ElementMatcher
-        implements IMatcher<Object>
+        implements Predicate<Object>
     {
-        private final IMatcher<String> stringMatcher;
+        private final Predicate<String> stringMatcher;
 
         /**
          * Creates a new element matcher based on the given string matcher.
          *
          * @param stringMatcher not <code>null</code>
          */
-        public ElementMatcher(IMatcher<String> stringMatcher)
+        public ElementMatcher(Predicate<String> stringMatcher)
         {
             if (stringMatcher == null)
                 throw new IllegalArgumentException();
@@ -386,11 +442,11 @@ public abstract class FilteringOutlinePopup
         }
 
         @Override
-        public final boolean matches(Object element)
+        public final boolean test(Object element)
         {
             if (element == null)
                 return false;
-            return stringMatcher.matches(getText(element));
+            return stringMatcher.test(getText(element));
         }
 
         /**
@@ -421,10 +477,10 @@ public abstract class FilteringOutlinePopup
     }
 
     /**
-     * Pattern-based string matcher.
+     * A string pattern matcher that supports '*' and '?' wildcards.
      */
     protected static class StringMatcher
-        implements IMatcher<String>
+        implements Predicate<String>
     {
         private final String expression;
         private final boolean ignoreCase;
@@ -432,6 +488,8 @@ public abstract class FilteringOutlinePopup
 
         /**
          * Creates a new string matcher based on the given pattern.
+         * The pattern may contain '*' for zero or more characters and
+         * '?' for exactly one character.
          *
          * @param pattern the pattern string (not <code>null</code>)
          * @param ignoreCase whether case-insensitive matching is enabled
@@ -443,7 +501,7 @@ public abstract class FilteringOutlinePopup
         }
 
         @Override
-        public final boolean matches(String text)
+        public final boolean test(String text)
         {
             if (text == null)
                 return false;
@@ -452,6 +510,10 @@ public abstract class FilteringOutlinePopup
 
         /**
          * Translates the given pattern into a regular expression.
+         * <p>
+         * This implementation always returns a regular expression
+         * that starts with '^'.
+         * </p>
          *
          * @param pattern the pattern string (not <code>null</code>)
          * @return the regular expression corresponding to the pattern
@@ -496,7 +558,7 @@ public abstract class FilteringOutlinePopup
             if (patternMatcher == null)
                 return true;
 
-            if (patternMatcher.matches(element))
+            if (patternMatcher.test(element))
                 return true;
 
             return hasUnfilteredChild((TreeViewer)viewer, element);
