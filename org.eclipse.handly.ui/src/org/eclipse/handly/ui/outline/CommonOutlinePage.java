@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
-import org.eclipse.handly.ui.preference.IBooleanPreference;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.DecoratingStyledCellLabelProvider;
@@ -58,8 +57,7 @@ public abstract class CommonOutlinePage
 {
     private TreeViewer treeViewer;
     private IEditorPart editor;
-    private List<IOutlineContribution> contributionList =
-        new ArrayList<IOutlineContribution>();
+    private List<IOutlineContribution> contributionList = new ArrayList<>();
     private ListenerList<IOutlineInputChangeListener> inputChangeListeners =
         new ListenerList<>();
     private ListenerList<ISelectionChangedListener> selectionChangedListeners =
@@ -125,18 +123,6 @@ public abstract class CommonOutlinePage
     public void removeInputChangeListener(IOutlineInputChangeListener listener)
     {
         inputChangeListeners.remove(listener);
-    }
-
-    @Override
-    public IBooleanPreference getLinkWithEditorPreference()
-    {
-        return null;
-    }
-
-    @Override
-    public IBooleanPreference getLexicalSortPreference()
-    {
-        return null;
     }
 
     @Override
@@ -280,7 +266,7 @@ public abstract class CommonOutlinePage
     protected abstract IBaseLabelProvider getLabelProvider();
 
     /**
-     * Computes the new input element for the outline page's tree viewer.
+     * Computes the input element for the outline page's tree viewer.
      *
      * @return the input element (may be <code>null</code>)
      */
@@ -375,9 +361,9 @@ public abstract class CommonOutlinePage
 
     private void initContributions()
     {
-        List<IOutlineContribution> contributions =
-            new ArrayList<IOutlineContribution>(contributionList);
-        for (final IOutlineContribution contribution : contributions)
+        List<IOutlineContribution> contributions = new ArrayList<>(
+            contributionList);
+        for (IOutlineContribution contribution : contributions)
         {
             SafeRunner.run(new ISafeRunnable()
             {
@@ -396,9 +382,9 @@ public abstract class CommonOutlinePage
 
     private void disposeContributions()
     {
-        List<IOutlineContribution> contributions =
-            new ArrayList<IOutlineContribution>(contributionList);
-        for (final IOutlineContribution contribution : contributions)
+        List<IOutlineContribution> contributions = new ArrayList<>(
+            contributionList);
+        for (IOutlineContribution contribution : contributions)
         {
             SafeRunner.run(new ISafeRunnable()
             {
@@ -415,10 +401,10 @@ public abstract class CommonOutlinePage
         }
     }
 
-    private void fireInputChanged(final Object input, final Object oldInput)
+    private void fireInputChanged(Object input, Object oldInput)
     {
         Object[] listeners = inputChangeListeners.getListeners();
-        for (final Object listener : listeners)
+        for (Object listener : listeners)
         {
             SafeRunner.run(new ISafeRunnable()
             {
@@ -438,11 +424,11 @@ public abstract class CommonOutlinePage
 
     private void fireSelectionChanged(ISelection selection)
     {
-        final SelectionChangedEvent event = new SelectionChangedEvent(this,
+        SelectionChangedEvent event = new SelectionChangedEvent(this,
             selection);
 
         Object[] listeners = selectionChangedListeners.getListeners();
-        for (final Object listener : listeners)
+        for (Object listener : listeners)
         {
             SafeRunner.run(new ISafeRunnable()
             {
