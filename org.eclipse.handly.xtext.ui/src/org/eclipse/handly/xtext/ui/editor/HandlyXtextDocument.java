@@ -110,8 +110,6 @@ public class HandlyXtextDocument
     @Override
     public void setInput(XtextResource resource)
     {
-        if (resource == null)
-            throw new IllegalArgumentException();
         super.setInput(resource);
         reconciledSnapshot = getNonExpiringSnapshot(); // initial snapshot
         addDocumentListener(selfListener);
@@ -176,15 +174,16 @@ public class HandlyXtextDocument
     }
 
     /**
-     * Re-parses the resource so it becomes reconciled with the document contents.
-     * Does nothing if already reconciled. <b>For internal use only.</b>
+     * Reconciles the document model with changes in the document text.
+     * Does nothing and returns <code>false</code> if the document model
+     * is already in sync with the document text.
      *
      * @param processor the processor to execute the reconciling unit of work
      *  (not <code>null</code>)
      * @return <code>true</code> if the document had any changes to be reconciled,
-     *   <code>false</code> otherwise
+     *   and <code>false</code> otherwise
      */
-    public boolean reconcile(Processor processor)
+    boolean reconcile(Processor processor)
     {
         T2MReconcilingUnitOfWork reconcilingUnitOfWork =
             new T2MReconcilingUnitOfWork(false);
@@ -338,8 +337,8 @@ public class HandlyXtextDocument
          * @param monitor a progress monitor (never <code>null</code>).
          *  The caller must not rely on {@link IProgressMonitor#done()}
          *  having been called by the receiver
-         * @throws Exception if a problem occurred while running this method
          * @throws OperationCanceledException if this method is canceled
+         * @throws Exception if a problem occurred while running this method
          */
         void reconciled(XtextResource resource, NonExpiringSnapshot snapshot,
             boolean forced, IProgressMonitor monitor) throws Exception;
