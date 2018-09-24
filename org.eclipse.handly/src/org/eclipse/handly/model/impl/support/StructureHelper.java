@@ -25,7 +25,7 @@ import org.eclipse.handly.model.impl.ISourceConstructImplExtension;
 
 /**
  * A helper class that is typically used when building the inner structure of a
- * source file. A typical usage pattern is
+ * source file. A typical usage pattern is as follows:
  * <pre>
  *    Body parentBody = new ...;
  *
