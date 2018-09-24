@@ -167,7 +167,7 @@ public class ArrayUtil
      * @param a the array (not <code>null</code>)
      * @param types at least one type (each type not <code>null</code>)
      * @return a list of all of the elements in the given array that have
-     *  either of the given types (never <code>null</code>)
+     *  any of the given types (never <code>null</code>)
      */
     @SafeVarargs
     public static <T> List<T> elementsOfType(Object[] a,
@@ -186,8 +186,8 @@ public class ArrayUtil
      *
      * @param a the array (not <code>null</code>)
      * @param types at least one type (each type not <code>null</code>)
-     * @return <code>true</code> if the given array contains an element of either
-     *  of the given types, and <code>false</code> otherwise
+     * @return <code>true</code> if the given array contains an element that has
+     *  any of the given types, and <code>false</code> otherwise
      */
     public static boolean hasElementsOfType(Object[] a, Class<?>... types)
     {
@@ -200,8 +200,8 @@ public class ArrayUtil
      *
      * @param a the array (not <code>null</code>)
      * @param types at least one type (each type not <code>null</code>)
-     * @return <code>true</code> if the given array contains an element of neither
-     *  of the given types, and <code>false</code> otherwise
+     * @return <code>true</code> if the given array contains an element that has
+     *  none of the given types, and <code>false</code> otherwise
      */
     public static boolean hasElementsNotOfType(Object[] a, Class<?>... types)
     {
@@ -215,7 +215,7 @@ public class ArrayUtil
      * @param a the array (not <code>null</code>)
      * @param types at least one type (each type not <code>null</code>)
      * @return <code>true</code> if all of the elements in the given array have
-     *  either of the given types, and <code>false</code> otherwise
+     *  any of the given types, and <code>false</code> otherwise
      */
     public static boolean hasOnlyElementsOfType(Object[] a, Class<?>... types)
     {
