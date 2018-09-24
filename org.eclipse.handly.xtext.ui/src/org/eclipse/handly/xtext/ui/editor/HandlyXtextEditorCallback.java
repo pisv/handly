@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -69,7 +69,7 @@ import com.google.inject.Singleton;
  * (the most recently used one) is connected to the source file's working copy.
  * </p>
  * <p>
- * Note that this class relies on a language-specific implementation of
+ * Note that this class relies on the language-specific implementation of
  * {@link IInputElementProvider} being available through injection.
  * Also, {@link HandlyXtextDocument} and other classes pertaining to
  * Handly/Xtext integration should be bound if this callback is configured.
@@ -145,6 +145,16 @@ public class HandlyXtextEditorCallback
             connectWorkingCopy(editor);
     }
 
+    /**
+     * Notifies that the selection has changed in the editor.
+     * <p>
+     * This implementation invokes <code>setHighlightRange(editor, selection)</code>
+     * if the selection is not <code>null</code>.
+     * </p>
+     *
+     * @param editor never <code>null</code>
+     * @param selection may be <code>null</code> or empty
+     */
     protected void afterSelectionChange(XtextEditor editor,
         ISelection selection)
     {
@@ -152,11 +162,32 @@ public class HandlyXtextEditorCallback
             setHighlightRange(editor, selection);
     }
 
+    /**
+     * Sets the highlighted range of the editor according to the selection.
+     * <p>
+     * This implementation schedules a background job to set the highlight range
+     * asynchronously.
+     * </p>
+     *
+     * @param editor never <code>null</code>
+     * @param selection never <code>null</code>
+     */
     protected void setHighlightRange(XtextEditor editor, ISelection selection)
     {
         scheduleHighlightRangeJob(editor, selection);
     }
 
+    /**
+     * Returns the corresponding source file for the editor.
+     * <p>
+     * This implementation uses the injected {@link IInputElementProvider}
+     * to obtain an {@link IElement} corresponding to the editor input
+     * and returns the <code>IElement</code> if it is an {@link ISourceFile}.
+     * </p>
+     *
+     * @param editor never <code>null</code>
+     * @return the corresponding source file, or <code>null</code> if none
+     */
     protected ISourceFile getSourceFile(XtextEditor editor)
     {
         IElement inputElement = inputElementProvider.getElement(
@@ -166,6 +197,20 @@ public class HandlyXtextEditorCallback
         return (ISourceFile)inputElement;
     }
 
+    /**
+     * Returns the working copy that the editor is connected to, or <code>null</code>
+     * if the editor is not currently connected to a working copy.
+     * <p>
+     * Note that multiple Xtext editor instances may simultaneously be open for
+     * a given source file, each with its own underlying document, but only one
+     * of them (the most recently used one) is connected to the source file's
+     * working copy.
+     * </p>
+     *
+     * @param editor never <code>null</code>
+     * @return the working copy that the editor is connected to, or <code>null</code>
+     *  if the editor is not currently connected to a working copy
+     */
     protected final ISourceFile getWorkingCopy(XtextEditor editor)
     {
         WorkingCopyEditorInfo info = workingCopyEditors.get(
@@ -175,6 +220,26 @@ public class HandlyXtextEditorCallback
         return info.workingCopy;
     }
 
+    /**
+     * Attempts to acquire a working copy for the corresponding source file of
+     * the editor. A working copy acquired by this method <b>must</b> be released
+     * eventually via a call to {@link #releaseWorkingCopy(XtextEditor, ISourceFile)
+     * releaseWorkingCopy}.
+     * <p>
+     * This implementation obtains the corresponding source file for the
+     * editor via {@link #getSourceFile(XtextEditor)} and, if the source file
+     * implements {@link ISourceFileImplExtension}, invokes {@link
+     * ISourceFileImplExtension#becomeWorkingCopy_ becomeWorkingCopy_} on it
+     * providing a working copy buffer backed by the editor and an Xtext-specific
+     * working copy callback, and returns the acquired working copy. Otherwise,
+     * <code>null</code> is returned.
+     * </p>
+     *
+     * @param editor never <code>null</code>
+     * @return the acquired working copy, or <code>null</code>
+     *  if no working copy can be acquired
+     * @throws CoreException if the working copy could not be acquired successfully
+     */
     protected ISourceFile acquireWorkingCopy(XtextEditor editor)
         throws CoreException
     {
@@ -193,6 +258,17 @@ public class HandlyXtextEditorCallback
         return null;
     }
 
+    /**
+     * Releases the given working copy that was acquired via a call to
+     * {@link #acquireWorkingCopy(XtextEditor) acquireWorkingCopy}.
+     * <p>
+     * This implementation invokes <code>((ISourceFileImplExtension)workingCopy).{@link
+     * ISourceFileImplExtension#releaseWorkingCopy_() releaseWorkingCopy_()}</code>.
+     * </p>
+     *
+     * @param editor never <code>null</code>
+     * @param workingCopy never <code>null</code>
+     */
     protected void releaseWorkingCopy(XtextEditor editor,
         ISourceFile workingCopy)
     {

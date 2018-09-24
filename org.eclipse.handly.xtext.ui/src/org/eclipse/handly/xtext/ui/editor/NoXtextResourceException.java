@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -15,7 +15,8 @@ package org.eclipse.handly.xtext.ui.editor;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 
 /**
- * Signals that XtextDocument has no resource (either not set or already disposed).
+ * Thrown when a method expects Xtext resource to be present
+ * in a containing {@link XtextDocument} but it is missing.
  */
 public class NoXtextResourceException
     extends RuntimeException
@@ -24,14 +25,11 @@ public class NoXtextResourceException
 
     private final XtextDocument document;
 
-    /**
-     * Constructs a new <code>NoXtextResourceException</code>
-     * with the specified {@link XtextDocument}.
-     */
     NoXtextResourceException(XtextDocument document)
     {
         super(
-            "XtextDocument has no resource (either not set or already disposed)"); //$NON-NLS-1$
+            "XtextDocument has no Xtext resource. Either the resource has yet to be set"
+                + " or it has already been disposed"); //$NON-NLS-1$
         this.document = document;
     }
 

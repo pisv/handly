@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2015, 2018 itemis AG (http://www.itemis.eu) and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,16 +19,14 @@ import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.resource.IResourceDescription;
 
 /**
- * Adapted from org.eclipse.xtext.common.types.ui.editor.JvmTypesAwareDirtyStateEditorSupport.
- * Customized for Handly reconciling story.
+ * Adaptation of <code>JvmTypesAwareDirtyStateEditorSupport</code> for Handly
+ * reconciling story.
  * <p>
- * If you extend DefaultCommonTypesUiModule (directly or indirectly) and have
- * {@link HandlyXtextDocument} bound, bind this class in place of the default
- * <code>JvmTypesAwareDirtyStateEditorSupport</code>:
+ * If you extend <code>DefaultCommonTypesUiModule</code> (directly or indirectly)
+ * and have {@link HandlyXtextDocument} bound, bind this class in place of the
+ * default <code>JvmTypesAwareDirtyStateEditorSupport</code>:
  * </p>
  * <pre>
- * &#064;Override
- * // super would bind JvmTypesAwareDirtyStateEditorSupport
  * public Class&lt;? extends DirtyStateEditorSupport&gt; bindDirtyStateEditorSupport() {
  *     return HandlyJvmTypesAwareDirtyStateEditorSupport.class;
  * }

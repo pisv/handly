@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -21,8 +21,9 @@ import com.google.inject.Provider;
 /**
  * A simple handler that opens Handly-based outline popup for Xtext editor.
  * <p>
- * Note that this class relies on a language-specific implementation of
- * <code>OutlinePopup</code> being available through injection.
+ * Note that this class relies on the injected {@link Provider
+ * Provider&lt;OulinePopup&gt;} for creating instances of the
+ * language-specific implementation of {@link OutlinePopup}.
  * </p>
  */
 public class HandlyXtextOutlinePopupHandler

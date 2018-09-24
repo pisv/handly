@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2008, 2018 itemis AG (http://www.itemis.eu) and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -48,8 +48,7 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * Adapted from <code>org.eclipse.xtext.ui.editor.reconciler.XtextReconciler</code>.
- * Customized for Handly reconciling story.
+ * Adaptation of {@link XtextReconciler} for Handly reconciling story.
  * <p>
  * Bind this class in place of the default <code>XtextReconciler</code>
  * if you have {@link HandlyXtextDocument} bound:
@@ -121,7 +120,7 @@ public class HandlyXtextReconciler
     @Override
     public boolean shouldSchedule()
     {
-        // #schedule() should never be called for this job
+        // schedule() should never be called for this job
         throw new AssertionError(); // fail on a schedule request
     }
 

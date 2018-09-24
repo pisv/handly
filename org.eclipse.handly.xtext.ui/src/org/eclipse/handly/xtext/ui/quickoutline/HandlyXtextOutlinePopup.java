@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 /**
  * A partial implementation of Handly-based outline popup for Xtext editor.
  * <p>
- * Note that this class relies on a language-specific implementation of
+ * Note that this class relies on the language-specific implementation of
  * {@link IInputElementProvider} being available through injection.
  * </p>
  */

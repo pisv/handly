@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -95,8 +95,16 @@ public class XtextWorkingCopyCallback
         }
     }
 
+    /**
+     * Returns the underlying document of the working copy buffer.
+     *
+     * @return the underlying document (never <code>null</code>)
+     */
     protected final HandlyXtextDocument getDocument()
     {
-        return (HandlyXtextDocument)getWorkingCopyInfo().getBuffer().getDocument();
+        IWorkingCopyInfo info = getWorkingCopyInfo();
+        if (info == null)
+            throw new IllegalStateException();
+        return (HandlyXtextDocument)info.getBuffer().getDocument();
     }
 }

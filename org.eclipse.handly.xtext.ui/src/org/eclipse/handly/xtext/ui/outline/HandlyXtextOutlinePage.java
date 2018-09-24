@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -25,8 +25,11 @@ import com.google.inject.Inject;
 /**
  * A partial implementation of Handly-based outline page for Xtext editor.
  * <p>
- * Note that this class relies on a language-specific implementation of
+ * Note that this class relies on the language-specific implementation of
  * {@link IInputElementProvider} being available through injection.
+ * The activation of linking with editor and lexical sorting for the outline
+ * is governed by the injected {@link LinkWithEditorPreference} and {@link
+ * LexicalSortPreference}.
  * </p>
  */
 public abstract class HandlyXtextOutlinePage

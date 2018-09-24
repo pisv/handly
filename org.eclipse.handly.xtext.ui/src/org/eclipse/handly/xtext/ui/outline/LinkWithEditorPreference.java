@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -20,13 +20,16 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
- * Link-with-editor preference for the outline.
+ * A language-specific link-with-editor preference for the outline.
  */
 @Singleton
 public class LinkWithEditorPreference
     extends BooleanPreference
 {
     /**
+     * Creates a new link-with-editor preference for the outline
+     * using the given language-specific preference store access.
+     *
      * @param preferenceStoreAccess preference store access for the language
      *  (not <code>null</code>)
      */
