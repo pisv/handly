@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -55,19 +55,33 @@ public abstract class EditorWorkingCopyReconciler
     };
 
     /**
-     * Creates a new reconciler that reconciles the working copy associated
-     * with the given text editor.
+     * Creates a new working copy reconciler for the given editor and with
+     * the given working copy manager. The working copy manager is used to
+     * determine the working copy for the reconciler's document. The reconciler
+     * is configured with a single reconciling strategy (by default, a {@link
+     * WorkingCopyReconcilingStrategy}) that is used irrespective of where
+     * a dirty region is located in the reconciler's document.
      *
-     * @param editor the editor (not <code>null</code>)
-     * @param workingCopyManager the working copy manager (not <code>null</code>)
+     * @param editor not <code>null</code>
+     * @param workingCopyManager not <code>null</code>
      */
     public EditorWorkingCopyReconciler(IEditorPart editor,
         IWorkingCopyManager workingCopyManager)
     {
         super(workingCopyManager);
+        if (editor == null)
+            throw new IllegalArgumentException();
         this.editor = editor;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <code>EditorWorkingCopyReconciler</code> extends this method to register
+     * a part listener that sets the active state of the reconciler when the
+     * reconciler's editor is activated or deactivated.
+     * </p>
+     */
     @Override
     public void install(ITextViewer textViewer)
     {
@@ -88,12 +102,27 @@ public abstract class EditorWorkingCopyReconciler
         super.uninstall();
     }
 
+    /**
+     * Returns the mutex for this reconciler. See <a
+     * href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=66176">Bug 66176</a>
+     * for a description of the underlying problem.
+     * <p>
+     * This implementation returns the editor object as returned by
+     * {@link #getEditor()}.
+     * </p>
+     */
     @Override
     protected Object getReconcilerLock()
     {
         return editor;
     }
 
+    /**
+     * Returns the editor this reconciler is associated with. The association
+     * is immutable.
+     *
+     * @return the reconciler's editor (never <code>null</code>)
+     */
     protected final IEditorPart getEditor()
     {
         return editor;

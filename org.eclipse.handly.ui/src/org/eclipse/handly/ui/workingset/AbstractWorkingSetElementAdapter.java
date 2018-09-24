@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,7 +13,8 @@
 package org.eclipse.handly.ui.workingset;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
@@ -23,26 +24,33 @@ import org.eclipse.ui.ide.ResourceUtil;
 
 /**
  * A partial implementation of {@link IWorkingSetElementAdapter}.
- * Instances of this class are capable of transforming possible
- * working set content into the most applicable form.
  * <p>
- * Each model may opt to provide an element adapter for its working sets
- * (via the <code>elementAdapterClass</code> attribute of the
- * <code>org.eclipse.ui.workingSets</code> extension point).
- * That adapter will then be used by the workbench to help manage addition
+ * Working set element adapters are capable of transforming possible working
+ * set content into the most applicable form. Each model may opt to provide an
+ * element adapter for its working sets via the <code>elementAdapterClass</code>
+ * attribute of the <code>org.eclipse.ui.workingSets</code> extension point.
+ * The workbench will use the element adapter to help manage addition
  * of elements to working sets for the model.
  * </p>
- *
- * @see #isModelElement(IAdaptable)
- * @see #adaptFromResource(IResource)
  */
 public abstract class AbstractWorkingSetElementAdapter
     implements IWorkingSetElementAdapter
 {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation iterates through the given elements in order.
+     * If an element is {@link #isModelElement(IAdaptable) native} to the
+     * underlying model, it is added to a result set. Otherwise, if it could
+     * be adapted to an {@link IResource}, the resource is passed to the {@link
+     * #adaptFromResource(IResource)} method and the result is then added to
+     * the result set. Lastly, this implementation {@link #postProcess(Collection)
+     * post-processes} the result set before returning it.
+     */
     @Override
     public IAdaptable[] adaptElements(IWorkingSet ws, IAdaptable[] elements)
     {
-        HashSet<IAdaptable> result = new HashSet<IAdaptable>(elements.length);
+        Set<IAdaptable> result = new LinkedHashSet<>(elements.length);
         for (IAdaptable element : elements)
         {
             if (isModelElement(element))
@@ -70,30 +78,32 @@ public abstract class AbstractWorkingSetElementAdapter
     }
 
     /**
-     * Returns whether the given element is native to the model.
+     * Returns whether the given element is native to the underlying model.
      *
-     * @param element (never <code>null</code>)
-     * @return <code>true</code> if the given element is native to the model;
-     *  <code>false</code> otherwise
+     * @param element never <code>null</code>
+     * @return <code>true</code> if the given element is native to the model,
+     *  and <code>false</code> otherwise
      */
     protected abstract boolean isModelElement(IAdaptable element);
 
     /**
-     * Tries to adapt the given resource to the corresponding element of the model.
+     * Attempts to adapt the given resource to the corresponding element
+     * of the underlying model.
      *
-     * @param resource the resource to adapt (never <code>null</code>)
+     * @param resource never <code>null</code>
      * @return the (possibly adapted) resource
      */
     protected abstract IAdaptable adaptFromResource(IResource resource);
 
     /**
-     * Post-processes the collection of elements to be returned by
-     * {@link #adaptElements} method.
+     * Post-processes the collection of elements to be returned from
+     * the {@link #adaptElements(IWorkingSet, IAdaptable[])} method.
      * <p>
      * Default implementation does nothing. Subclasses may override.
      * </p>
      *
      * @param result the collection of elements to post-process
+     *  (never <code>null</code>)
      */
     protected void postProcess(Collection<IAdaptable> result)
     {

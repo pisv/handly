@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -121,8 +121,9 @@ public abstract class OutlineSorterContribution
     protected abstract ViewerComparator getComparator();
 
     /**
-     * Returns a comparator that will be used when the sorter is inactive.
-     * This method is called once, when this contribution is initializing.
+     * Returns a comparator that will be used when the sorter is inactive,
+     * or <code>null</code> if no sorting needs to take place then. This method
+     * is called once, when this contribution is initializing.
      * <p>
      * Default implementation returns <code>null</code>.
      * Subclasses may override.

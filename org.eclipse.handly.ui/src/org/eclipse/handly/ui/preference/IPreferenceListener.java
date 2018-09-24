@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,7 +13,7 @@
 package org.eclipse.handly.ui.preference;
 
 /**
- * Listener for preference changes.
+ * A listener that is notified when the value of a preference changes.
  * <p>
  * This interface may be implemented by clients.
  * </p>
@@ -21,12 +21,10 @@ package org.eclipse.handly.ui.preference;
 public interface IPreferenceListener
 {
     /**
-     * Notification that a preference has changed.
+     * Notifies this listener that the value of a preference has changed.
      * <p>
-     * <b>Note</b> A listener will be called in the same thread that it is
-     * invoked in. Any thread-dependent listeners (such as those that update
-     * an SWT widget) will need to update in the correct thread. In the case
-     * of an SWT update you can update using Display#syncExec(Runnable) or
+     * <b>Note:</b> This method may be called in any thread. If a listener
+     * updates an SWT widget, it will need to use Display#syncExec(Runnable) or
      * Display#asyncExec(Runnable).
      * </p>
      *

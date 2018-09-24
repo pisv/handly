@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -35,13 +35,23 @@ public class OutlineContextMenuContribution
     private Menu menu;
     private Menu oldMenu;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <code>OutlineContextMenuContribution</code> extends this method to create
+     * a context menu for the outline page's tree viewer. The menu will have id
+     * as computed by {@link #getContextMenuId()} and will invoke {@link
+     * #contextMenuAboutToShow(IMenuManager)} when it is about to be shown.
+     * If an {@link #getContextMenuExtensionId() extension id} is provided,
+     * the menu will be registered with the workbench for extension.
+     * </p>
+     */
     @Override
-    public void init(final ICommonOutlinePage outlinePage)
+    public void init(ICommonOutlinePage outlinePage)
     {
         super.init(outlinePage);
 
-        MenuManager manager = new MenuManager(getContextMenuId(),
-            getContextMenuId());
+        MenuManager manager = new MenuManager(null, getContextMenuId());
         manager.setRemoveAllWhenShown(true);
         manager.addMenuListener(new IMenuListener()
         {
@@ -79,7 +89,12 @@ public class OutlineContextMenuContribution
     }
 
     /**
-     * Returns the id of the context menu manager. May return <code>null</code>.
+     * Returns the id of the context menu manager, or <code>null</code>
+     * if the menu has no id.
+     * <p>
+     * Default implementation returns <code>null</code>.
+     * Subclasses may override this method.
+     * </p>
      */
     protected String getContextMenuId()
     {
@@ -90,6 +105,10 @@ public class OutlineContextMenuContribution
      * Returns the unique id to use for registration the context menu with
      * the workbench, or <code>null</code> if the menu is not eligible
      * for extension.
+     * <p>
+     * Default implementation returns <code>null</code>.
+     * Subclasses may override this method.
+     * </p>
      */
     protected String getContextMenuExtensionId()
     {
@@ -100,7 +119,7 @@ public class OutlineContextMenuContribution
      * Notifies that the context menu of the outline page is about to be
      * shown by the given menu manager.
      * <p>
-     * Default implementation contributes <code>IWorkbenchActionConstants.MB_ADDITIONS</code>
+     * Default implementation contributes {@link IWorkbenchActionConstants#MB_ADDITIONS}
      * group if the context menu was registered with the workbench for extension.
      * Subclasses may extend this method and contribute other items.
      * </p>

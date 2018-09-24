@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -45,6 +45,16 @@ public abstract class OutlineDragAndDropContribution
             }
         };
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <code>OutlineDragAndDropContribution</code> extends this method to add
+     * {@link #createDragSupport() drag} and {@link #createDropSupport() drop}
+     * support to the outline. The {@link ViewerDropSupport#setFeedbackEnabled(
+     * boolean) feedback enablement} for the drop support is governed by the {@link
+     * ICommonOutlinePage#getLexicalSortPreference() lexical sort} preference.
+     * </p>
+     */
     @Override
     public void init(ICommonOutlinePage outlinePage)
     {

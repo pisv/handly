@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -18,7 +18,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 
 /**
- * Adapter for making an editor a suitable host for an outline popup.
+ * An editor-based outline popup host.
  */
 public class EditorOutlinePopupHost
     implements IOutlinePopupHost
@@ -28,7 +28,7 @@ public class EditorOutlinePopupHost
     /**
      * Creates an outline popup host based on the given editor.
      *
-     * @param editor the editor (not <code>null</code>)
+     * @param editor not <code>null</code>
      */
     public EditorOutlinePopupHost(IEditorPart editor)
     {

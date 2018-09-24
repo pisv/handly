@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,14 +13,14 @@
 package org.eclipse.handly.ui.preference;
 
 /**
- * Describes a change to a preference.
+ * Describes a change in the value of a preference.
  * <p>
- * <b>Note</b> The types of the oldValue and newValue of the
- * generated PreferenceChangeEvent are determined by whether
- * or not the typed API was called. If values are changed via
- * the typed API (e.g. via IBooleanPreference) the values in
- * the PreferenceChangeEvent will be of that type. If they are
- * set using a non typed API (e.g. using the OSGi Preferences)
+ * <b>Note:</b> The type of the old and new values of the preference in a
+ * <code>PreferenceChangeEvent</code> is determined by whether or not the
+ * change was made via the typed preference API. If the value of a preference
+ * was changed via the typed API (e.g., via {@link IBooleanPreference}), the
+ * values in the <code>PreferenceChangeEvent</code> will be of the appropriate
+ * specific type. If a non-typed API was used (e.g., OSGi <code>Preferences</code>),
  * the values will be unconverted Strings.
  * </p>
  */
@@ -52,8 +52,8 @@ public final class PreferenceChangeEvent
      * Returns the old value of the preference.
      *
      * @return the old value, or <code>null</code> if not known
-     *  or not relevant (for instance if the preference was just
-     *  added and there was no old value)
+     *  or not relevant (e.g., if the preference was just added
+     *  and there was no old value)
      */
     public Object getOldValue()
     {
@@ -64,7 +64,7 @@ public final class PreferenceChangeEvent
      * Returns the new value of the preference.
      *
      * @return the new value, or <code>null</code> if not known
-     *  or not relevant (for instance if the preference was removed)
+     *  or not relevant (e.g., if the preference was removed)
      */
     public Object getNewValue()
     {

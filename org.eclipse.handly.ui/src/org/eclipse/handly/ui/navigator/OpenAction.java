@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -34,15 +34,23 @@ import org.eclipse.ui.ide.ResourceUtil;
 public class OpenAction
     extends BaseSelectionListenerAction
 {
+    /**
+     * The workbench page to open the editor in (never <code>null</code>).
+     */
     protected final IWorkbenchPage page;
+    /**
+     * The editor utility for this action (never <code>null</code>).
+     */
     protected final EditorUtility editorUtility;
 
     /**
-     * Constructs an open action for the given workbench page.
+     * Constructs an open action with the given workbench page and the given
+     * editor utility.
      *
      * @param page the workbench page to open the editor in
      *  (not <code>null</code>)
-     * @param editorUtility (not <code>null</code>)
+     * @param editorUtility the editor utility for this action
+     *  (not <code>null</code>)
      */
     public OpenAction(IWorkbenchPage page, EditorUtility editorUtility)
     {
@@ -55,6 +63,14 @@ public class OpenAction
         this.editorUtility = editorUtility;
     }
 
+    /**
+     * For each of the currently selected elements, this implementation
+     * attempts to {@link EditorUtility#findEditor(IWorkbenchPage, Object) find}
+     * the matching open editor or, failing that, opens a new editor on the
+     * {@link EditorUtility#getEditorInput(Object) corresponding} editor input;
+     * it then {@link EditorUtility#revealElement(IEditorPart, Object) reveals}
+     * the element in the editor.
+     */
     @Override
     public void run()
     {
@@ -107,6 +123,12 @@ public class OpenAction
         }
     }
 
+    /**
+     * This implementation returns <code>false</code> if the given selection
+     * is <code>null</code> or empty, or if no editor input {@link
+     * EditorUtility#getEditorInput(Object) corresponds} to a selected element;
+     * otherwise, <code>true</code> is returned.
+     */
     @Override
     protected boolean updateSelection(IStructuredSelection selection)
     {

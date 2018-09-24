@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -30,7 +30,7 @@ class Messages
     public static String AbstractWorkingSetPage_workspace_content;
     public static String AbstractWorkingSetPage_warning_nameMustNotBeEmpty;
     public static String AbstractWorkingSetPage_warning_workingSetExists;
-    public static String AbstractWorkingSetPage_warning_resourceMustBeChecked;
+    public static String AbstractWorkingSetPage_warning_elementMustBeChecked;
     public static String AbstractWorkingSetPage_warning_nameWhitespace;
 
     static

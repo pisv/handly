@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,8 +22,10 @@ import org.eclipse.ui.PlatformUI;
  * An abstract base class for link-with-editor contributions.
  * <p>
  * Contributes link-with-editor behavior, if the outline page supports
- * linking with editor. Subclasses must implement linking logic in
- * a {@link #getLinkingHelper() linking helper}.
+ * linking with editor. The activation of the feature is governed by the
+ * corresponding {@link ICommonOutlinePage#getLinkWithEditorPreference()
+ * preference}. Subclasses must implement linking logic in a {@link
+ * #getLinkingHelper() linking helper}.
  * </p>
  */
 public abstract class LinkWithEditorContribution

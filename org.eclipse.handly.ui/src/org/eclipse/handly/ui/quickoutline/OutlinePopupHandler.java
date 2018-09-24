@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -52,12 +52,12 @@ public abstract class OutlinePopupHandler
     /**
      * Returns the outline popup host for the given execution event.
      * <p>
-     * Default implementation returns the host based on the active editor,
-     * or <code>null</code> if none.
+     * This implementation returns a host based on the active editor,
+     * or <code>null</code> if no editor is currently active.
      * <p>
      *
      * @param event the execution event (never <code>null</code>)
-     * @return the outline popup host, or <code>null</code>
+     * @return the outline popup host, or <code>null</code> if none
      */
     protected IOutlinePopupHost getOutlinePopupHost(ExecutionEvent event)
     {
@@ -70,7 +70,7 @@ public abstract class OutlinePopupHandler
     /**
      * Returns the invoking keystroke for the given execution event.
      * <p>
-     * Default implementation returns the first keystroke bound to
+     * This implementation returns the first keystroke bound to
      * the event's {@link ExecutionEvent#getCommand() command}.
      * </p>
      *

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -30,6 +30,13 @@ public class LexicalSortContribution
         return getOutlinePage().getLexicalSortPreference();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns a new {@link LabelComparator}.
+     * Subclasses may override.
+     * </p>
+     */
     @Override
     protected ViewerComparator getComparator()
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -20,12 +20,15 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
- * A basic content provider for <code>IElement</code>s.
+ * A basic content provider for {@link IElement}s.
  * Uses the existing structure of the elements.
  */
 public class ElementTreeContentProvider
     implements ITreeContentProvider
 {
+    /**
+     * A zero-length array of the runtime type <code>Object[]</code>.
+     */
     protected static final Object[] NO_CHILDREN = new Object[0];
 
     @Override

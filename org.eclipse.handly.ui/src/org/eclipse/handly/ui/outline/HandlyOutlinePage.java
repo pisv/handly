@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -41,13 +41,13 @@ public abstract class HandlyOutlinePage
 
     /**
      * Returns the content adapter that defines a mapping between elements
-     * of a Handly based model and the outline's content.
+     * of a Handly-based model and the outline's content.
      * <p>
      * Default implementation returns a {@link NullContentAdapter}.
      * Subclasses may override.
      * </p>
      *
-     * @return {@link IContentAdapter} (never <code>null</code>)
+     * @return an {@link IContentAdapter} (never <code>null</code>)
      */
     @Override
     public IContentAdapter getContentAdapter()
@@ -55,6 +55,16 @@ public abstract class HandlyOutlinePage
         return NullContentAdapter.INSTANCE;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation uses the {@link #getInputElementProvider()
+     * input element provider} to obtain an {@link IElement} corresponding to
+     * the editor input and returns an outline element corresponding to the
+     * <code>IElement</code>, as determined by the {@link #getContentAdapter()
+     * content adapter}.
+     * </p>
+     */
     @Override
     protected Object computeInput()
     {
@@ -63,13 +73,21 @@ public abstract class HandlyOutlinePage
         return getContentAdapter().getCorrespondingElement(inputElement);
     }
 
+    /**
+     * Returns the input element provider for this outline page.
+     *
+     * @return the input element provider for this outline page
+     */
     protected abstract IInputElementProvider getInputElementProvider();
 
     /**
      * Hook to add contributions to this outline page.
      * <p>
-     * Default implementation adds contributions that are common to
-     * a typical outline. Subclasses may extend this method.
+     * Default implementation adds contributions that are common to a typical
+     * outline, including {@link #addCollapseAllSupport() collapse-all},
+     * {@link #addLinkWithEditorSupport() link-with-editor}, and
+     * {@link #addSortingSupport() sorting} support.
+     * Subclasses may extend this method.
      * </p>
      */
     protected void addOutlineContributions()
@@ -102,7 +120,12 @@ public abstract class HandlyOutlinePage
     }
 
     /**
-     * Adds collapse-all support. Subclasses may override this method.
+     * Adds collapse-all support.
+     * <p>
+     * Default implementation adds a {@link CollapseAllActionContribution}.
+     * Subclasses may override this method. In particular, if collapse-all
+     * support is not needed, this method may be overridden to do nothing.
+     * </p>
      */
     protected void addCollapseAllSupport()
     {
@@ -110,7 +133,13 @@ public abstract class HandlyOutlinePage
     }
 
     /**
-     * Adds link-with-editor support. Subclasses may override this method.
+     * Adds link-with-editor support.
+     * <p>
+     * Default implementation adds a {@link LinkWithEditorActionContribution}, and
+     * a {@link LinkWithEditorContribution} with a {@link SourceElementLinkingHelper}.
+     * Subclasses may override this method. In particular, if link-with-editor
+     * support is not needed, this method may be overridden to do nothing.
+     * </p>
      */
     protected void addLinkWithEditorSupport()
     {
@@ -127,7 +156,13 @@ public abstract class HandlyOutlinePage
     }
 
     /**
-     * Adds sorting support. Subclasses may override this method.
+     * Adds sorting support.
+     * <p>
+     * Default implementation adds a {@link LexicalSortActionContribution} and
+     * a {@link LexicalSortContribution}. Subclasses may override this method.
+     * In particular, if sorting support is not needed, this method may be
+     * overridden to do nothing.
+     * </p>
      */
     protected void addSortingSupport()
     {
@@ -152,16 +187,16 @@ public abstract class HandlyOutlinePage
         IElementChangeListener listener);
 
     /**
-     * Notifies that the outline page is affected in some way
+     * Notifies that this outline page is affected in some way
      * by the given element change event.
      * <p>
-     * <b>Note</b> This method may be called in any thread.
-     * The event object (and the delta within it) is valid only
+     * <b>Note:</b> This method may be called in any thread.
+     * The event object (and the deltas within it) is valid only
      * for the duration of the invocation of this method.
      * </p>
      * <p>
-     * Default implementation schedules {@link #refresh() refresh}
-     * of this page in the UI thread.
+     * Default implementation schedules a full {@link #refresh() refresh}
+     * of this outline page's tree viewer in the UI thread.
      * </p>
      *
      * @param event never <code>null</code>

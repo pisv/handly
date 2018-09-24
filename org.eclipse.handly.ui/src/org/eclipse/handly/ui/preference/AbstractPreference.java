@@ -21,7 +21,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 
 /**
  * An abstract base implementation of a preference.
- * The preference is stored in {@link IPreferenceStore}.
+ * The preference is stored in an {@link IPreferenceStore}.
  */
 public abstract class AbstractPreference
     implements IPreference

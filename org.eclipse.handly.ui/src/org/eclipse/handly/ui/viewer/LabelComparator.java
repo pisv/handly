@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2015, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,13 +26,26 @@ import org.eclipse.jface.viewers.ViewerComparator;
  * Compares elements based on the strings obtained from the content viewer's
  * label provider.
  * <p>
- * Can work with label providers besides <code>ILabelProvider</code>, such as
- * <code>IStyledLabelProvider</code> and <code>DelegatingStyledCellLabelProvider</code>.
+ * This class supports label providers besides {@link ILabelProvider}, such as
+ * {@link IStyledLabelProvider} and {@link DelegatingStyledCellLabelProvider}.
  * </p>
  */
 public class LabelComparator
     extends ViewerComparator
 {
+    /**
+     * Returns a negative, zero, or positive number depending on whether
+     * the first element is less than, equal to, or greater than
+     * the second element.
+     * <p>
+     * This implementation is based on comparing the elements' categories
+     * as computed by the {@link #category(Object)} method. Elements within
+     * the same category are further subjected to comparing their label strings
+     * as computed by the {@link #getLabel(Viewer, Object)} method. The label
+     * strings are compared using the comparator provided by the {@link
+     * #getComparator()} method.
+     * </p>
+     */
     @Override
     public int compare(Viewer viewer, Object e1, Object e2)
     {
@@ -60,12 +73,12 @@ public class LabelComparator
      * Returns the label string for the given viewer element
      * to use for sorting the viewer's contents.
      * <p>
-     * Default implementation returns the label string
-     * obtained from the content viewer's label provider.
+     * This implementation returns the label string obtained from
+     * the content viewer's label provider.
      * </p>
      *
-     * @param viewer
-     * @param element
+     * @param viewer the viewer
+     * @param element the element
      * @return the label string for the given viewer element,
      *  or <code>null</code> if no label can be obtained
      */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -23,14 +23,14 @@ import org.eclipse.swt.dnd.DND;
 
 /**
  * Support for dropping items into a structured viewer.
+ * This class is a wrapper around {@link DelegatingDropAdapter}.
  */
 public class ViewerDropSupport
 {
     private StructuredViewer viewer;
     private DelegatingDropAdapter delegatingDropAdapter =
         new DelegatingDropAdapter();
-    private List<ViewerDropAdapter> dropAdapters =
-        new ArrayList<ViewerDropAdapter>();
+    private List<ViewerDropAdapter> dropAdapters = new ArrayList<>();
     private boolean started;
 
     /**
@@ -46,7 +46,7 @@ public class ViewerDropSupport
     }
 
     /**
-     * Adds the given <code>TransferDropTargetListener</code>.
+     * Adds the given {@link TransferDropTargetListener}.
      *
      * @param listener not <code>null</code>
      * @throws IllegalStateException if already started
@@ -79,12 +79,12 @@ public class ViewerDropSupport
 
     /**
      * Sets whether visible insertion feedback should be presented to the user.
-     * Typical insertion feedback is the horizontal insertion bars that appear
+     * Typical insertion feedback is the horizontal insertion bar that appears
      * between adjacent items while dragging.
      * <p>
-     * Default implementation calls {@link ViewerDropAdapter#setFeedbackEnabled
-     * setFeedbackEnabled} for every <code>TransferDropTargetListener</code>
-     * that is a <code>ViewerDropAdapter</code>.
+     * This implementation calls {@link ViewerDropAdapter#setFeedbackEnabled
+     * setFeedbackEnabled} for every {@link TransferDropTargetListener}
+     * that is a {@link ViewerDropAdapter}.
      * </p>
      *
      * @param value <code>true</code> if visual feedback is desired,
@@ -99,8 +99,11 @@ public class ViewerDropSupport
     }
 
     /**
-     * Default implementation returns <code>DND.DROP_COPY | DND.DROP_MOVE |
-     * DND.DROP_LINK | DND.DROP_DEFAULT</code>.
+     * Returns a bitwise OR of the supported drag and drop operation types.
+     * <p>
+     * Default implementation returns {@link DND#DROP_COPY} | {@link DND#DROP_MOVE} |
+     * {@link DND#DROP_LINK} | {@link DND#DROP_DEFAULT}.
+     * </p>
      *
      * @return a bitwise OR of the supported drag and drop operation types
      */

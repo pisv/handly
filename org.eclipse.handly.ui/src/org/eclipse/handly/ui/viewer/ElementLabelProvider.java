@@ -17,7 +17,7 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.jface.viewers.LabelProvider;
 
 /**
- * A basic label provider for <code>IElement</code>s.
+ * A basic label provider for {@link IElement}s.
  * Uses the name of the element as its text. No images.
  */
 public class ElementLabelProvider

@@ -176,7 +176,7 @@ public abstract class AbstractWorkingSetUpdater
      * element delta. Delegates the processing of resource deltas contained
      * in the element delta to {@link #processResourceDelta(IResourceDelta,
      * WorkingSetDelta)}. Uses the {@link #getContentAdapter() content adapter}
-     * to adapt {@link IElement}s to working set elements.
+     * to convert {@link IElement}s to working set elements.
      *
      * @param delta an element delta (never <code>null</code>)
      * @param result the working set delta being built (never <code>null</code>)
@@ -292,7 +292,7 @@ public abstract class AbstractWorkingSetUpdater
      * Removes elements that do not exist anymore from the given working set,
      * except for elements under closed projects. Uses the {@link
      * #getContentAdapter() content adapter} to adapt working set elements
-     * apart from {@link IResource}s to {@link IElement}s.
+     * that are not {@link IResource}s to {@link IElement}s.
      *
      * @param workingSet never <code>null</code>
      */

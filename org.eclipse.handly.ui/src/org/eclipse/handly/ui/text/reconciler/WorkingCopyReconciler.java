@@ -72,10 +72,14 @@ public abstract class WorkingCopyReconciler
     private ShellListener activationListener;
 
     /**
-     * Creates a new reconciler that reconciles the working copy provided
-     * by the given manager.
+     * Creates a new working copy reconciler with the given working copy manager.
+     * The working copy manager is used to determine the working copy for
+     * the reconciler's document. The reconciler is configured with a single
+     * reconciling strategy (by default, a {@link WorkingCopyReconcilingStrategy})
+     * that is used irrespective of where a dirty region is located in the
+     * reconciler's document.
      *
-     * @param workingCopyManager the working copy manager (not <code>null</code>)
+     * @param workingCopyManager not <code>null</code>
      */
     public WorkingCopyReconciler(IWorkingCopyManager workingCopyManager)
     {
@@ -92,7 +96,7 @@ public abstract class WorkingCopyReconciler
     /**
      * Sets the reconciling strategy that is to be used by this reconciler.
      *
-     * @param strategy the reconciling strategy (not <code>null</code>)
+     * @param strategy not <code>null</code>
      */
     public void setReconcilingStrategy(IReconcilingStrategy strategy)
     {
@@ -119,6 +123,19 @@ public abstract class WorkingCopyReconciler
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <code>WorkingCopyReconciler</code> extends this method to {@link
+     * #addElementChangeListener(IElementChangeListener) register} an
+     * element change listener that {@link #elementChanged(IElementChangeEvent)
+     * notifies} when a change in the underlying model {@link #isAffectedBy(
+     * IElementChangeEvent) affects} the reconciler in some way, and also
+     * to register a shell listener that {@link #setActive(boolean) sets}
+     * the active state of the reconciler when the reconciler's text viewer
+     * is activated or deactivated.
+     * </p>
+     */
     @Override
     public void install(ITextViewer textViewer)
     {
@@ -149,12 +166,28 @@ public abstract class WorkingCopyReconciler
         super.uninstall();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns the single strategy of this reconciler.
+     * </p>
+     */
     @Override
     public IReconcilingStrategy getReconcilingStrategy(String contentType)
     {
         return strategy;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * If the reconciling strategy of this reconciler supports
+     * {@link IReconcilingStrategyExtension}, this implementation
+     * invokes {@link IReconcilingStrategyExtension#initialReconcile()
+     * initialReconcile()} on the strategy under the reconciler's
+     * {@link #getReconcilerLock() lock}. 
+     * </p>
+     */
     @Override
     protected void initialProcess()
     {
@@ -200,9 +233,12 @@ public abstract class WorkingCopyReconciler
     }
 
     /**
-     * Returns the mutex for the reconciler.
-     * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=66176
+     * Returns the mutex for this reconciler. See <a
+     * href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=66176">Bug 66176</a>
      * for a description of the underlying problem.
+     * <p>
+     * Default implementation returns <code>this</code>. Subclasses may override.
+     * </p>
      *
      * @return the mutex for the reconciler (never <code>null</code>)
      */
@@ -228,12 +264,16 @@ public abstract class WorkingCopyReconciler
         IElementChangeListener listener);
 
     /**
-     * Returns whether the reconciler is affected in some way
+     * Returns whether this reconciler is affected in some way
      * by the given element change event.
+     * <p>
+     * This implementation delegates to {@link #isAffectedBy(IElementDelta,
+     * ISourceFile)}, passing the working copy for the reconciler's document.
+     * </p>
      *
      * @param event never <code>null</code>
      * @return <code>true</code> if the reconciler is affected
-     *  by the given element change event, <code>false</code> otherwise
+     *  by the given element change event, and <code>false</code> otherwise
      */
     protected boolean isAffectedBy(IElementChangeEvent event)
     {
@@ -252,13 +292,13 @@ public abstract class WorkingCopyReconciler
     }
 
     /**
-     * Returns whether the reconciler is affected by the given delta
+     * Returns whether this reconciler is affected by the given element delta
      * with regard to the given working copy.
      *
      * @param delta never <code>null</code>
      * @param workingCopy may be <code>null</code>
      * @return <code>true</code> if the reconciler is affected
-     *  by the given delta, <code>false</code> otherwise
+     *  by the given delta, and <code>false</code> otherwise
      */
     protected boolean isAffectedBy(IElementDelta delta, ISourceFile workingCopy)
     {
@@ -292,12 +332,18 @@ public abstract class WorkingCopyReconciler
     }
 
     /**
-     * Notifies that the reconciler is affected in some way
+     * Notifies that this reconciler is affected in some way
      * by the given element change event.
      * <p>
-     * <b>Note</b> This method may be called in any thread.
-     * The event object (and the delta within it) is valid only
+     * <b>Note:</b> This method may be called in any thread.
+     * The event object (and the deltas within it) is valid only
      * for the duration of the invocation of this method.
+     * </p>
+     * <p>
+     * This implementation schedules a runnable to execute on the UI thread,
+     * to synchronize with {@link #setActive(boolean)}. The runnable will force
+     * reconciling if the reconciler is active at that time; it will also record
+     * the fact that a significant change occurred in the underlying model. 
      * </p>
      *
      * @param event never <code>null</code>
@@ -320,7 +366,7 @@ public abstract class WorkingCopyReconciler
      * Returns whether this reconciler is currently active.
      *
      * @return <code>true</code> if this reconciler is currently active,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     protected boolean isActive()
     {
@@ -330,6 +376,11 @@ public abstract class WorkingCopyReconciler
     /**
      * Indicates a change in the active state of this reconciler.
      * This method can only be executed by the UI thread.
+     * <p>
+     * This implementation sets the active state of the reconciler to the
+     * given value. Also, it forces reconciling if a significant model change
+     * occurred while the reconciler was not active.
+     * </p>
      *
      * @param active the boolean value to set for the reconciler active state
      */

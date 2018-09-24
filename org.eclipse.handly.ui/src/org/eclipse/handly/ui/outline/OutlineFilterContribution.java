@@ -106,7 +106,7 @@ public abstract class OutlineFilterContribution
 
     /**
      * Returns a viewer filter that is to be contributed to the outline page.
-     * The activation of the filter will be governed by the
+     * The activation of the filter will be governed by the filter
      * {@link #getPreference() preference}. This method is called once,
      * when this contribution is initializing.
      *

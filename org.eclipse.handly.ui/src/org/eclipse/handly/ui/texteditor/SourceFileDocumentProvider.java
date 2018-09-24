@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -56,38 +56,73 @@ public abstract class SourceFileDocumentProvider
         super(parent);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns the working copy retained by the file info for
+     * the given element. The file info is obtained via {@link #getFileInfo(Object)}.
+     * </p>
+     */
     @Override
     public ISourceFile getWorkingCopy(Object element)
     {
-        SourceFileInfo info = (SourceFileInfo)getFileInfo(element);
-        if (info == null)
-            return null;
-        return info.workingCopy;
+        FileInfo info = getFileInfo(element);
+        if (info instanceof SourceFileInfo)
+            return ((SourceFileInfo)info).workingCopy;
+        return null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns the working copy retained by the file info
+     * for the given document. The file info is found by iterating over
+     * this provider's file info objects via {@link #getFileInfosIterator()}
+     * and testing whether the document of the file info's text file buffer
+     * equals the given document.
+     * </p>
+     */
     @Override
     public ISourceFile getWorkingCopy(IDocument document)
     {
-        Iterator<?> it = getFileInfosIterator();
+        Iterator<FileInfo> it = getFileInfosIterator();
         while (it.hasNext())
         {
-            SourceFileInfo info = (SourceFileInfo)it.next();
-            if (info.fTextFileBuffer.getDocument().equals(document))
-                return info.workingCopy;
+            FileInfo info = it.next();
+            IDocument infoDocument = null;
+            if (info.fTextFileBuffer != null)
+                infoDocument = info.fTextFileBuffer.getDocument();
+            if (infoDocument != null && infoDocument.equals(document))
+            {
+                if (info instanceof SourceFileInfo)
+                    return ((SourceFileInfo)info).workingCopy;
+            }
         }
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation iterates over this provider's file info objects
+     * via {@link #getFileInfosIterator()} and collects the working copies
+     * they retain.
+     * </p>
+     */
     @Override
     public ISourceFile[] getWorkingCopies()
     {
         List<ISourceFile> result = new ArrayList<>();
-        Iterator<?> it = getFileInfosIterator();
+        Iterator<FileInfo> it = getFileInfosIterator();
         while (it.hasNext())
         {
-            SourceFileInfo info = (SourceFileInfo)it.next();
-            if (info.workingCopy != null)
-                result.add(info.workingCopy);
+            FileInfo info = it.next();
+            if (info instanceof SourceFileInfo)
+            {
+                ISourceFile workingCopy = ((SourceFileInfo)info).workingCopy;
+                if (workingCopy != null)
+                    result.add(workingCopy);
+            }
         }
         return result.toArray(NO_WORKING_COPIES);
     }
@@ -101,54 +136,88 @@ public abstract class SourceFileDocumentProvider
      */
     protected abstract ISourceFile getSourceFile(Object element);
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation returns a new instance of
+     * {@link SourceFileDocumentProvider.SourceFileInfo SourceFileInfo}.
+     * </p>
+     */
     @Override
     protected FileInfo createEmptyFileInfo()
     {
         return new SourceFileInfo();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation invokes the superclass implementation to create the
+     * file info object. It then attempts to {@link #acquireWorkingCopy(Object,
+     * TextFileDocumentProvider.FileInfo) acquire} a working copy for the
+     * given element if the created object is an instance of {@link
+     * SourceFileDocumentProvider.SourceFileInfo SourceFileInfo} and,
+     * if successful, stores a reference to the acquired working copy
+     * in the created file info.
+     * </p>
+     */
     @Override
     protected FileInfo createFileInfo(Object element) throws CoreException
     {
-        SourceFileInfo info = (SourceFileInfo)super.createFileInfo(element);
-        if (info == null)
-            return null;
-        boolean f = false;
-        try
+        FileInfo info = super.createFileInfo(element);
+        if (info instanceof SourceFileInfo)
         {
-            ISourceFile workingCopy = acquireWorkingCopy(element, info);
-            if (workingCopy != null)
+            boolean f = false;
+            try
             {
-                if (!Elements.isWorkingCopy(workingCopy))
-                    throw new AssertionError();
-                try (IBuffer buffer = Elements.getBuffer(workingCopy))
+                ISourceFile workingCopy = acquireWorkingCopy(element, info);
+                if (workingCopy != null)
                 {
-                    if (buffer.getDocument() != info.fTextFileBuffer.getDocument())
-                    {
-                        releaseWorkingCopy(workingCopy, element, info);
+                    if (!Elements.isWorkingCopy(workingCopy))
                         throw new AssertionError();
+                    try (IBuffer buffer = Elements.getBuffer(workingCopy))
+                    {
+                        IDocument document = null;
+                        if (info.fTextFileBuffer != null)
+                            document = info.fTextFileBuffer.getDocument();
+                        if (!buffer.getDocument().equals(document))
+                        {
+                            releaseWorkingCopy(workingCopy, element, info);
+                            throw new AssertionError();
+                        }
                     }
+                    ((SourceFileInfo)info).workingCopy = workingCopy;
                 }
-                info.workingCopy = workingCopy;
+                f = true;
             }
-            f = true;
-            return info;
+            finally
+            {
+                if (!f)
+                    super.disposeFileInfo(element, info);
+            }
         }
-        finally
-        {
-            if (!f)
-                super.disposeFileInfo(element, info);
-        }
+        return info;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation invokes the superclass implementation after trying to
+     * {@link #releaseWorkingCopy(ISourceFile, Object, TextFileDocumentProvider.FileInfo)
+     * release} the working copy retained by the given file info object.
+     * </p>
+     */
     @Override
     protected void disposeFileInfo(Object element, FileInfo info)
     {
         try
         {
-            ISourceFile workingCopy = ((SourceFileInfo)info).workingCopy;
-            if (workingCopy != null)
-                releaseWorkingCopy(workingCopy, element, info);
+            if (info instanceof SourceFileInfo)
+            {
+                ISourceFile workingCopy = ((SourceFileInfo)info).workingCopy;
+                if (workingCopy != null)
+                    releaseWorkingCopy(workingCopy, element, info);
+            }
         }
         finally
         {
@@ -159,13 +228,22 @@ public abstract class SourceFileDocumentProvider
     /**
      * Attempts to acquire a working copy for the given element. A working copy
      * acquired by this method <b>must</b> be released eventually via a call to
-     * {@link #releaseWorkingCopy(ISourceFile, Object, FileInfo)}.
+     * {@link #releaseWorkingCopy(ISourceFile, Object, TextFileDocumentProvider.FileInfo)
+     * releaseWorkingCopy}.
+     * <p>
+     * This implementation obtains a source file for the given element via
+     * {@link #getSourceFile(Object)} and, if the source file implements
+     * {@link ISourceFileImplExtension}, invokes <code>{@link
+     * ISourceFileImplExtension#becomeWorkingCopy_ becomeWorkingCopy_}(EMPTY_CONTEXT,
+     * null)</code> on it and returns the acquired working copy.
+     * Otherwise, <code>null</code> is returned.
+     * </p>
      *
      * @param element the element
      * @param info the element info
-     * @return an acquired working copy, or <code>null</code> if no working copy
+     * @return the acquired working copy, or <code>null</code> if no working copy
      *  can be acquired for the given element
-     * @throws CoreException if working copy could not be acquired successfully
+     * @throws CoreException if the working copy could not be acquired successfully
      */
     protected ISourceFile acquireWorkingCopy(Object element, FileInfo info)
         throws CoreException
@@ -181,8 +259,13 @@ public abstract class SourceFileDocumentProvider
     }
 
     /**
-     * Releases the working copy acquired via a call to {@link
-     * #acquireWorkingCopy(Object, FileInfo)}.
+     * Releases the given working copy that was acquired via a call to
+     * {@link #acquireWorkingCopy(Object, TextFileDocumentProvider.FileInfo)
+     * acquireWorkingCopy}.
+     * <p>
+     * This implementation invokes <code>((ISourceFileImplExtension)workingCopy).{@link
+     * ISourceFileImplExtension#releaseWorkingCopy_() releaseWorkingCopy_()}</code>.
+     * </p>
      *
      * @param workingCopy the working copy to release
      * @param element the element
@@ -194,6 +277,10 @@ public abstract class SourceFileDocumentProvider
         ((ISourceFileImplExtension)workingCopy).releaseWorkingCopy_();
     }
 
+    /**
+     * Subclass of {@link org.eclipse.ui.editors.text.TextFileDocumentProvider.FileInfo
+     * FileInfo} that can retain a reference to a working copy of a source file.
+     */
     protected static class SourceFileInfo
         extends FileInfo
     {

@@ -40,6 +40,16 @@ public abstract class ElementChangeListenerContribution
         }
     };
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <code>ElementChangeListenerContribution</code> extends this method to {@link
+     * #addElementChangeListener(IElementChangeListener) register} an element
+     * change listener that invokes {@link #elementChanged(IElementChangeEvent)}
+     * if the element change event {@link #affects(IElementChangeEvent, Object)
+     * affects} the outline's input element.
+     * </p>
+     */
     @Override
     public void init(ICommonOutlinePage outlinePage)
     {
@@ -56,12 +66,18 @@ public abstract class ElementChangeListenerContribution
     }
 
     /**
-     * Returns whether the given event affects the outline's input element.
+     * Returns whether the given element change event affects the outline's
+     * input element.
+     * <p>
+     * This implementation uses the {@link #getContentAdapter() content adapter}
+     * to adapt the input element to an {@link IElement}. It then delegates
+     * to {@link #affects(IElementDelta, IElement)}.
+     * </p>
      *
      * @param event never <code>null</code>
      * @param inputElement may be <code>null</code>
-     * @return <code>true</code> if the given event affects the outline's
-     *  input element, <code>false</code> otherwise
+     * @return <code>true</code> if the given element change event affects
+     *  the outline's input element, and <code>false</code> otherwise
      */
     protected boolean affects(IElementChangeEvent event, Object inputElement)
     {
@@ -82,12 +98,17 @@ public abstract class ElementChangeListenerContribution
     }
 
     /**
-     * Returns whether the given delta affects the given element.
+     * Returns whether the given element delta affects the given element.
+     * <p>
+     * This implementation checks whether the given element delta tree contains
+     * a delta that designates a {@link ElementDeltas#isStructuralChange(
+     * IElementDelta) structural change} to the given element.
+     * </p>
      *
      * @param delta never <code>null</code>
      * @param element never <code>null</code>
      * @return <code>true</code> if the given delta affects the given element,
-     *  <code>false</code> otherwise
+     *  and <code>false</code> otherwise
      */
     protected boolean affects(IElementDelta delta, IElement element)
     {
@@ -117,8 +138,8 @@ public abstract class ElementChangeListenerContribution
      * Notifies that the outline page is affected in some way
      * by the given element change event.
      * <p>
-     * <b>Note</b> This method may be called in any thread.
-     * The event object (and the delta within it) is valid only
+     * <b>Note:</b> This method may be called in any thread.
+     * The event object (and the deltas within it) is valid only
      * for the duration of the invocation of this method.
      * </p>
      *
@@ -129,8 +150,12 @@ public abstract class ElementChangeListenerContribution
     /**
      * Returns the installed content adapter, or a {@link NullContentAdapter}
      * if none.
+     * <p>
+     * This implementation returns the content adapter provided by the
+     * outline page, if the outline page is an {@link IContentAdapterProvider}.
+     * </p>
      *
-     * @return {@link IContentAdapter} (never <code>null</code>)
+     * @return an {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {

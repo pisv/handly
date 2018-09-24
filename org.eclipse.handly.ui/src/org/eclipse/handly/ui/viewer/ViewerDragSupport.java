@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -21,6 +21,7 @@ import org.eclipse.swt.dnd.DragSourceEvent;
 
 /**
  * Support for dragging items out of a structured viewer.
+ * This class is a wrapper around {@link DelegatingDragAdapter}.
  */
 public class ViewerDragSupport
 {
@@ -56,7 +57,7 @@ public class ViewerDragSupport
     }
 
     /**
-     * Adds the given <code>TransferDragSourceListener</code>.
+     * Adds the given {@link TransferDragSourceListener}.
      *
      * @param listener not <code>null</code>
      * @throws IllegalStateException if already started
@@ -86,8 +87,11 @@ public class ViewerDragSupport
     }
 
     /**
-     * Default implementation returns <code>DND.DROP_COPY | DND.DROP_MOVE |
-     * DND.DROP_LINK</code>.
+     * Returns a bitwise OR of the supported drag and drop operation types.
+     * <p>
+     * Default implementation returns {@link DND#DROP_COPY} | {@link DND#DROP_MOVE} |
+     * {@link DND#DROP_LINK}.
+     * </p>
      *
      * @return a bitwise OR of the supported drag and drop operation types
      */

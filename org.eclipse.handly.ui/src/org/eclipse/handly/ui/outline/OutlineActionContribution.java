@@ -65,7 +65,7 @@ public abstract class OutlineActionContribution
     /**
      * Disposes of the contributed action.
      * <p>
-     * Default implementation does nothing. Subclasses may implement.
+     * Default implementation does nothing. Subclasses may override.
      * </p>
      *
      * @param action the action to dispose (never <code>null</code>)

@@ -34,24 +34,40 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
- * Contains convenient methods for working with elements in editors.
- * The methods of this class strive to provide a reasonable default behavior
- * and work fine for most cases. Clients may subclass this class if they
- * need to specialize the default behavior.
+ * Provides common methods for working with model elements in editors (such as
+ * finding an editor reference for an element and revealing an element in an
+ * editor).
+ * <p>
+ * The implementations of the methods in this class strive to provide a
+ * reasonable default behavior and work fine for most cases. Clients may
+ * subclass this class if they need to specialize the default behavior.
+ * </p>
  */
 public class EditorUtility
 {
     /**
-     * A default instance of the editor utility.
+     * The default instance of the editor utility.
      */
     public static final EditorUtility DEFAULT = new EditorUtility();
 
     /**
-     * Returns the editor input for the given element,
-     * or <code>null</code> if none.
+     * Returns the editor input for the given element, or <code>null</code>
+     * if no editor input corresponds to the element.
+     * <p>
+     * If the given element is an editor input, this implementation returns the
+     * element itself. Otherwise, it attempts to find a resource that corresponds
+     * to the given element and, if the corresponding resource is a file, returns
+     * a {@link FileEditorInput} based on the resource. The corresponding resource
+     * is determined as follows. If the given element is an {@link IResource},
+     * the corresponding resource is the element itself. Otherwise, if the given
+     * element could be adapted to an {@link IElement}, the corresponding resource
+     * is obtained via {@link Elements#getResource(IElement)}. Otherwise, the
+     * given element is adapted to an <code>IResource</code> via {@link
+     * ResourceUtil#getResource(Object)}.
+     * </p>
      *
-     * @param element the element (may be <code>null</code>)
-     * @return the editor input, or <code>null</code> if none
+     * @param element may be <code>null</code>
+     * @return the corresponding editor input, or <code>null</code> if none
      */
     public IEditorInput getEditorInput(Object element)
     {
@@ -59,11 +75,16 @@ public class EditorUtility
             return (IEditorInput)element;
 
         IResource resource;
-        IElement adapterElement = Adapters.adapt(element, IElement.class);
-        if (adapterElement != null)
-            resource = Elements.getResource(adapterElement);
+        if (element instanceof IResource)
+            resource = (IResource)element;
         else
-            resource = ResourceUtil.getResource(element);
+        {
+            IElement adapterElement = Adapters.adapt(element, IElement.class);
+            if (adapterElement != null)
+                resource = Elements.getResource(adapterElement);
+            else
+                resource = ResourceUtil.getResource(element);
+        }
 
         if (resource instanceof IFile)
             return new FileEditorInput((IFile)resource);
@@ -72,17 +93,25 @@ public class EditorUtility
     }
 
     /**
-     * Returns the editor reference that matches the given element,
-     * or <code>null</code> if there is no opened editor with that element.
-     * If several matching editors are found, returns the reference for
-     * the 'most specific' editor, which would typically be the most recently
-     * used editor with that element.
+     * Given a workbench page, finds and returns the reference for an editor
+     * that matches the given element. If several matching editors are found
+     * within the page, returns the reference for the 'most specific' editor,
+     * which would typically be the most recently used matching editor.
+     * Returns <code>null</code> if there are no matching editors.
+     * <p>
+     * This implementation asks the workbench page to find editor references
+     * that match the editor input provided for the given element by {@link
+     * #getEditorInput(Object)} and returns the reference for the most recently
+     * used matching editor. If the given element could be adapted to an {@link
+     * IElement} and the adapter element is an {@link ISourceElement}, it is
+     * additionally required for matching editors which could be adapted to an
+     * {@link ITextEditor} that the text editor's document equals the document
+     * of the source element's {@link #getBuffer(ISourceElement) buffer}.
+     * </p>
      *
-     * @param page the workbench page containing the editor
-     *  (not <code>null</code>)
-     * @param element the element (not <code>null</code>)
-     * @return the reference for the matching editor, or <code>null</code>
-     *  if there is no opened editor with the given element
+     * @param page not <code>null</code>
+     * @param element not <code>null</code>
+     * @return the matching editor reference, or <code>null</code> if none
      */
     public IEditorReference findEditor(IWorkbenchPage page, Object element)
     {
@@ -115,10 +144,20 @@ public class EditorUtility
     }
 
     /**
-     * Reveals an element in an editor on a best effort basis.
+     * Reveals the given element in the given editor on a best effort basis.
+     * <p>
+     * If the given element could be adapted to an {@link IElement} and the
+     * adapter element is an {@link ISourceElement}, and if the given editor
+     * could be adapted to an {@link ITextEditor}, this implementation attempts
+     * to select and reveal the source element's identifying range in the text
+     * editor, provided that the text editor's document equals the document
+     * of the source element's {@link #getBuffer(ISourceElement) buffer}.
+     * If all else fails, a structured selection containing a single object,
+     * the given element, is passed to the selection provider of the given editor.
+     * </p>
      *
-     * @param editor the editor (not <code>null</code>)
-     * @param element the element (not <code>null</code>)
+     * @param editor not <code>null</code>
+     * @param element not <code>null</code>
      */
     public void revealElement(IEditorPart editor, Object element)
     {
@@ -146,10 +185,16 @@ public class EditorUtility
 
     /**
      * Returns the buffer for the given source element, or <code>null</code>
-     * if its buffer cannot be accessed.
+     * if the element has no corresponding buffer or if an exception occurs
+     * while obtaining the buffer.
+     * <p>
+     * If the given element is contained in a source file, this implementation
+     * delegates to {@link Elements#getBuffer(ISourceFile)}, suppressing and
+     * logging a {@link CoreException} if necessary.
+     * </p>
      *
-     * @param element the source element (not <code>null</code>)
-     * @return the element's buffer, or <code>null</code> if none
+     * @param element not <code>null</code>
+     * @return the corresponding buffer, or <code>null</code> if none
      */
     protected IBuffer getBuffer(ISourceElement element)
     {

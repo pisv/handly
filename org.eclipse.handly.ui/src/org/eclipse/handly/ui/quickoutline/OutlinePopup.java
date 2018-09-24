@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -78,6 +78,17 @@ public abstract class OutlinePopup
      * <p>
      * This method may be extended by subclasses. Subclasses must call
      * the superclass implementation.
+     * </p>
+     * <p>
+     * <code>OutlinePopup</code> implementation of this method sets
+     * the parent shell to the shell of the SWT control of the given host,
+     * creates all controls of the outline popup, including the {@link
+     * #createTreeViewer(Composite) tree viewer}, initializes the tree viewer
+     * with the {@link #getContentProvider() content}- and {@link
+     * #getLabelProvider() label} providers as well as the {@link #computeInput()
+     * input}, and sets the {@link #computeInitialSelection() initial selection}
+     * in the tree viewer and the {@link #updateInfoText() text} in the popup's
+     * info area.
      * </p>
      *
      * @param host the host of this outline popup (not <code>null</code>)
@@ -218,6 +229,9 @@ public abstract class OutlinePopup
      * Creates a tree viewer for this outline popup. The viewer has no input,
      * no content provider, a default label provider, no sorter, and no filters.
      * This method is called once, when the popup's control is created.
+     * <p>
+     * This implementation returns a new instance of {@link OutlineTreeViewer}.
+     * </p>
      *
      * @param parent the parent composite (never <code>null</code>)
      * @return the created tree viewer (not <code>null</code>)
@@ -245,6 +259,10 @@ public abstract class OutlinePopup
     /**
      * Attempts to reveal the currently selected outline element in the
      * outline popup's host. If successful, closes this outline popup.
+     * <p>
+     * This implementation uses {@link #revealInHost(Object)} for revealing
+     * the currently selected outline element.
+     * </p>
      */
     protected void gotoSelectedElement()
     {
@@ -311,6 +329,11 @@ public abstract class OutlinePopup
      * Computes the element to be selected initially in the outline popup's
      * tree viewer. This method is called once, when the popup's control
      * is created.
+     * <p>
+     * This implementation obtains the current selection in the outline popup's
+     * host and delegates to {@link #getCorrespondingElement(ISelection)} if the
+     * selection is not <code>null</code> or empty.
+     * </p>
      *
      * @return the element to be selected initially in this outline popup,
      *  or <code>null</code> if none
@@ -324,10 +347,10 @@ public abstract class OutlinePopup
     }
 
     /**
-     * Returns the element corresponding to the given host selection.
+     * Returns the outline element corresponding to the given host selection.
      *
      * @param hostSelection the host selection (never <code>null</code>, never empty)
-     * @return the element corresponding to the host selection,
+     * @return the outline element corresponding to the host selection,
      *  or <code>null</code> if there is no such element
      */
     protected abstract Object getCorrespondingElement(ISelection hostSelection);
@@ -344,7 +367,7 @@ public abstract class OutlinePopup
     /**
      * Returns whether the given tree item is auto-expandable. This method
      * should be consulted by the tree viewer's <code>expandXXX</code> methods.
-     * If it returns <code>false</code>, the item is to be collapsed,
+     * If it returns <code>false</code>, the item is to be collapsed
      * rather than expanded.
      * <p>
      * Default implementation returns <code>true</code> for the root item
@@ -363,6 +386,11 @@ public abstract class OutlinePopup
     /**
      * Hook to initialize decoration context.
      * Subclasses may extend.
+     * <p>
+     * If this outline popup implements {@link IContentAdapterProvider},
+     * default implementation registers this outline popup in the given context
+     * under the name <code>IContentAdapterProvider.class.getName()</code>.
+     * </p>
      *
      * @param context the decoration context (never <code>null</code>)
      */
@@ -373,8 +401,9 @@ public abstract class OutlinePopup
     }
 
     /**
-     * Returns the invoking key listener. When the invoking key is pressed,
-     * this listener changes the mode of the outline popup and updates the
+     * Returns the invoking key listener. When the {@link #getInvokingKeyStroke()
+     * invoking key} is pressed, this listener {@link #changeOutlineMode() changes}
+     * the mode of the outline popup and {@link #updateInfoText() updates} the
      * text in the popup's info area.
      *
      * @return the invoking key listener (never <code>null</code>)
@@ -536,7 +565,9 @@ public abstract class OutlinePopup
     }
 
     /**
-     * The tree viewer used for displaying the outline.
+     * A tree viewer for the <code>OutlinePopup</code>.
+     *
+     * @see OutlinePopup#createTreeViewer(Composite)
      */
     protected class OutlineTreeViewer
         extends TreeViewer
@@ -572,8 +603,9 @@ public abstract class OutlinePopup
          * Returns whether the given tree item can be expanded from
          * <code>expandXXX</code> methods.
          * <p>
-         * Default implementation simply delegates to {@link
-         * OutlinePopup#isAutoExpandable(TreeItem)}. Subclasses may extend.
+         * <code>OutlineTreeViewer</code> implementation of this method
+         * simply delegates to {@link OutlinePopup#isAutoExpandable(TreeItem)}.
+         * Subclasses may extend.
          * </p>
          *
          * @param item the tree item (never <code>null</code>)

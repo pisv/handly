@@ -289,8 +289,8 @@ public abstract class CommonOutlinePage
     /**
      * Notifies that the outline page's editor input has changed.
      * <p>
-     * Default implementation sets the outline page's viewer input accordingly.
-     * Subclasses may extend.
+     * Default implementation {@link #computeInput() computes} and sets the
+     * new input for the outline page's tree viewer. Subclasses may extend.
      * </p>
      */
     protected void editorInputChanged()
@@ -320,6 +320,15 @@ public abstract class CommonOutlinePage
     /**
      * Hook to register global action handlers.
      * Subclasses may extend or override.
+     * <p>
+     * If the editor which created this outline page is a text editor,
+     * default implementation registers global action handlers for the
+     * following text editor actions:
+     * {@link ITextEditorActionConstants#UNDO UNDO},
+     * {@link ITextEditorActionConstants#REDO REDO},
+     * {@link ITextEditorActionConstants#NEXT NEXT},
+     * {@link ITextEditorActionConstants#PREVIOUS PREVIOUS}.
+     * </p>
      */
     protected void registerGlobalActions()
     {
@@ -350,6 +359,11 @@ public abstract class CommonOutlinePage
     /**
      * Hook to initialize decoration context.
      * Subclasses may extend.
+     * <p>
+     * If this outline page implements {@link IContentAdapterProvider},
+     * default implementation registers this outline page in the given context
+     * under the name <code>IContentAdapterProvider.class.getName()</code>.
+     * </p>
      *
      * @param context the decoration context (never <code>null</code>)
      */
@@ -481,7 +495,9 @@ public abstract class CommonOutlinePage
     }
 
     /**
-     * The tree viewer used for displaying the outline.
+     * A tree viewer for the <code>CommonOutlinePage</code>.
+     *
+     * @see CommonOutlinePage#createTreeViewer(Composite)
      */
     protected class OutlineTreeViewer
         extends TreeViewer

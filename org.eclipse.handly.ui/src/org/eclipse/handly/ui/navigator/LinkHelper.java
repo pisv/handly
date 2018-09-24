@@ -28,11 +28,27 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.navigator.ILinkHelper;
 
 /**
- * A partial implementation of {@link ILinkHelper}.
+ * A partial implementation of {@link ILinkHelper} for Handly-based models.
  */
 public abstract class LinkHelper
     implements ILinkHelper
 {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation uses the {@link #getInputElementProvider() input
+     * element provider} to convert the given editor input to an {@link IElement}
+     * (the input element). It then attempts to obtain the current selection in
+     * the {@link #getNavigatorView() navigator view} and returns it unchanged
+     * if the currently selected element could be adapted to an <code>IElement</code>
+     * and the adapter element is a descendant of the input element. Otherwise,
+     * it returns a structured selection containing a single object, the input
+     * element. If no <code>IElement</code> could be provided for the editor input,
+     * this implementation attempts to adapt the editor input to an {@link IFile}
+     * and returns a structured selection consisting of that file. If all else
+     * fails, <code>null</code> is returned.
+     * </p>
+     */
     @Override
     public IStructuredSelection findSelection(IEditorInput editorInput)
     {
@@ -68,6 +84,15 @@ public abstract class LinkHelper
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation does nothing if the given selection is <code>null</code>
+     * or empty or contains two or more elements. Otherwise, it uses the
+     * {@link #getEditorUtility() editor utility} to find the editor for the
+     * selected element and to reveal the element in the editor.
+     * </p>
+     */
     @Override
     public void activateEditor(IWorkbenchPage page,
         IStructuredSelection selection)
@@ -88,17 +113,30 @@ public abstract class LinkHelper
         }
     }
 
+    /**
+     * Returns the input element provider for this link helper.
+     *
+     * @return the input element provider for this link helper
+     *  (never <code>null</code>)
+     */
     protected abstract IInputElementProvider getInputElementProvider();
 
     /**
      * Returns the navigator view this link helper is for.
-     * This is used in {@link #findSelection(IEditorInput)} method
-     * to preserve the current selection in the navigator if possible.
      *
      * @return the navigator view this link helper is for, or <code>null</code>
      */
     protected abstract IViewPart getNavigatorView();
 
+    /**
+     * Returns the editor utility for this link helper.
+     * <p>
+     * Default implementation returns {@link EditorUtility#DEFAULT}.
+     * Subclasses may override.
+     * </p>
+     *
+     * @return the editor utility for this link helper (never <code>null</code>)
+     */
     protected EditorUtility getEditorUtility()
     {
         return EditorUtility.DEFAULT;

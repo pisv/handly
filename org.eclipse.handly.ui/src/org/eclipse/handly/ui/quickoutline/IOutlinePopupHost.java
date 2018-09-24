@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -18,7 +18,9 @@ import org.eclipse.ui.IEditorInput;
 
 /**
  * Represents the host of an outline popup.
+ * <p>
  * This interface may be implemented by clients.
+ * </p>
  *
  * @see OutlinePopup
  * @see EditorOutlinePopupHost
@@ -26,17 +28,17 @@ import org.eclipse.ui.IEditorInput;
 public interface IOutlinePopupHost
 {
     /**
-     * Returns the SWT control for this host,
-     * or <code>null</code> if the control is disposed.
+     * Returns the SWT control for this host, or <code>null</code>
+     * if the control is no longer available or has yet to be created.
      *
      * @return the SWT control or <code>null</code>
      */
     Control getControl();
 
     /**
-     * Returns this host's selection provider.
+     * Returns the selection provider of this host.
      *
-     * @return the selection provider (not <code>null</code>)
+     * @return the selection provider (never <code>null</code>)
      */
     ISelectionProvider getSelectionProvider();
 

@@ -81,7 +81,7 @@ public abstract class AbstractContainmentAdapter
      * Returns the model element corresponding to the given resource,
      * or <code>null</code> if no such element can be found.
      *
-     * @param resource the underlying resource (never <code>null</code>)
+     * @param resource never <code>null</code>
      * @return the model element corresponding to the given resource,
      *  or <code>null</code> if no such element can be found
      */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -29,9 +29,9 @@ import org.eclipse.ui.ide.ResourceUtil;
 
 /**
  * Decorates an element's image with error and warning overlays that represent
- * the severity of markers attached to the element's underlying resource.
+ * the severity of markers attached to the element's corresponding resource.
  * To see a problem decoration for a marker, the marker needs to be a sub-type
- * of <code>IMarker.PROBLEM</code>.
+ * of {@link IMarker#PROBLEM}.
  * <p>
  * Note that this decorator does not listen to problem marker changes.
  * Hence, a viewer using this decorator requires a separate listener
@@ -41,6 +41,14 @@ import org.eclipse.ui.ide.ResourceUtil;
 public class ProblemMarkerLabelDecorator
     extends ProblemLabelDecorator
 {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation delegates to
+     * {@link #computeProblemSeverityFromMarkers(Object, IDecorationContext)},
+     * suppressing and logging a {@link CoreException} if necessary.
+     * </p>
+     */
     @Override
     protected Severity computeProblemSeverity(Object element,
         IDecorationContext context)
@@ -61,31 +69,56 @@ public class ProblemMarkerLabelDecorator
 
     /**
      * Computes problem severity for the given element from markers attached
-     * to the element's underlying resource. Takes into account the provided
+     * to the element's corresponding resource. Takes into account the provided
      * context.
+     * <p>
+     * This implementation returns the maximum severity across problem markers
+     * attached to the element's corresponding resource and its descendants.
+     * If the given element could be adapted to an {@link IElement} through
+     * the {@link #getContentAdapter(IDecorationContext) content adapter} and
+     * the adapter element is an {@link ISourceConstruct}, only markers that
+     * {@link IMarker#CHAR_START start} {@link TextRange#strictlyCovers(int)
+     * strictly} within the source construct's text range are considered.
+     * The corresponding resource is determined as follows:
+     * </p>
+     * <ul>
+     * <li>
+     * If the given element is an {@link IResource}, the corresponding resource
+     * is the element itself.
+     * </li>
+     * <li>
+     * Otherwise, if the given element could be adapted to an <code>IElement</code>
+     * through the content adapter, the corresponding resource is obtained via
+     * {@link Elements#getResource(IElement)}.
+     * </li>
+     * <li>
+     * Otherwise, the given element is adapted to an <code>IResource</code> via
+     * {@link ResourceUtil#getResource(Object)}.
+     * </li>
+     * </ul>
      *
      * @param element never <code>null</code>
      * @param context never <code>null</code>
      * @return problem severity, or <code>null</code> if there is no problem
-     * @throws CoreException
+     * @throws CoreException if an exception occurs while accessing markers
      */
     protected Severity computeProblemSeverityFromMarkers(Object element,
         IDecorationContext context) throws CoreException
     {
-        IResource resource = null;
-        IElement elementAdapter = getContentAdapter(context).adapt(element);
+        IResource resource;
+        IElement adapterElement = getContentAdapter(context).adapt(element);
         if (element instanceof IResource)
             resource = (IResource)element;
-        else if (elementAdapter != null)
-            resource = Elements.getResource(elementAdapter);
+        else if (adapterElement != null)
+            resource = Elements.getResource(adapterElement);
         else
             resource = ResourceUtil.getResource(element);
         if (resource == null || !resource.isAccessible())
             return null;
         TextRange textRange = null;
-        if (elementAdapter instanceof ISourceConstruct)
+        if (adapterElement instanceof ISourceConstruct)
         {
-            ISourceConstruct sourceConstruct = (ISourceConstruct)elementAdapter;
+            ISourceConstruct sourceConstruct = (ISourceConstruct)adapterElement;
             if (!Elements.exists(sourceConstruct))
                 return null;
             textRange = Elements.getSourceElementInfo(
@@ -99,16 +132,16 @@ public class ProblemMarkerLabelDecorator
 
     /**
      * Returns the content adapter that defines a mapping between elements
-     * of a Handly based model and the viewer's content.
+     * of a Handly-based model and the viewer's content.
      * <p>
-     * Default implementation requests the content adapter from the
+     * This implementation requests the content adapter from the
      * {@link IContentAdapterProvider} registered in the decoration context
      * under the name <code>IContentAdapterProvider.class.getName()</code>.
      * If no provider is available, a {@link NullContentAdapter} is returned.
      * </p>
      *
      * @param context never <code>null</code>
-     * @return {@link IContentAdapter} (never <code>null</code>)
+     * @return an {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter(IDecorationContext context)
     {
@@ -121,19 +154,21 @@ public class ProblemMarkerLabelDecorator
     }
 
     /**
-     * Returns the maximum severity across problem markers attached to
-     * the given resource, and, optionally, to its descendants. If
-     * <code>textRange</code> is not <code>null</code>, only markers
-     * strictly covered by the given text range are considered.
-     * Returns <code>null</code> if there are no matching markers.
+     * Returns the maximum severity across problem markers attached to the
+     * given resource, and, optionally, to its descendants. If a text range
+     * is specified, only markers that {@link IMarker#CHAR_START start}
+     * {@link TextRange#strictlyCovers(int) strictly} within the given
+     * text range are considered. Returns <code>null</code> if there are no
+     * matching markers.
      *
      * @param resource not <code>null</code>
-     * @param depth how far to recurse (see <code>IResource.DEPTH_* </code>)
+     * @param depth how far to recurse (see <code>IResource.DEPTH_*</code>
+     *  constants)
      * @param textRange the text range to further constrain the marker set,
      *  or <code>null</code>. Makes sense only if the given resource is
      *  a text file
      * @return the maximum problem severity, or <code>null</code>
-     * @throws CoreException
+     * @throws CoreException if an exception occurs while accessing markers
      */
     protected static Severity findMaxProblemSeverity(IResource resource,
         int depth, TextRange textRange) throws CoreException

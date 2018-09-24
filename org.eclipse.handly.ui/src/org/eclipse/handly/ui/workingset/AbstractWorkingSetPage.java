@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -14,12 +14,13 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.workingset;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.handly.ui.viewer.LabelComparator;
+import org.eclipse.handly.util.ArrayUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -60,14 +61,14 @@ import org.eclipse.ui.dialogs.IWorkingSetPage;
  * is used to show the working set content. Buttons to move content from right
  * to left and vice versa are available between the two viewers. A text field
  * allows to set/change the working set name.
- * @see #getPageId()
- * @see #configureTree(TreeViewer)
- * @see #configureTable(TableViewer)
  */
 public abstract class AbstractWorkingSetPage
     extends WizardPage
     implements IWorkingSetPage
 {
+    /**
+     * A zero-length array of the runtime type <code>IAdaptable[]</code>.
+     */
     protected static final IAdaptable[] NO_ELEMENTS = new IAdaptable[0];
 
     private Text workingSetName;
@@ -76,13 +77,13 @@ public abstract class AbstractWorkingSetPage
     private ITreeContentProvider treeContentProvider;
     private IWorkingSet workingSet;
     private boolean firstCheck = true;
-    private HashSet<IAdaptable> selectedElements = new HashSet<IAdaptable>();
+    private Set<IAdaptable> selectedElements = new LinkedHashSet<>();
     private IStructuredSelection initialSelection;
 
     /**
      * Creates a new wizard page with the given name, title, and image.
      *
-     * @param pageName the name of the page
+     * @param pageName the name of the page (not <code>null</code>)
      * @param title the title for this wizard page,
      *  or <code>null</code> if none
      * @param titleImage the image descriptor for the title of this wizard page,
@@ -104,6 +105,11 @@ public abstract class AbstractWorkingSetPage
         }
     }
 
+    /**
+     * Sets the selection used as a basis for the initial state of this page.
+     *
+     * @param selection may be <code>null</code> or empty
+     */
     public void setInitialSelection(IStructuredSelection selection)
     {
         this.initialSelection = selection;
@@ -200,7 +206,7 @@ public abstract class AbstractWorkingSetPage
     {
         String name = workingSetName.getText();
         IAdaptable[] elements = getFinalWorkingSetElements(workingSet,
-            selectedElements.toArray(new IAdaptable[selectedElements.size()]));
+            selectedElements.toArray(NO_ELEMENTS));
 
         if (workingSet == null)
         {
@@ -248,56 +254,79 @@ public abstract class AbstractWorkingSetPage
     protected abstract String getPageId();
 
     /**
-     * Configures the tree viewer used on the left side of the dialog.
-     *
+     * Configures the tree viewer on the left side of this page.
+     * <p>
      * Implementors must set:
+     * </p>
      * <ul>
      *  <li>The content provider</li>
      *  <li>The label provider</li>
-     *  <li>The viewers input</li>
+     *  <li>The viewer input</li>
      * </ul>
+     * <p>
      * They may also set:
+     * </p>
      * <ul>
      *   <li>The viewer comparator</li>
      *   <li>Any viewer filter</li>
      * </ul>
+     * <p>
+     * Note that the initial selection is set in {@link
+     * #initializeTreeSelection(TreeViewer)}, which is called
+     * right after this method.
+     * </p>
      *
-     * @param tree the tree viewer to configure
-     * @see #initializeTreeSelection(TreeViewer)
+     * @param tree the tree viewer to configure (never <code>null</code>)
      */
     protected abstract void configureTree(TreeViewer tree);
 
     /**
-     * Configures the table viewer used on the right side of the dialog.
-     *
+     * Configures the table viewer on the right side of this page.
+     * <p>
      * Implementors must set:
+     * </p>
      * <ul>
      *  <li>The label provider</li>
      * </ul>
+     * <p>
      * They may also set:
+     * </p>
      * <ul>
      *   <li>The viewer comparator</li>
      * </ul>
+     * <p>
      * They must not set:
+     * </p>
      * <ul>
-     *  <li>The viewers content provider</li>
-     *  <li>The viewers input</li>
+     *  <li>The content provider</li>
+     *  <li>The viewer input</li>
      *  <li>Any viewer filter</li>
      * </ul>
      *
-     * @param table the table viewer to configure
+     * @param table the table viewer to configure (never <code>null</code>)
      */
     protected abstract void configureTable(TableViewer table);
 
+    /**
+     * Returns the selection used as a basis for the initial state of this page.
+     *
+     * @return a selection (may be <code>null</code> or empty)
+     */
     protected final IStructuredSelection getInitialSelection()
     {
         return initialSelection;
     }
 
     /**
-     * Sets initial selection for the tree viewer of the dialog.
+     * Computes and sets the initial selection for the tree viewer.
+     * <p>
+     * If the working set that will be configured by this page exists,
+     * this implementation adapts the elements from {@link #getInitialSelection()}
+     * using {@link #adaptElements(IAdaptable[])} and sets the result as the
+     * current selection for the tree viewer.
+     * </p>
      *
-     * @param tree the tree viewer
+     * @param tree the tree viewer (never <code>null</code>)
      */
     protected void initializeTreeSelection(TreeViewer tree)
     {
@@ -318,11 +347,15 @@ public abstract class AbstractWorkingSetPage
 
     /**
      * Transforms the supplied elements into elements that are suitable for
-     * containment in the working set.
+     * containment in the working set configured by this page.
+     * <p>
+     * This implementation creates a temporary working set, sets its id to {@link
+     * #getPageId()}, and delegates to {@link IWorkingSet#adaptElements(IAdaptable[])}.
+     * </p>
      *
-     * @param objects the objects to transform
+     * @param objects the objects to transform (never <code>null</code>)
      * @return an array of transformed elements that may be empty if no elements
-     *  from the original array are suitable
+     *  from the original array are suitable (not <code>null</code>)
      */
     @SuppressWarnings("restriction")
     protected IAdaptable[] adaptElements(IAdaptable[] objects)
@@ -363,27 +396,33 @@ public abstract class AbstractWorkingSetPage
 //        }
     }
 
+    /**
+     * Given an array, selects the {@link IAdaptable} elements.
+     *
+     * @param elements not <code>null</code>
+     * @return an array of the <code>IAdaptable</code> elements
+     *  selected from the given array (never <code>null</code>)
+     */
     protected static IAdaptable[] getAdaptables(Object[] elements)
     {
-        ArrayList<IAdaptable> result = new ArrayList<IAdaptable>(
-            elements.length);
-        for (Object element : elements)
-        {
-            if (element instanceof IAdaptable)
-                result.add((IAdaptable)element);
-        }
-        return result.toArray(new IAdaptable[result.size()]);
+        return ArrayUtil.elementsOfType(elements, IAdaptable.class).toArray(
+            NO_ELEMENTS);
     }
 
     /**
-     * Returns the elements that are to be shown in the table initially.
-     * Returns an empty array if the table should be initially empty.
+     * Returns the elements that are to be shown in the table viewer initially.
+     * Returns an empty array if the table viewer should be initially empty.
      * The given working set is the working set that will be configured
-     * by this dialog, or <code>null</code> if it does not yet exist.
+     * by this page, or <code>null</code> if it does not yet exist.
+     * <p>
+     * This implementation returns the elements contained in the working set or,
+     * if the working set does not yet exist, the elements adapted from {@link
+     * #getInitialSelection()} using {@link #adaptElements(IAdaptable[])}.
+     * </p>
      *
      * @param workingSet the working set to configure,
      *  or <code>null</code> if it does not yet exist
-     * @return the elements to show in the table (not <code>null</code>)
+     * @return the elements to show in the table viewer (not <code>null</code>)
      */
     protected IAdaptable[] getInitialWorkingSetElements(IWorkingSet workingSet)
     {
@@ -400,7 +439,10 @@ public abstract class AbstractWorkingSetPage
 
     /**
      * Returns the elements that are to be set into the working set
-     * configured by this dialog.
+     * configured by this page.
+     * <p>
+     * This implementation returns the given elements unchanged.
+     * </p>
      *
      * @param workingSet the working set to configure,
      *  or <code>null</code> if it does not yet exist
@@ -689,7 +731,7 @@ public abstract class AbstractWorkingSetPage
         if (!hasSelectedElement())
         {
             infoMessage =
-                Messages.AbstractWorkingSetPage_warning_resourceMustBeChecked;
+                Messages.AbstractWorkingSetPage_warning_elementMustBeChecked;
         }
 
         setMessage(infoMessage, INFORMATION);

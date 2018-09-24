@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -39,9 +39,10 @@ import org.eclipse.ui.texteditor.ITextEditor;
  * However, certain operations can only be executed by the UI thread:
  * </p>
  * <ul>
- * <li>{@link #save}</li>
- * <li>{@link #isDirty}</li>
- * <li>{@link #applyChange} - if save is requested</li>
+ * <li>{@link #save(IContext, IProgressMonitor) save}</li>
+ * <li>{@link #isDirty() isDirty}</li>
+ * <li>{@link #applyChange(IBufferChange, IProgressMonitor) applyChange} -
+ * if save is requested</li>
  * </ul>
  */
 public final class TextEditorBuffer
@@ -63,7 +64,7 @@ public final class TextEditorBuffer
      * This constructor can only be executed by the UI thread.
      * </p>
      *
-     * @param editor the text editor (not <code>null</code>)
+     * @param editor not <code>null</code>
      * @throws CoreException if the buffer could not be connected
      */
     public TextEditorBuffer(ITextEditor editor) throws CoreException
@@ -99,7 +100,7 @@ public final class TextEditorBuffer
         if (result == null)
             throw new IllegalStateException(
                 "Attempt to access a disconnected TextEditorBuffer for " //$NON-NLS-1$
-                    + editorInput);
+                    + editorInput.getToolTipText());
         return result;
     }
 
@@ -176,6 +177,6 @@ public final class TextEditorBuffer
         if (!Thread.currentThread().equals(uiSynchronizer.getThread()))
             throw new IllegalStateException(
                 "Invalid thread access to TextEditorBuffer for " //$NON-NLS-1$
-                    + editorInput);
+                    + editorInput.getToolTipText());
     }
 }

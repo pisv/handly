@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -35,6 +35,13 @@ public class OpenActionProvider
 {
     private OpenAction openAction;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * After calling the superclass implementation, this implementation
+     * creates a new {@link OpenAction} for this provider.
+     * </p>
+     */
     @Override
     public void init(ICommonActionExtensionSite actionSite)
     {
@@ -42,6 +49,14 @@ public class OpenActionProvider
         openAction = new OpenAction(getPage(), getEditorUtility());
     }
 
+    /**
+     * If the 'Open' action is enabled for the current selection,
+     * this implementation inserts a contribution item for the action
+     * after the item named {@link ICommonMenuConstants#GROUP_OPEN}.
+     * If the currently selected element could be adapted to an {@link IFile},
+     * this implementation appends an {@link OpenWithMenu} for the file
+     * to the group named {@link ICommonMenuConstants#GROUP_OPEN_WITH}.
+     */
     @Override
     public void fillContextMenu(IMenuManager menu)
     {
@@ -59,6 +74,11 @@ public class OpenActionProvider
         addOpenWithMenu(menu);
     }
 
+    /**
+     * If the 'Open' action is enabled for the current selection,
+     * this implementation sets the global action handler for the action
+     * with the id {@link ICommonActionConstants#OPEN}.
+     */
     @Override
     public void fillActionBars(IActionBars actionBars)
     {
@@ -75,6 +95,15 @@ public class OpenActionProvider
         }
     }
 
+    /**
+     * Returns the editor utility for the 'Open' action.
+     * <p>
+     * Default implementation returns {@link EditorUtility#DEFAULT}.
+     * Subclasses may override.
+     * </p>
+     *
+     * @return the editor utility (never <code>null</code>)
+     */
     protected EditorUtility getEditorUtility()
     {
         return EditorUtility.DEFAULT;

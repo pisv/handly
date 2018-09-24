@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,7 @@ import org.eclipse.handly.model.IElement;
 import org.eclipse.ui.IEditorInput;
 
 /**
- * Given an editor input, returns an appropriate <code>IElement</code>.
+ * Given an {@link IEditorInput}, provides an appropriate {@link IElement}.
  * <p>
  * This interface may be implemented by clients.
  * </p>
@@ -24,10 +24,11 @@ import org.eclipse.ui.IEditorInput;
 public interface IInputElementProvider
 {
     /**
-     * Returns {@link IElement} that corresponds to the given editor input.
+     * Returns an {@link IElement} that is appropriate to the given editor input,
+     * or <code>null</code> if no element is appropriate.
      *
-     * @param editorInput the editor input (may be <code>null</code>)
-     * @return the corresponding element, or <code>null</code> if none
+     * @param editorInput may be <code>null</code>
+     * @return the appropriate element, or <code>null</code> if none
      */
     IElement getElement(IEditorInput editorInput);
 }

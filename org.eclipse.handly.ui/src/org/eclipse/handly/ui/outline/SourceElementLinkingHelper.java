@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -37,20 +37,23 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
- * Implements linking logic for outlines of <code>ISourceElement</code>.
+ * Implements linking logic for outlines of {@link ISourceElement}s.
  */
 public class SourceElementLinkingHelper
     extends OutlineLinkingHelper
 {
+    /**
+     * The input element provider for this linking helper.
+     */
     protected final IInputElementProvider inputElementProvider;
     private LinkToOutlineJob linkToOutlineJob = new LinkToOutlineJob();
 
     /**
-     * Creates a new linking helper for the given outline page
-     * that is based on <code>ISourceElement</code>.
+     * Creates a new source element linking helper for the given outline page
+     * with the given input element provider.
      *
      * @param outlinePage not <code>null</code>
-     * @param inputElementProvider the input element provider
+     * @param inputElementProvider an input element provider
      */
     public SourceElementLinkingHelper(ICommonOutlinePage outlinePage,
         IInputElementProvider inputElementProvider)
@@ -66,6 +69,15 @@ public class SourceElementLinkingHelper
         cancelLinkToOutlineJob();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation does nothing if the given selection is <code>null</code>
+     * or empty. Otherwise, it schedules a background job to compute and set
+     * the new outline selection. The selection is computed using {@link
+     * #getLinkedSelection(ISelection, IProgressMonitor)}.
+     * </p>
+     */
     @Override
     protected final void linkToOutline(ISelection selection)
     {
@@ -74,6 +86,17 @@ public class SourceElementLinkingHelper
         scheduleLinkToOutlineJob(selection);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation does nothing if the given selection is <code>null</code>
+     * or empty. Otherwise, it calls {@link #getTargetEditor()} to determine
+     * the editor that the outline should be linked to. It then delegates to
+     * {@link #linkToEditor(ITextEditor, IStructuredSelection)} if the
+     * target editor is a text editor. Otherwise, it simply passes the
+     * given selection to the editor's selection provider.
+     * </p>
+     */
     @Override
     protected void linkToEditor(ISelection selection)
     {
@@ -82,19 +105,19 @@ public class SourceElementLinkingHelper
         IEditorPart editor = getTargetEditor();
         if (editor instanceof ITextEditor)
             linkToEditor((ITextEditor)editor, (IStructuredSelection)selection);
-        else
+        else if (editor != null)
             editor.getSite().getSelectionProvider().setSelection(selection);
     }
 
     /**
      * Tells to link the given outline selection to the given text editor.
      * <p>
-     * Default implementation selects and reveals the identifying range of
-     * the selection's first element in the text editor. Does nothing
-     * if the first element is not an {@link ISourceElement} contained
-     * in the given editor or if the identifying range is not set.
-     * If the {@link #getContentAdapter() content adapter} is installed,
-     * the element is first adapted to {@link IElement}.
+     * This implementation attempts to adapt the selection's first element to an 
+     * {@link IElement} through the {@link #getContentAdapter() content adapter}.
+     * If the adapter element is an {@link ISourceElement} and is contained in
+     * the given editor as computed by {@link #isInEditor(IElement, IEditorPart)},
+     * the identifying range of the source element is selected and revealed
+     * in the text editor.
      * </p>
      *
      * @param editor the text editor (never <code>null</code>)
@@ -122,6 +145,12 @@ public class SourceElementLinkingHelper
     /**
      * Returns the outline selection corresponding to the given selection
      * in the editor.
+     * <p>
+     * This implementation delegates to {@link #getLinkedSelection(ITextSelection,
+     * IProgressMonitor)} if the given selection is a text selection. If the
+     * given selection is a structured selection, it is returned unchanged.
+     * Otherwise, <code>null</code> is returned.
+     * </p>
      *
      * @param selection the selection in the editor
      *  (never <code>null</code>, never empty)
@@ -146,11 +175,11 @@ public class SourceElementLinkingHelper
      * Returns the outline selection corresponding to the given text selection
      * in the editor.
      * <p>
-     * Default implementation returns the selection consisting of the smallest
-     * {@link ISourceElement} that includes the offset of the given selection,
-     * or <code>null</code> if none. If the {@link #getContentAdapter()
-     * content adapter} is installed, it will be used to adapt the element
-     * before it is returned in the selection.
+     * This implementation finds the smallest {@link ISourceElement} that
+     * includes the offset of the given selection and returns a selection
+     * containing a single outline element corresponding to the found
+     * source element, as determined by the {@link #getContentAdapter()
+     * content adapter}.
      * </p>
      *
      * @param selection the text selection in the editor
@@ -183,12 +212,12 @@ public class SourceElementLinkingHelper
     /**
      * Returns the editor the outline should be linked to.
      * <p>
-     * Default implementation returns the editor that created the outline page
+     * This implementation returns the editor that created the outline page
      * or, if that editor is a multi-page editor, the currently selected
      * editor page.
      * </p>
      *
-     * @return the editor the outline should be linked to
+     * @return the editor the outline should be linked to, or <code>null</code>
      */
     protected IEditorPart getTargetEditor()
     {
@@ -206,14 +235,17 @@ public class SourceElementLinkingHelper
     /**
      * Returns whether the given element is contained in the given editor.
      * <p>
-     * Default implementation checks whether the element corresponding to
-     * the input for the given editor contains the given element.
+     * This implementation uses the {@link #inputElementProvider
+     * input element provider} to obtain an {@link IElement} corresponding to
+     * the editor input. It then checks whether the <code>IElement</code>
+     * {@link Elements#isAncestorOf(IElement, IElement) contains} the given
+     * element and returns the result.
      * </p>
      *
      * @param element may be <code>null</code>
      * @param editor not <code>null</code>
-     * @return <code>true</code> if the element is contained in the editor;
-     *  <code>false</code> otherwise
+     * @return <code>true</code> if the element is contained in the editor,
+     *  and <code>false</code> otherwise
      */
     protected boolean isInEditor(IElement element, IEditorPart editor)
     {
@@ -226,8 +258,12 @@ public class SourceElementLinkingHelper
     /**
      * Returns the installed content adapter, or a {@link NullContentAdapter}
      * if none.
+     * <p>
+     * This implementation returns the content adapter provided by the
+     * outline page, if the outline page is an {@link IContentAdapterProvider}.
+     * </p>
      *
-     * @return {@link IContentAdapter} (never <code>null</code>)
+     * @return an {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {

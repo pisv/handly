@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -93,17 +93,38 @@ public abstract class OutlineLinkingHelper
                 outlinePage.getEditor().getSite().getSelectionProvider().getSelection());
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation delegates to {@link #linkToEditor(ISelection)}.
+     * </p>
+     */
     @Override
     protected void activate(ISelection selection)
     {
         linkToEditor(selection);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation delegates to {@link #linkToEditor(ISelection)}.
+     * </p>
+     */
     @Override
     protected void open(ISelection selection, boolean activate)
     {
         linkToEditor(selection);
     }
+
+    /**
+     * Tells to link the given outline selection to the editor.
+     *
+     * @param selection the outline selection
+     *  (may be <code>null</code> or empty)
+     */
+    @Override
+    protected abstract void linkToEditor(ISelection selection);
 
     /**
      * Tells to link the given editor selection to the outline.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -34,6 +34,16 @@ public abstract class ResourceChangeListenerContribution
         }
     };
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <code>ResourceChangeListenerContribution</code> extends this method
+     * to register a resource change listener that invokes {@link
+     * #resourceChanged(IResourceChangeEvent)} if the resource change event
+     * {@link #affects(IResourceChangeEvent, Object) affects} the outline's
+     * input element.
+     * </p>
+     */
     @Override
     public void init(ICommonOutlinePage outlinePage)
     {
@@ -50,12 +60,13 @@ public abstract class ResourceChangeListenerContribution
     }
 
     /**
-     * Returns whether the given event affects the outline's input element.
+     * Returns whether the given resource change event affects the outline's
+     * input element.
      *
      * @param event never <code>null</code>
      * @param inputElement never <code>null</code>
-     * @return <code>true</code> the given event affects the outline's
-     *  input element, <code>false</code> otherwise.
+     * @return <code>true</code> if the given resource change event affects
+     *  the outline's input element, and <code>false</code> otherwise
      */
     protected abstract boolean affects(IResourceChangeEvent event,
         Object inputElement);
@@ -64,7 +75,7 @@ public abstract class ResourceChangeListenerContribution
      * Notifies that the outline page is affected in some way
      * by the given resource change event.
      * <p>
-     * <b>Note</b> This method may be called in any thread.
+     * <b>Note:</b> This method may be called in any thread.
      * The event object (and the delta within it) is valid only
      * for the duration of the invocation of this method.
      * </p>

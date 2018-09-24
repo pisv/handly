@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 /**
  * Implements a long-valued preference.
- * The preference is stored in {@link IPreferenceStore}.
+ * The preference is stored in an {@link IPreferenceStore}.
  */
 public class LongPreference
     extends AbstractPreference
@@ -49,15 +49,12 @@ public class LongPreference
     /**
      * Sets the default value for this preference.
      * <p>
-     * Note that the current value of the preference is affected if
-     * the preference's current value was its old default value, in which
-     * case it changes to the new default value. If the preference's current
-     * is different from its old default value, its current value is
-     * unaffected. No preference change events are reported by changing default
-     * values.
+     * Note that if the preference's current value equals the old default value,
+     * the current value changes to the new default value. No preference change
+     * events are reported by changing default values.
      * </p>
      *
-     * @param value the new default value for the preference
+     * @param value the new default value for this preference
      */
     public final void setDefault(long value)
     {

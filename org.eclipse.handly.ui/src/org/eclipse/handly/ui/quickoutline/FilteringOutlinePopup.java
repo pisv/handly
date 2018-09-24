@@ -296,7 +296,7 @@ public abstract class FilteringOutlinePopup
     /**
      * Returns the current focal element for this outline popup.
      * <p>
-     * Default implementation returns the {@link #getInitialSelection()
+     * This implementation returns the {@link #getInitialSelection()
      * initially selected} element. Subclasses may override.
      * </p>
      *

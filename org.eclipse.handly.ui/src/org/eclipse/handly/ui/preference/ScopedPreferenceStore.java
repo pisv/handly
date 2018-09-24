@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2014 IBM Corporation and others.
+ * Copyright (c) 2004, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -35,8 +35,8 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * Mainly copied from {@link org.eclipse.ui.preferences.ScopedPreferenceStore}.
- * It fixes the memory leak described in
+ * This class is forked from <code>org.eclipse.ui.preferences.ScopedPreferenceStore</code>
+ * to fix the memory leak issue described in
  * <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=239033">Bug 239033</a>.
  * <p>
  * The ScopedPreferenceStore is an IPreferenceStore that uses the scopes

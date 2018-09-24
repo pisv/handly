@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -33,6 +33,13 @@ import org.eclipse.ui.ide.ResourceUtil;
 public class ProblemMarkerListenerContribution
     extends ResourceChangeListenerContribution
 {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation schedules a full refresh of the outline page's
+     * tree viewer in the UI thread.
+     * </p>
+     */
     @Override
     protected void resourceChanged(IResourceChangeEvent event)
     {
@@ -49,15 +56,45 @@ public class ProblemMarkerListenerContribution
         });
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation checks whether the given resource change event
+     * affects problem markers attached to the corresponding resource of the
+     * input element. It uses {@link #hasProblemMarkerChanges(IResourceDelta)}
+     * to check the corresponding resource delta. The corresponding resource
+     * is determined as follows:
+     * </p>
+     * <ul>
+     * <li>
+     * If the input element is an {@link IResource}, the corresponding resource
+     * is the element itself.
+     * </li>
+     * <li>
+     * Otherwise, if the input element could be adapted to an {@link IElement}
+     * through the {@link #getContentAdapter() content adapter}, the corresponding
+     * resource is obtained via {@link Elements#getResource(IElement)}.
+     * </li>
+     * <li>
+     * Otherwise, the input element is adapted to an <code>IResource</code> via
+     * {@link ResourceUtil#getResource(Object)}.
+     * </li>
+     * </ul>
+     */
     @Override
     protected boolean affects(IResourceChangeEvent event, Object inputElement)
     {
-        IResource resource = null;
-        IElement element = getContentAdapter().adapt(inputElement);
-        if (element != null)
-            resource = Elements.getResource(element);
+        IResource resource;
+        if (inputElement instanceof IResource)
+            resource = (IResource)inputElement;
         else
-            resource = ResourceUtil.getResource(inputElement);
+        {
+            IElement element = getContentAdapter().adapt(inputElement);
+            if (element != null)
+                resource = Elements.getResource(element);
+            else
+                resource = ResourceUtil.getResource(inputElement);
+        }
         if (resource == null)
             return false;
         IResourceDelta delta = event.getDelta().findMember(
@@ -72,7 +109,7 @@ public class ProblemMarkerListenerContribution
      *
      * @param delta the resource delta (never <code>null</code>)
      * @return <code>true</code> if the given resource delta describes
-     *  problem marker changes, <code>false</code> otherwise
+     *  problem marker changes, and <code>false</code> otherwise
      */
     protected boolean hasProblemMarkerChanges(IResourceDelta delta)
     {
@@ -102,8 +139,12 @@ public class ProblemMarkerListenerContribution
     /**
      * Returns the installed content adapter, or a {@link NullContentAdapter}
      * if none.
+     * <p>
+     * This implementation returns the content adapter provided by the
+     * outline page, if the outline page is an {@link IContentAdapterProvider}.
+     * </p>
      *
-     * @return {@link IContentAdapter} (never <code>null</code>)
+     * @return an {@link IContentAdapter} (never <code>null</code>)
      */
     protected IContentAdapter getContentAdapter()
     {
