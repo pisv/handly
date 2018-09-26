@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -21,12 +21,19 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 /**
  * Represents a common outline page.
  *
- * @noimplement This interface is not intended to be implemented by clients.
+ * @noimplement This interface is not intended to be implemented by clients
+ *  directly. However, clients may extend the base implementation, class
+ *  {@link CommonOutlinePage}.
  * @noextend This interface is not intended to be extended by clients.
  */
 public interface ICommonOutlinePage
     extends IContentOutlinePage, IPageBookViewPage
 {
+    /*
+     * Note that if an abstract method is added to this interface,
+     * an implementation for the method must be provided in CommonOutlinePage.
+     */
+
     /**
      * Returns the tree viewer of this outline page.
      *

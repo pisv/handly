@@ -85,7 +85,7 @@ A simple way to ensure that is to install Eclipse using one of the provided
 `.p2f` files that can be found in the Git workspace `tools` folder. These
 `.p2f` files are kept consistent with their namesake `.target` files.
 
-Handly uses [API Tools](https://www.ibm.com/developerworks/library/os-eclipse-api-tools)
+Handly uses [API Tools](https://wiki.eclipse.org/PDE/API_Tools/User_Guide)
 to assist developers in API maintenance by reporting API defects. This requires
 setting an API baseline for the workspace. Please use the target platform defined
 in the `baseline.target` file as the source of the default API baseline.

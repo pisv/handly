@@ -1,10 +1,110 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.handly.ui" version="2">
+    <resource path="src/org/eclipse/handly/ui/outline/CommonOutlinePage.java" type="org.eclipse.handly.ui.outline.CommonOutlinePage">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="ICommonOutlinePage"/>
+                <message_argument value="CommonOutlinePage"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/handly/ui/outline/CommonOutlinePage.java" type="org.eclipse.handly.ui.outline.CommonOutlinePage$OutlineTreeViewer">
         <filter id="571473929">
             <message_arguments>
                 <message_argument value="TreeViewer"/>
                 <message_argument value="OutlineTreeViewer"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/ui/preference/AbstractPreference.java" type="org.eclipse.handly.ui.preference.AbstractPreference">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="IPreference"/>
+                <message_argument value="AbstractPreference"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/ui/preference/BooleanPreference.java" type="org.eclipse.handly.ui.preference.BooleanPreference">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="IBooleanPreference"/>
+                <message_argument value="BooleanPreference"/>
+            </message_arguments>
+        </filter>
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="AbstractPreference"/>
+                <message_argument value="BooleanPreference"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/ui/preference/DoublePreference.java" type="org.eclipse.handly.ui.preference.DoublePreference">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="IDoublePreference"/>
+                <message_argument value="DoublePreference"/>
+            </message_arguments>
+        </filter>
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="AbstractPreference"/>
+                <message_argument value="DoublePreference"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/ui/preference/FloatPreference.java" type="org.eclipse.handly.ui.preference.FloatPreference">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="IFloatPreference"/>
+                <message_argument value="FloatPreference"/>
+            </message_arguments>
+        </filter>
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="AbstractPreference"/>
+                <message_argument value="FloatPreference"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/ui/preference/IntPreference.java" type="org.eclipse.handly.ui.preference.IntPreference">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="IIntPreference"/>
+                <message_argument value="IntPreference"/>
+            </message_arguments>
+        </filter>
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="AbstractPreference"/>
+                <message_argument value="IntPreference"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/ui/preference/LongPreference.java" type="org.eclipse.handly.ui.preference.LongPreference">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="ILongPreference"/>
+                <message_argument value="LongPreference"/>
+            </message_arguments>
+        </filter>
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="AbstractPreference"/>
+                <message_argument value="LongPreference"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/ui/preference/StringPreference.java" type="org.eclipse.handly.ui.preference.StringPreference">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="IStringPreference"/>
+                <message_argument value="StringPreference"/>
+            </message_arguments>
+        </filter>
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="AbstractPreference"/>
+                <message_argument value="StringPreference"/>
             </message_arguments>
         </filter>
     </resource>

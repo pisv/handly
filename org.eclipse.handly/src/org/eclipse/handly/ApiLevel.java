@@ -15,7 +15,7 @@ package org.eclipse.handly;
 /**
  * Provides constants for API levels as defined by various releases of Handly.
  */
-public class ApiLevel
+public final class ApiLevel
 {
     /**
      * The 1.0 API level.
