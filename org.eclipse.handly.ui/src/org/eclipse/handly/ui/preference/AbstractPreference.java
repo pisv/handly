@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,6 +22,8 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 /**
  * An abstract base implementation of a preference.
  * The preference is stored in {@link IPreferenceStore}.
+ *
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class AbstractPreference
     implements IPreference
