@@ -14,9 +14,9 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='1'>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.14.0.v20180523-0937'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.15.0.v20180916-1232'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/photon'/>
+        <repository location='http://download.eclipse.org/releases/2018-09'/>
       </repositories>
     </iu>
   </ius>
