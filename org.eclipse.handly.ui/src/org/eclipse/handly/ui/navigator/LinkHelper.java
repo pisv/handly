@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
+import org.eclipse.handly.ui.DefaultEditorUtility;
 import org.eclipse.handly.ui.EditorUtility;
 import org.eclipse.handly.ui.IInputElementProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -131,7 +132,7 @@ public abstract class LinkHelper
     /**
      * Returns the editor utility for this link helper.
      * <p>
-     * Default implementation returns {@link EditorUtility#DEFAULT}.
+     * Default implementation returns {@link DefaultEditorUtility#INSTANCE}.
      * Subclasses may override.
      * </p>
      *
@@ -139,6 +140,6 @@ public abstract class LinkHelper
      */
     protected EditorUtility getEditorUtility()
     {
-        return EditorUtility.DEFAULT;
+        return DefaultEditorUtility.INSTANCE;
     }
 }

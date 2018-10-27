@@ -13,6 +13,7 @@
 package org.eclipse.handly.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.handly.ui.DefaultEditorUtility;
 import org.eclipse.handly.ui.EditorUtility;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -98,7 +99,7 @@ public class OpenActionProvider
     /**
      * Returns the editor utility for the 'Open' action.
      * <p>
-     * Default implementation returns {@link EditorUtility#DEFAULT}.
+     * Default implementation returns {@link DefaultEditorUtility#INSTANCE}.
      * Subclasses may override.
      * </p>
      *
@@ -106,7 +107,7 @@ public class OpenActionProvider
      */
     protected EditorUtility getEditorUtility()
     {
-        return EditorUtility.DEFAULT;
+        return DefaultEditorUtility.INSTANCE;
     }
 
     private void addOpenWithMenu(IMenuManager menu)

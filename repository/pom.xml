@@ -159,6 +159,7 @@
                   <additionalArgument>-doctitle "${javadoc.title}"</additionalArgument>
                   <additionalArgument>-tag noextend:t</additionalArgument>
                   <additionalArgument>-tag noimplement:t</additionalArgument>
+                  <additionalArgument>-tag noinstantiate:a</additionalArgument>
                   <additionalArgument>-tag noreference:a</additionalArgument>
                 </additionalArguments>
               </javadocOptions>
