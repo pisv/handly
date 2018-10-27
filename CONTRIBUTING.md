@@ -64,8 +64,8 @@ Perfect match (i.e. JDK 1.8) is recommended to avoid build warnings.
 
 Handly employs specific Java code formatting conventions. Please import and use
 the formatter profile from `tools/formatter.xml`. Note that the current profile
-is intended to be used with the new formatter available since the Eclipse Mars
-(4.5) release, and may produce suboptimal results if used with previous
+is intended to be used with the new formatter available since the Eclipse Oxygen
+(4.7) release, and may produce suboptimal results if used with previous
 Eclipse versions.
 
 Import all projects from the Git workspace (don't search for nested projects)
