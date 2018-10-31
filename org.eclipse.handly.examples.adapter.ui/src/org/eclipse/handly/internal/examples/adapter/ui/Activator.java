@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.adapter.ui;
 
+import org.eclipse.handly.examples.adapter.JavaModelAdapter;
+import org.eclipse.handly.internal.examples.adapter.ui.search.JavaSearchResultUpdater;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -31,13 +33,23 @@ public class Activator
     {
         super.start(context);
         plugin = this;
+        JavaModelAdapter.addElementChangeListener(
+            JavaSearchResultUpdater.INSTANCE);
     }
 
     @Override
     public void stop(BundleContext context) throws Exception
     {
-        plugin = null;
-        super.stop(context);
+        try
+        {
+            JavaModelAdapter.removeElementChangeListener(
+                JavaSearchResultUpdater.INSTANCE);
+        }
+        finally
+        {
+            plugin = null;
+            super.stop(context);
+        }
     }
 
     /**

@@ -20,8 +20,13 @@ Things to note:
   "Toggle Method Breakpoint" are automatically available in
   the outline's context menu.
 
-* The outline page is Handly based and knows nothing about
+* The outline page is Handly-based and knows nothing about
   the Java model API. It makes use of a content adapter to deal
-  with the JDT based content, e.g. for "Link with Editor" support.
+  with the JDT-based content, e.g. for "Link with Editor" support.
   The content adapter defines a one-to-one correspondence (bijection)
   between Java elements and the adapter model.
+
+Since Handly 1.1, the adapter example also demonstrates a Handly-based search
+result view page. To open it, use the "Find References" action in the outline's
+context menu. Similar to the outline page, the search result page makes use
+of the content adapter.

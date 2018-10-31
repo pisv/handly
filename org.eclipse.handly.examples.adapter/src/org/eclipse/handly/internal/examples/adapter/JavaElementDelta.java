@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -179,7 +179,7 @@ class JavaElementDelta
             result |= F_UNDERLYING_RESOURCE;
         if ((flags & IJavaElementDelta.F_PRIMARY_WORKING_COPY) != 0)
             result |= F_WORKING_COPY;
-        return result;
+        return result | ((long)flags << 32);
     }
 
     private static IElementDelta[] toElementDeltas(IJavaElementDelta[] array)

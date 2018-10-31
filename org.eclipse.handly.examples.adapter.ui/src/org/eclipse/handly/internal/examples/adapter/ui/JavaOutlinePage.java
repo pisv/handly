@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,6 +13,7 @@
 package org.eclipse.handly.internal.examples.adapter.ui;
 
 import org.eclipse.handly.examples.adapter.JavaModelAdapter;
+import org.eclipse.handly.internal.examples.adapter.ui.search.FindReferencesAction;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.adapter.DefaultContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapter;
@@ -24,7 +25,10 @@ import org.eclipse.handly.ui.preference.FlushingPreferenceStore;
 import org.eclipse.handly.ui.preference.IBooleanPreference;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jdt.ui.StandardJavaElementContentProvider;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.ui.IEditorPart;
 
@@ -41,6 +45,11 @@ import org.eclipse.ui.IEditorPart;
 public class JavaOutlinePage
     extends HandlyOutlinePage
 {
+    private static final String GROUP_SEARCH = "group.search"; //$NON-NLS-1$
+
+    private FindReferencesAction findReferencesAction =
+        new FindReferencesAction();
+
     /**
      * Constructs a Java outline page for the given editor.
      *
@@ -94,6 +103,20 @@ public class JavaOutlinePage
             protected String getContextMenuExtensionId()
             {
                 return Activator.PLUGIN_ID + ".JavaOutline"; //$NON-NLS-1$
+            }
+
+            @Override
+            protected void contextMenuAboutToShow(IMenuManager manager)
+            {
+                manager.add(new Separator(GROUP_SEARCH));
+
+                IStructuredSelection selection =
+                    (IStructuredSelection)getSelection();
+                findReferencesAction.selectionChanged(selection);
+                if (findReferencesAction.isEnabled())
+                    manager.appendToGroup(GROUP_SEARCH, findReferencesAction);
+
+                super.contextMenuAboutToShow(manager);
             }
         });
     }

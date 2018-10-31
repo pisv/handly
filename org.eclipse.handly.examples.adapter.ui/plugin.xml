@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <!--
-    Copyright (c) 2015 1C-Soft LLC.
+    Copyright (c) 2015, 2018 1C-Soft LLC.
 
     This program and the accompanying materials are made available under
     the terms of the Eclipse Public License 2.0 which is available at
@@ -23,5 +23,13 @@
             class="org.eclipse.handly.internal.examples.adapter.ui.JavaEditor"
             contributorClass="org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditorActionContributor">
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            id="org.eclipse.handly.examples.adapter.ui.JavaSearchResultPage"
+            class="org.eclipse.handly.internal.examples.adapter.ui.search.JavaSearchResultPage"
+            searchResultClass="org.eclipse.handly.internal.examples.adapter.ui.search.JavaSearchResult">
+      </viewPage>
    </extension>
 </plugin>
