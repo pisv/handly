@@ -10,7 +10,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.ui.navigator;
+package org.eclipse.handly.ui.action;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -18,9 +18,9 @@ class Messages
     extends NLS
 {
     private static final String BUNDLE_NAME =
-        "org.eclipse.handly.ui.navigator.messages"; //$NON-NLS-1$
+        "org.eclipse.handly.ui.action.messages"; //$NON-NLS-1$
 
-    public static String OpenActionProvider_openWith;
+    public static String OpenAction_text;
 
     static
     {

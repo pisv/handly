@@ -15,6 +15,7 @@ package org.eclipse.handly.ui.navigator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.handly.ui.DefaultEditorUtility;
 import org.eclipse.handly.ui.EditorUtility;
+import org.eclipse.handly.ui.action.OpenAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;

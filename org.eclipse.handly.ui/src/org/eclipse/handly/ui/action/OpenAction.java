@@ -10,7 +10,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.ui.navigator;
+package org.eclipse.handly.ui.action;
 
 import java.util.Iterator;
 
