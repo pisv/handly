@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -31,9 +31,9 @@ public class Activator
     public static final String T_ELCL16 = "/elcl16/"; //$NON-NLS-1$
 
     public static final String IMG_ELCL_EXPANDALL = PLUGIN_ID + T_ELCL16
-        + "expandall.gif"; //$NON-NLS-1$
+        + "expandall.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_LEXICAL_SORT = PLUGIN_ID + T_ELCL16
-        + "lexical_sort.gif"; //$NON-NLS-1$
+        + "lexical_sort.png"; //$NON-NLS-1$
 
     private static Activator plugin;
 

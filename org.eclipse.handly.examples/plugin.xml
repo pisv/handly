@@ -27,7 +27,7 @@
             class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true"
-            icon="icons/ctool16/newprj_wiz.gif">
+            icon="icons/ctool16/newprj_wiz.png">
          <description>Create plug-in projects implementing a Handly-based model that adapts the JDT Java model</description>
       </wizard>
       <wizard
@@ -36,7 +36,7 @@
             class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true"
-            icon="icons/ctool16/newprj_wiz.gif">
+            icon="icons/ctool16/newprj_wiz.png">
          <description>Create plug-in projects implementing a Handly-based model for a simple Xtext-based language</description>
       </wizard>
       <wizard
@@ -45,7 +45,7 @@
             class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true"
-            icon="icons/ctool16/newprj_wiz.gif">
+            icon="icons/ctool16/newprj_wiz.png">
          <description>Create plug-in projects implementing a Handly-based Java model</description>
       </wizard>
       <wizard
@@ -54,7 +54,7 @@
             class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true"
-            icon="icons/ctool16/newprj_wiz.gif">
+            icon="icons/ctool16/newprj_wiz.png">
          <description>Create plug-in projects implementing a Handly-based model for LSP-based source files</description>
       </wizard>
    </extension>

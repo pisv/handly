@@ -24,7 +24,7 @@ Contributors:
             id="org.eclipse.handly.examples.jmodel.ui.views.JavaNavigator"
             category="org.eclipse.handly.examples"
             name="JNavigator"
-            icon="icons/eview16/package.gif"
+            icon="icons/eview16/package.png"
             class="org.eclipse.handly.internal.examples.jmodel.ui.navigator.JavaNavigator"
             restorable="true">
       </view>
@@ -131,7 +131,7 @@ Contributors:
       <navigatorContent
             id="org.eclipse.handly.examples.jmodel.ui.navigator.JavaContent"
             name="Java Content (Handly)"
-            icon="icons/eview16/jperspective.gif"
+            icon="icons/eview16/jperspective.png"
             activeByDefault="true"
             contentProvider="org.eclipse.handly.examples.jmodel.ui.JavaModelContentProvider"
             labelProvider="org.eclipse.handly.examples.jmodel.ui.JavaModelLabelProvider"

@@ -32,8 +32,8 @@ public class Activator
 
     public static final String T_OBJ16 = "/obj16/"; //$NON-NLS-1$
 
-    public static final String IMG_OBJ_DEF = PLUGIN_ID + T_OBJ16 + "def.gif"; //$NON-NLS-1$
-    public static final String IMG_OBJ_VAR = PLUGIN_ID + T_OBJ16 + "var.gif"; //$NON-NLS-1$
+    public static final String IMG_OBJ_DEF = PLUGIN_ID + T_OBJ16 + "def.png"; //$NON-NLS-1$
+    public static final String IMG_OBJ_VAR = PLUGIN_ID + T_OBJ16 + "var.png"; //$NON-NLS-1$
 
     public static void log(IStatus status)
     {
