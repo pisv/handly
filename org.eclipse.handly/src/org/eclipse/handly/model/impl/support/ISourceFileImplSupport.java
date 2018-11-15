@@ -957,12 +957,18 @@ public interface ISourceFileImplSupport
          * change recorder}, and sends out a <code>POST_RECONCILE</code> event
          * using the notification manager registered in the model context.
          * </p>
+         * <p>
+         * Since 1.1, no delta will be built and no event will be sent
+         * by this implementation if <code>shouldNotifyChange</code>
+         * returns <code>false</code>.
+         * </p>
          */
         @Override
         protected void reconcile(IContext context, IProgressMonitor monitor)
             throws CoreException
         {
-            if (!shouldReconcileStructure(context))
+            if (!shouldReconcileStructure(context) || !shouldNotifyChange(
+                context))
                 super.reconcile(context, monitor);
             else
             {
@@ -980,6 +986,55 @@ public interface ISourceFileImplSupport
                                 ElementChangeEvent.POST_RECONCILE, delta));
                 }
             }
+        }
+
+        /**
+         * Returns whether the delta notification is needed according to
+         * options specified in the given context. If this method returns
+         * <code>false</code>, no delta will be built and no event will be
+         * sent.
+         *
+         * @param context the operation context (not <code>null</code>)
+         * @return <code>true</code> if the delta notification is needed,
+         *  and <code>false</code> otherwise
+         * @since 1.1
+         * @see #reconcile(IContext, IProgressMonitor)
+         */
+        protected boolean shouldNotifyChange(IContext context)
+        {
+            if (isInitialReconcile(context))
+            {
+                ISnapshot snapshot = context.get(SOURCE_SNAPSHOT);
+                if (snapshot != null)
+                {
+                    ISnapshot currentSnapshot = null;
+                    Object body = sourceFile.peekAtBody_();
+                    if (body == null)
+                    {
+                        try (
+                            ISnapshotProvider provider =
+                                sourceFile.getFileSnapshotProvider_())
+                        {
+                            try
+                            {
+                                currentSnapshot = provider.getSnapshot();
+                            }
+                            catch (IllegalStateException e)
+                            {
+                                // ignore
+                            }
+                        }
+                    }
+                    else if (body instanceof SourceElementBody)
+                    {
+                        currentSnapshot =
+                            ((SourceElementBody)body).getSnapshot();
+                    }
+                    if (snapshot.isEqualTo(currentSnapshot))
+                        return false;
+                }
+            }
+            return true;
         }
 
         /**
