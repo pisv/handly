@@ -993,12 +993,17 @@ public interface ISourceFileImplSupport
          * options specified in the given context. If this method returns
          * <code>false</code>, no delta will be built and no event will be
          * sent.
+         * <p>
+         * Note that if you override <code>shouldReconcileStructure</code>,
+         * you might need to override this method too.
+         * </p>
          *
          * @param context the operation context (not <code>null</code>)
          * @return <code>true</code> if the delta notification is needed,
          *  and <code>false</code> otherwise
          * @since 1.1
          * @see #reconcile(IContext, IProgressMonitor)
+         * @see #shouldReconcileStructure(IContext)
          */
         protected boolean shouldNotifyChange(IContext context)
         {
