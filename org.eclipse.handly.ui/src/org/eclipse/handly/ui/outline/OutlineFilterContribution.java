@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 1C LLC and others.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -37,29 +37,28 @@ public abstract class OutlineFilterContribution
         @Override
         public void preferenceChanged(PreferenceChangeEvent event)
         {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
             {
-                public void run()
+                if (preference == null)
+                    return; // the contribution got disposed in the meantime
+                TreeViewer treeViewer = getOutlinePage().getTreeViewer();
+                Control control = treeViewer.getControl();
+                try
                 {
-                    if (preference == null)
-                        return; // the contribution got disposed in the meantime
-                    final TreeViewer treeViewer =
-                        getOutlinePage().getTreeViewer();
-                    Control control = treeViewer.getControl();
                     control.setRedraw(false);
-                    BusyIndicator.showWhile(control.getDisplay(), new Runnable()
+                    BusyIndicator.showWhile(control.getDisplay(), () ->
                     {
-                        public void run()
-                        {
-                            TreePath[] treePaths =
-                                treeViewer.getExpandedTreePaths();
-                            if (preference.getValue())
-                                treeViewer.addFilter(filter);
-                            else
-                                treeViewer.removeFilter(filter);
-                            treeViewer.setExpandedTreePaths(treePaths);
-                        }
+                        TreePath[] treePaths =
+                            treeViewer.getExpandedTreePaths();
+                        if (preference.getValue())
+                            treeViewer.addFilter(filter);
+                        else
+                            treeViewer.removeFilter(filter);
+                        treeViewer.setExpandedTreePaths(treePaths);
                     });
+                }
+                finally
+                {
                     control.setRedraw(true);
                 }
             });

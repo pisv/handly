@@ -203,14 +203,11 @@ public abstract class HandlyOutlinePage
      */
     protected void elementChanged(IElementChangeEvent event)
     {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+        PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
         {
-            public void run()
+            if (!getTreeViewer().getControl().isDisposed())
             {
-                if (!getTreeViewer().getControl().isDisposed())
-                {
-                    refresh();
-                }
+                refresh();
             }
         });
     }

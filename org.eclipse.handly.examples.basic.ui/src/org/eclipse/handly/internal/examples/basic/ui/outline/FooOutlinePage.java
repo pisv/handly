@@ -121,15 +121,12 @@ public final class FooOutlinePage
     {
         if (affects(event.getDeltas(), (IElement)getTreeViewer().getInput()))
         {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
             {
-                public void run()
+                Control control = getTreeViewer().getControl();
+                if (!control.isDisposed())
                 {
-                    Control control = getTreeViewer().getControl();
-                    if (control != null && !control.isDisposed())
-                    {
-                        refresh();
-                    }
+                    refresh();
                 }
             });
         }
@@ -167,17 +164,20 @@ public final class FooOutlinePage
     private void refresh()
     {
         Control control = getControl();
-        control.setRedraw(false);
-        BusyIndicator.showWhile(control.getDisplay(), new Runnable()
+        try
         {
-            public void run()
+            control.setRedraw(false);
+            BusyIndicator.showWhile(control.getDisplay(), () ->
             {
                 TreePath[] treePaths = getTreeViewer().getExpandedTreePaths();
                 getTreeViewer().refresh();
                 getTreeViewer().setExpandedTreePaths(treePaths);
-            }
-        });
-        control.setRedraw(true);
+            });
+        }
+        finally
+        {
+            control.setRedraw(true);
+        }
     }
 
     private class LinkingHelper

@@ -219,17 +219,20 @@ public abstract class CommonOutlinePage
     public void refresh()
     {
         Control control = treeViewer.getControl();
-        control.setRedraw(false);
-        BusyIndicator.showWhile(control.getDisplay(), new Runnable()
+        try
         {
-            public void run()
+            control.setRedraw(false);
+            BusyIndicator.showWhile(control.getDisplay(), () ->
             {
                 TreePath[] treePaths = treeViewer.getExpandedTreePaths();
                 treeViewer.refresh();
                 treeViewer.setExpandedTreePaths(treePaths);
-            }
-        });
-        control.setRedraw(true);
+            });
+        }
+        finally
+        {
+            control.setRedraw(true);
+        }
     }
 
     /**

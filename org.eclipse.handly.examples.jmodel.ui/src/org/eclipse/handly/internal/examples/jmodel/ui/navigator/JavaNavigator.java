@@ -193,14 +193,11 @@ public class JavaNavigator
         Control control = viewer.getControl();
         if (control.isDisposed())
             return;
-        control.getDisplay().asyncExec(new Runnable()
+        control.getDisplay().asyncExec(() ->
         {
-            public void run()
+            if (!control.isDisposed())
             {
-                if (!control.isDisposed())
-                {
-                    refresh(); // full refresh should suffice for our example (but not for production code)
-                }
+                refresh(); // full refresh should suffice for our example (but not for production code)
             }
         });
     }
@@ -214,17 +211,20 @@ public class JavaNavigator
     private void refresh()
     {
         Control control = getCommonViewer().getControl();
-        control.setRedraw(false);
-        BusyIndicator.showWhile(control.getDisplay(), new Runnable()
+        try
         {
-            public void run()
+            control.setRedraw(false);
+            BusyIndicator.showWhile(control.getDisplay(), () ->
             {
                 TreePath[] treePaths = getCommonViewer().getExpandedTreePaths();
                 getCommonViewer().refresh();
                 getCommonViewer().setExpandedTreePaths(treePaths);
-            }
-        });
-        control.setRedraw(true);
+            });
+        }
+        finally
+        {
+            control.setRedraw(true);
+        }
     }
 
     private boolean internalSetWorkingSet(IWorkingSet workingSet)

@@ -39,29 +39,28 @@ public abstract class OutlineSorterContribution
         @Override
         public void preferenceChanged(PreferenceChangeEvent event)
         {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
             {
-                public void run()
+                if (preference == null)
+                    return; // the contribution got disposed in the meantime
+                TreeViewer treeViewer = getOutlinePage().getTreeViewer();
+                Control control = treeViewer.getControl();
+                try
                 {
-                    if (preference == null)
-                        return; // the contribution got disposed in the meantime
-                    final TreeViewer treeViewer =
-                        getOutlinePage().getTreeViewer();
-                    Control control = treeViewer.getControl();
                     control.setRedraw(false);
-                    BusyIndicator.showWhile(control.getDisplay(), new Runnable()
+                    BusyIndicator.showWhile(control.getDisplay(), () ->
                     {
-                        public void run()
-                        {
-                            TreePath[] treePaths =
-                                treeViewer.getExpandedTreePaths();
-                            if (preference.getValue())
-                                treeViewer.setComparator(comparator);
-                            else
-                                treeViewer.setComparator(defaultComparator);
-                            treeViewer.setExpandedTreePaths(treePaths);
-                        }
+                        TreePath[] treePaths =
+                            treeViewer.getExpandedTreePaths();
+                        if (preference.getValue())
+                            treeViewer.setComparator(comparator);
+                        else
+                            treeViewer.setComparator(defaultComparator);
+                        treeViewer.setExpandedTreePaths(treePaths);
                     });
+                }
+                finally
+                {
                     control.setRedraw(true);
                 }
             });

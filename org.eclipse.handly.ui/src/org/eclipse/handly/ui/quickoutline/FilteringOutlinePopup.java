@@ -256,10 +256,16 @@ public abstract class FilteringOutlinePopup
     protected void patternMatcherUpdated()
     {
         TreeViewer treeViewer = getTreeViewer();
-        treeViewer.getControl().setRedraw(false);
-        treeViewer.refresh();
-        treeViewer.expandAll();
-        treeViewer.getControl().setRedraw(true);
+        try
+        {
+            treeViewer.getControl().setRedraw(false);
+            treeViewer.refresh();
+            treeViewer.expandAll();
+        }
+        finally
+        {
+            treeViewer.getControl().setRedraw(true);
+        }
         selectFirstMatch();
     }
 
