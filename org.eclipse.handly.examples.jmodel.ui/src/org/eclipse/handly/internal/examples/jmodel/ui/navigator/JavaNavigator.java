@@ -186,7 +186,13 @@ public class JavaNavigator
         // NOTE: don't hold on the event or its delta.
         // The delta is only valid during the dynamic scope of the notification.
         // In particular, don't pass it to another thread (e.g. via asyncExec).
-        final Control control = getCommonViewer().getControl();
+
+        CommonViewer viewer = getCommonViewer();
+        if (viewer == null)
+            return;
+        Control control = viewer.getControl();
+        if (control.isDisposed())
+            return;
         control.getDisplay().asyncExec(new Runnable()
         {
             public void run()

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2018 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.navigator.CommonNavigator;
+import org.eclipse.ui.navigator.CommonViewer;
 
 /**
  * Foo Navigator view.
@@ -59,7 +60,13 @@ public class FooNavigator
         // NOTE: don't hold on the event or its delta.
         // The delta is only valid during the dynamic scope of the notification.
         // In particular, don't pass it to another thread (e.g. via asyncExec).
-        final Control control = getCommonViewer().getControl();
+
+        CommonViewer viewer = getCommonViewer();
+        if (viewer == null)
+            return;
+        Control control = viewer.getControl();
+        if (control.isDisposed())
+            return;
         control.getDisplay().asyncExec(new Runnable()
         {
             public void run()
