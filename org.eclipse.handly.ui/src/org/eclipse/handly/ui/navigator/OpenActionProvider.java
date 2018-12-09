@@ -14,13 +14,13 @@ package org.eclipse.handly.ui.navigator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.handly.ui.DefaultEditorUtility;
-import org.eclipse.handly.ui.EditorUtility;
 import org.eclipse.handly.ui.action.OpenAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.actions.OpenWithMenu;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.navigator.CommonActionProvider;
@@ -35,20 +35,20 @@ import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 public class OpenActionProvider
     extends CommonActionProvider
 {
-    private OpenAction openAction;
+    private BaseSelectionListenerAction openAction;
 
     /**
      * {@inheritDoc}
      * <p>
      * After calling the superclass implementation, this implementation
-     * creates a new {@link OpenAction} for this provider.
+     * {@link #createOpenAction() creates} a new open action for this provider.
      * </p>
      */
     @Override
     public void init(ICommonActionExtensionSite actionSite)
     {
         super.init(actionSite);
-        openAction = new OpenAction(getPage(), getEditorUtility());
+        openAction = createOpenAction();
     }
 
     /**
@@ -98,17 +98,17 @@ public class OpenActionProvider
     }
 
     /**
-     * Returns the editor utility for the 'Open' action.
+     * Returns a new open action for this provider.
      * <p>
-     * Default implementation returns {@link DefaultEditorUtility#INSTANCE}.
+     * Default implementation returns a new {@link OpenAction}.
      * Subclasses may override.
      * </p>
      *
-     * @return the editor utility (never <code>null</code>)
+     * @return the created open action (never <code>null</code>)
      */
-    protected EditorUtility getEditorUtility()
+    protected BaseSelectionListenerAction createOpenAction()
     {
-        return DefaultEditorUtility.INSTANCE;
+        return new OpenAction(getPage(), DefaultEditorUtility.INSTANCE);
     }
 
     private void addOpenWithMenu(IMenuManager menu)

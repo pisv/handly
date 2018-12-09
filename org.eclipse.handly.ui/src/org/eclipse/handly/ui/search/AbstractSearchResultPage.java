@@ -15,7 +15,7 @@ package org.eclipse.handly.ui.search;
 import java.text.MessageFormat;
 
 import org.eclipse.handly.ui.DefaultEditorUtility;
-import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -26,6 +26,7 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
 import org.eclipse.search.ui.text.Match;
 import org.eclipse.search.ui.text.MatchFilter;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.IPageSite;
@@ -77,7 +78,7 @@ public abstract class AbstractSearchResultPage
         super.init(pageSite);
         editorOpener = createEditorOpener();
         IMenuManager menuManager = pageSite.getActionBars().getMenuManager();
-        Action searchPreferencesAction = createSearchPreferencesAction();
+        IAction searchPreferencesAction = createSearchPreferencesAction();
         if (searchPreferencesAction != null)
             menuManager.appendToGroup(IContextMenuConstants.GROUP_PROPERTIES,
                 searchPreferencesAction);
@@ -87,30 +88,28 @@ public abstract class AbstractSearchResultPage
     public void restoreState(IMemento memento)
     {
         super.restoreState(memento);
-
-        Integer elementLimit = getElementLimit();
-
         if (memento != null)
         {
             String value = memento.getString(KEY_ELEMENT_LIMIT);
             if (value != null)
             {
                 if (NULL.equals(value))
-                    elementLimit = null;
+                    setElementLimit(null);
                 else
                 {
+                    int limit = 0;
                     try
                     {
-                        elementLimit = Integer.valueOf(value);
+                        limit = Integer.valueOf(value);
                     }
                     catch (NumberFormatException e)
                     {
                     }
+                    if (limit > 0 || limit == -1)
+                        setElementLimit(limit);
                 }
             }
         }
-
-        setElementLimit(elementLimit);
     }
 
     @Override
@@ -149,10 +148,14 @@ public abstract class AbstractSearchResultPage
     {
         Object element = match.getElement();
         if (currentOffset >= 0 && currentLength >= 0)
-            editorOpener.openAndSelect(element, currentOffset, currentLength,
-                activate);
+        {
+            IEditorPart editor = editorOpener.open(element, activate, false);
+            if (editor != null)
+                editorOpener.getEditorUtility().revealTextRange(editor,
+                    currentOffset, currentLength, null);
+        }
         else
-            editorOpener.open(element, activate);
+            editorOpener.open(element, activate, true);
     }
 
     @Override
@@ -224,7 +227,7 @@ public abstract class AbstractSearchResultPage
      * @return a newly created search preferences action, or <code>null</code>
      *  if this page should have no "Preferences..." action
      */
-    protected Action createSearchPreferencesAction()
+    protected IAction createSearchPreferencesAction()
     {
         return new OpenSearchPreferencesAction();
     }

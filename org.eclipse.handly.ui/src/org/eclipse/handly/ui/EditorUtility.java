@@ -12,7 +12,13 @@
  *******************************************************************************/
 package org.eclipse.handly.ui;
 
+import java.util.HashMap;
+
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
@@ -22,14 +28,21 @@ import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.handly.snapshot.DocumentSnapshot;
+import org.eclipse.handly.snapshot.ISnapshot;
+import org.eclipse.handly.snapshot.StaleSnapshotException;
+import org.eclipse.handly.snapshot.TextFileBufferSnapshot;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.ide.IGotoMarker;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -200,6 +213,115 @@ public class EditorUtility
             editor.getSite().getSelectionProvider();
         if (selectionProvider != null)
             selectionProvider.setSelection(new StructuredSelection(element));
+    }
+
+    /**
+     * Reveals the given text range in the given editor on a best effort basis.
+     * <p>
+     * If the given editor could be adapted to an {@link ITextEditor}, this
+     * implementation calls {@link ITextEditor#selectAndReveal(int, int)}.
+     * Otherwise, if the given editor could be adapted to an {@link IGotoMarker},
+     * this implementation creates a temporary text marker on the {@link IFile}
+     * corresponding to the editor input (if such a file exists) and calls
+     * {@link IGotoMarker#gotoMarker(IMarker)}. As a fallback, a text selection
+     * for the given range is passed to the selection provider of the given editor.
+     * </p>
+     *
+     * @param editor not <code>null</code>
+     * @param offset the offset of the text range (not negative)
+     * @param length the length of the text range (not negative)
+     * @param snapshot a snapshot on which the given text range is based,
+     *  or <code>null</code> if the snapshot is unknown or does not matter
+     * @throws StaleSnapshotException if the given snapshot could be detected
+     *  to be stale
+     */
+    public void revealTextRange(IEditorPart editor, int offset, int length,
+        ISnapshot snapshot)
+    {
+        if (editor == null)
+            throw new IllegalArgumentException();
+        if (offset < 0)
+            throw new IllegalArgumentException();
+        if (length < 0)
+            throw new IllegalArgumentException();
+
+        ITextEditor textEditor = Adapters.adapt(editor, ITextEditor.class);
+        if (textEditor != null)
+        {
+            if (snapshot != null)
+            {
+                IDocument document =
+                    textEditor.getDocumentProvider().getDocument(
+                        editor.getEditorInput());
+                if (document instanceof IDocumentExtension4
+                    && !snapshot.isEqualTo(new DocumentSnapshot(document)))
+                {
+                    throw new StaleSnapshotException();
+                }
+            }
+            textEditor.selectAndReveal(offset, length);
+        }
+        else
+        {
+            IGotoMarker gotoMarker = Adapters.adapt(editor, IGotoMarker.class);
+            if (gotoMarker != null)
+            {
+                IFile file = ResourceUtil.getFile(editor.getEditorInput());
+                if (file != null)
+                {
+                    if (snapshot != null)
+                    {
+                        ITextFileBufferManager bufferManager =
+                            ITextFileBufferManager.DEFAULT;
+                        ITextFileBuffer buffer =
+                            bufferManager.getTextFileBuffer(file.getFullPath(),
+                                LocationKind.IFILE);
+                        if (buffer != null && !snapshot.isEqualTo(
+                            new TextFileBufferSnapshot(buffer, bufferManager)))
+                        {
+                            throw new StaleSnapshotException();
+                        }
+                    }
+
+                    IMarker marker = null;
+                    try
+                    {
+                        marker = file.createMarker(IMarker.TEXT);
+
+                        HashMap<String, Integer> attributes = new HashMap<>();
+                        attributes.put(IMarker.CHAR_START, offset);
+                        attributes.put(IMarker.CHAR_END, offset + length);
+                        marker.setAttributes(attributes);
+
+                        gotoMarker.gotoMarker(marker);
+                    }
+                    catch (CoreException e)
+                    {
+                        // could not create or initialize marker
+                    }
+                    finally
+                    {
+                        if (marker != null)
+                            try
+                            {
+                                marker.delete();
+                            }
+                            catch (CoreException e)
+                            {
+                            }
+                    }
+                }
+            }
+            else
+            {
+                // fallback (suboptimal, see bug 32214)
+                ISelectionProvider selectionProvider =
+                    editor.getSite().getSelectionProvider();
+                if (selectionProvider != null)
+                    selectionProvider.setSelection(new TextSelection(offset,
+                        length));
+            }
+        }
     }
 
     /**

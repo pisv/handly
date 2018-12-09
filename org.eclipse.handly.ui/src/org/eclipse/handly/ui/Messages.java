@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 1C-Soft LLC.
+ * Copyright (c) 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -10,7 +10,7 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.ui.action;
+package org.eclipse.handly.ui;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -18,12 +18,9 @@ class Messages
     extends NLS
 {
     private static final String BUNDLE_NAME =
-        "org.eclipse.handly.ui.action.messages"; //$NON-NLS-1$
+        "org.eclipse.handly.ui.messages"; //$NON-NLS-1$
 
-    public static String OpenAction_Error_dialog_message;
-    public static String OpenAction_Error_dialog_title;
-    public static String OpenAction_Error_opening_editor_for__0__Reason__1;
-    public static String OpenAction_text;
+    public static String EditorOpener_No_editor_input;
 
     static
     {

@@ -12,21 +12,22 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.action;
 
+import java.text.MessageFormat;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.handly.internal.ui.Activator;
+import org.eclipse.handly.ui.EditorOpener;
 import org.eclipse.handly.ui.EditorUtility;
+import org.eclipse.handly.util.IStatusAcceptor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.OpenStrategy;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.ide.ResourceUtil;
 
 /**
  * Opens an editor on an applicable element.
@@ -34,18 +35,11 @@ import org.eclipse.ui.ide.ResourceUtil;
 public class OpenAction
     extends BaseSelectionListenerAction
 {
-    /**
-     * The workbench page to open the editor in (never <code>null</code>).
-     */
-    protected final IWorkbenchPage page;
-    /**
-     * The editor utility for this action (never <code>null</code>).
-     */
-    protected final EditorUtility editorUtility;
+    private final EditorOpener editorOpener;
 
     /**
      * Constructs an open action with the given workbench page and the given
-     * editor utility.
+     * editor utility; uses a default editor opener.
      *
      * @param page the workbench page to open the editor in
      *  (not <code>null</code>)
@@ -54,73 +48,63 @@ public class OpenAction
      */
     public OpenAction(IWorkbenchPage page, EditorUtility editorUtility)
     {
-        super(Messages.OpenAction_text);
-        if (page == null)
-            throw new IllegalArgumentException();
-        if (editorUtility == null)
-            throw new IllegalArgumentException();
-        this.page = page;
-        this.editorUtility = editorUtility;
+        this(new EditorOpener(page, editorUtility));
     }
 
     /**
-     * For each of the currently selected elements, this implementation
-     * attempts to {@link EditorUtility#findEditor(IWorkbenchPage, Object) find}
-     * the matching open editor or, failing that, opens a new editor on the
-     * {@link EditorUtility#getEditorInput(Object) corresponding} editor input;
-     * it then {@link EditorUtility#revealElement(IEditorPart, Object) reveals}
-     * the element in the editor.
+     * Constructs an open action with the given editor opener.
+     *
+     * @param editorOpener the editor opener for this action
+     *  (not <code>null</code>)
+     */
+    public OpenAction(EditorOpener editorOpener)
+    {
+        super(Messages.OpenAction_text);
+        if (editorOpener == null)
+            throw new IllegalArgumentException();
+        this.editorOpener = editorOpener;
+    }
+
+    /**
+     * For each of the currently selected elements that has a {@link
+     * EditorUtility#getEditorInput(Object) corresponding} editor input,
+     * this implementation uses the editor opener to open and reveal the
+     * element in an appropriate editor; if an error occurs while opening
+     * the editor, it is reported to the status acceptor.
+     *
+     * @see EditorOpener#open(Object, boolean, boolean)
+     * @see #newStatusAcceptor()
      */
     @Override
     public void run()
     {
         IStructuredSelection selection = getStructuredSelection();
-        if (selection == null)
+        if (selection.isEmpty())
             return;
+        EditorUtility editorUtility = editorOpener.getEditorUtility();
+        IStatusAcceptor statusAcceptor = newStatusAcceptor();
         Iterator<?> it = selection.iterator();
         while (it.hasNext())
         {
             Object element = it.next();
-            IEditorReference reference = editorUtility.findEditor(page,
-                element);
-            if (reference != null)
+            IEditorInput editorInput = editorUtility.getEditorInput(element);
+            if (editorInput != null)
             {
-                IEditorPart editor = reference.getEditor(true);
-                if (editor != null)
+                try
                 {
-                    if (OpenStrategy.activateOnOpen())
-                        page.activate(editor);
-                    else
-                        page.bringToTop(editor);
-                    editorUtility.revealElement(editor, element);
+                    editorOpener.open(element, OpenStrategy.activateOnOpen(),
+                        true);
                 }
-            }
-            else
-            {
-                IEditorInput input = editorUtility.getEditorInput(element);
-                if (input != null)
+                catch (PartInitException e)
                 {
-                    try
-                    {
-                        IEditorDescriptor descriptor;
-                        IFile file = ResourceUtil.getFile(input);
-                        if (file != null)
-                            descriptor = IDE.getEditorDescriptor(file, true,
-                                true);
-                        else
-                            descriptor = IDE.getEditorDescriptor(
-                                input.getName(), true, true);
-                        IEditorPart editor = page.openEditor(input,
-                            descriptor.getId(), OpenStrategy.activateOnOpen());
-                        if (editor != null)
-                            editorUtility.revealElement(editor, element);
-                    }
-                    catch (PartInitException e)
-                    {
-                    }
+                    statusAcceptor.accept(Activator.createErrorStatus(
+                        MessageFormat.format(
+                            Messages.OpenAction_Error_opening_editor_for__0__Reason__1,
+                            editorInput.getToolTipText(), e.getMessage()), e));
                 }
             }
         }
+        statusAcceptor.done();
     }
 
     /**
@@ -132,8 +116,9 @@ public class OpenAction
     @Override
     protected boolean updateSelection(IStructuredSelection selection)
     {
-        if (selection == null || selection.isEmpty())
+        if (selection.isEmpty())
             return false;
+        EditorUtility editorUtility = editorOpener.getEditorUtility();
         Iterator<?> it = selection.iterator();
         while (it.hasNext())
         {
@@ -142,5 +127,41 @@ public class OpenAction
                 return false;
         }
         return true;
+    }
+
+    /**
+     * Returns a new instance of the status acceptor for this action.
+     * <p>
+     * A default status acceptor logs each status to the error log and
+     * displays an error dialog when done and at least one status was accepted.
+     * </p>
+     *
+     * @return a new status acceptor (never <code>null</code>)
+     */
+    protected IStatusAcceptor newStatusAcceptor()
+    {
+        MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 0,
+            Messages.OpenAction_Error_dialog_message, null);
+        return new IStatusAcceptor()
+        {
+            @Override
+            public void accept(IStatus s)
+            {
+                status.merge(s);
+                Activator.log(s);
+            }
+
+            @Override
+            public void done()
+            {
+                IStatus[] children = status.getChildren();
+                if (children.length == 0)
+                    return;
+                MessageDialog.openError(
+                    editorOpener.getWorkbenchPage().getWorkbenchWindow().getShell(),
+                    Messages.OpenAction_Error_dialog_title, children.length > 1
+                        ? status.getMessage() : children[0].getMessage());
+            }
+        };
     }
 }

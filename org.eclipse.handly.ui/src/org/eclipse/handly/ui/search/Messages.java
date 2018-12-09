@@ -31,8 +31,6 @@ class Messages
     public static String OpenSearchPreferencesAction_label;
     public static String OpenSearchPreferencesAction_tooltip;
 
-    public static String SearchEditorOpener_No_editor_input;
-
     static
     {
         // initialize resource bundle
