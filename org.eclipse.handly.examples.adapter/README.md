@@ -26,7 +26,7 @@ Things to note:
   The content adapter defines a one-to-one correspondence (bijection)
   between Java elements and the adapter model.
 
-Since Handly 1.1, the adapter example also demonstrates a Handly-based search
-result view page. To open it, use the "Find References" action in the outline's
-context menu. Similar to the outline page, the search result page makes use
-of the content adapter.
+Handly 1.1 introduced support for building a search result view page and
+a call hierarchy view. The adapter example demonstrates that support. Use
+"Show Calls" and "Find References" actions in the outline's context menu
+to open the example's call hierarchy view and search result page respectively.

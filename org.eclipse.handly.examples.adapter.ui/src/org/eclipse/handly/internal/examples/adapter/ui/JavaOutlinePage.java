@@ -13,6 +13,7 @@
 package org.eclipse.handly.internal.examples.adapter.ui;
 
 import org.eclipse.handly.examples.adapter.JavaModelAdapter;
+import org.eclipse.handly.internal.examples.adapter.ui.callhierarchy.OpenCallHierarchyAction;
 import org.eclipse.handly.internal.examples.adapter.ui.search.FindReferencesAction;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.adapter.DefaultContentAdapter;
@@ -45,9 +46,12 @@ import org.eclipse.ui.IEditorPart;
 public class JavaOutlinePage
     extends HandlyOutlinePage
 {
+    private static final String GROUP_OPEN = "group.open"; //$NON-NLS-1$
     private static final String GROUP_SEARCH = "group.search"; //$NON-NLS-1$
 
-    private FindReferencesAction findReferencesAction =
+    private final OpenCallHierarchyAction openCallHierarchyAction =
+        new OpenCallHierarchyAction();
+    private final FindReferencesAction findReferencesAction =
         new FindReferencesAction();
 
     /**
@@ -108,10 +112,16 @@ public class JavaOutlinePage
             @Override
             protected void contextMenuAboutToShow(IMenuManager manager)
             {
+                manager.add(new Separator(GROUP_OPEN));
                 manager.add(new Separator(GROUP_SEARCH));
 
                 IStructuredSelection selection =
                     (IStructuredSelection)getSelection();
+
+                openCallHierarchyAction.selectionChanged(selection);
+                if (openCallHierarchyAction.isEnabled())
+                    manager.appendToGroup(GROUP_OPEN, openCallHierarchyAction);
+
                 findReferencesAction.selectionChanged(selection);
                 if (findReferencesAction.isEnabled())
                     manager.appendToGroup(GROUP_SEARCH, findReferencesAction);

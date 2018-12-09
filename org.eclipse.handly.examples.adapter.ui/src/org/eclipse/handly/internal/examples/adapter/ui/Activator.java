@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.adapter.ui;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.handly.examples.adapter.JavaModelAdapter;
 import org.eclipse.handly.internal.examples.adapter.ui.search.JavaSearchResultUpdater;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -60,5 +61,10 @@ public class Activator
     public static Activator getDefault()
     {
         return plugin;
+    }
+
+    public static void log(IStatus status)
+    {
+        plugin.getLog().log(status);
     }
 }
