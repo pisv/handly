@@ -28,7 +28,7 @@ public class NoXtextResourceException
     NoXtextResourceException(XtextDocument document)
     {
         super(
-            "XtextDocument has no Xtext resource. Either the resource has yet to be set"
+            "XtextDocument has no Xtext resource. Either the resource has yet to be set" //$NON-NLS-1$
                 + " or it has already been disposed"); //$NON-NLS-1$
         this.document = document;
     }
