@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 /**
  * A scheduling rule that does not allow nesting and conflicts only with
- * another <code>SerialPerObjectRule</code> pertaining to the same (i.e.,
+ * a <code>SerialPerObjectRule</code> pertaining to the same (i.e.,
  * equal) lock object.
  *
  * @since 1.1

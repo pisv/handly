@@ -45,6 +45,7 @@ public class OpenAction
      *  (not <code>null</code>)
      * @param editorUtility the editor utility for this action
      *  (not <code>null</code>)
+     * @see #OpenAction(EditorOpener)
      */
     public OpenAction(IWorkbenchPage page, EditorUtility editorUtility)
     {
