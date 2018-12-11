@@ -14,7 +14,7 @@ package org.eclipse.handly.ui.viewer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.handly.util.SchedulingRules;
+import org.eclipse.handly.util.SerialPerObjectRule;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
@@ -116,8 +116,7 @@ public abstract class DeferredTreeContentProvider
      * Returns the rule used to schedule the deferred fetching of children
      * for the given parent element.
      * <p>
-     * Default implementation returns
-     * <code>SchedulingRules.getSerialPerObjectRule(this)</code>.
+     * Default implementation returns <code>new SerialPerObjectRule(this)</code>.
      * <p>
      *
      * @param parentElement the parent element
@@ -126,7 +125,7 @@ public abstract class DeferredTreeContentProvider
      */
     protected ISchedulingRule getRule(Object parentElement)
     {
-        return SchedulingRules.getSerialPerObjectRule(this);
+        return new SerialPerObjectRule(this);
     }
 
     /**
