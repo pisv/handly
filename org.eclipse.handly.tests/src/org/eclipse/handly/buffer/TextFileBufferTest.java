@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2018 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,6 +13,7 @@
 package org.eclipse.handly.buffer;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.handly.junit.WorkspaceTestCase;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.text.edits.InsertEdit;
@@ -50,11 +51,14 @@ public class TextFileBufferTest
         buffer.applyChange(new BufferChange(new InsertEdit(0, "a")), null);
 
         Throwable[] exception = new Throwable[1];
-        PlatformUI.createAndRunWorkbench(PlatformUI.createDisplay(),
-            new WorkbenchAdvisor()
+        Display display = PlatformUI.createDisplay();
+        try (DisplayAutoCloseable r1 = new DisplayAutoCloseable(display);
+            WorkbenchAutoCloseable r2 = new WorkbenchAutoCloseable())
+        {
+            PlatformUI.createAndRunWorkbench(display, new WorkbenchAdvisor()
             {
                 @Override
-                public void eventLoopIdle(Display display)
+                public void postStartup()
                 {
                     try
                     {
@@ -65,12 +69,23 @@ public class TextFileBufferTest
                         buffer.applyChange(new BufferChange(new InsertEdit(0,
                             "c")), null);
                     }
-                    catch (Throwable e)
+                    catch (CoreException e)
                     {
                         exception[0] = e;
                     }
-                    PlatformUI.getWorkbench().close();
-                    display.dispose();
+                    getWorkbenchConfigurer().emergencyClose();
+                }
+
+                @Override
+                public void eventLoopException(Throwable e)
+                {
+                    exception[0] = e;
+                }
+
+                @Override
+                public boolean openWindows()
+                {
+                    return true;
                 }
 
                 @Override
@@ -79,9 +94,11 @@ public class TextFileBufferTest
                     return null;
                 }
             });
-        if (exception[0] != null)
-            throw exception[0];
+            if (exception[0] != null)
+                throw exception[0];
+        }
 
+        assertFalse(PlatformUI.isWorkbenchRunning());
         try
         {
             buffer.applyChange(new BufferChange(new InsertEdit(0, "d")), null);
@@ -95,5 +112,33 @@ public class TextFileBufferTest
         buffer.getCoreTextFileBufferProvider().getBuffer().releaseSynchronizationContext();
         buffer.applyChange(new BufferChange(new InsertEdit(0, "d")), null);
         assertEquals("dcba", buffer.getSnapshot().getContents());
+    }
+
+    private static class DisplayAutoCloseable
+        implements AutoCloseable
+    {
+        private final Display display;
+
+        DisplayAutoCloseable(Display display)
+        {
+            this.display = display;
+        }
+
+        @Override
+        public void close()
+        {
+            display.dispose();
+        }
+    }
+
+    private class WorkbenchAutoCloseable
+        implements AutoCloseable
+    {
+        @Override
+        public void close()
+        {
+            if (PlatformUI.isWorkbenchRunning())
+                assertTrue(PlatformUI.getWorkbench().close());
+        }
     }
 }
