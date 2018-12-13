@@ -12,19 +12,17 @@
         Vladimir Piskarev (1C) - initial API and implementation
  -->
 <project>
-  <property name="source" location=".." />
-  <property name="target" location="contents" />
   <macrodef name="zip_example">
     <attribute name="name" />
     <sequential>
-      <zip destfile="${target}/@{name}.zip" basedir="${source}/@{name}"
+      <zip destfile="contents/@{name}.zip" basedir="../@{name}"
         excludes="bin,bin/**,target/**,.antlr-generator*.jar"
         defaultexcludes="no" />
     </sequential>
   </macrodef>
   <target name="clean_all_examples">
     <delete>
-      <fileset dir="${target}" includes="*.zip" />
+      <fileset dir="contents" includes="*.zip" />
     </delete>
   </target>
   <target name="zip_all_examples">
