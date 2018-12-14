@@ -38,7 +38,8 @@
   <!-- add download.stats property -->
   <xsl:template match="repository/artifacts/artifact[
     @classifier='osgi.bundle' and (@id='org.eclipse.handly' or
-    @id='org.eclipse.handly.xtext.ui' or @id='org.eclipse.handly.examples')
+    @id='org.eclipse.handly.ui' or @id='org.eclipse.handly.xtext.ui' or
+    @id='org.eclipse.handly.examples')
     ]/properties">
     <properties size="{@size+1}">
       <xsl:copy-of select="property"/>
