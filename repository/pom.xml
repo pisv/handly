@@ -135,6 +135,8 @@
       <id>javadoc</id>
       <properties>
         <javadoc.title>Eclipse Handly ${handly.version.major}.${handly.version.minor} API Specification</javadoc.title>
+        <javadoc.header>&lt;span style='font-size:small'&gt;&lt;b&gt;Eclipse Handly&lt;/b&gt;&lt;br&gt;version ${handly.version.major}.${handly.version.minor}&lt;/span&gt;</javadoc.header>
+        <javadoc.copyright>Copyright (c) 2014, 2018 1C-Soft LLC and others. Made available under the &lt;a target='_blank' href='https://www.eclipse.org/legal/epl-2.0/'&gt;Eclipse Public License 2.0&lt;/a&gt;</javadoc.copyright>
       </properties>
       <build>
         <plugins>
@@ -157,10 +159,13 @@
                 <additionalArguments>
                   <additionalArgument>-windowtitle "${javadoc.title}"</additionalArgument>
                   <additionalArgument>-doctitle "${javadoc.title}"</additionalArgument>
-                  <additionalArgument>-tag noextend:t</additionalArgument>
-                  <additionalArgument>-tag noimplement:t</additionalArgument>
-                  <additionalArgument>-tag noinstantiate:a</additionalArgument>
-                  <additionalArgument>-tag noreference:a</additionalArgument>
+                  <additionalArgument>-header "${javadoc.header}"</additionalArgument>
+                  <additionalArgument>-footer "${javadoc.header}"</additionalArgument>
+                  <additionalArgument>-bottom "${javadoc.copyright}"</additionalArgument>
+                  <additionalArgument>-tag noextend:t:Restriction:</additionalArgument>
+                  <additionalArgument>-tag noimplement:t:Restriction:</additionalArgument>
+                  <additionalArgument>-tag noinstantiate:t:Restriction:</additionalArgument>
+                  <additionalArgument>-tag noreference:a:Restriction:</additionalArgument>
                 </additionalArguments>
               </javadocOptions>
             </configuration>
