@@ -30,10 +30,17 @@ public final class ApiLevel
     public static final int _1_1 = 1;
 
     /**
+     * The 1.2 API level.
+     *
+     * @since 1.2
+     */
+    public static final int _1_2 = 2;
+
+    /**
      * Corresponds to the API level the code using this constant
      * was built against.
      */
-    public static final int CURRENT = _1_1;
+    public static final int CURRENT = _1_2;
 
     private ApiLevel()
     {
