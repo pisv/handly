@@ -157,7 +157,7 @@ Contributors:
             </or>
          </triggerPoints>
          <commonSorter
-               class="org.eclipse.handly.internal.examples.jmodel.ui.JavaElementSorter">
+               class="org.eclipse.handly.internal.examples.jmodel.ui.JavaElementComparator">
          </commonSorter>
          <commonWizard
                menuGroupId="group.new"
