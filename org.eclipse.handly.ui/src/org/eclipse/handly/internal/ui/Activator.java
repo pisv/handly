@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2019 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -36,10 +36,16 @@ public class Activator
     public static final String IMG_DLCL_REFRESH = PLUGIN_ID + T_DLCL
         + "refresh.png"; //$NON-NLS-1$
 
+    public static final String IMG_ELCL_CH_AUTOMATIC = PLUGIN_ID + T_ELCL
+        + "ch_automatic.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_CH_CALLEES = PLUGIN_ID + T_ELCL
         + "ch_callees.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_CH_CALLERS = PLUGIN_ID + T_ELCL
         + "ch_callers.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_CH_HORIZONTAL = PLUGIN_ID + T_ELCL
+        + "ch_horizontal.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_CH_VERTICAL = PLUGIN_ID + T_ELCL
+        + "ch_vertical.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_EXPANDALL = PLUGIN_ID + T_ELCL
         + "expandall.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_LEXICAL_SORT = PLUGIN_ID + T_ELCL
@@ -109,10 +115,16 @@ public class Activator
         reg.put(IMG_DLCL_REFRESH, imageDescriptorFromSymbolicName(
             IMG_DLCL_REFRESH));
 
+        reg.put(IMG_ELCL_CH_AUTOMATIC, imageDescriptorFromSymbolicName(
+            IMG_ELCL_CH_AUTOMATIC));
         reg.put(IMG_ELCL_CH_CALLEES, imageDescriptorFromSymbolicName(
             IMG_ELCL_CH_CALLEES));
         reg.put(IMG_ELCL_CH_CALLERS, imageDescriptorFromSymbolicName(
             IMG_ELCL_CH_CALLERS));
+        reg.put(IMG_ELCL_CH_HORIZONTAL, imageDescriptorFromSymbolicName(
+            IMG_ELCL_CH_HORIZONTAL));
+        reg.put(IMG_ELCL_CH_VERTICAL, imageDescriptorFromSymbolicName(
+            IMG_ELCL_CH_VERTICAL));
         reg.put(IMG_ELCL_EXPANDALL, imageDescriptorFromSymbolicName(
             IMG_ELCL_EXPANDALL));
         reg.put(IMG_ELCL_LEXICAL_SORT, imageDescriptorFromSymbolicName(

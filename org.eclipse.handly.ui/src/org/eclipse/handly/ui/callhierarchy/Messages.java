@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,6 +26,13 @@ class Messages
     public static String CallHierarchyViewPart_Focus_on_selection_action_text;
     public static String CallHierarchyViewPart_Focus_on_selection_action_tooltip;
     public static String CallHierarchyViewPart_Info_column_header;
+    public static String CallHierarchyViewPart_Layout_automatic_action_text;
+    public static String CallHierarchyViewPart_Layout_automatic_action_tooltip;
+    public static String CallHierarchyViewPart_Layout_horizontal_action_text;
+    public static String CallHierarchyViewPart_Layout_horizontal_action_tooltip;
+    public static String CallHierarchyViewPart_Layout_menu;
+    public static String CallHierarchyViewPart_Layout_vertical_action_text;
+    public static String CallHierarchyViewPart_Layout_vertical_action_tooltip;
     public static String CallHierarchyViewPart_Line_column_header;
     public static String CallHierarchyViewPart_No_hierarchy_to_display;
     public static String CallHierarchyViewPart_Refresh_action_text;

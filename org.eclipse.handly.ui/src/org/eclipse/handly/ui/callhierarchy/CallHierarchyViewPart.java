@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -47,6 +47,9 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -82,9 +85,20 @@ public abstract class CallHierarchyViewPart
 
     private static final String KEY_HIERARCHY_KIND =
         "org.eclipse.handly.callhierarchy.view.kind"; //$NON-NLS-1$
+    private static final String KEY_ORIENTATION =
+        "org.eclipse.handly.callhierarchy.view.orientation"; //$NON-NLS-1$
+    private static final String KEY_HORIZONTAL_RATIO =
+        "org.eclipse.handly.callhierarchy.view.horizontalRatio"; //$NON-NLS-1$
+    private static final String KEY_VERTICAL_RATIO =
+        "org.eclipse.handly.callhierarchy.view.verticalRatio"; //$NON-NLS-1$
+
+    private static final int ORIENTATION_AUTO = SWT.HORIZONTAL | SWT.VERTICAL;
 
     private final EnumSet<CallHierarchyKind> supportedHierarchyKinds;
     private CallHierarchyKind hierarchyKind;
+    private int orientation = ORIENTATION_AUTO;
+    private boolean orientationAdjusted;
+    private int horizontalRatio = 500, verticalRatio = 500;
     private Object[] inputElements;
     private PageBook pageBook;
     private SashForm sashForm;
@@ -94,6 +108,10 @@ public abstract class CallHierarchyViewPart
     private final RefreshAction refreshAction = new RefreshAction();
     private SetHierarchyKindAction[] setHierarchyKindActions =
         new SetHierarchyKindAction[0];
+    private SetOrientationAction[] setOrientationActions =
+        new SetOrientationAction[] { new SetOrientationAction(SWT.VERTICAL),
+            new SetOrientationAction(SWT.HORIZONTAL), new SetOrientationAction(
+                ORIENTATION_AUTO) };
     private FocusOnSelectionAction focusOnSelectionAction;
 
     /**
@@ -228,6 +246,75 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
+     * Sets the orientation of this view, which must be one of the constants
+     * {@link SWT#HORIZONTAL} or {@link SWT#VERTICAL}. This method can also
+     * be called with <code>SWT.HORIZONTAL|SWT.VERTICAL</code> for automatic
+     * orientation.
+     *
+     * @param orientation new orientation
+     */
+    public void setOrientation(int orientation)
+    {
+        if (!supportsOrientation(orientation))
+            throw new IllegalArgumentException();
+        if (orientation == this.orientation)
+            return;
+        this.orientation = orientation;
+        for (SetOrientationAction action : setOrientationActions)
+            action.setChecked(action.orientation == orientation);
+        adjustOrientation();
+    }
+
+    private static boolean supportsOrientation(int orientation)
+    {
+        return (orientation == SWT.HORIZONTAL || orientation == SWT.VERTICAL
+            || orientation == ORIENTATION_AUTO);
+    }
+
+    private void adjustOrientation()
+    {
+        if (sashForm == null || sashForm.isDisposed())
+            return;
+        Point size = sashForm.getParent().getParent().getSize();
+        if (size.x == 0 || size.y == 0)
+            return;
+
+        int orientation = this.orientation;
+        if (orientation == ORIENTATION_AUTO)
+            orientation = (size.x > size.y) ? SWT.HORIZONTAL : SWT.VERTICAL;
+
+        if (sashForm.getOrientation() == orientation && orientationAdjusted)
+            return;
+
+        if (sashForm.getOrientation() != orientation)
+        {
+            if (orientationAdjusted)
+                saveSplitterRatio();
+            sashForm.setOrientation(orientation);
+            sashForm.layout();
+        }
+        restoreSplitterRatio();
+        orientationAdjusted = true;
+    }
+
+    private void saveSplitterRatio()
+    {
+        int[] weights = sashForm.getWeights();
+        int ratio = (weights[0] * 1000) / (weights[0] + weights[1]);
+        if (sashForm.getOrientation() == SWT.HORIZONTAL)
+            horizontalRatio = ratio;
+        else
+            verticalRatio = ratio;
+    }
+
+    private void restoreSplitterRatio()
+    {
+        int ratio = (sashForm.getOrientation() == SWT.HORIZONTAL)
+            ? horizontalRatio : verticalRatio;
+        sashForm.setWeights(new int[] { ratio, 1000 - ratio });
+    }
+
+    /**
      * Performs a full refresh of the content of this view.
      * <p>
      * Default implementation does nothing if the input elements have not
@@ -272,6 +359,30 @@ public abstract class CallHierarchyViewPart
                         setHierarchyKind(kind);
                 }
             }
+
+            Integer integer = memento.getInteger(KEY_ORIENTATION);
+            if (integer != null)
+            {
+                int value = integer.intValue();
+                if (supportsOrientation(value))
+                    setOrientation(value);
+            }
+
+            integer = memento.getInteger(KEY_HORIZONTAL_RATIO);
+            if (integer != null)
+            {
+                int value = integer.intValue();
+                if (value > 0 && value < 1000)
+                    horizontalRatio = value;
+            }
+
+            integer = memento.getInteger(KEY_VERTICAL_RATIO);
+            if (integer != null)
+            {
+                int value = integer.intValue();
+                if (value > 0 && value < 1000)
+                    verticalRatio = value;
+            }
         }
     }
 
@@ -281,11 +392,25 @@ public abstract class CallHierarchyViewPart
         super.saveState(memento);
         if (supportedHierarchyKinds.size() > 1)
             memento.putString(KEY_HIERARCHY_KIND, hierarchyKind.name());
+        memento.putInteger(KEY_ORIENTATION, orientation);
+        saveSplitterRatio(); // make sure to save the current splitter ratio
+        memento.putInteger(KEY_HORIZONTAL_RATIO, horizontalRatio);
+        memento.putInteger(KEY_VERTICAL_RATIO, verticalRatio);
     }
 
     @Override
     public void createPartControl(Composite parent)
     {
+        parent.addControlListener(new ControlAdapter()
+        {
+            @Override
+            public void controlResized(ControlEvent e)
+            {
+                if (!orientationAdjusted || orientation == ORIENTATION_AUTO)
+                    adjustOrientation();
+            }
+        });
+
         pageBook = new PageBook(parent, SWT.NONE);
         pageBook.showPage(createNoHierarchyPage(pageBook));
 
@@ -333,6 +458,9 @@ public abstract class CallHierarchyViewPart
 
         for (SetHierarchyKindAction action : setHierarchyKindActions)
             addSetHierarchyKindAction(action, action.kind);
+
+        for (SetOrientationAction action : setOrientationActions)
+            addSetOrientationAction(action, action.orientation);
     }
 
     @Override
@@ -908,6 +1036,36 @@ public abstract class CallHierarchyViewPart
         actionBars.getMenuManager().add(action);
     }
 
+    /**
+     * Contributes a 'set orientation' action to this view. This method
+     * is called once for each of the 'set orientation' actions, when the
+     * part's control is created.
+     * <p>
+     * Default implementation adds the given action to the 'Layout' sub-menu
+     * of the view menu. The sub-menu is created if necessary. Subclasses may
+     * extend or override this method.
+     * </p>
+     *
+     * @param action a 'set orientation' action
+     *  (never <code>null</code>)
+     * @param orientation the orientation set by the given action
+     */
+    protected void addSetOrientationAction(IAction action, int orientation)
+    {
+        IActionBars actionBars = getViewSite().getActionBars();
+        IMenuManager viewMenu = actionBars.getMenuManager();
+        String id = "layout"; //$NON-NLS-1$
+        IMenuManager layoutSubMenu = viewMenu.findMenuUsingPath(id);
+        if (layoutSubMenu == null)
+        {
+            viewMenu.add(new Separator());
+            layoutSubMenu = new MenuManager(
+                Messages.CallHierarchyViewPart_Layout_menu, id);
+            viewMenu.add(layoutSubMenu);
+        }
+        layoutSubMenu.add(action);
+    }
+
     private void initContextMenu(Control parent, IMenuListener listener,
         String menuId, ISelectionProvider selectionProvider)
     {
@@ -1099,6 +1257,51 @@ public abstract class CallHierarchyViewPart
         public void run()
         {
             setHierarchyKind(kind);
+        }
+    }
+
+    private class SetOrientationAction
+        extends Action
+    {
+        final int orientation;
+
+        SetOrientationAction(int orientation)
+        {
+            super("", AS_RADIO_BUTTON); //$NON-NLS-1$
+            this.orientation = orientation;
+            switch (orientation)
+            {
+            case SWT.HORIZONTAL:
+                setText(
+                    Messages.CallHierarchyViewPart_Layout_horizontal_action_text);
+                setToolTipText(
+                    Messages.CallHierarchyViewPart_Layout_horizontal_action_tooltip);
+                setImageDescriptor(Activator.getImageDescriptor(
+                    Activator.IMG_ELCL_CH_HORIZONTAL));
+                break;
+            case SWT.VERTICAL:
+                setText(
+                    Messages.CallHierarchyViewPart_Layout_vertical_action_text);
+                setToolTipText(
+                    Messages.CallHierarchyViewPart_Layout_vertical_action_tooltip);
+                setImageDescriptor(Activator.getImageDescriptor(
+                    Activator.IMG_ELCL_CH_VERTICAL));
+                break;
+            default:
+                setText(
+                    Messages.CallHierarchyViewPart_Layout_automatic_action_text);
+                setToolTipText(
+                    Messages.CallHierarchyViewPart_Layout_automatic_action_tooltip);
+                setImageDescriptor(Activator.getImageDescriptor(
+                    Activator.IMG_ELCL_CH_AUTOMATIC));
+                setChecked(true);
+            }
+        }
+
+        @Override
+        public void run()
+        {
+            setOrientation(orientation);
         }
     }
 }
