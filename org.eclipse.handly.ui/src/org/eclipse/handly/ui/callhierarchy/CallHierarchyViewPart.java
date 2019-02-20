@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.callhierarchy;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import org.eclipse.handly.internal.ui.Activator;
@@ -22,6 +23,7 @@ import org.eclipse.handly.ui.EditorUtility;
 import org.eclipse.handly.ui.viewer.ColumnDescription;
 import org.eclipse.handly.ui.viewer.DelegatingSelectionProvider;
 import org.eclipse.handly.ui.viewer.LabelComparator;
+import org.eclipse.handly.util.ArrayUtil;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -83,6 +85,8 @@ public abstract class CallHierarchyViewPart
      */
     protected static final String GROUP_FOCUS = "group.focus"; //$NON-NLS-1$
 
+    private static final Object[] NO_ELEMENTS = new Object[0];
+
     private static final String KEY_HIERARCHY_KIND =
         "org.eclipse.handly.callhierarchy.view.kind"; //$NON-NLS-1$
     private static final String KEY_ORIENTATION =
@@ -99,8 +103,9 @@ public abstract class CallHierarchyViewPart
     private int orientation = ORIENTATION_AUTO;
     private boolean orientationAdjusted;
     private int horizontalRatio = 500, verticalRatio = 500;
-    private Object[] inputElements;
+    private Object[] inputElements = NO_ELEMENTS;
     private PageBook pageBook;
+    private Control noHierarchyPage;
     private SashForm sashForm;
     private TreeViewer hierarchyViewer;
     private TableViewer locationViewer;
@@ -159,14 +164,15 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Sets the input elements for this view.
+     * Sets the current input elements for this view. Clients <b>must not</b>
+     * modify the given array afterwards.
      * <p>
      * Subclasses may impose additional restrictions on what elements
      * may be used as the input elements. Default implementation invokes
-     * {@link #refresh()} after the input elements have been set.
+     * {@link #refresh()} if the view input has changed.
      * </p>
      *
-     * @param elements not <code>null</code>, must not contain null elements
+     * @param elements not <code>null</code>; must not contain null elements
      * @throws IllegalArgumentException if some property of an element
      *  prevents it from being used as an input element
      */
@@ -174,21 +180,26 @@ public abstract class CallHierarchyViewPart
     {
         if (elements == null)
             throw new IllegalArgumentException();
-        for (Object element : elements)
-        {
-            if (element == null)
-                throw new IllegalArgumentException();
-        }
+        if (ArrayUtil.contains(elements, null))
+            throw new IllegalArgumentException(Arrays.toString(elements));
+
+        Object[] oldElements = inputElements;
         inputElements = elements;
+        if (Arrays.equals(oldElements, elements))
+            return;
         refresh();
     }
 
     /**
-     * Returns the input elements that have been set for this view.
+     * Returns the current input elements for this view.
+     * <p>
+     * The method returns an array of exactly the same runtime type
+     * as the array given in the most recent call to {@link
+     * #setInputElements(Object[])}.
+     * </p>
      *
-     * @return the input elements, or <code>null</code> if the input elements
-     *  have not been set
-     * @see #setInputElements(Object[])
+     * @return the current input elements (never <code>null</code>).
+     *  Clients <b>must not</b> modify the returned array.
      */
     public final Object[] getInputElements()
     {
@@ -211,7 +222,7 @@ public abstract class CallHierarchyViewPart
     /**
      * Sets the current hierarchy kind for this view.
      * <p>
-     * Default implementation invokes {@link #refresh()} if the current
+     * Default implementation invokes {@link #refresh()} if the view
      * hierarchy kind has changed; it also adjusts the checked state of the
      * 'set hierarchy kind' actions accordingly.
      * </p>
@@ -317,20 +328,19 @@ public abstract class CallHierarchyViewPart
     /**
      * Performs a full refresh of the content of this view.
      * <p>
-     * Default implementation does nothing if the input elements have not
-     * been set for this view or if the view has been disposed. Otherwise,
-     * it invokes {@link #createHierarchy()} followed by {@link
-     * #setHierarchy(ICallHierarchy)}.
+     * Default implementation does nothing if the SWT controls for this view
+     * have not been created or have been disposed. Otherwise, it invokes
+     * {@link #createHierarchy()} followed by {@link #setHierarchy(ICallHierarchy)}.
      * </p>
      */
     public void refresh()
     {
-        if (inputElements == null || hierarchyViewer == null
+        if (hierarchyViewer == null
             || hierarchyViewer.getControl().isDisposed())
             return;
 
         ICallHierarchy hierarchy = createHierarchy();
-        if (hierarchyKind != hierarchy.getKind())
+        if (hierarchy != null && hierarchyKind != hierarchy.getKind())
             throw new AssertionError();
 
         setHierarchy(hierarchy);
@@ -412,7 +422,8 @@ public abstract class CallHierarchyViewPart
         });
 
         pageBook = new PageBook(parent, SWT.NONE);
-        pageBook.showPage(createNoHierarchyPage(pageBook));
+
+        noHierarchyPage = createNoHierarchyPage(pageBook);
 
         sashForm = createSashForm(pageBook);
         hierarchyViewer = createHierarchyViewer(sashForm);
@@ -461,6 +472,8 @@ public abstract class CallHierarchyViewPart
 
         for (SetOrientationAction action : setOrientationActions)
             addSetOrientationAction(action, action.orientation);
+
+        refresh();
     }
 
     @Override
@@ -470,11 +483,10 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Returns a new call hierarchy object based on the input elements and
-     * current hierarchy kind for this view. This method may only be called
-     * after the input elements have been set for this view.
+     * Returns a new call hierarchy object based on the current input elements
+     * and the current hierarchy kind for this view.
      *
-     * @return the created call hierarchy (not <code>null</code>)
+     * @return the created call hierarchy (may be <code>null</code>)
      * @see #getInputElements()
      * @see #getHierarchyKind()
      */
@@ -489,22 +501,32 @@ public abstract class CallHierarchyViewPart
      * accordingly.
      * </p>
      *
-     * @param hierarchy the call hierarchy to show (never <code>null</code>)
+     * @param hierarchy the call hierarchy to show (may be <code>null</code>)
      */
     protected void setHierarchy(ICallHierarchy hierarchy)
     {
-        pageBook.showPage(sashForm);
-        hierarchyViewer.setInput(null); // set input to null so that setComparator does not cause a refresh on the old contents
+        hierarchyViewer.setInput(null);
         locationViewer.setInput(null);
-        hierarchyViewer.setComparator(getHierarchyComparator(hierarchy));
-        hierarchyViewer.setInput(hierarchy);
-        ICallHierarchyNode[] roots = hierarchy.getRoots();
-        if (roots.length > 0)
-            hierarchyViewer.setSelection(new StructuredSelection(roots[0]),
-                true);
-        hierarchyViewer.getTree().setFocus();
-        setContentDescription(hierarchy.getLabel());
-        refreshAction.setEnabled(true);
+        if (hierarchy != null)
+        {
+            pageBook.showPage(sashForm);
+            hierarchyViewer.setComparator(getHierarchyComparator(hierarchy));
+            hierarchyViewer.setInput(hierarchy);
+            ICallHierarchyNode[] roots = hierarchy.getRoots();
+            if (roots.length > 0)
+                hierarchyViewer.setSelection(new StructuredSelection(roots[0]),
+                    true);
+            hierarchyViewer.getTree().setFocus();
+            setContentDescription(hierarchy.getLabel());
+            refreshAction.setEnabled(true);
+        }
+        else
+        {
+            pageBook.showPage(noHierarchyPage);
+            pageBook.setFocus();
+            setContentDescription(""); //$NON-NLS-1$
+            refreshAction.setEnabled(false);
+        }
     }
 
     /**
@@ -1213,7 +1235,6 @@ public abstract class CallHierarchyViewPart
                 Activator.IMG_ELCL_REFRESH));
             setDisabledImageDescriptor(Activator.getImageDescriptor(
                 Activator.IMG_DLCL_REFRESH));
-            setEnabled(false);
         }
 
         @Override

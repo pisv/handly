@@ -80,6 +80,8 @@ public final class JavaCallHierarchyView
     {
         Object[] inputElements = getInputElements();
         int length = inputElements.length;
+        if (length == 0)
+            return null;
 
         ICallHierarchyNode[] rootNodes = new ICallHierarchyNode[length];
         for (int i = 0; i < length; i++)
@@ -89,9 +91,7 @@ public final class JavaCallHierarchyView
         }
 
         String label;
-        if (length == 0)
-            label = "";
-        else if (length == 1)
+        if (length == 1)
             label = MessageFormat.format("Methods calling ''{0}''",
                 JavaElementLabels.getTextLabel(inputElements[0],
                     JavaElementLabels.ALL_DEFAULT));
