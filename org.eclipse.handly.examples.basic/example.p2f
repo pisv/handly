@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!--
-   Copyright (c) 2018 1C-Soft LLC.
+   Copyright (c) 2018, 2019 1C-Soft LLC.
 
    This program and the accompanying materials are made available under
    the terms of the Eclipse Public License 2.0 which is available at
@@ -14,9 +14,9 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='1'>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.16.0.v20181203-1555'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.17.0.v20190304-1445'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2018-12'/>
+        <repository location='http://download.eclipse.org/releases/2019-03'/>
       </repositories>
     </iu>
   </ius>
