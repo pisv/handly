@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 1C-Soft LLC.
+ * Copyright (c) 2016, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,6 +19,13 @@ class Messages
 {
     private static final String BUNDLE_NAME =
         "org.eclipse.handly.ui.action.messages"; //$NON-NLS-1$
+
+    public static String HistoryDropDownAction_Clear_history_action_text;
+    public static String HistoryDropDownAction_History_list_action_text;
+    public static String HistoryDropDownAction_History_list_dialog_message;
+    public static String HistoryDropDownAction_History_list_dialog_remove_button_text;
+    public static String HistoryDropDownAction_History_list_dialog_title;
+    public static String HistoryDropDownAction_tooltip;
 
     public static String OpenAction_Error_dialog_message;
     public static String OpenAction_Error_dialog_title;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -17,6 +17,8 @@ import static org.eclipse.jdt.ui.JavaElementLabels.M_APP_RETURNTYPE;
 import static org.eclipse.jdt.ui.JavaElementLabels.M_APP_TYPE_PARAMETERS;
 import static org.eclipse.jdt.ui.JavaElementLabels.M_PARAMETER_TYPES;
 import static org.eclipse.jdt.ui.JavaElementLabels.M_POST_QUALIFIED;
+import static org.eclipse.jdt.ui.JavaElementLabels.P_COMPRESSED;
+import static org.eclipse.jdt.ui.JavaElementLabels.T_TYPE_PARAMETERS;
 
 import java.text.MessageFormat;
 import java.util.EnumSet;
@@ -34,6 +36,7 @@ import org.eclipse.handly.util.ArrayUtil;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jdt.ui.JavaElementLabels;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -121,6 +124,51 @@ public final class JavaCallHierarchyView
     {
         return new EditorOpener(getSite().getPage(),
             JavaEditorUtility.INSTANCE);
+    }
+
+    @Override
+    protected HistoryEntry createHistoryEntry(Object[] inputElements)
+    {
+        return new MethodHistoryEntry(inputElements);
+    }
+
+    private static class MethodHistoryEntry
+        extends HistoryEntry
+    {
+        private static final long LABEL_FLAGS = M_PARAMETER_TYPES
+            | M_APP_TYPE_PARAMETERS | M_APP_RETURNTYPE | M_POST_QUALIFIED
+            | T_TYPE_PARAMETERS | P_COMPRESSED;
+
+        MethodHistoryEntry(Object[] inputElements)
+        {
+            super(inputElements);
+        }
+
+        @SuppressWarnings("restriction")
+        @Override
+        public ImageDescriptor getImageDescriptor()
+        {
+            Object firstElement = getInputElements()[0];
+            if (firstElement instanceof IMethod)
+            {
+                org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider imageProvider =
+                    new org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider();
+                ImageDescriptor desc = imageProvider.getBaseImageDescriptor(
+                    (IMethod)firstElement, 0);
+                imageProvider.dispose();
+                return desc;
+            }
+            return super.getImageDescriptor();
+        }
+
+        @Override
+        protected String getElementLabel(Object element)
+        {
+            if (element instanceof IMethod)
+                return JavaElementLabels.getTextLabel(element, LABEL_FLAGS);
+
+            return super.getElementLabel(element);
+        }
     }
 
     private static class MethodLabelProvider

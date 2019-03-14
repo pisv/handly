@@ -25,6 +25,9 @@ class Messages
     public static String CallHierarchyViewPart_Error_opening_editor;
     public static String CallHierarchyViewPart_Focus_on_selection_action_text;
     public static String CallHierarchyViewPart_Focus_on_selection_action_tooltip;
+    public static String CallHierarchyViewPart_History_entry_label__0;
+    public static String CallHierarchyViewPart_History_entry_label__0__1;
+    public static String CallHierarchyViewPart_History_entry_label__0__1_more;
     public static String CallHierarchyViewPart_Info_column_header;
     public static String CallHierarchyViewPart_Layout_automatic_action_text;
     public static String CallHierarchyViewPart_Layout_automatic_action_tooltip;

@@ -33,6 +33,8 @@ public class Activator
     private static final String T_OBJ = "/obj16/"; //$NON-NLS-1$
     private static final String T_OVR = "/ovr16/"; //$NON-NLS-1$
 
+    public static final String IMG_DLCL_HISTORY_LIST = PLUGIN_ID + T_DLCL
+        + "history_list.png"; //$NON-NLS-1$
     public static final String IMG_DLCL_REFRESH = PLUGIN_ID + T_DLCL
         + "refresh.png"; //$NON-NLS-1$
 
@@ -48,6 +50,8 @@ public class Activator
         + "ch_vertical.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_EXPANDALL = PLUGIN_ID + T_ELCL
         + "expandall.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_HISTORY_LIST = PLUGIN_ID + T_ELCL
+        + "history_list.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_LEXICAL_SORT = PLUGIN_ID + T_ELCL
         + "lexical_sort.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_REFRESH = PLUGIN_ID + T_ELCL
@@ -112,6 +116,8 @@ public class Activator
     @Override
     protected void initializeImageRegistry(ImageRegistry reg)
     {
+        reg.put(IMG_DLCL_HISTORY_LIST, imageDescriptorFromSymbolicName(
+            IMG_DLCL_HISTORY_LIST));
         reg.put(IMG_DLCL_REFRESH, imageDescriptorFromSymbolicName(
             IMG_DLCL_REFRESH));
 
@@ -127,6 +133,8 @@ public class Activator
             IMG_ELCL_CH_VERTICAL));
         reg.put(IMG_ELCL_EXPANDALL, imageDescriptorFromSymbolicName(
             IMG_ELCL_EXPANDALL));
+        reg.put(IMG_ELCL_HISTORY_LIST, imageDescriptorFromSymbolicName(
+            IMG_ELCL_HISTORY_LIST));
         reg.put(IMG_ELCL_LEXICAL_SORT, imageDescriptorFromSymbolicName(
             IMG_ELCL_LEXICAL_SORT));
         reg.put(IMG_ELCL_REFRESH, imageDescriptorFromSymbolicName(

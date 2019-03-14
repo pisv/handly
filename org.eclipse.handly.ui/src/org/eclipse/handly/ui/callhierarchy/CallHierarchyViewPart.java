@@ -12,14 +12,25 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.callhierarchy;
 
+import static org.eclipse.handly.context.Contexts.of;
+import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 
+import org.eclipse.core.runtime.Adapters;
 import org.eclipse.handly.internal.ui.Activator;
+import org.eclipse.handly.model.Elements;
+import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.handly.ui.DefaultEditorUtility;
 import org.eclipse.handly.ui.EditorOpener;
 import org.eclipse.handly.ui.EditorUtility;
+import org.eclipse.handly.ui.action.HistoryDropDownAction;
 import org.eclipse.handly.ui.viewer.ColumnDescription;
 import org.eclipse.handly.ui.viewer.DelegatingSelectionProvider;
 import org.eclipse.handly.ui.viewer.LabelComparator;
@@ -32,6 +43,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnPixelData;
@@ -104,6 +116,7 @@ public abstract class CallHierarchyViewPart
     private boolean orientationAdjusted;
     private int horizontalRatio = 500, verticalRatio = 500;
     private Object[] inputElements = NO_ELEMENTS;
+    private List<HistoryEntry> history;
     private PageBook pageBook;
     private Control noHierarchyPage;
     private SashForm sashForm;
@@ -118,6 +131,7 @@ public abstract class CallHierarchyViewPart
             new SetOrientationAction(SWT.HORIZONTAL), new SetOrientationAction(
                 ORIENTATION_AUTO) };
     private FocusOnSelectionAction focusOnSelectionAction;
+    private HistoryDropDownAction<HistoryEntry> historyDropDownAction;
 
     /**
      * Constructs a call hierarchy view that supports all of the
@@ -169,7 +183,7 @@ public abstract class CallHierarchyViewPart
      * <p>
      * Subclasses may impose additional restrictions on what elements
      * may be used as the input elements. Default implementation invokes
-     * {@link #refresh()} if the view input has changed.
+     * {@link #refresh()} after the input elements have been set.
      * </p>
      *
      * @param elements not <code>null</code>; must not contain null elements
@@ -183,10 +197,9 @@ public abstract class CallHierarchyViewPart
         if (ArrayUtil.contains(elements, null))
             throw new IllegalArgumentException(Arrays.toString(elements));
 
-        Object[] oldElements = inputElements;
         inputElements = elements;
-        if (Arrays.equals(oldElements, elements))
-            return;
+        if (elements.length > 0)
+            addHistoryEntry(createHistoryEntry(elements));
         refresh();
     }
 
@@ -472,6 +485,54 @@ public abstract class CallHierarchyViewPart
 
         for (SetOrientationAction action : setOrientationActions)
             addSetOrientationAction(action, action.orientation);
+
+        historyDropDownAction = createHistoryDropDownAction(
+            new HistoryDropDownAction.History<HistoryEntry>()
+            {
+                @Override
+                public List<HistoryEntry> getHistoryEntries()
+                {
+                    return getHistory();
+                }
+
+                @Override
+                public void setHistoryEntries(List<HistoryEntry> entries)
+                {
+                    List<HistoryEntry> history = getHistory();
+                    history.clear();
+                    history.addAll(entries);
+                    historyUpdated();
+                }
+
+                @Override
+                public HistoryEntry getActiveEntry()
+                {
+                    Object[] inputElements = getInputElements();
+                    if (inputElements.length == 0)
+                        return null;
+                    return createHistoryEntry(inputElements);
+                }
+
+                @Override
+                public void setActiveEntry(HistoryEntry entry)
+                {
+                    setInputElements(entry.getInputElements());
+                }
+
+                @Override
+                public String getLabel(HistoryEntry entry)
+                {
+                    return entry.getLabel();
+                }
+
+                @Override
+                public ImageDescriptor getImageDescriptor(HistoryEntry entry)
+                {
+                    return entry.getImageDescriptor();
+                }
+            });
+        historyDropDownAction.setEnabled(false);
+        addHistoryDropDownAction(historyDropDownAction);
 
         refresh();
     }
@@ -1088,6 +1149,100 @@ public abstract class CallHierarchyViewPart
         layoutSubMenu.add(action);
     }
 
+    /**
+     * Creates and returns a 'show history list' action for this view.
+     * This method is called once, when the part's control is created.
+     * <p>
+     * Subclasses need to override this method if they extend
+     * {@link HistoryDropDownAction}.
+     * </p>
+     *
+     * @param history never <code>null</code>
+     * @return the created action (not <code>null</code>)
+     */
+    protected HistoryDropDownAction<HistoryEntry> createHistoryDropDownAction(
+        HistoryDropDownAction.History<HistoryEntry> history)
+    {
+        return new HistoryDropDownAction<>(history);
+    }
+
+    /**
+     * Contributes the 'show history list' action to this view.
+     * This method is called once, when the part's control is created.
+     * <p>
+     * Default implementation adds the given action to the view tool bar.
+     * Subclasses may extend or override this method.
+     * </p>
+     *
+     * @param action the 'show history list' action (never <code>null</code>)
+     */
+    protected void addHistoryDropDownAction(IAction action)
+    {
+        getViewSite().getActionBars().getToolBarManager().add(action);
+    }
+
+    /**
+     * Returns the history used by this view. The history is represented by
+     * a "live" list of history entries.
+     * <p>
+     * Default implementation returns a history that is private for this view.
+     * Subclasses may override this method and return a history that is shared
+     * between multiple view instances. In that case, subclasses will probably
+     * also want to override the {@link #historyUpdated()} method to notify
+     * other view instances about the update of the shared history.
+     * </p>
+     *
+     * @return the view history (never <code>null</code>)
+     */
+    protected List<HistoryEntry> getHistory()
+    {
+        if (history == null)
+            history = new ArrayList<>();
+        return history;
+    }
+
+    /**
+     * Creates and returns a history entry for the given input elements.
+     * <p>
+     * Default implementation returns a new instance of the basic {@link
+     * HistoryEntry} class. Subclasses may and usually need to override this
+     * method and return a more descriptive, model-specific history entry.
+     * </p>
+     *
+     * @param inputElements never <code>null</code>; never empty
+     * @return the created history entry (not <code>null</code>)
+     */
+    protected HistoryEntry createHistoryEntry(Object[] inputElements)
+    {
+        return new HistoryEntry(inputElements);
+    }
+
+    /**
+     * Notifies that the history has been updated by this view.
+     * <p>
+     * Default implementation sets the enabled state of the 'show history list'
+     * action according to whether the history is empty and, if the history
+     * is empty, clears the view input.
+     * </p>
+     *
+     * @see #getHistory()
+     */
+    protected void historyUpdated()
+    {
+        boolean empty = getHistory().isEmpty();
+        historyDropDownAction.setEnabled(!empty);
+        if (empty)
+            setInputElements(NO_ELEMENTS);
+    }
+
+    private void addHistoryEntry(HistoryEntry entry)
+    {
+        List<HistoryEntry> history = getHistory();
+        history.remove(entry);
+        history.add(0, entry);
+        historyUpdated();
+    }
+
     private void initContextMenu(Control parent, IMenuListener listener,
         String menuId, ISelectionProvider selectionProvider)
     {
@@ -1108,6 +1263,123 @@ public abstract class CallHierarchyViewPart
                 return ss.getFirstElement();
         }
         return null;
+    }
+
+    /**
+     * Represents an entry of the history list.
+     */
+    protected static class HistoryEntry
+    {
+        private final Object[] inputElements;
+
+        /**
+         * Constructs a history entry for the given input elements.
+         * Clients <b>must not</b> modify the given array afterwards.
+         *
+         * @param inputElements never <code>null</code>; never empty
+         */
+        public HistoryEntry(Object[] inputElements)
+        {
+            if (inputElements.length == 0)
+                throw new AssertionError();
+            this.inputElements = inputElements;
+        }
+
+        /**
+         * Returns the input elements for this history entry.
+         *
+         * @return the input elements (never <code>null</code>; never empty).
+         *  Clients <b>must not</b> modify the returned array.
+         */
+        public Object[] getInputElements()
+        {
+            return inputElements;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            HistoryEntry other = (HistoryEntry)obj;
+            if (!Arrays.equals(inputElements, other.inputElements))
+                return false;
+            return true;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + Arrays.hashCode(inputElements);
+            return result;
+        }
+
+        /**
+         * Returns a user-readable text label for this history entry.
+         * <p>
+         * Default implementation invokes {@link #getElementLabel(Object)}
+         * to obtain a label for an input element.
+         * </p>
+         *
+         * @return the text label of the history entry (never <code>null</code>)
+         */
+        public String getLabel()
+        {
+            switch (inputElements.length)
+            {
+            case 1:
+                return MessageFormat.format(
+                    Messages.CallHierarchyViewPart_History_entry_label__0,
+                    getElementLabel(inputElements[0]));
+            case 2:
+                return MessageFormat.format(
+                    Messages.CallHierarchyViewPart_History_entry_label__0__1,
+                    getElementLabel(inputElements[0]), getElementLabel(
+                        inputElements[1]));
+            default:
+                return MessageFormat.format(
+                    Messages.CallHierarchyViewPart_History_entry_label__0__1_more,
+                    getElementLabel(inputElements[0]), getElementLabel(
+                        inputElements[1]));
+            }
+        }
+
+        /**
+         * Returns a user-readable text label for the given element.
+         *
+         * @param element a given element
+         * @return the text label of the element (never <code>null</code>)
+         */
+        protected String getElementLabel(Object element)
+        {
+            IElement adapterElement = Adapters.adapt(element, IElement.class);
+            if (adapterElement != null)
+            {
+                return Elements.toDisplayString(adapterElement, of(FORMAT_STYLE,
+                    MEDIUM));
+            }
+            return String.valueOf(element);
+        }
+
+        /**
+         * Returns an image descriptor for this history entry.
+         * <p>
+         * Default implementation always returns <code>null</code>.
+         * </p>
+         *
+         * @return the image descriptor of the history entry
+         *  (may be <code>null</code>)
+         */
+        public ImageDescriptor getImageDescriptor()
+        {
+            return null;
+        }
     }
 
     /**
