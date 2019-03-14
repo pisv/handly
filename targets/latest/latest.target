@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
-   Copyright (c) 2014, 2018 1C-Soft LLC and others.
+   Copyright (c) 2014, 2019 1C-Soft LLC and others.
 
    This program and the accompanying materials are made available under
    the terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,7 @@
 <repository location="http://download.eclipse.org/cbi/updates/license/2.0.1.v20180423-1114"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/2018-12"/>
+<repository location="http://download.eclipse.org/staging/2019-03"/>
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.draw2d" version="0.0.0"/>
 <unit id="org.eclipse.ecf" version="0.0.0"/>
