@@ -537,8 +537,9 @@ public class HistoryDropDownAction<E>
 
         private void setTableSelection()
         {
-            ISelection sel = historyList.isEmpty() ? StructuredSelection.EMPTY
-                : new StructuredSelection(historyList.get(0));
+            E activeEntry = history.getActiveEntry();
+            ISelection sel = activeEntry == null ? StructuredSelection.EMPTY
+                : new StructuredSelection(activeEntry);
             historyViewer.setSelection(sel, true);
         }
     }
