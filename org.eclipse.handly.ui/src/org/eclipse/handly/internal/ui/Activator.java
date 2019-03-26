@@ -54,6 +54,8 @@ public class Activator
         + "history_list.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_LEXICAL_SORT = PLUGIN_ID + T_ELCL
         + "lexical_sort.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_PIN_VIEW = PLUGIN_ID + T_ELCL
+        + "pin_view.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_REFRESH = PLUGIN_ID + T_ELCL
         + "refresh.png"; //$NON-NLS-1$
 
@@ -137,6 +139,8 @@ public class Activator
             IMG_ELCL_HISTORY_LIST));
         reg.put(IMG_ELCL_LEXICAL_SORT, imageDescriptorFromSymbolicName(
             IMG_ELCL_LEXICAL_SORT));
+        reg.put(IMG_ELCL_PIN_VIEW, imageDescriptorFromSymbolicName(
+            IMG_ELCL_PIN_VIEW));
         reg.put(IMG_ELCL_REFRESH, imageDescriptorFromSymbolicName(
             IMG_ELCL_REFRESH));
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -15,7 +15,6 @@ package org.eclipse.handly.internal.examples.adapter.ui.callhierarchy;
 import org.eclipse.handly.internal.examples.adapter.ui.Activator;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -50,20 +49,15 @@ public final class OpenCallHierarchyAction
         IWorkbenchPage page = window.getActivePage();
         if (page == null)
             return;
-        IViewPart view;
         try
         {
-            view = page.showView(JavaCallHierarchyView.ID);
+            JavaCallHierarchyViewManager.INSTANCE.openView(page,
+                getStructuredSelection().toArray());
         }
         catch (PartInitException e)
         {
             Activator.log(e.getStatus());
-            return;
         }
-        if (!(view instanceof JavaCallHierarchyView))
-            return; // probably an ErrorViewPart
-        ((JavaCallHierarchyView)view).setInputElements(
-            getStructuredSelection().toArray());
     }
 
     @Override

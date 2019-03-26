@@ -17,7 +17,6 @@ import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -75,9 +74,11 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
@@ -116,7 +117,7 @@ public abstract class CallHierarchyViewPart
     private boolean orientationAdjusted;
     private int horizontalRatio = 500, verticalRatio = 500;
     private Object[] inputElements = NO_ELEMENTS;
-    private List<HistoryEntry> history;
+    private boolean pinned;
     private PageBook pageBook;
     private Control noHierarchyPage;
     private SashForm sashForm;
@@ -132,6 +133,39 @@ public abstract class CallHierarchyViewPart
                 ORIENTATION_AUTO) };
     private FocusOnSelectionAction focusOnSelectionAction;
     private HistoryDropDownAction<HistoryEntry> historyDropDownAction;
+    private final PinAction pinAction = new PinAction();
+
+    private final IPartListener partListener = new IPartListener()
+    {
+        @Override
+        public void partActivated(IWorkbenchPart part)
+        {
+            if (part == CallHierarchyViewPart.this)
+                getViewManager().viewActivated(CallHierarchyViewPart.this);
+        }
+
+        @Override
+        public void partClosed(IWorkbenchPart part)
+        {
+            if (part == CallHierarchyViewPart.this)
+                getViewManager().viewClosed(CallHierarchyViewPart.this);
+        }
+
+        @Override
+        public void partOpened(IWorkbenchPart part)
+        {
+        }
+
+        @Override
+        public void partDeactivated(IWorkbenchPart part)
+        {
+        }
+
+        @Override
+        public void partBroughtToTop(IWorkbenchPart part)
+        {
+        }
+    };
 
     /**
      * Constructs a call hierarchy view that supports all of the
@@ -339,6 +373,27 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
+     * Marks this view as pinned.
+     *
+     * @param pinned whether the view is pinned
+     */
+    public void setPinned(boolean pinned)
+    {
+        this.pinned = pinned;
+    }
+
+    /**
+     * Returns whether this view is pinned.
+     *
+     * @return <code>true</code> if the view is pinned,
+     *  and <code>false</code> otherwise
+     */
+    public final boolean isPinned()
+    {
+        return pinned;
+    }
+
+    /**
      * Performs a full refresh of the content of this view.
      * <p>
      * Default implementation does nothing if the SWT controls for this view
@@ -424,6 +479,8 @@ public abstract class CallHierarchyViewPart
     @Override
     public void createPartControl(Composite parent)
     {
+        getSite().getPage().addPartListener(partListener);
+
         parent.addControlListener(new ControlAdapter()
         {
             @Override
@@ -501,7 +558,7 @@ public abstract class CallHierarchyViewPart
                     List<HistoryEntry> history = getHistory();
                     history.clear();
                     history.addAll(entries);
-                    historyUpdated();
+                    notifyHistoryUpdated();
                 }
 
                 @Override
@@ -531,10 +588,20 @@ public abstract class CallHierarchyViewPart
                     return entry.getImageDescriptor();
                 }
             });
-        historyDropDownAction.setEnabled(false);
+        historyDropDownAction.setEnabled(!getHistory().isEmpty());
         addHistoryDropDownAction(historyDropDownAction);
 
+        addPinAction(pinAction);
+
         refresh();
+    }
+
+    @Override
+    public void dispose()
+    {
+        getSite().getPage().removePartListener(partListener);
+
+        super.dispose();
     }
 
     @Override
@@ -542,6 +609,14 @@ public abstract class CallHierarchyViewPart
     {
         pageBook.setFocus();
     }
+
+    /**
+     * Returns a {@link CallHierarchyViewManager} for this view.
+     * The same manager instance is returned for each call.
+     *
+     * @return the view manager (never <code>null</code>)
+     */
+    protected abstract CallHierarchyViewManager getViewManager();
 
     /**
      * Returns a new call hierarchy object based on the current input elements
@@ -1182,23 +1257,33 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
+     * Contributes the 'pin' action to this view.
+     * This method is called once, when the part's control is created.
+     * <p>
+     * Default implementation adds the given action to the view tool bar.
+     * Subclasses may extend or override this method.
+     * </p>
+     *
+     * @param action the 'pin' action (never <code>null</code>)
+     */
+    protected void addPinAction(IAction action)
+    {
+        getViewSite().getActionBars().getToolBarManager().add(action);
+    }
+
+    /**
      * Returns the history used by this view. The history is represented by
      * a "live" list of history entries.
      * <p>
-     * Default implementation returns a history that is private for this view.
-     * Subclasses may override this method and return a history that is shared
-     * between multiple view instances. In that case, subclasses will probably
-     * also want to override the {@link #historyUpdated()} method to notify
-     * other view instances about the update of the shared history.
+     * Default implementation returns a history that is shared between all
+     * views managed by the same {@link #getViewManager() view manager}.
      * </p>
      *
      * @return the view history (never <code>null</code>)
      */
     protected List<HistoryEntry> getHistory()
     {
-        if (history == null)
-            history = new ArrayList<>();
-        return history;
+        return getViewManager().getViewHistory();
     }
 
     /**
@@ -1220,12 +1305,31 @@ public abstract class CallHierarchyViewPart
     /**
      * Notifies that the history has been updated by this view.
      * <p>
+     * Default implementation calls {@link #historyUpdated()} for each view
+     * managed by the same {@link #getViewManager() view manager}.
+     * </p>
+     *
+     * @see #getHistory()
+     */
+    protected void notifyHistoryUpdated()
+    {
+        List<CallHierarchyViewPart> views = getViewManager().getViews();
+        for (CallHierarchyViewPart view : views)
+        {
+            view.historyUpdated();
+        }
+    }
+
+    /**
+     * A callback that is invoked when the history has been updated.
+     * <p>
      * Default implementation sets the enabled state of the 'show history list'
      * action according to whether the history is empty and, if the history
      * is empty, clears the view input.
      * </p>
      *
      * @see #getHistory()
+     * @see #notifyHistoryUpdated()
      */
     protected void historyUpdated()
     {
@@ -1240,7 +1344,7 @@ public abstract class CallHierarchyViewPart
         List<HistoryEntry> history = getHistory();
         history.remove(entry);
         history.add(0, entry);
-        historyUpdated();
+        notifyHistoryUpdated();
     }
 
     private void initContextMenu(Control parent, IMenuListener listener,
@@ -1266,9 +1370,9 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Represents an entry of the history list.
+     * Represents an entry of the call hierarchy view history list.
      */
-    protected static class HistoryEntry
+    public static class HistoryEntry
     {
         private final Object[] inputElements;
 
@@ -1523,7 +1627,7 @@ public abstract class CallHierarchyViewPart
 
         SetHierarchyKindAction(CallHierarchyKind kind)
         {
-            super("", AS_RADIO_BUTTON); //$NON-NLS-1$
+            super(null, AS_RADIO_BUTTON);
             this.kind = kind;
             switch (kind)
             {
@@ -1560,7 +1664,7 @@ public abstract class CallHierarchyViewPart
 
         SetOrientationAction(int orientation)
         {
-            super("", AS_RADIO_BUTTON); //$NON-NLS-1$
+            super(null, AS_RADIO_BUTTON);
             this.orientation = orientation;
             switch (orientation)
             {
@@ -1595,6 +1699,25 @@ public abstract class CallHierarchyViewPart
         public void run()
         {
             setOrientation(orientation);
+        }
+    }
+
+    private class PinAction
+        extends Action
+    {
+        PinAction()
+        {
+            super(Messages.CallHierarchyViewPart_Pin_action_text,
+                IAction.AS_CHECK_BOX);
+            setToolTipText(Messages.CallHierarchyViewPart_Pin_action_tooltip);
+            setImageDescriptor(Activator.getImageDescriptor(
+                Activator.IMG_ELCL_PIN_VIEW));
+        }
+
+        @Override
+        public void run()
+        {
+            setPinned(isChecked());
         }
     }
 }

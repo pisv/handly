@@ -29,6 +29,7 @@ import org.eclipse.handly.ui.EditorOpener;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchy;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyKind;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyLabelProvider;
+import org.eclipse.handly.ui.callhierarchy.CallHierarchyViewManager;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyViewPart;
 import org.eclipse.handly.ui.callhierarchy.ICallHierarchy;
 import org.eclipse.handly.ui.callhierarchy.ICallHierarchyNode;
@@ -76,6 +77,12 @@ public final class JavaCallHierarchyView
             throw new IllegalArgumentException();
 
         super.setInputElements(elements);
+    }
+
+    @Override
+    protected CallHierarchyViewManager getViewManager()
+    {
+        return JavaCallHierarchyViewManager.INSTANCE;
     }
 
     @Override

@@ -38,6 +38,8 @@ class Messages
     public static String CallHierarchyViewPart_Layout_vertical_action_tooltip;
     public static String CallHierarchyViewPart_Line_column_header;
     public static String CallHierarchyViewPart_No_hierarchy_to_display;
+    public static String CallHierarchyViewPart_Pin_action_text;
+    public static String CallHierarchyViewPart_Pin_action_tooltip;
     public static String CallHierarchyViewPart_Refresh_action_text;
     public static String CallHierarchyViewPart_Refresh_action_tooltip;
     public static String CallHierarchyViewPart_Show_call_location;
