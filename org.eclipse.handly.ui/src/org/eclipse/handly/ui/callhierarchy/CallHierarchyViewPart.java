@@ -19,6 +19,7 @@ import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Adapters;
@@ -77,10 +78,12 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.PageBook;
@@ -125,6 +128,8 @@ public abstract class CallHierarchyViewPart
     private TableViewer locationViewer;
     private EditorOpener editorOpener;
     private final RefreshAction refreshAction = new RefreshAction();
+    private final RefreshElementAction refreshElementAction =
+        new RefreshElementAction();
     private SetHierarchyKindAction[] setHierarchyKindActions =
         new SetHierarchyKindAction[0];
     private SetOrientationAction[] setOrientationActions =
@@ -537,6 +542,9 @@ public abstract class CallHierarchyViewPart
 
         addRefreshAction(refreshAction);
 
+        getViewSite().getActionBars().setGlobalActionHandler(
+            ActionFactory.REFRESH.getId(), refreshElementAction);
+
         for (SetHierarchyKindAction action : setHierarchyKindActions)
             addSetHierarchyKindAction(action, action.kind);
 
@@ -655,6 +663,7 @@ public abstract class CallHierarchyViewPart
             hierarchyViewer.getTree().setFocus();
             setContentDescription(hierarchy.getLabel());
             refreshAction.setEnabled(true);
+            refreshElementAction.setEnabled(true);
         }
         else
         {
@@ -662,6 +671,7 @@ public abstract class CallHierarchyViewPart
             pageBook.setFocus();
             setContentDescription(""); //$NON-NLS-1$
             refreshAction.setEnabled(false);
+            refreshElementAction.setEnabled(false);
         }
     }
 
@@ -816,6 +826,8 @@ public abstract class CallHierarchyViewPart
     {
         if (focusOnSelectionAction.isEnabled())
             manager.appendToGroup(GROUP_FOCUS, focusOnSelectionAction);
+
+        manager.appendToGroup(GROUP_FOCUS, refreshElementAction);
     }
 
     /**
@@ -1617,6 +1629,40 @@ public abstract class CallHierarchyViewPart
         public void run()
         {
             refresh();
+        }
+    }
+
+    private class RefreshElementAction
+        extends Action
+    {
+        RefreshElementAction()
+        {
+            setText(Messages.CallHierarchyViewPart_Refresh_element_action_text);
+            setToolTipText(
+                Messages.CallHierarchyViewPart_Refresh_element_action_tooltip);
+            setImageDescriptor(Activator.getImageDescriptor(
+                Activator.IMG_ELCL_REFRESH));
+            setActionDefinitionId(IWorkbenchCommandConstants.FILE_REFRESH);
+        }
+
+        @Override
+        public void run()
+        {
+            IStructuredSelection selection =
+                hierarchyViewer.getStructuredSelection();
+            if (selection.isEmpty())
+                refresh();
+            else
+            {
+                Iterator<?> it = selection.iterator();
+                while (it.hasNext())
+                {
+                    Object e = it.next();
+                    if (e instanceof ICallHierarchyNode)
+                        ((ICallHierarchyNode)e).refresh();
+                    hierarchyViewer.refresh(e);
+                }
+            }
         }
     }
 

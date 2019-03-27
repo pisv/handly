@@ -42,6 +42,8 @@ class Messages
     public static String CallHierarchyViewPart_Pin_action_tooltip;
     public static String CallHierarchyViewPart_Refresh_action_text;
     public static String CallHierarchyViewPart_Refresh_action_tooltip;
+    public static String CallHierarchyViewPart_Refresh_element_action_text;
+    public static String CallHierarchyViewPart_Refresh_element_action_tooltip;
     public static String CallHierarchyViewPart_Show_call_location;
     public static String CallHierarchyViewPart_Show_callee_hierarchy_action_text;
     public static String CallHierarchyViewPart_Show_callee_hierarchy_action_tooltip;

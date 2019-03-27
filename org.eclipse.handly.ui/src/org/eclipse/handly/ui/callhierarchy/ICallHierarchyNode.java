@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -148,4 +148,17 @@ public interface ICallHierarchyNode
      *  may be empty). Clients <b>must not</b> modify the returned array.
      */
     ICallHierarchyNode[] getChildren(IProgressMonitor monitor);
+
+    /**
+     * Informs this node that it is about to be refreshed in a structured
+     * viewer.
+     * <p>
+     * Default implementation does nothing.
+     * </p>
+     *
+     * @see org.eclipse.jface.viewers.StructuredViewer#refresh(Object)
+     */
+    default void refresh()
+    {
+    }
 }
