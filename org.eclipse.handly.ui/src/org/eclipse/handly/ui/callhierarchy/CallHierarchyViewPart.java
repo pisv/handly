@@ -76,6 +76,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchCommandConstants;
@@ -83,6 +84,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
@@ -130,6 +132,8 @@ public abstract class CallHierarchyViewPart
     private final RefreshAction refreshAction = new RefreshAction();
     private final RefreshElementAction refreshElementAction =
         new RefreshElementAction();
+    private final RemoveFromViewAction removeFromViewAction =
+        new RemoveFromViewAction();
     private SetHierarchyKindAction[] setHierarchyKindActions =
         new SetHierarchyKindAction[0];
     private SetOrientationAction[] setOrientationActions =
@@ -545,6 +549,9 @@ public abstract class CallHierarchyViewPart
         getViewSite().getActionBars().setGlobalActionHandler(
             ActionFactory.REFRESH.getId(), refreshElementAction);
 
+        getViewSite().getActionBars().setGlobalActionHandler(
+            ActionFactory.DELETE.getId(), removeFromViewAction);
+
         for (SetHierarchyKindAction action : setHierarchyKindActions)
             addSetHierarchyKindAction(action, action.kind);
 
@@ -828,6 +835,10 @@ public abstract class CallHierarchyViewPart
             manager.appendToGroup(GROUP_FOCUS, focusOnSelectionAction);
 
         manager.appendToGroup(GROUP_FOCUS, refreshElementAction);
+
+        removeFromViewAction.update();
+        if (removeFromViewAction.isEnabled())
+            manager.appendToGroup(GROUP_FOCUS, removeFromViewAction);
     }
 
     /**
@@ -1663,6 +1674,36 @@ public abstract class CallHierarchyViewPart
                     hierarchyViewer.refresh(e);
                 }
             }
+        }
+    }
+
+    private class RemoveFromViewAction
+        extends Action
+    {
+        RemoveFromViewAction()
+        {
+            setText(
+                Messages.CallHierarchyViewPart_Remove_from_view_action_text);
+            setToolTipText(
+                Messages.CallHierarchyViewPart_Remove_from_view_action_tooltip);
+            ISharedImages images = PlatformUI.getWorkbench().getSharedImages();
+            setImageDescriptor(images.getImageDescriptor(
+                ISharedImages.IMG_ELCL_REMOVE));
+            setActionDefinitionId(IWorkbenchCommandConstants.EDIT_DELETE);
+        }
+
+        @Override
+        public void run()
+        {
+            Object[] elements =
+                hierarchyViewer.getStructuredSelection().toArray();
+            hierarchyViewer.setSelection(StructuredSelection.EMPTY);
+            hierarchyViewer.remove(elements);
+        }
+
+        void update()
+        {
+            setEnabled(!hierarchyViewer.getSelection().isEmpty());
         }
     }
 
