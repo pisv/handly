@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2015, 2019 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -88,14 +88,6 @@ public class LabelComparator
             return null;
         IBaseLabelProvider labelProvider =
             ((ContentViewer)viewer).getLabelProvider();
-        if (labelProvider instanceof ILabelProvider)
-            return ((ILabelProvider)labelProvider).getText(element);
-        if (labelProvider instanceof IStyledLabelProvider)
-            return ((IStyledLabelProvider)labelProvider).getStyledText(
-                element).toString();
-        if (labelProvider instanceof DelegatingStyledCellLabelProvider)
-            return ((DelegatingStyledCellLabelProvider)labelProvider).getStyledStringProvider().getStyledText(
-                element).toString();
-        return null;
+        return Util.getText(labelProvider, element);
     }
 }

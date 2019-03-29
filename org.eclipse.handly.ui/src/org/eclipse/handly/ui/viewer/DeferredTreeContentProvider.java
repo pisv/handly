@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -17,8 +17,6 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.handly.util.SerialPerObjectRule;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
-import org.eclipse.jface.viewers.IBaseLabelProvider;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -141,10 +139,7 @@ public abstract class DeferredTreeContentProvider
      */
     protected String getLabel(Object element)
     {
-        String label = null;
-        IBaseLabelProvider labelProvider = viewer.getLabelProvider();
-        if (labelProvider instanceof ILabelProvider)
-            label = ((ILabelProvider)labelProvider).getText(element);
+        String label = Util.getText(viewer.getLabelProvider(), element);
         return label != null ? label : ""; //$NON-NLS-1$
     }
 
