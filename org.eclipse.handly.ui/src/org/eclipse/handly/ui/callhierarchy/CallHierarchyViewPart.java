@@ -90,6 +90,7 @@ import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.PendingUpdateAdapter;
 
 /**
  * An abstract base implementation of a call hierarchy view.
@@ -1535,7 +1536,13 @@ public abstract class CallHierarchyViewPart
         @Override
         protected boolean updateSelection(IStructuredSelection selection)
         {
-            return !selection.isEmpty();
+            if (selection.isEmpty())
+                return false;
+            Object[] elements = selection.toArray();
+            if (ArrayUtil.hasElementsOfType(elements,
+                PendingUpdateAdapter.class))
+                return false;
+            return true;
         }
     }
 
