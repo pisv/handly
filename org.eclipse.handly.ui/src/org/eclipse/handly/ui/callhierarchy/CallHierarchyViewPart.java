@@ -1396,7 +1396,7 @@ public abstract class CallHierarchyViewPart
     /**
      * Represents an entry of the call hierarchy view history list.
      */
-    public static class HistoryEntry
+    protected static class HistoryEntry
     {
         private final Object[] inputElements;
 
@@ -1406,7 +1406,7 @@ public abstract class CallHierarchyViewPart
          *
          * @param inputElements never <code>null</code>; never empty
          */
-        public HistoryEntry(Object[] inputElements)
+        protected HistoryEntry(Object[] inputElements)
         {
             if (inputElements.length == 0)
                 throw new AssertionError();
