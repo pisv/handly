@@ -34,7 +34,6 @@ import org.eclipse.handly.ui.action.HistoryDropDownAction;
 import org.eclipse.handly.ui.viewer.ColumnDescription;
 import org.eclipse.handly.ui.viewer.DelegatingSelectionProvider;
 import org.eclipse.handly.ui.viewer.LabelComparator;
-import org.eclipse.handly.util.ArrayUtil;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -90,7 +89,6 @@ import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.progress.PendingUpdateAdapter;
 
 /**
  * An abstract base implementation of a call hierarchy view.
@@ -222,23 +220,57 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
+     * Returns whether the given elements are possible input elements for this view.
+     * This method invokes {@link #isPossibleInputElement(Object)} for each of
+     * the given elements until all elements have been checked (in which case
+     * it returns <code>true</code>) or <code>false</code> is returned for
+     * an element (in which case it returns <code>false</code>).
+     *
+     * @param elements may be <code>null</code> or may contain null elements,
+     *  in which case <code>false</code> will be returned; may be empty,
+     *  in which case <code>true</code> will be returned
+     * @return <code>true</code> if the given elements are possible input elements
+     *  for this view, and <code>false</code> otherwise
+     */
+    public final boolean arePossibleInputElements(Object[] elements)
+    {
+        if (elements == null)
+            return false;
+        for (Object element : elements)
+        {
+            if (!isPossibleInputElement(element))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns whether the given element is a possible input element for this view.
+     *
+     * @param element may be <code>null</code>, in which case <code>false</code>
+     *  will be returned
+     * @return <code>true</code> if the given element is a possible input element
+     *  for this view, and <code>false</code> otherwise
+     * @see #arePossibleInputElements(Object[])
+     */
+    protected abstract boolean isPossibleInputElement(Object element);
+
+    /**
      * Sets the current input elements for this view. Clients <b>must not</b>
      * modify the given array afterwards.
      * <p>
-     * Subclasses may impose additional restrictions on what elements
-     * may be used as the input elements. Default implementation invokes
-     * {@link #refresh()} after the input elements have been set.
+     * Default implementation invokes {@link #refresh()} after the input elements
+     * have been set.
      * </p>
      *
-     * @param elements not <code>null</code>; must not contain null elements
-     * @throws IllegalArgumentException if some property of an element
-     *  prevents it from being used as an input element
+     * @param elements not <code>null</code>, must not contain null elements;
+     *  may be empty
+     * @throws IllegalArgumentException if {@link #arePossibleInputElements(Object[])}
+     *  returns <code>false</code> for the given elements
      */
     public void setInputElements(Object[] elements)
     {
-        if (elements == null)
-            throw new IllegalArgumentException();
-        if (ArrayUtil.contains(elements, null))
+        if (!arePossibleInputElements(elements))
             throw new IllegalArgumentException(Arrays.toString(elements));
 
         inputElements = elements;
@@ -1536,13 +1568,8 @@ public abstract class CallHierarchyViewPart
         @Override
         protected boolean updateSelection(IStructuredSelection selection)
         {
-            if (selection.isEmpty())
-                return false;
-            Object[] elements = selection.toArray();
-            if (ArrayUtil.hasElementsOfType(elements,
-                PendingUpdateAdapter.class))
-                return false;
-            return true;
+            return !selection.isEmpty() && arePossibleInputElements(
+                selection.toArray());
         }
     }
 

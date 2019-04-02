@@ -33,7 +33,6 @@ import org.eclipse.handly.ui.callhierarchy.CallHierarchyViewManager;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyViewPart;
 import org.eclipse.handly.ui.callhierarchy.ICallHierarchy;
 import org.eclipse.handly.ui.callhierarchy.ICallHierarchyNode;
-import org.eclipse.handly.util.ArrayUtil;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jdt.ui.JavaElementLabels;
@@ -69,14 +68,9 @@ public final class JavaCallHierarchyView
     }
 
     @Override
-    public void setInputElements(Object[] elements)
+    public boolean isPossibleInputElement(Object element)
     {
-        if (elements == null)
-            throw new IllegalArgumentException();
-        if (ArrayUtil.hasElementsNotOfType(elements, IMethod.class))
-            throw new IllegalArgumentException();
-
-        super.setInputElements(elements);
+        return element instanceof IMethod;
     }
 
     @Override
