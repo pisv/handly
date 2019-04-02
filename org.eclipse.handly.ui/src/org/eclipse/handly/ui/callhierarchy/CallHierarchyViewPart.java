@@ -139,7 +139,8 @@ public abstract class CallHierarchyViewPart
         new SetOrientationAction[] { new SetOrientationAction(SWT.VERTICAL),
             new SetOrientationAction(SWT.HORIZONTAL), new SetOrientationAction(
                 ORIENTATION_AUTO) };
-    private FocusOnSelectionAction focusOnSelectionAction;
+    private final FocusOnSelectionAction focusOnSelectionAction =
+        new FocusOnSelectionAction();
     private HistoryDropDownAction<HistoryEntry> historyDropDownAction;
     private final PinAction pinAction = new PinAction();
 
@@ -574,7 +575,6 @@ public abstract class CallHierarchyViewPart
 
         editorOpener = createEditorOpener();
 
-        focusOnSelectionAction = createFocusOnSelectionAction();
         selectionProvider.addSelectionChangedListener(focusOnSelectionAction);
 
         addRefreshAction(refreshAction);
@@ -856,8 +856,9 @@ public abstract class CallHierarchyViewPart
      * created in {@link #createHierarchyViewerMenuGroups(IMenuManager)}.
      * This method is called each time the pop-up menu is about to show.
      * <p>
-     * Default implementation appends the 'focus on selection' action to
-     * the focus group. Subclasses may extend or override this method.
+     * Default implementation appends generic actions such as
+     * 'focus on selection', 'refresh element', and 'remove from view'.
+     * Subclasses may extend or override this method.
      * </p>
      *
      * @param manager the menu manager (never <code>null</code>)
@@ -1187,28 +1188,11 @@ public abstract class CallHierarchyViewPart
     /**
      * Returns the 'focus on selection' action used by this view.
      *
-     * @return the 'focus on selection' action,
-     *  or <code>null</code> if it has yet to be created
-     * @see #createFocusOnSelectionAction()
+     * @return the 'focus on selection' action
      */
-    protected final FocusOnSelectionAction getFocusOnSelectionAction()
+    protected final IAction getFocusOnSelectionAction()
     {
         return focusOnSelectionAction;
-    }
-
-    /**
-     * Creates and returns a 'focus on selection' action for this view.
-     * This method is called once, when the part's control is created.
-     * <p>
-     * Subclasses need to override this method if they extend
-     * {@link FocusOnSelectionAction}.
-     * </p>
-     *
-     * @return the created action (not <code>null</code>)
-     */
-    protected FocusOnSelectionAction createFocusOnSelectionAction()
-    {
-        return new FocusOnSelectionAction();
     }
 
     /**
@@ -1542,16 +1526,10 @@ public abstract class CallHierarchyViewPart
         }
     }
 
-    /**
-     * Default implementation of the 'focus on selection' action.
-     */
-    protected class FocusOnSelectionAction
+    private class FocusOnSelectionAction
         extends BaseSelectionListenerAction
     {
-        /**
-         * Creates a new <code>FocusOnSelectionAction</code>.
-         */
-        public FocusOnSelectionAction()
+        FocusOnSelectionAction()
         {
             super(
                 Messages.CallHierarchyViewPart_Focus_on_selection_action_text);
