@@ -582,6 +582,7 @@ public abstract class CallHierarchyViewPart
         getViewSite().getActionBars().setGlobalActionHandler(
             ActionFactory.REFRESH.getId(), refreshElementAction);
 
+        hierarchyViewer.addSelectionChangedListener(removeFromViewAction);
         getViewSite().getActionBars().setGlobalActionHandler(
             ActionFactory.DELETE.getId(), removeFromViewAction);
 
@@ -870,7 +871,6 @@ public abstract class CallHierarchyViewPart
 
         manager.appendToGroup(GROUP_FOCUS, refreshElementAction);
 
-        removeFromViewAction.update();
         if (removeFromViewAction.isEnabled())
             manager.appendToGroup(GROUP_FOCUS, removeFromViewAction);
     }
@@ -1193,6 +1193,26 @@ public abstract class CallHierarchyViewPart
     protected final IAction getFocusOnSelectionAction()
     {
         return focusOnSelectionAction;
+    }
+
+    /**
+     * Returns the 'refresh element' action used by this view.
+     *
+     * @return the 'refresh element' action
+     */
+    protected final IAction getRefreshElementAction()
+    {
+        return refreshElementAction;
+    }
+
+    /**
+     * Returns the 'remove from view' action used by this view.
+     *
+     * @return the 'remove from view' action
+     */
+    protected final IAction getRemoveFromViewAction()
+    {
+        return removeFromViewAction;
     }
 
     /**
@@ -1690,12 +1710,11 @@ public abstract class CallHierarchyViewPart
     }
 
     private class RemoveFromViewAction
-        extends Action
+        extends BaseSelectionListenerAction
     {
         RemoveFromViewAction()
         {
-            setText(
-                Messages.CallHierarchyViewPart_Remove_from_view_action_text);
+            super(Messages.CallHierarchyViewPart_Remove_from_view_action_text);
             setToolTipText(
                 Messages.CallHierarchyViewPart_Remove_from_view_action_tooltip);
             ISharedImages images = PlatformUI.getWorkbench().getSharedImages();
@@ -1707,15 +1726,15 @@ public abstract class CallHierarchyViewPart
         @Override
         public void run()
         {
-            Object[] elements =
-                hierarchyViewer.getStructuredSelection().toArray();
+            Object[] elements = getStructuredSelection().toArray();
             hierarchyViewer.setSelection(StructuredSelection.EMPTY);
             hierarchyViewer.remove(elements);
         }
 
-        void update()
+        @Override
+        protected boolean updateSelection(IStructuredSelection selection)
         {
-            setEnabled(!hierarchyViewer.getSelection().isEmpty());
+            return !selection.isEmpty();
         }
     }
 
