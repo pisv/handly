@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.callhierarchy;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
@@ -23,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Adapters;
+import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
@@ -282,14 +284,9 @@ public abstract class CallHierarchyViewPart
 
     /**
      * Returns the current input elements for this view.
-     * <p>
-     * The method returns an array of exactly the same runtime type
-     * as the array given in the most recent call to {@link
-     * #setInputElements(Object[])}.
-     * </p>
      *
-     * @return the current input elements (never <code>null</code>).
-     *  Clients <b>must not</b> modify the returned array.
+     * @return the current input elements (never <code>null</code>,
+     *  may be empty). Clients <b>must not</b> modify the returned array.
      */
     public final Object[] getInputElements()
     {
@@ -439,22 +436,33 @@ public abstract class CallHierarchyViewPart
     /**
      * Performs a full refresh of the content of this view.
      * <p>
-     * Default implementation does nothing if the SWT controls for this view
-     * have not been created or have been disposed. Otherwise, it invokes
-     * {@link #createHierarchy()} followed by {@link #setHierarchy(ICallHierarchy)}.
+     * The method implementation invokes {@link #refresh(IContext)}
+     * with an empty context.
      * </p>
      */
-    public void refresh()
+    public final void refresh()
+    {
+        refresh(EMPTY_CONTEXT);
+    }
+
+    /**
+     * Performs a refresh of the content of this view according to options
+     * specified in the given context.
+     * <p>
+     * The method implementation does nothing if the SWT controls for this view
+     * have not been created or have been disposed. Otherwise, it invokes
+     * {@link #doRefresh(IContext)}.
+     * </p>
+     *
+     * @param context the operation context (never <code>null</code>)
+     */
+    protected final void refresh(IContext context)
     {
         if (hierarchyViewer == null
             || hierarchyViewer.getControl().isDisposed())
             return;
 
-        ICallHierarchy hierarchy = createHierarchy();
-        if (hierarchy != null && hierarchyKind != hierarchy.getKind())
-            throw new AssertionError();
-
-        setHierarchy(hierarchy);
+        doRefresh(context);
     }
 
     @Override
@@ -668,41 +676,78 @@ public abstract class CallHierarchyViewPart
     protected abstract CallHierarchyViewManager getViewManager();
 
     /**
-     * Returns a new call hierarchy object based on the current input elements
-     * and the current hierarchy kind for this view.
-     *
-     * @return the created call hierarchy (may be <code>null</code>)
-     * @see #getInputElements()
-     * @see #getHierarchyKind()
-     */
-    protected abstract ICallHierarchy createHierarchy();
-
-    /**
-     * Sets the call hierarchy to be shown by this view. This method may only
-     * be called after the SWT controls for this view have been created and
-     * before they have been disposed.
+     * Returns the root nodes of the current call hierarchy.
      * <p>
-     * An implementation of this method should initialize the view content
-     * accordingly.
+     * Default implementation invokes {@link #createHierarchyRoots(Object[])}
+     * for the current input elements.
      * </p>
      *
-     * @param hierarchy the call hierarchy to show (may be <code>null</code>)
+     * @return the root nodes of the current call hierarchy
+     *  (never <code>null</code>, may be empty)
      */
-    protected void setHierarchy(ICallHierarchy hierarchy)
+    protected ICallHierarchyNode[] getHierarchyRoots()
     {
+        return createHierarchyRoots(inputElements);
+    }
+
+    /**
+     * Creates and returns the root nodes for a call hierarchy based on the
+     * given input elements and the current hierarchy kind.
+     *
+     * @param elements never <code>null</code>, may be empty
+     * @return the created nodes (not <code>null</code>, may be empty)
+     */
+    protected abstract ICallHierarchyNode[] createHierarchyRoots(
+        Object[] elements);
+
+    /**
+     * Returns a comparator for the hierarchy viewer.
+     * <p>
+     * Default implementation returns a {@link LabelComparator} if the current
+     * hierarchy kind is {@link CallHierarchyKind#CALLER}, and <code>null</code>
+     * otherwise.
+     * </p>
+     *
+     * @return a {@link ViewerComparator}, or <code>null</code> for no sorting
+     */
+    protected ViewerComparator getHierarchyComparator()
+    {
+        if (getHierarchyKind() == CallHierarchyKind.CALLER)
+            return new LabelComparator(); // sort caller hierarchy alphabetically
+
+        return null;
+    }
+
+    /**
+     * Computes the content description for this view.
+     *
+     * @return the computed content description (not <code>null</code>)
+     * @see #getContentDescription()
+     */
+    protected abstract String computeContentDescription();
+
+    /**
+     * Refreshes the content of this view according to options specified in
+     * the given context. This method may only be called after the SWT controls
+     * for this view have been created and before they have been disposed.
+     *
+     * @param context the operation context (never <code>null</code>)
+     */
+    protected void doRefresh(IContext context)
+    {
+        setContentDescription(computeContentDescription());
         hierarchyViewer.setInput(null);
         locationViewer.setInput(null);
-        if (hierarchy != null)
+        if (inputElements.length > 0)
         {
             pageBook.showPage(sashForm);
-            hierarchyViewer.setComparator(getHierarchyComparator(hierarchy));
-            hierarchyViewer.setInput(hierarchy);
-            ICallHierarchyNode[] roots = hierarchy.getRoots();
+            hierarchyViewer.setComparator(getHierarchyComparator());
+            ICallHierarchyNode[] roots = getHierarchyRoots();
+            hierarchyViewer.setInput(new CallHierarchy(hierarchyKind, roots));
             if (roots.length > 0)
                 hierarchyViewer.setSelection(new StructuredSelection(roots[0]),
                     true);
             hierarchyViewer.getTree().setFocus();
-            setContentDescription(hierarchy.getLabel());
             refreshAction.setEnabled(true);
             refreshElementAction.setEnabled(true);
         }
@@ -710,29 +755,9 @@ public abstract class CallHierarchyViewPart
         {
             pageBook.showPage(noHierarchyPage);
             pageBook.setFocus();
-            setContentDescription(""); //$NON-NLS-1$
             refreshAction.setEnabled(false);
             refreshElementAction.setEnabled(false);
         }
-    }
-
-    /**
-     * Given a call hierarchy, returns a comparator for the hierarchy viewer.
-     * <p>
-     * Default implementation returns a {@link LabelComparator} if the
-     * hierarchy's kind is {@link CallHierarchyKind#CALLER}, and <code>null</code>
-     * otherwise.
-     * </p>
-     *
-     * @param hierarchy never <code>null</code>
-     * @return a {@link ViewerComparator}, or <code>null</code> for no sorting
-     */
-    protected ViewerComparator getHierarchyComparator(ICallHierarchy hierarchy)
-    {
-        if (hierarchy.getKind() == CallHierarchyKind.CALLER)
-            return new LabelComparator(); // sort caller hierarchy alphabetically
-
-        return null;
     }
 
     /**

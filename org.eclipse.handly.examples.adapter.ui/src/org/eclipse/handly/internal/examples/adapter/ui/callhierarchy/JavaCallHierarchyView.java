@@ -26,12 +26,10 @@ import java.util.EnumSet;
 import org.eclipse.handly.internal.examples.adapter.ui.Activator;
 import org.eclipse.handly.internal.examples.adapter.ui.JavaEditorUtility;
 import org.eclipse.handly.ui.EditorOpener;
-import org.eclipse.handly.ui.callhierarchy.CallHierarchy;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyKind;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyLabelProvider;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyViewManager;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyViewPart;
-import org.eclipse.handly.ui.callhierarchy.ICallHierarchy;
 import org.eclipse.handly.ui.callhierarchy.ICallHierarchyNode;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
@@ -80,36 +78,39 @@ public final class JavaCallHierarchyView
     }
 
     @Override
-    protected ICallHierarchy createHierarchy()
+    protected ICallHierarchyNode[] createHierarchyRoots(Object[] elements)
     {
-        Object[] inputElements = getInputElements();
-        int length = inputElements.length;
-        if (length == 0)
-            return null;
-
-        ICallHierarchyNode[] rootNodes = new ICallHierarchyNode[length];
+        int length = elements.length;
+        ICallHierarchyNode[] roots = new ICallHierarchyNode[length];
         for (int i = 0; i < length; i++)
         {
-            IMethod method = (IMethod)inputElements[i];
-            rootNodes[i] = JavaCallerHierarchyNode.newRootNode(method);
+            IMethod method = (IMethod)elements[i];
+            roots[i] = JavaCallerHierarchyNode.newRootNode(method);
         }
+        return roots;
+    }
 
-        String label;
-        if (length == 1)
-            label = MessageFormat.format("Methods calling ''{0}''",
-                JavaElementLabels.getTextLabel(inputElements[0],
+    @Override
+    protected String computeContentDescription()
+    {
+        Object[] elements = getInputElements();
+        switch (elements.length)
+        {
+        case 0:
+            return ""; //$NON-NLS-1$
+        case 1:
+            return MessageFormat.format("Methods calling ''{0}''",
+                JavaElementLabels.getTextLabel(elements[0],
                     JavaElementLabels.ALL_DEFAULT));
-        else if (length == 2)
-            label = MessageFormat.format("Methods calling ''{0}'', ''{1}''",
-                JavaElementLabels.getTextLabel(inputElements[0], 0),
-                JavaElementLabels.getTextLabel(inputElements[1], 0));
-        else
-            label = MessageFormat.format(
-                "Methods calling ''{0}'', ''{1}'', ...",
-                JavaElementLabels.getTextLabel(inputElements[0], 0),
-                JavaElementLabels.getTextLabel(inputElements[1], 0));
-
-        return new CallHierarchy(CallHierarchyKind.CALLER, rootNodes, label);
+        case 2:
+            return MessageFormat.format("Methods calling ''{0}'', ''{1}''",
+                JavaElementLabels.getTextLabel(elements[0], 0),
+                JavaElementLabels.getTextLabel(elements[1], 0));
+        default:
+            return MessageFormat.format("Methods calling ''{0}'', ''{1}'', ...",
+                JavaElementLabels.getTextLabel(elements[0], 0),
+                JavaElementLabels.getTextLabel(elements[1], 0));
+        }
     }
 
     @Override

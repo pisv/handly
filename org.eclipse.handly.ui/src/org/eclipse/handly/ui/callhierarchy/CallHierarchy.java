@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,8 +19,7 @@ public final class CallHierarchy
     implements ICallHierarchy
 {
     private final CallHierarchyKind kind;
-    private final ICallHierarchyNode[] roots;
-    private final String label;
+    private ICallHierarchyNode[] roots;
 
     /**
      * Creates a new call hierarchy object.
@@ -30,30 +29,14 @@ public final class CallHierarchy
      *  each node must not be <code>null</code> and must have no parent node,
      *  the kind of the node must correspond to the given call hierarchy kind).
      *  The given array <b>must not</b> be subsequently modified
-     * @param label a user-readable text label for the call hierarchy
-     *  (not <code>null</code>, may be empty)
      */
-    public CallHierarchy(CallHierarchyKind kind, ICallHierarchyNode[] roots,
-        String label)
+    public CallHierarchy(CallHierarchyKind kind, ICallHierarchyNode[] roots)
     {
         if (kind == null)
             throw new IllegalArgumentException();
-        if (roots == null)
-            throw new IllegalArgumentException();
-        for (ICallHierarchyNode root : roots)
-        {
-            if (root == null)
-                throw new IllegalArgumentException();
-            if (root.getParent() != null)
-                throw new IllegalArgumentException();
-            if (root.getKind() != kind)
-                throw new IllegalArgumentException();
-        }
-        if (label == null)
-            throw new IllegalArgumentException();
         this.kind = kind;
+        checkRoots(roots);
         this.roots = roots;
-        this.label = label;
     }
 
     @Override
@@ -68,9 +51,18 @@ public final class CallHierarchy
         return roots;
     }
 
-    @Override
-    public String getLabel()
+    private void checkRoots(ICallHierarchyNode[] roots)
     {
-        return label;
+        if (roots == null)
+            throw new IllegalArgumentException();
+        for (ICallHierarchyNode root : roots)
+        {
+            if (root == null)
+                throw new IllegalArgumentException();
+            if (root.getParent() != null)
+                throw new IllegalArgumentException();
+            if (root.getKind() != kind)
+                throw new IllegalArgumentException();
+        }
     }
 }

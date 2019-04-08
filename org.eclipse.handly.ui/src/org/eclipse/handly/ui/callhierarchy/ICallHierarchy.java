@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -31,12 +31,4 @@ public interface ICallHierarchy
      *  may be empty). Clients <b>must not</b> modify the returned array.
      */
     ICallHierarchyNode[] getRoots();
-
-    /**
-     * Returns a user-readable text label for this call hierarchy.
-     *
-     * @return the text label of the call hierarchy (never <code>null</code>,
-     *  may be empty)
-     */
-    String getLabel();
 }
