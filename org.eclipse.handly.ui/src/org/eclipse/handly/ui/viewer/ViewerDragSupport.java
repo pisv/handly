@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2019 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -14,7 +14,7 @@ package org.eclipse.handly.ui.viewer;
 
 import org.eclipse.jface.util.DelegatingDragAdapter;
 import org.eclipse.jface.util.TransferDragSourceListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceEvent;
@@ -32,8 +32,7 @@ public class ViewerDragSupport
             @Override
             public void dragStart(DragSourceEvent event)
             {
-                IStructuredSelection selection =
-                    (IStructuredSelection)viewer.getSelection();
+                ISelection selection = viewer.getSelection();
                 if (selection.isEmpty())
                 {
                     event.doit = false;
