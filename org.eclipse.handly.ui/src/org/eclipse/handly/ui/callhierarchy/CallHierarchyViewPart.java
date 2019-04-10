@@ -15,6 +15,7 @@ package org.eclipse.handly.ui.callhierarchy;
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
+import static org.eclipse.handly.util.ToStringOptions.FormatStyle.FULL;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
 import java.text.MessageFormat;
@@ -558,6 +559,10 @@ public abstract class CallHierarchyViewPart
         selectionProvider.setDelegate(hierarchyViewer);
         getSite().setSelectionProvider(selectionProvider);
 
+        selectionProvider.addSelectionChangedListener(
+            e -> getViewSite().getActionBars().getStatusLineManager().setMessage(
+                getStatusLineMessage(e.getStructuredSelection())));
+
         initContextMenu(hierarchyViewer.getControl(), (IMenuManager manager) ->
         {
             createHierarchyViewerMenuGroups(manager);
@@ -572,14 +577,10 @@ public abstract class CallHierarchyViewPart
         new OpenEditorHelper(hierarchyViewer);
         new OpenEditorHelper(locationViewer);
 
-        hierarchyViewer.addSelectionChangedListener((SelectionChangedEvent e) ->
-        {
-            hierarchySelectionChanged(e.getSelection());
-        });
-        locationViewer.addSelectionChangedListener((SelectionChangedEvent e) ->
-        {
-            locationSelectionChanged(e.getSelection());
-        });
+        hierarchyViewer.addSelectionChangedListener(
+            e -> hierarchySelectionChanged(e.getSelection()));
+        locationViewer.addSelectionChangedListener(
+            e -> locationSelectionChanged(e.getSelection()));
 
         editorOpener = createEditorOpener();
 
@@ -725,6 +726,58 @@ public abstract class CallHierarchyViewPart
      * @see #getContentDescription()
      */
     protected abstract String computeContentDescription();
+
+    /**
+     * Returns the message to show in the status line for the given selection.
+     * <p>
+     * Default implementation returns <code>null</code> if the selection is
+     * empty; delegates to {@link #getStatusLineMessageForElement(Object)}
+     * if exactly one element is selected; returns a generic message of the
+     * form "(x) items selected" otherwise. (If <code>getStatusLineMessageForElement</code>
+     * returns <code>null</code>, a generic message "1 item selected" will be
+     * returned.)
+     * </p>
+     *
+     * @param selection the current selection, as provided by the view's
+     *  selection provider (never <code>null</code>)
+     * @return the status line message, or <code>null</code> if none
+     */
+    protected String getStatusLineMessage(IStructuredSelection selection)
+    {
+        int size = selection.size();
+        if (size == 0)
+            return null;
+        if (size > 1)
+            return MessageFormat.format(
+                Messages.CallHierarchyViewPart_0__items_selected, size);
+        String message = getStatusLineMessageForElement(
+            selection.getFirstElement());
+        if (message == null)
+            return Messages.CallHierarchyViewPart_One_item_selected;
+        return message;
+    }
+
+    /**
+     * Returns the message to show in the status line for the given element.
+     * <p>
+     * Default implementation tries to provide a useful message on a best
+     * effort basis; however, subclasses may and usually need to override
+     * this method and return a more descriptive, model-specific message.
+     * </p>
+     *
+     * @param element the selected element (never <code>null</code>)
+     * @return the status line message, or <code>null</code> if not available
+     */
+    protected String getStatusLineMessageForElement(Object element)
+    {
+        IElement adapterElement = Adapters.adapt(element, IElement.class);
+        if (adapterElement != null)
+        {
+            return Elements.toDisplayString(adapterElement, of(FORMAT_STYLE,
+                FULL));
+        }
+        return null;
+    }
 
     /**
      * Refreshes the content of this view according to options specified in

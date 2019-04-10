@@ -22,6 +22,7 @@ class Messages
 
     public static String CallHierarchyLabelProvider_Element__0__matches__1;
 
+    public static String CallHierarchyViewPart_0__items_selected;
     public static String CallHierarchyViewPart_Error_opening_editor;
     public static String CallHierarchyViewPart_Focus_on_selection_action_text;
     public static String CallHierarchyViewPart_Focus_on_selection_action_tooltip;
@@ -38,6 +39,7 @@ class Messages
     public static String CallHierarchyViewPart_Layout_vertical_action_tooltip;
     public static String CallHierarchyViewPart_Line_column_header;
     public static String CallHierarchyViewPart_No_hierarchy_to_display;
+    public static String CallHierarchyViewPart_One_item_selected;
     public static String CallHierarchyViewPart_Pin_action_text;
     public static String CallHierarchyViewPart_Pin_action_tooltip;
     public static String CallHierarchyViewPart_Refresh_action_text;

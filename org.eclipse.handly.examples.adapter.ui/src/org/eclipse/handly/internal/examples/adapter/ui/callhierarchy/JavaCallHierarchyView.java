@@ -12,9 +12,12 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.examples.adapter.ui.callhierarchy;
 
+import static org.eclipse.jdt.ui.JavaElementLabels.APPEND_ROOT_PATH;
 import static org.eclipse.jdt.ui.JavaElementLabels.COLORIZE;
+import static org.eclipse.jdt.ui.JavaElementLabels.DEFAULT_QUALIFIED;
 import static org.eclipse.jdt.ui.JavaElementLabels.M_APP_RETURNTYPE;
 import static org.eclipse.jdt.ui.JavaElementLabels.M_APP_TYPE_PARAMETERS;
+import static org.eclipse.jdt.ui.JavaElementLabels.M_PARAMETER_NAMES;
 import static org.eclipse.jdt.ui.JavaElementLabels.M_PARAMETER_TYPES;
 import static org.eclipse.jdt.ui.JavaElementLabels.M_POST_QUALIFIED;
 import static org.eclipse.jdt.ui.JavaElementLabels.P_COMPRESSED;
@@ -111,6 +114,14 @@ public final class JavaCallHierarchyView
                 JavaElementLabels.getTextLabel(elements[0], 0),
                 JavaElementLabels.getTextLabel(elements[1], 0));
         }
+    }
+
+    @Override
+    protected String getStatusLineMessageForElement(Object element)
+    {
+        return JavaElementLabels.getTextLabel(element, DEFAULT_QUALIFIED
+            | APPEND_ROOT_PATH | M_PARAMETER_TYPES | M_PARAMETER_NAMES
+            | M_APP_RETURNTYPE | T_TYPE_PARAMETERS);
     }
 
     @Override
