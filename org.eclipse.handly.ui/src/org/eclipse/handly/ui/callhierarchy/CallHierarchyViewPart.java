@@ -166,6 +166,8 @@ public abstract class CallHierarchyViewPart
         @Override
         public void partOpened(IWorkbenchPart part)
         {
+            if (part == CallHierarchyViewPart.this)
+                refresh();
         }
 
         @Override
@@ -650,8 +652,6 @@ public abstract class CallHierarchyViewPart
         addHistoryDropDownAction(historyDropDownAction);
 
         addPinAction(pinAction);
-
-        refresh();
     }
 
     @Override
