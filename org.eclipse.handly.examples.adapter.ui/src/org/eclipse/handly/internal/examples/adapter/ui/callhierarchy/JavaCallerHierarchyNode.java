@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.handly.internal.examples.adapter.ui.Activator;
+import org.eclipse.handly.snapshot.Snapshot;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyKind;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyNode;
 import org.eclipse.handly.ui.callhierarchy.CallLocation;
@@ -69,6 +70,8 @@ final class JavaCallerHierarchyNode
         SearchEngine engine = new SearchEngine();
         SearchPattern pattern = SearchPattern.createPattern(getMethod(),
             IJavaSearchConstants.REFERENCES);
+        if (pattern == null)
+            return EMPTY_ARRAY;
         SearchRequestor requestor = new SearchRequestor()
         {
             @Override
@@ -97,6 +100,7 @@ final class JavaCallerHierarchyNode
                 String callText = "";
                 TextRange callRange = null;
                 int lineNumber = ICallLocation.UNKOWN_LINE_NUMBER;
+                Snapshot snapshot = null;
 
                 int offset = match.getOffset();
                 int length = match.getLength();
@@ -116,7 +120,9 @@ final class JavaCallerHierarchyNode
                             // buffer is out of sync, ignore
                         }
 
-                        Document document = new Document(buffer.getContents());
+                        String contents = buffer.getContents();
+
+                        Document document = new Document(contents);
                         try
                         {
                             lineNumber = document.getLineOfOffset(offset);
@@ -125,11 +131,20 @@ final class JavaCallerHierarchyNode
                         {
                             // buffer is out of sync, ignore
                         }
+
+                        snapshot = new Snapshot()
+                        {
+                            @Override
+                            public String getContents()
+                            {
+                                return contents;
+                            }
+                        };
                     }
                 }
 
                 callerNode.addCallLocation(new CallLocation(caller, callee,
-                    callText, callRange, lineNumber, null));
+                    callText, callRange, lineNumber, snapshot));
             }
         };
         try
