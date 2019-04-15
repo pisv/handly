@@ -34,11 +34,14 @@ import org.eclipse.handly.ui.callhierarchy.CallHierarchyLabelProvider;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyViewManager;
 import org.eclipse.handly.ui.callhierarchy.CallHierarchyViewPart;
 import org.eclipse.handly.ui.callhierarchy.ICallHierarchyNode;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jdt.ui.JavaElementLabels;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
 
@@ -117,7 +120,25 @@ public final class JavaCallHierarchyView
     }
 
     @Override
-    protected String getStatusLineMessageForElement(Object element)
+    protected void updateStatusLine(IStatusLineManager manager,
+        IStructuredSelection selection)
+    {
+        super.updateStatusLine(manager, selection);
+        if (selection.size() == 1)
+        {
+            Object element = selection.getFirstElement();
+            if (element instanceof IJavaElement
+                && !((IJavaElement)element).exists())
+            {
+                manager.setErrorMessage(MessageFormat.format(
+                    "''{0}'' no longer exists", JavaElementLabels.getTextLabel(
+                        element, 0)));
+            }
+        }
+    }
+
+    @Override
+    protected String getStatusLineMessage(Object element)
     {
         return JavaElementLabels.getTextLabel(element, DEFAULT_QUALIFIED
             | APPEND_ROOT_PATH | M_PARAMETER_TYPES | M_PARAMETER_NAMES

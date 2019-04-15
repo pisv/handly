@@ -42,6 +42,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -561,9 +562,9 @@ public abstract class CallHierarchyViewPart
         selectionProvider.setDelegate(hierarchyViewer);
         getSite().setSelectionProvider(selectionProvider);
 
-        selectionProvider.addSelectionChangedListener(
-            e -> getViewSite().getActionBars().getStatusLineManager().setMessage(
-                getStatusLineMessage(e.getStructuredSelection())));
+        selectionProvider.addSelectionChangedListener(e -> updateStatusLine(
+            getViewSite().getActionBars().getStatusLineManager(),
+            e.getStructuredSelection()));
 
         initContextMenu(hierarchyViewer.getControl(), (IMenuManager manager) ->
         {
@@ -666,6 +667,8 @@ public abstract class CallHierarchyViewPart
     public void setFocus()
     {
         pageBook.setFocus();
+        updateStatusLine(getViewSite().getActionBars().getStatusLineManager(),
+            (IStructuredSelection)getSite().getSelectionProvider().getSelection());
     }
 
     /**
@@ -728,33 +731,37 @@ public abstract class CallHierarchyViewPart
     protected abstract String computeContentDescription();
 
     /**
-     * Returns the message to show in the status line for the given selection.
+     * Updates the status line based on the given selection.
      * <p>
-     * Default implementation returns <code>null</code> if the selection is
-     * empty; delegates to {@link #getStatusLineMessageForElement(Object)}
-     * if exactly one element is selected; returns a generic message of the
-     * form "(x) items selected" otherwise. (If <code>getStatusLineMessageForElement</code>
+     * Default implementation clears the status line message if the selection
+     * is empty; sets the message returned by {@link #getStatusLineMessage(Object)}
+     * if exactly one element is selected; sets a generic message of the
+     * form "(x) items selected" otherwise. (If <code>getStatusLineMessage</code>
      * returns <code>null</code>, a generic message "1 item selected" will be
-     * returned.)
+     * set.) The error message is cleared in any case.
      * </p>
      *
-     * @param selection the current selection, as provided by the view's
-     *  selection provider (never <code>null</code>)
-     * @return the status line message, or <code>null</code> if none
+     * @param manager the status line manager (never <code>null</code>)
+     * @param selection the current selection (never <code>null</code>)
      */
-    protected String getStatusLineMessage(IStructuredSelection selection)
+    protected void updateStatusLine(IStatusLineManager manager,
+        IStructuredSelection selection)
     {
+        String message = null;
         int size = selection.size();
-        if (size == 0)
-            return null;
         if (size > 1)
-            return MessageFormat.format(
+        {
+            message = MessageFormat.format(
                 Messages.CallHierarchyViewPart_0__items_selected, size);
-        String message = getStatusLineMessageForElement(
-            selection.getFirstElement());
-        if (message == null)
-            return Messages.CallHierarchyViewPart_One_item_selected;
-        return message;
+        }
+        else if (size == 1)
+        {
+            message = getStatusLineMessage(selection.getFirstElement());
+            if (message == null)
+                message = Messages.CallHierarchyViewPart_One_item_selected;
+        }
+        manager.setMessage(message);
+        manager.setErrorMessage(null);
     }
 
     /**
@@ -768,7 +775,7 @@ public abstract class CallHierarchyViewPart
      * @param element the selected element (never <code>null</code>)
      * @return the status line message, or <code>null</code> if not available
      */
-    protected String getStatusLineMessageForElement(Object element)
+    protected String getStatusLineMessage(Object element)
     {
         IElement adapterElement = Adapters.adapt(element, IElement.class);
         if (adapterElement != null)
