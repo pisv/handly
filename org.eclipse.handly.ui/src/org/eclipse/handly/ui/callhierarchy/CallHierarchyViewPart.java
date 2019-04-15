@@ -153,22 +153,29 @@ public abstract class CallHierarchyViewPart
         @Override
         public void partActivated(IWorkbenchPart part)
         {
-            if (part == CallHierarchyViewPart.this)
-                getViewManager().viewActivated(CallHierarchyViewPart.this);
+            if (part != CallHierarchyViewPart.this)
+                return;
+
+            getViewManager().viewOpenedOrActivated(CallHierarchyViewPart.this);
         }
 
         @Override
         public void partClosed(IWorkbenchPart part)
         {
-            if (part == CallHierarchyViewPart.this)
-                getViewManager().viewClosed(CallHierarchyViewPart.this);
+            if (part != CallHierarchyViewPart.this)
+                return;
+
+            getViewManager().viewClosed(CallHierarchyViewPart.this);
         }
 
         @Override
         public void partOpened(IWorkbenchPart part)
         {
-            if (part == CallHierarchyViewPart.this)
-                refresh();
+            if (part != CallHierarchyViewPart.this)
+                return;
+
+            getViewManager().viewOpenedOrActivated(CallHierarchyViewPart.this);
+            refresh();
         }
 
         @Override

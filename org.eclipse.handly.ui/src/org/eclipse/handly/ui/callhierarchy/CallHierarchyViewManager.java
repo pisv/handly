@@ -43,7 +43,7 @@ public class CallHierarchyViewManager
         return unmodifiableListOfViews;
     }
 
-    void viewActivated(CallHierarchyViewPart view)
+    void viewOpenedOrActivated(CallHierarchyViewPart view)
     {
         views.remove(view);
         views.add(0, view);
