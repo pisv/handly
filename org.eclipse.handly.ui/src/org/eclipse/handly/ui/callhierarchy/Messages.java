@@ -23,6 +23,7 @@ class Messages
     public static String CallHierarchyLabelProvider_Element__0__matches__1;
 
     public static String CallHierarchyViewPart_0__items_selected;
+    public static String CallHierarchyViewPart_Cannot_reveal_call_location;
     public static String CallHierarchyViewPart_Error_opening_editor;
     public static String CallHierarchyViewPart_Focus_on_selection_action_text;
     public static String CallHierarchyViewPart_Focus_on_selection_action_tooltip;

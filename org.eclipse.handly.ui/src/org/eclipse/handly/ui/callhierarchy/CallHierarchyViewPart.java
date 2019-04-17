@@ -1177,7 +1177,9 @@ public abstract class CallHierarchyViewPart
      * Default implementation uses the {@link #getEditorOpener()
      * editor opener} and specifically supports revealing an {@link
      * ICallLocation} and an {@link ICallHierarchyNode} (other elements
-     * are handled generically).
+     * are handled generically). To reveal a call location in an open
+     * editor, it invokes {@link #revealCallLocation(IEditorPart,
+     * ICallLocation, IContext) revealCallLocation}.
      * </p>
      *
      * @param element not <code>null</code>
@@ -1230,23 +1232,66 @@ public abstract class CallHierarchyViewPart
             }
         }
         if (editor != null && callLocation != null)
+            revealCallLocation(editor, callLocation, EMPTY_CONTEXT);
+    }
+
+    /**
+     * Attempts to reveal the given call location in the given editor.
+     * <p>
+     * Default implementation uses the {@link EditorOpener#getEditorUtility()
+     * editor utility} of the {@link #getEditorOpener() editor opener}
+     * for revealing the call range in the given editor and invokes {@link
+     * #handleCannotRevealCallLocation(IEditorPart, ICallLocation, IContext)
+     * handleCannotRevealCallLocation} if the call location cannot be revealed
+     * for whatever reason.
+     * </p>
+     *
+     * @param editor never <code>null</code>
+     * @param callLocation never <code>null</code>
+     * @param context never <code>null</code>
+     */
+    protected void revealCallLocation(IEditorPart editor,
+        ICallLocation callLocation, IContext context)
+    {
+        TextRange callRange = callLocation.getCallRange();
+        if (callRange == null)
+            handleCannotRevealCallLocation(editor, callLocation, context);
+        else
         {
-            TextRange callRange = callLocation.getCallRange();
-            if (callRange == null)
-                editorUtility.revealElement(editor, element);
-            else
+            EditorUtility editorUtility = editorOpener.getEditorUtility();
+            try
             {
-                try
-                {
-                    editorUtility.revealTextRange(editor, callRange.getOffset(),
-                        callRange.getLength(), callLocation.getSnapshot());
-                }
-                catch (StaleSnapshotException e)
-                {
-                    editorUtility.revealElement(editor, element);
-                }
+                editorUtility.revealTextRange(editor, callRange.getOffset(),
+                    callRange.getLength(), callLocation.getSnapshot());
+            }
+            catch (StaleSnapshotException e)
+            {
+                handleCannotRevealCallLocation(editor, callLocation, context);
             }
         }
+    }
+
+    /**
+     * Handles the case when a call location cannot be revealed.
+     * <p>
+     * Default implementation displays a generic error message
+     * on the status line and attempts to reveal the caller element
+     * in the given editor.
+     * </p>
+     *
+     * @param editor never <code>null</code>
+     * @param callLocation never <code>null</code>
+     * @param context never <code>null</code>
+     */
+    protected void handleCannotRevealCallLocation(IEditorPart editor,
+        ICallLocation callLocation, IContext context)
+    {
+        getViewSite().getActionBars().getStatusLineManager().setErrorMessage(
+            Messages.CallHierarchyViewPart_Cannot_reveal_call_location);
+
+        Object element = callLocation.getCaller();
+        if (element != null)
+            editorOpener.getEditorUtility().revealElement(editor, element);
     }
 
     /**
