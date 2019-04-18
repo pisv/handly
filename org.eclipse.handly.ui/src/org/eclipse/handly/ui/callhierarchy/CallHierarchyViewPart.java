@@ -15,7 +15,6 @@ package org.eclipse.handly.ui.callhierarchy;
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 import static org.eclipse.handly.context.Contexts.of;
 import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
-import static org.eclipse.handly.util.ToStringOptions.FormatStyle.FULL;
 import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
 import java.text.MessageFormat;
@@ -743,9 +742,8 @@ public abstract class CallHierarchyViewPart
      * Default implementation clears the status line message if the selection
      * is empty; sets the message returned by {@link #getStatusLineMessage(Object)}
      * if exactly one element is selected; sets a generic message of the
-     * form "(x) items selected" otherwise. (If <code>getStatusLineMessage</code>
-     * returns <code>null</code>, a generic message "1 item selected" will be
-     * set.) The error message is cleared in any case.
+     * form "(x) items selected" otherwise. The error message is cleared
+     * in any case.
      * </p>
      *
      * @param manager the status line manager (never <code>null</code>)
@@ -764,8 +762,6 @@ public abstract class CallHierarchyViewPart
         else if (size == 1)
         {
             message = getStatusLineMessage(selection.getFirstElement());
-            if (message == null)
-                message = Messages.CallHierarchyViewPart_One_item_selected;
         }
         manager.setMessage(message);
         manager.setErrorMessage(null);
@@ -774,9 +770,7 @@ public abstract class CallHierarchyViewPart
     /**
      * Returns the message to show in the status line for the given element.
      * <p>
-     * Default implementation tries to provide a useful message on a best
-     * effort basis; however, subclasses may and usually need to override
-     * this method and return a more descriptive, model-specific message.
+     * Default implementation always returns <code>null</code>.
      * </p>
      *
      * @param element the selected element (never <code>null</code>)
@@ -784,12 +778,6 @@ public abstract class CallHierarchyViewPart
      */
     protected String getStatusLineMessage(Object element)
     {
-        IElement adapterElement = Adapters.adapt(element, IElement.class);
-        if (adapterElement != null)
-        {
-            return Elements.toDisplayString(adapterElement, of(FORMAT_STYLE,
-                FULL));
-        }
         return null;
     }
 

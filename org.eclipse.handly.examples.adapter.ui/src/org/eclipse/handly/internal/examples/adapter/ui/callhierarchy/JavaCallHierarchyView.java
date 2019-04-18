@@ -127,22 +127,21 @@ public final class JavaCallHierarchyView
         if (selection.size() == 1)
         {
             Object element = selection.getFirstElement();
-            if (element instanceof IJavaElement
-                && !((IJavaElement)element).exists())
+            if (element instanceof IJavaElement)
             {
-                manager.setErrorMessage(MessageFormat.format(
-                    "''{0}'' no longer exists", JavaElementLabels.getTextLabel(
-                        element, 0)));
+                manager.setMessage(JavaElementLabels.getTextLabel(element,
+                    DEFAULT_QUALIFIED | APPEND_ROOT_PATH | M_PARAMETER_TYPES
+                        | M_PARAMETER_NAMES | M_APP_RETURNTYPE
+                        | T_TYPE_PARAMETERS));
+
+                if (!((IJavaElement)element).exists())
+                {
+                    manager.setErrorMessage(MessageFormat.format(
+                        "''{0}'' no longer exists. Try to refresh the parent node",
+                        JavaElementLabels.getTextLabel(element, 0)));
+                }
             }
         }
-    }
-
-    @Override
-    protected String getStatusLineMessage(Object element)
-    {
-        return JavaElementLabels.getTextLabel(element, DEFAULT_QUALIFIED
-            | APPEND_ROOT_PATH | M_PARAMETER_TYPES | M_PARAMETER_NAMES
-            | M_APP_RETURNTYPE | T_TYPE_PARAMETERS);
     }
 
     @Override
@@ -182,26 +181,23 @@ public final class JavaCallHierarchyView
         @Override
         public ImageDescriptor getImageDescriptor()
         {
-            Object firstElement = getInputElements()[0];
-            if (firstElement instanceof IMethod)
+            IJavaElement firstElement = (IJavaElement)getInputElements()[0];
+            org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider imageProvider =
+                new org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider();
+            try
             {
-                org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider imageProvider =
-                    new org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider();
-                ImageDescriptor desc = imageProvider.getBaseImageDescriptor(
-                    (IMethod)firstElement, 0);
-                imageProvider.dispose();
-                return desc;
+                return imageProvider.getBaseImageDescriptor(firstElement, 0);
             }
-            return super.getImageDescriptor();
+            finally
+            {
+                imageProvider.dispose();
+            }
         }
 
         @Override
         protected String getElementLabel(Object element)
         {
-            if (element instanceof IMethod)
-                return JavaElementLabels.getTextLabel(element, LABEL_FLAGS);
-
-            return super.getElementLabel(element);
+            return JavaElementLabels.getTextLabel(element, LABEL_FLAGS);
         }
     }
 
