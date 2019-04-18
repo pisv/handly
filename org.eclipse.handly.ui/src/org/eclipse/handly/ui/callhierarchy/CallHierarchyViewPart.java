@@ -13,9 +13,6 @@
 package org.eclipse.handly.ui.callhierarchy;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
-import static org.eclipse.handly.context.Contexts.of;
-import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
-import static org.eclipse.handly.util.ToStringOptions.FormatStyle.MEDIUM;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -23,11 +20,8 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.Adapters;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.ui.Activator;
-import org.eclipse.handly.model.Elements;
-import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.handly.ui.DefaultEditorUtility;
 import org.eclipse.handly.ui.EditorOpener;
@@ -1473,19 +1467,11 @@ public abstract class CallHierarchyViewPart
 
     /**
      * Creates and returns a history entry for the given input elements.
-     * <p>
-     * Default implementation returns a new instance of the basic {@link
-     * HistoryEntry} class. Subclasses may and usually need to override this
-     * method and return a more descriptive, model-specific history entry.
-     * </p>
      *
      * @param inputElements never <code>null</code>; never empty
      * @return the created history entry (not <code>null</code>)
      */
-    protected HistoryEntry createHistoryEntry(Object[] inputElements)
-    {
-        return new HistoryEntry(inputElements);
-    }
+    protected abstract HistoryEntry createHistoryEntry(Object[] inputElements);
 
     /**
      * Notifies that the history has been updated by this view.
@@ -1557,7 +1543,7 @@ public abstract class CallHierarchyViewPart
     /**
      * Represents an entry of the call hierarchy view history list.
      */
-    protected static class HistoryEntry
+    protected abstract static class HistoryEntry
     {
         private final Object[] inputElements;
 
@@ -1580,7 +1566,7 @@ public abstract class CallHierarchyViewPart
          * @return the input elements (never <code>null</code>; never empty).
          *  Clients <b>must not</b> modify the returned array.
          */
-        public Object[] getInputElements()
+        public final Object[] getInputElements()
         {
             return inputElements;
         }
@@ -1645,16 +1631,7 @@ public abstract class CallHierarchyViewPart
          * @param element a given element
          * @return the text label of the element (never <code>null</code>)
          */
-        protected String getElementLabel(Object element)
-        {
-            IElement adapterElement = Adapters.adapt(element, IElement.class);
-            if (adapterElement != null)
-            {
-                return Elements.toDisplayString(adapterElement, of(FORMAT_STYLE,
-                    MEDIUM));
-            }
-            return String.valueOf(element);
-        }
+        protected abstract String getElementLabel(Object element);
 
         /**
          * Returns an image descriptor for this history entry.
