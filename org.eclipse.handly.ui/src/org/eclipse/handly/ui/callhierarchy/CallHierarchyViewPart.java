@@ -732,11 +732,13 @@ public abstract class CallHierarchyViewPart
 
     /**
      * Updates the status line based on the given selection.
+     * <code>CallHierarchyViewPart</code> invokes this method as appropriate
+     * passing the current selection obtained from the selection provider
+     * of this view's site.
      * <p>
      * Default implementation clears the status line message if the selection
-     * is empty; sets the message returned by {@link #getStatusLineMessage(Object)}
-     * if exactly one element is selected; sets a generic message of the
-     * form "(x) items selected" otherwise. The error message is cleared
+     * is empty or if exactly one element is selected; sets a generic message
+     * of the form "(x) items selected" otherwise. The error message is cleared
      * in any case.
      * </p>
      *
@@ -753,26 +755,8 @@ public abstract class CallHierarchyViewPart
             message = MessageFormat.format(
                 Messages.CallHierarchyViewPart_0__items_selected, size);
         }
-        else if (size == 1)
-        {
-            message = getStatusLineMessage(selection.getFirstElement());
-        }
         manager.setMessage(message);
         manager.setErrorMessage(null);
-    }
-
-    /**
-     * Returns the message to show in the status line for the given element.
-     * <p>
-     * Default implementation always returns <code>null</code>.
-     * </p>
-     *
-     * @param element the selected element (never <code>null</code>)
-     * @return the status line message, or <code>null</code> if not available
-     */
-    protected String getStatusLineMessage(Object element)
-    {
-        return null;
     }
 
     /**
