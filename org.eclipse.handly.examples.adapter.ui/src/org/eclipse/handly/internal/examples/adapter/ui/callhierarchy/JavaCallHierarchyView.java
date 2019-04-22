@@ -84,13 +84,13 @@ public final class JavaCallHierarchyView
     }
 
     @Override
-    protected ICallHierarchyNode[] createHierarchyRoots(Object[] elements)
+    protected ICallHierarchyNode[] createHierarchyRoots(Object[] inputElements)
     {
-        int length = elements.length;
+        int length = inputElements.length;
         ICallHierarchyNode[] roots = new ICallHierarchyNode[length];
         for (int i = 0; i < length; i++)
         {
-            IMethod method = (IMethod)elements[i];
+            IMethod method = (IMethod)inputElements[i];
             roots[i] = JavaCallerHierarchyNode.newRootNode(method);
         }
         return roots;

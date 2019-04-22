@@ -229,9 +229,9 @@ public abstract class CallHierarchyViewPart
     /**
      * Returns whether the given elements are possible input elements for this view.
      * This method invokes {@link #isPossibleInputElement(Object)} for each of
-     * the given elements until all elements have been checked (in which case
-     * it returns <code>true</code>) or <code>false</code> is returned for
-     * an element (in which case it returns <code>false</code>).
+     * the given elements until <code>false</code> is returned for an element
+     * (in which case this method will return <code>false</code>) or all elements
+     * have been checked (in which case it will return <code>true</code>).
      *
      * @param elements may be <code>null</code> or may contain null elements,
      *  in which case <code>false</code> will be returned; may be empty,
@@ -348,12 +348,13 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Sets the orientation of this view, which must be one of the constants
-     * {@link SWT#HORIZONTAL} or {@link SWT#VERTICAL}. This method can also
+     * Sets the orientation of this view, which may be one of the constants
+     * {@link SWT#HORIZONTAL} or {@link SWT#VERTICAL}; this method may also
      * be called with <code>SWT.HORIZONTAL|SWT.VERTICAL</code> for automatic
      * orientation.
      *
      * @param orientation new orientation
+     * @throws IllegalArgumentException if the value of orientation is invalid
      */
     public void setOrientation(int orientation)
     {
@@ -438,11 +439,8 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Performs a full refresh of the content of this view.
-     * <p>
-     * The method implementation invokes {@link #refresh(IContext)}
-     * with an empty context.
-     * </p>
+     * Performs a full refresh of the content of this view. This method
+     * invokes {@link #refresh(IContext)} with an empty context.
      */
     public final void refresh()
     {
@@ -451,12 +449,9 @@ public abstract class CallHierarchyViewPart
 
     /**
      * Performs a refresh of the content of this view according to options
-     * specified in the given context.
-     * <p>
-     * The method implementation does nothing if the SWT controls for this view
-     * have not been created or have been disposed. Otherwise, it invokes
-     * {@link #doRefresh(IContext)}.
-     * </p>
+     * specified in the given context. This method does nothing if the SWT
+     * controls for this view have not been created or have been disposed.
+     * Otherwise, it invokes {@link #doRefresh(IContext)}.
      *
      * @param context the operation context (never <code>null</code>)
      */
@@ -680,13 +675,13 @@ public abstract class CallHierarchyViewPart
     protected abstract CallHierarchyViewManager getViewManager();
 
     /**
-     * Returns the root nodes of the current call hierarchy.
+     * Returns the root nodes for the current call hierarchy.
      * <p>
      * Default implementation invokes {@link #createHierarchyRoots(Object[])}
-     * for the current input elements.
+     * with the current input elements.
      * </p>
      *
-     * @return the root nodes of the current call hierarchy
+     * @return the root nodes for the current call hierarchy
      *  (never <code>null</code>, may be empty)
      */
     protected ICallHierarchyNode[] getHierarchyRoots()
@@ -698,11 +693,11 @@ public abstract class CallHierarchyViewPart
      * Creates and returns the root nodes for a call hierarchy based on the
      * given input elements and the current hierarchy kind.
      *
-     * @param elements never <code>null</code>, may be empty
+     * @param inputElements never <code>null</code>, may be empty
      * @return the created nodes (not <code>null</code>, may be empty)
      */
     protected abstract ICallHierarchyNode[] createHierarchyRoots(
-        Object[] elements);
+        Object[] inputElements);
 
     /**
      * Returns a comparator for the hierarchy viewer.
@@ -731,15 +726,12 @@ public abstract class CallHierarchyViewPart
     protected abstract String computeContentDescription();
 
     /**
-     * Updates the status line based on the given selection.
-     * <code>CallHierarchyViewPart</code> invokes this method as appropriate
-     * passing the current selection obtained from the selection provider
-     * of this view's site.
+     * Updates the status line based on the given selection in this view.
      * <p>
      * Default implementation clears the status line message if the selection
      * is empty or if exactly one element is selected; sets a generic message
-     * of the form "(x) items selected" otherwise. The error message is cleared
-     * in any case.
+     * of the form "(x) items selected" otherwise. It always clears the error
+     * message.
      * </p>
      *
      * @param manager the status line manager (never <code>null</code>)
@@ -794,7 +786,7 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Creates and returns a control for the "no hierarchy" page.
+     * Creates and returns a control for the 'no hierarchy' page.
      * This method is called once, when the part's control is created.
      * <p>
      * Default implementation returns a <code>Label</code> telling,
@@ -912,10 +904,10 @@ public abstract class CallHierarchyViewPart
 
     /**
      * Fills the pop-menu for the hierarchy viewer using the menu groups
-     * created in {@link #createHierarchyViewerMenuGroups(IMenuManager)}.
+     * created by {@link #createHierarchyViewerMenuGroups(IMenuManager)}.
      * This method is called each time the pop-up menu is about to show.
      * <p>
-     * Default implementation appends generic actions such as
+     * Default implementation adds generic actions such as
      * 'focus on selection', 'refresh element', and 'remove from view'.
      * Subclasses may extend or override this method.
      * </p>
@@ -938,8 +930,9 @@ public abstract class CallHierarchyViewPart
      * <p>
      * Default implementation changes the input of the location viewer
      * accordingly and tries to reveal the selected hierarchy node in an
-     * open editor. Subclasses may extend or even override this method, but
-     * there is usually no need to.
+     * open editor with {@link #revealInEditor(Object, boolean, boolean)
+     * revealInEditor}. Subclasses may extend or even override this method,
+     * but there is usually no need to.
      * </p>
      *
      * @param selection the new selection (never <code>null</code>)
@@ -1096,7 +1089,7 @@ public abstract class CallHierarchyViewPart
 
     /**
      * Fills the pop-menu for the location viewer using the menu groups
-     * created in {@link #createLocationViewerMenuGroups(IMenuManager)}.
+     * created by {@link #createLocationViewerMenuGroups(IMenuManager)}.
      * This method is called each time the pop-up menu is about to show.
      * <p>
      * Default implementation does nothing. Subclasses may extend or override
@@ -1113,8 +1106,9 @@ public abstract class CallHierarchyViewPart
      * This method is called on each selection change in the location viewer.
      * <p>
      * Default implementation tries to reveal the selected call location in an
-     * open editor. Subclasses may extend or even override this method, but
-     * there is usually no need to.
+     * open editor with {@link #revealInEditor(Object, boolean, boolean)
+     * revealInEditor}. Subclasses may extend or even override this method,
+     * but there is usually no need to.
      * </p>
      *
      * @param selection the new selection (never <code>null</code>)
@@ -1138,7 +1132,7 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Reveals the given element in an editor on a best effort basis.
+     * Reveals the given element in an appropriate editor on a best effort basis.
      * <p>
      * Default implementation uses the {@link #getEditorOpener()
      * editor opener} and specifically supports revealing an {@link
@@ -1152,7 +1146,8 @@ public abstract class CallHierarchyViewPart
      * @param activate whether to activate the editor
      * @param mayOpenNewEditor whether a new editor may be opened
      *  when the element cannot be revealed in an existing editor
-     * @throws PartInitException if opening the new editor failed
+     * @throws PartInitException if a new editor could not be created
+     *  or initialized
      */
     protected void revealInEditor(Object element, boolean activate,
         boolean mayOpenNewEditor) throws PartInitException
@@ -1238,7 +1233,7 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Handles the case when a call location cannot be revealed.
+     * Handles the case when a call location cannot be revealed in the editor.
      * <p>
      * Default implementation displays a generic error message
      * on the status line and attempts to reveal the caller element
@@ -1435,7 +1430,7 @@ public abstract class CallHierarchyViewPart
     }
 
     /**
-     * Returns the history used by this view. The history is represented by
+     * Returns the history used by this view; the history is represented by
      * a "live" list of history entries.
      * <p>
      * Default implementation returns a history that is shared between all
@@ -1573,16 +1568,14 @@ public abstract class CallHierarchyViewPart
         @Override
         public int hashCode()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + Arrays.hashCode(inputElements);
-            return result;
+            return Arrays.hashCode(inputElements);
         }
 
         /**
          * Returns a user-readable text label for this history entry.
          * <p>
-         * Default implementation invokes {@link #getElementLabel(Object)}
+         * Default implementation composes a label based on labels for
+         * input elements. It invokes {@link #getElementLabel(Object)}
          * to obtain a label for an input element.
          * </p>
          *
@@ -1612,7 +1605,7 @@ public abstract class CallHierarchyViewPart
         /**
          * Returns a user-readable text label for the given element.
          *
-         * @param element a given element
+         * @param element the given element
          * @return the text label of the element (never <code>null</code>)
          */
         protected abstract String getElementLabel(Object element);

@@ -59,9 +59,12 @@ public final class CallHierarchyViewOpener
      * </p>
      *
      * @param page not <code>null</code>
-     * @param inputElements not <code>null</code>; must not contain nulls
+     * @param inputElements not <code>null</code>, must not contain nulls;
+     *  may be empty
      * @return the opened view (never <code>null</code>)
      * @throws PartInitException if the view could not be initialized
+     * @throws IllegalArgumentException if the given elements are not valid
+     *  input elements for the view
      */
     public IViewPart openView(IWorkbenchPage page, Object[] inputElements)
         throws PartInitException
