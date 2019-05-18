@@ -481,8 +481,11 @@ public class HistoryDropDownAction<E>
                 @Override
                 public Image getImage(Object element)
                 {
-                    return (Image)resourceManager.get(
-                        history.getImageDescriptor((E)element));
+                    ImageDescriptor descriptor = history.getImageDescriptor(
+                        (E)element);
+                    if (descriptor == null)
+                        return null;
+                    return (Image)resourceManager.get(descriptor);
                 }
             });
             historyViewer.setContentProvider(new ArrayContentProvider());
