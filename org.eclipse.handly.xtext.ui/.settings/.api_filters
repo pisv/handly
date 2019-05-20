@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.handly.xtext.ui" version="2">
+    <resource path="src/org/eclipse/handly/xtext/ui/callhierarchy/XtextCallHierarchyUtility.java" type="org.eclipse.handly.xtext.ui.callhierarchy.XtextCallHierarchyUtility">
+        <filter id="627060751">
+            <message_arguments>
+                <message_argument value="IReferenceFinder"/>
+                <message_argument value="XtextCallHierarchyUtility"/>
+                <message_argument value="referenceFinder"/>
+            </message_arguments>
+        </filter>
+        <filter id="627060751">
+            <message_arguments>
+                <message_argument value="IResourceAccess"/>
+                <message_argument value="XtextCallHierarchyUtility"/>
+                <message_argument value="resourceAccess"/>
+            </message_arguments>
+        </filter>
+        <filter id="643846161">
+            <message_arguments>
+                <message_argument value="IResourceAccess"/>
+                <message_argument value="XtextCallHierarchyUtility"/>
+                <message_argument value="setResourceAccess(IReferenceFinderIResourceAccess)"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/handly/xtext/ui/editor/HandlyXtextDocument.java" type="org.eclipse.handly.xtext.ui.editor.HandlyXtextDocument">
         <filter id="576725006">
             <message_arguments>

@@ -17,9 +17,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An instance of <code>CallHierarchyViewManager</code> may be shared between
- * multiple {@link CallHierarchyViewPart} instances. It can therefore contain
- * the state that is common to those view instances.
+ * A manager for instances of {@link CallHierarchyViewPart}. An instance
+ * of the manager may be shared between multiple view instances and can
+ * therefore contain the state that is common to those view instances.
  *
  * @see CallHierarchyViewPart#getViewManager()
  */

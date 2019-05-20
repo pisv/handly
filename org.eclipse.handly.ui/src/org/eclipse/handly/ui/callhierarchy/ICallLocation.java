@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -63,21 +63,36 @@ public interface ICallLocation
     Object getCallee();
 
     /**
-     * Returns the textual representation of this call.
+     * Returns the call text info for this call location.
+     * <p>
+     * Default implementation returns a new instance of the call text info
+     * based on the information from this call location.
+     * </p>
+     *
+     * @return the call text info (never <code>null</code>)
+     */
+    default CallTextInfo getCallTextInfo()
+    {
+        return new CallTextInfo(getCallText(), getCallRange(), getLineNumber(),
+            getSnapshot());
+    }
+
+    /**
+     * Returns the textual representation of the call.
      *
      * @return the text of the call (never <code>null</code>)
      */
     String getCallText();
 
     /**
-     * Returns the text range of this call.
+     * Returns the text range of the call.
      *
      * @return the text range of the call, or <code>null</code> if unknown
      */
     TextRange getCallRange();
 
     /**
-     * Returns the line number of this call. Note that the first line has
+     * Returns the line number of the call. Note that the first line has
      * the line number 0.
      *
      * @return the zero-based line number of the call,

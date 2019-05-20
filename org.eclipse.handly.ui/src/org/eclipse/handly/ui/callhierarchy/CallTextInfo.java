@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2019 1C-Soft LLC.
+ * Copyright (c) 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,39 +16,33 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.TextRange;
 
 /**
- * Default implementation of {@link ICallLocation}.
+ * Holds information about the text of a call, including the text range.
  */
-public final class CallLocation
-    implements ICallLocation
+public final class CallTextInfo
 {
-    private final Object caller, callee;
     private final String callText;
     private final TextRange callRange;
     private final int lineNumber;
     private final ISnapshot snapshot;
 
     /**
-     * Creates a new call location object.
+     * Creates a new call text info object.
      *
-     * @param caller the caller element, or <code>null</code> if unknown
-     * @param callee the callee element, or <code>null</code> if unknown
      * @param callText the text of the call (not <code>null</code>)
      * @param callRange the text range of the call,
      *  or <code>null</code> if unknown
      * @param lineNumber the 0-based line number of the call,
-     *  or {@link #UNKOWN_LINE_NUMBER} if unknown
-     * @param snapshot the base snapshot for the call location,
+     *  or {@link ICallLocation#UNKOWN_LINE_NUMBER} if unknown
+     * @param snapshot the base snapshot for the call text info,
      *  or <code>null</code> if unknown
      */
-    public CallLocation(Object caller, Object callee, String callText,
-        TextRange callRange, int lineNumber, ISnapshot snapshot)
+    public CallTextInfo(String callText, TextRange callRange, int lineNumber,
+        ISnapshot snapshot)
     {
         if (callText == null)
             throw new IllegalArgumentException();
-        if (lineNumber < 0 && lineNumber != UNKOWN_LINE_NUMBER)
+        if (lineNumber < 0 && lineNumber != ICallLocation.UNKOWN_LINE_NUMBER)
             throw new IllegalArgumentException();
-        this.caller = caller;
-        this.callee = callee;
         this.callText = callText;
         this.callRange = callRange;
         this.lineNumber = lineNumber;
@@ -56,49 +50,43 @@ public final class CallLocation
     }
 
     /**
-     * Creates a new call location object based on a {@link CallTextInfo}.
+     * Returns the textual representation of the call.
      *
-     * @param caller the caller element, or <code>null</code> if unknown
-     * @param callee the callee element, or <code>null</code> if unknown
-     * @param info the call text info (not <code>null</code>)
+     * @return the text of the call (never <code>null</code>)
      */
-    public CallLocation(Object caller, Object callee, CallTextInfo info)
-    {
-        this(caller, callee, info.getCallText(), info.getCallRange(),
-            info.getLineNumber(), info.getSnapshot());
-    }
-
-    @Override
-    public Object getCaller()
-    {
-        return caller;
-    }
-
-    @Override
-    public Object getCallee()
-    {
-        return callee;
-    }
-
-    @Override
     public String getCallText()
     {
         return callText;
     }
 
-    @Override
+    /**
+     * Returns the text range of the call.
+     *
+     * @return the text range of the call, or <code>null</code> if unknown
+     */
     public TextRange getCallRange()
     {
         return callRange;
     }
 
-    @Override
+    /**
+     * Returns the line number of the call. Note that the first line has
+     * the line number 0.
+     *
+     * @return the zero-based line number of the call,
+     *  or {@link ICallLocation#UNKOWN_LINE_NUMBER} if unknown
+     */
     public int getLineNumber()
     {
         return lineNumber;
     }
 
-    @Override
+    /**
+     * Returns the snapshot on which the call text info is based.
+     *
+     * @return the base snapshot for the call text info,
+     *  or <code>null</code> if unknown
+     */
     public ISnapshot getSnapshot()
     {
         return snapshot;
