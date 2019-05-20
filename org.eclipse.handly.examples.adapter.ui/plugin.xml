@@ -34,7 +34,7 @@
             id="org.eclipse.handly.examples.adapter.ui.JavaCallHierarchyView"
             category="org.eclipse.handly.examples"
             class="org.eclipse.handly.internal.examples.adapter.ui.callhierarchy.JavaCallHierarchyView"
-            name="Calls"
+            name="Method Calls"
             icon="icons/eview16/call_hierarchy.png"
             allowMultiple="true"
             restorable="true">

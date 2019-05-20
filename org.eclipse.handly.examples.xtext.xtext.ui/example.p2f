@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+   Copyright (c) 2019 1C-Soft LLC.
+
+   This program and the accompanying materials are made available under
+   the terms of the Eclipse Public License 2.0 which is available at
+   https://www.eclipse.org/legal/epl-2.0/
+
+   SPDX-License-Identifier: EPL-2.0
+
+   Contributors:
+       Vladimir Piskarev (1C) - initial API and implementation
+-->
+<?p2f version='1.0.0'?>
+<p2f version='1.0.0'>
+  <ius size='1'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.17.0.v20190304-1445'>
+      <repositories size='1'>
+        <repository location='http://download.eclipse.org/releases/2019-03'/>
+      </repositories>
+    </iu>
+  </ius>
+</p2f>

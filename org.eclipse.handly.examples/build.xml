@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2018 1C-Soft LLC and others.
+    Copyright (c) 2018, 2019 1C-Soft LLC and others.
 
     This program and the accompanying materials are made available under
     the terms of the Eclipse Public License 2.0 which is available at
@@ -37,5 +37,6 @@
     <zip_example name="org.eclipse.handly.examples.jmodel.ui" />
     <zip_example name="org.eclipse.handly.examples.lsp" />
     <zip_example name="org.eclipse.handly.examples.lsp.tests" />
+    <zip_example name="org.eclipse.handly.examples.xtext.xtext.ui" />
   </target>
 </project>

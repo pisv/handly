@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <!--
-    Copyright (c) 2014, 2018 1C-Soft LLC and others.
+    Copyright (c) 2014, 2019 1C-Soft LLC and others.
 
     This program and the accompanying materials are made available under
     the terms of the Eclipse Public License 2.0 which is available at
@@ -56,6 +56,15 @@
             project="true"
             icon="icons/ctool16/newprj_wiz.png">
          <description>Create plug-in projects implementing a Handly-based model for LSP-based source files</description>
+      </wizard>
+      <wizard
+            id="org.eclipse.handly.examples.xtext.xtext"
+            name="Xtext-Xtext Example"
+            class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
+            category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
+            project="true"
+            icon="icons/ctool16/newprj_wiz.png">
+         <description>Create a project implementing a Handly-based call hierarchy view for the Xtext language</description>
       </wizard>
    </extension>
 
@@ -120,6 +129,14 @@
                name="org.eclipse.handly.examples.lsp.tests"
                contentURI="contents/org.eclipse.handly.examples.lsp.tests.zip"
                description="This project contains plug-in tests."/>
+      </example>
+      <example
+            id="org.eclipse.handly.examples.xtext.xtext"
+            wizardID="org.eclipse.handly.examples.xtext.xtext">
+         <projectDescriptor
+               name="org.eclipse.handly.examples.xtext.xtext.ui"
+               contentURI="contents/org.eclipse.handly.examples.xtext.xtext.ui.zip"
+               description="This project implements a Handly-based call hierarchy view for the Xtext language."/>
       </example>
    </extension>
 

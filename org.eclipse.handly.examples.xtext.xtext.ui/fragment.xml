@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<!--
+    Copyright (c) 2019 1C-Soft LLC.
+
+    This program and the accompanying materials are made available under
+    the terms of the Eclipse Public License 2.0 which is available at
+    https://www.eclipse.org/legal/epl-2.0/
+
+    SPDX-License-Identifier: EPL-2.0
+
+    Contributors:
+        Vladimir Piskarev (1C) - initial API and implementation
+-->
+<fragment>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="org.eclipse.handly.examples"
+            name="Handly Examples">
+      </category>
+      <view
+            id="org.eclipse.handly.examples.xtext.xtext.ui.XtextXtextCallHierarchyView"
+            name="Rule Calls"
+            icon="icons/editor.gif"
+            class="org.eclipse.xtext.xtext.ui.XtextExecutableExtensionFactory:org.eclipse.handly.internal.examples.xtext.xtext.ui.callhierarchy.XtextXtextCallHierarchyView"
+            category="org.eclipse.handly.examples"
+            allowMultiple="true"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="org.eclipse.handly.examples.xtext.xtext.ui.OpenCallHierarchy"
+            name="Open Call Hierarchy (Handly Xtext-Xtext Example)"
+            categoryId="org.eclipse.ui.category.navigate">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:#TextEditorContext?after=xtext.ui.OpenCallHierarchy">
+         <command
+               id="org.eclipse.handly.examples.xtext.xtext.ui.OpenCallHierarchy"
+               commandId="org.eclipse.handly.examples.xtext.xtext.ui.OpenCallHierarchy"
+               label="Open Call Hierarchy (Handly)"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="org.eclipse.xtext.Xtext.Editor.opened">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.eclipse.xtext.xtext.ui.XtextExecutableExtensionFactory:org.eclipse.handly.internal.examples.xtext.xtext.ui.callhierarchy.OpenCallHierarchyHandler"
+            commandId="org.eclipse.handly.examples.xtext.xtext.ui.OpenCallHierarchy">
+         <activeWhen>
+            <reference
+                  definitionId="org.eclipse.xtext.Xtext.Editor.opened">
+            </reference>
+         </activeWhen>
+      </handler>
+   </extension>
+</fragment>

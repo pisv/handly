@@ -17,10 +17,10 @@ information on setting things up.
 
 Another option is to materialize example projects in your workspace using
 wizards under the `Handly Examples` category. Make sure that you have the
-`org.eclipse.handly.examples` feature installed, then use `File -> New ->
-Example...` to select the appropriate wizard. The root project for every
-example contains the accompanying `example.target` file you can use to easily
-set a target platform for the example. Where necessary, the `example.p2f`
-file is also provided that describes software items you need to have installed
-in your IDE to be able to play with the example most productively. To install it,
-use `File -> Import... -> Install Software Items From File`.
+`org.eclipse.handly.examples` feature installed, then use `File -> New -> Example...`
+to select the appropriate wizard. The root project for every example contains
+the accompanying `example.target` file you can use to easily set a target platform
+for the example. Where necessary, the `example.p2f` file is also provided that
+describes software items you need to have installed in your IDE to be able
+to play with the example most productively. To install it, use
+`File -> Import... -> Install Software Items From File`.
