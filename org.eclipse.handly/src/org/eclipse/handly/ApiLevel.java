@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2018 1C-Soft LLC.
+ * Copyright (c) 2017, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,7 +13,8 @@
 package org.eclipse.handly;
 
 /**
- * Provides constants for API levels as defined by various releases of Handly.
+ * Provides constants for API levels as defined by major and minor releases
+ * of Handly.
  */
 public final class ApiLevel
 {
