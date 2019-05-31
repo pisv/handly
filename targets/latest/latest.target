@@ -19,7 +19,7 @@
 <repository location="http://download.eclipse.org/cbi/updates/license/2.0.1.v20180423-1114"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/2019-03/201903201000"/>
+<repository location="http://download.eclipse.org/releases/2019-06/201905311000"/>
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.draw2d" version="0.0.0"/>
 <unit id="org.eclipse.ecf" version="0.0.0"/>
