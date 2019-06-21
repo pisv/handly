@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Copyright (c) 2014, 2018 1C-Soft LLC and others.
+   Copyright (c) 2014, 2019 1C-Soft LLC and others.
 
    This program and the accompanying materials are made available under
    the terms of the Eclipse Public License 2.0 which is available at
@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.eclipse.handly</groupId>
     <artifactId>releng</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
     <relativePath>../releng</relativePath>
   </parent>
   <artifactId>repository</artifactId>
@@ -26,7 +26,7 @@
   <properties>
     <handly.version.major>1</handly.version.major>
     <handly.version.minor>2</handly.version.minor>
-    <handly.version.service>0</handly.version.service>
+    <handly.version.service>1</handly.version.service>
     <handly.version>${handly.version.major}.${handly.version.minor}.${handly.version.service}.${buildQualifier}</handly.version>
     <ant-optional.version>1.5.3-1</ant-optional.version>
     <ant-xalan2.version>1.9.4</ant-xalan2.version>
