@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2014, 2018 1C-Soft LLC and others.
+    Copyright (c) 2014, 2019 1C-Soft LLC and others.
 
     This program and the accompanying materials are made available under
     the terms of the Eclipse Public License 2.0 which is available at
@@ -14,7 +14,7 @@
 <feature
       id="org.eclipse.handly.xtext"
       label="%featureName"
-      version="1.2.0.qualifier"
+      version="1.3.0.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.handly.xtext"
       license-feature="org.eclipse.license"
@@ -33,7 +33,7 @@
    </license>
 
    <requires>
-      <import feature="org.eclipse.handly" version="1.2.0" match="equivalent"/>
+      <import feature="org.eclipse.handly" version="1.3.0" match="equivalent"/>
       <import feature="org.eclipse.xtext.ui" version="2.12.0" match="compatible"/>
    </requires>
 
