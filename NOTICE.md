@@ -43,7 +43,7 @@ Apache log4j 1.2.15
 
  * License: Apache-2.0
 
-Google Guava 21.0
+Google Guava 27.1
 
  * License: Apache-2.0
 
