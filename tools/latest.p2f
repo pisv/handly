@@ -2,7 +2,7 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='7'>
-    <iu id='org.eclipse.sdk.ide' version='4.13.0.I20190907-1130'>
+    <iu id='org.eclipse.sdk.ide' version='4.13.0.I20190916-1045'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2019-09/'/>
       </repositories>
