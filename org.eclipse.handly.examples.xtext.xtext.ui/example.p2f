@@ -14,9 +14,9 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='1'>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.19.0.v20190902-1322'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.20.0.v20191202-1256'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2019-09'/>
+        <repository location='http://download.eclipse.org/releases/2019-12'/>
       </repositories>
     </iu>
   </ius>
