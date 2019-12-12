@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2019 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -62,7 +62,7 @@ public class ProblemMarkerLabelDecorator
             if (e.getStatus().getCode() == IResourceStatus.MARKER_NOT_FOUND)
                 ; // this is ok
             else
-                Activator.log(e.getStatus());
+                Activator.logError(e);
             return null;
         }
     }

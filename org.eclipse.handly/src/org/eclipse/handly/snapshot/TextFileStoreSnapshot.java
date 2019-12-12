@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 1C-Soft LLC.
+ * Copyright (c) 2016, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -81,8 +81,8 @@ public final class TextFileStoreSnapshot
             }
             catch (CoreException e)
             {
-                Activator.log(e.getStatus());
-                status = e.getStatus();
+                Activator.logError(e);
+                status = Activator.createErrorStatus(e.getMessage(), e);
             }
             this.status = status;
             this.contents = contents;

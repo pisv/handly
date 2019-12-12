@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2019 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -481,8 +481,7 @@ public class HandlyXtextDocument
                 catch (Exception e)
                 {
                     // partial parsing failed - performing full reparse
-                    Activator.log(Activator.createErrorStatus(e.getMessage(),
-                        e));
+                    Activator.logError(e);
                     try
                     {
                         resource.reparse(snapshot.getContents());
@@ -491,8 +490,7 @@ public class HandlyXtextDocument
                     catch (Exception e2)
                     {
                         // full parsing also failed - restore state
-                        Activator.log(Activator.createErrorStatus(
-                            e2.getMessage(), e2));
+                        Activator.logError(e2);
                         resource.reparse(reconciledSnapshot.getContents());
                         throw e2;
                     }
@@ -576,8 +574,7 @@ public class HandlyXtextDocument
                 catch (Exception e)
                 {
                     // modification failed - restore state
-                    Activator.log(Activator.createErrorStatus(e.getMessage(),
-                        e));
+                    Activator.logError(e);
                     resource.reparse(reconciledSnapshot.getContents());
                     throw e;
                 }

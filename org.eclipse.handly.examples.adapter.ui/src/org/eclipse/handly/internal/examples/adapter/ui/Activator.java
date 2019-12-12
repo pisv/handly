@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 1C-Soft LLC.
+ * Copyright (c) 2015, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,6 +13,7 @@
 package org.eclipse.handly.internal.examples.adapter.ui;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.handly.examples.adapter.JavaModelAdapter;
 import org.eclipse.handly.internal.examples.adapter.ui.search.JavaSearchResultUpdater;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -63,8 +64,18 @@ public class Activator
         return plugin;
     }
 
-    public static void log(IStatus status)
+    public static void logError(String msg, Throwable e)
     {
-        plugin.getLog().log(status);
+        plugin.getLog().log(createErrorStatus(msg, e));
+    }
+
+    public static void logError(Throwable e)
+    {
+        logError(e.getMessage(), e);
+    }
+
+    public static IStatus createErrorStatus(String msg, Throwable e)
+    {
+        return new Status(IStatus.ERROR, PLUGIN_ID, 0, msg, e);
     }
 }

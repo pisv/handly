@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -293,7 +293,7 @@ class ServerManager
         }
         catch (CoreException e)
         {
-            Activator.log(e.getStatus());
+            Activator.logError(e);
             throw new IllegalStateException(e);
         }
         try
@@ -311,7 +311,7 @@ class ServerManager
         }
         catch (CoreException e)
         {
-            Activator.log(e.getStatus());
+            Activator.logError(e);
             throw new IllegalStateException(e);
         }
         LanguageServer[] serverSlot = new LanguageServer[1];

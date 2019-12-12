@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2019 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -95,7 +95,7 @@ public class FooModelManager
         }
         catch (CoreException e)
         {
-            Activator.log(e.getStatus());
+            Activator.logError(e);
         }
         IElementDelta delta = deltaProcessor.getDelta();
         if (!ElementDeltas.isEmpty(delta))

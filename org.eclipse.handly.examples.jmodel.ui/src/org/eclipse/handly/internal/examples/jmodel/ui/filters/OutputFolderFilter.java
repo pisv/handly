@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Codasip Ltd.
+ * Copyright (c) 2015, 2019 Codasip Ltd and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.handly.examples.jmodel.IJavaProject;
 import org.eclipse.handly.examples.jmodel.JavaModelCore;
-import org.eclipse.handly.internal.examples.jmodel.Activator;
 import org.eclipse.handly.internal.examples.jmodel.JavaProject;
+import org.eclipse.handly.internal.examples.jmodel.ui.Activator;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -51,7 +51,7 @@ public class OutputFolderFilter
             }
             catch (CoreException e)
             {
-                Activator.log(e.getStatus());
+                Activator.logError(e);
             }
         }
         return true;
