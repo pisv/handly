@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Codasip Ltd.
+ * Copyright (c) 2015, 2019 Codasip Ltd and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -48,7 +48,7 @@ public class JavaModelLabelProvider
             }
             catch (CoreException e)
             {
-                Activator.log(e.getStatus());
+                Activator.logError(e);
             }
         }
         return new StyledString(getText(element));
@@ -68,7 +68,7 @@ public class JavaModelLabelProvider
             }
             catch (CoreException e)
             {
-                Activator.log(e.getStatus());
+                Activator.logError(e);
             }
         }
         else if (element instanceof IAdaptable)
@@ -93,7 +93,7 @@ public class JavaModelLabelProvider
         }
         catch (CoreException e)
         {
-            Activator.log(e.getStatus());
+            Activator.logError(e);
         }
         return super.getImage(element);
     }

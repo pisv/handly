@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -115,7 +115,7 @@ public final class ModelManager
         }
         catch (CoreException e)
         {
-            Activator.log(e.getStatus());
+            Activator.logError(e);
         }
         IElementDelta[] deltas = deltaProcessor.getDeltas();
         if (deltas.length > 0)

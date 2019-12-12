@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2008, 2019 itemis AG (http://www.itemis.eu) and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -338,8 +338,8 @@ public class HandlyXtextReconciler
                     }
                     catch (Throwable e)
                     {
-                        Activator.log(Activator.createErrorStatus(
-                            "Error while forcing reconciliation", e)); //$NON-NLS-1$
+                        Activator.logError("Error while forcing reconciliation", //$NON-NLS-1$
+                            e);
                     }
                 }
                 if (sessionStarted && !paused)

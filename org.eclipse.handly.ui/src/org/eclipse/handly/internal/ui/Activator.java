@@ -77,9 +77,14 @@ public class Activator
         return plugin;
     }
 
-    public static void log(IStatus status)
+    public static void logError(String msg, Throwable e)
     {
-        plugin.getLog().log(status);
+        plugin.getLog().log(createErrorStatus(msg, e));
+    }
+
+    public static void logError(Throwable e)
+    {
+        logError(e.getMessage(), e);
     }
 
     public static IStatus createErrorStatus(String msg, Throwable e)

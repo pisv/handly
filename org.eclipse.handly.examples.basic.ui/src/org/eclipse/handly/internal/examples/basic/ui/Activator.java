@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2019 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -35,9 +35,14 @@ public class Activator
     public static final String IMG_OBJ_DEF = PLUGIN_ID + T_OBJ16 + "def.png"; //$NON-NLS-1$
     public static final String IMG_OBJ_VAR = PLUGIN_ID + T_OBJ16 + "var.png"; //$NON-NLS-1$
 
-    public static void log(IStatus status)
+    public static void logError(String msg, Throwable e)
     {
-        getInstance().getLog().log(status);
+        getInstance().getLog().log(createErrorStatus(msg, e));
+    }
+
+    public static void logError(Throwable e)
+    {
+        logError(e.getMessage(), e);
     }
 
     public static IStatus createErrorStatus(String msg, Throwable e)

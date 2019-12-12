@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -110,7 +110,7 @@ public class JavaModelManager
         }
         catch (CoreException e)
         {
-            Activator.log(e.getStatus());
+            Activator.logError(e);
         }
         finally
         {

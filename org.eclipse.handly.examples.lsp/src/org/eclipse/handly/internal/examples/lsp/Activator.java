@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -32,9 +32,14 @@ public final class Activator
         return plugin;
     }
 
-    public static void log(IStatus status)
+    public static void logError(String msg, Throwable e)
     {
-        plugin.getLog().log(status);
+        plugin.getLog().log(createErrorStatus(msg, e));
+    }
+
+    public static void logError(Throwable e)
+    {
+        logError(e.getMessage(), e);
     }
 
     public static IStatus createErrorStatus(String msg, Throwable e)

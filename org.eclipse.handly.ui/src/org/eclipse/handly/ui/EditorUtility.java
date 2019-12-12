@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 1C-Soft LLC.
+ * Copyright (c) 2016, 2019 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -349,7 +349,7 @@ public class EditorUtility
             catch (CoreException e)
             {
                 if (Elements.exists(element))
-                    Activator.log(e.getStatus());
+                    Activator.logError(e);
             }
         }
         return null;

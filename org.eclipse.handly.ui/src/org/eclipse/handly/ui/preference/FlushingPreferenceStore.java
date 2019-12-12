@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2019 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -261,7 +261,7 @@ public class FlushingPreferenceStore
             }
             catch (IOException e)
             {
-                Activator.log(Activator.createErrorStatus(e.getMessage(), e));
+                Activator.logError(e);
             }
         }
     }

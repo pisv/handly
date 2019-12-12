@@ -155,7 +155,7 @@ final class JavaCallerHierarchyNode
         }
         catch (CoreException e)
         {
-            Activator.log(e.getStatus());
+            Activator.logError(e);
         }
         return callerNodes.values().toArray(EMPTY_ARRAY);
     }

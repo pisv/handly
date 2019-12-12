@@ -56,7 +56,7 @@ public final class OpenCallHierarchyAction
         }
         catch (PartInitException e)
         {
-            Activator.log(e.getStatus());
+            Activator.logError(e);
         }
     }
 
