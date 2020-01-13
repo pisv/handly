@@ -2,19 +2,19 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='7'>
-    <iu id='org.eclipse.sdk.ide' version='4.7.3.M20180330-0640'>
+    <iu id='org.eclipse.sdk.ide' version='4.14.0.I20191210-0610'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/oxygen'/>
+        <repository location='http://download.eclipse.org/releases/2019-12'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='4.9.2.201712150930-r'>
+    <iu id='org.eclipse.egit.feature.group' version='5.6.0.201912101111-r'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/oxygen'/>
+        <repository location='http://download.eclipse.org/releases/2019-12'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='1.8.3.20180227-2137'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.14.0.20191209-1925'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/oxygen'/>
+        <repository location='http://download.eclipse.org/releases/2019-12'/>
       </repositories>
     </iu>
     <iu id='org.eclipse.xtext.sdk.feature.group' version='2.12.0.v20170519-1412'>
@@ -32,9 +32,9 @@
         <repository location='http://download.eclipse.org/releases/oxygen'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.emf.sdk.feature.group' version='2.13.0.v20170609-0928'>
+    <iu id='org.eclipse.emf.sdk.feature.group' version='2.20.0.v20191028-0905'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/oxygen'/>
+        <repository location='http://download.eclipse.org/releases/2019-12'/>
       </repositories>
     </iu>
   </ius>
