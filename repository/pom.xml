@@ -136,7 +136,7 @@
       <properties>
         <javadoc.title>Eclipse Handly ${handly.version.major}.${handly.version.minor} API Specification</javadoc.title>
         <javadoc.header>&lt;span style='font-size:small'&gt;&lt;b&gt;Eclipse Handly&lt;/b&gt;&lt;br&gt;version ${handly.version.major}.${handly.version.minor}&lt;/span&gt;</javadoc.header>
-        <javadoc.copyright>Copyright (c) 2014, 2019 1C-Soft LLC and others. Made available under the &lt;a target='_blank' href='https://www.eclipse.org/legal/epl-2.0/'&gt;Eclipse Public License 2.0&lt;/a&gt;</javadoc.copyright>
+        <javadoc.copyright>Copyright (c) 2014, 2020 1C-Soft LLC and others. Made available under the &lt;a target='_blank' href='https://www.eclipse.org/legal/epl-2.0/'&gt;Eclipse Public License 2.0&lt;/a&gt;</javadoc.copyright>
       </properties>
       <build>
         <plugins>
