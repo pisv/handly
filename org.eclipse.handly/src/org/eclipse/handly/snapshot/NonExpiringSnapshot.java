@@ -14,9 +14,10 @@ package org.eclipse.handly.snapshot;
 
 /**
  * A snapshot that never expires. It never returns <code>null</code> from
- * {@link #getContents()}; it wraps another snapshot and holds on its contents.
+ * {@link #getContents()}; it wraps another snapshot and holds on to its
+ * contents.
  * <p>
- * Protractedly holding on non-expiring snapshots is not recommended,
+ * Protractedly holding on to non-expiring snapshots is not recommended,
  * as they may potentially consume large amount of space.
  * </p>
  */
@@ -59,7 +60,7 @@ public final class NonExpiringSnapshot
     /**
      * Returns the cached contents of the wrapped snapshot.
      * <p>
-     * Protractedly holding on the returned contents is not recommended,
+     * Protractedly holding on to the returned contents is not recommended,
      * as it may potentially consume significant amount of space.
      * </p>
      *

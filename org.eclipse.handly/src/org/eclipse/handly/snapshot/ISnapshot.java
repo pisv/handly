@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -14,9 +14,12 @@ package org.eclipse.handly.snapshot;
 
 /**
  * A snapshot of the character contents of a resource or buffer.
- * Clients may hold on snapshots for extended periods of time,
+ * Clients may hold on to snapshots for extended periods of time,
  * but a snapshot may 'expire' if the underlying resource or buffer
  * has changed or ceased to exist since the snapshot inception.
+ * Depending on the snapshot implementation, an expired snapshot may
+ * become 'valid' again if the contents of the underlying resource or
+ * buffer is reverted to the original state.
  * <p>
  * Implementations of this interface must be thread-safe.
  * </p>
@@ -38,7 +41,7 @@ public interface ISnapshot
      * the contents of the underlying resource or buffer at the moment
      * the snapshot was taken. Expired snapshots return <code>null</code>.
      * <p>
-     * Protractedly holding on the returned contents is not recommended,
+     * Protractedly holding on to the returned contents is not recommended,
      * as it may potentially consume significant amount of space.
      * </p>
      *
@@ -56,8 +59,8 @@ public interface ISnapshot
      * </p>
      * <p>
      * Note that snapshots which are equal but not identical may become unequal
-     * when one or both of them expire. However, unequal snapshots can never
-     * become equal.
+     * when one or both of them expire, and may become equal again in case
+     * they return to the valid (unexpired) state.
      * </p>
      * <p>
      * Implementations of this method must be reflexive, symmetric and
