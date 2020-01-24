@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -61,9 +61,9 @@ public final class DocumentSnapshot
     {
         if (other instanceof DocumentSnapshot)
         {
-            if (document == ((DocumentSnapshot)other).document
-                && modificationStamp == ((DocumentSnapshot)other).modificationStamp)
-                return true;
+            DocumentSnapshot otherSnapshot = (DocumentSnapshot)other;
+            if (document == otherSnapshot.document)
+                return modificationStamp == otherSnapshot.modificationStamp;
         }
 
         if (isStale())

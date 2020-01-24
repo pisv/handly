@@ -73,10 +73,7 @@ public final class TextFileSnapshot
     @Override
     protected Boolean predictEquality(Snapshot other)
     {
-        if (other instanceof TextFileSnapshot)
-            return delegate.predictEquality(((TextFileSnapshot)other).delegate);
-
-        return delegate.predictEquality(other);
+        return other.predictEquality(delegate);
     }
 
     private static TextFileSnapshotBase createDelegate(IFile file, Layer layer)

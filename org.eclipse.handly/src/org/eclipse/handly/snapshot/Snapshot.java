@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,7 +26,10 @@ public abstract class Snapshot
             return true;
         if (other == null || !(other instanceof Snapshot))
             return false;
-        Boolean prediction = predictEquality((Snapshot)other);
+        Snapshot otherSnapshot = (Snapshot)other;
+        Boolean prediction = predictEquality(otherSnapshot);
+        if (prediction == null)
+            prediction = otherSnapshot.predictEquality(this);
         if (prediction != null)
             return prediction.booleanValue();
         String otherContents = other.getContents();
@@ -34,15 +37,15 @@ public abstract class Snapshot
     }
 
     /**
-     * Predicts whether the two snapshots are {@link #isEqualTo(ISnapshot) equal}
-     * without actually obtaining their {@link #getContents() contents}.
-     * Must return <code>null</code> if cannot tell for sure. Any non-null
+     * Predicts whether this snapshot is {@link #isEqualTo(ISnapshot) equal} to
+     * the given snapshot without actually obtaining snapshot {@link #getContents()
+     * contents}. Must return <code>null</code> if cannot tell for sure. Any non-null
      * result must meet the contract of {@link ISnapshot#isEqualTo(ISnapshot)}.
      *
      * @param other the other snapshot (not <code>null</code>
      *  and not identical to the receiver)
-     * @return <code>true</code> if the two snapshots are predicted to be equal,
-     *  <code>false</code> if the two snapshots are predicted to be unequal,
+     * @return <code>true</code> if the snapshots are predicted to be equal,
+     *  <code>false</code> if the snapshots are predicted to be unequal,
      *  and <code>null</code> if there is no prediction
      */
     protected Boolean predictEquality(Snapshot other)

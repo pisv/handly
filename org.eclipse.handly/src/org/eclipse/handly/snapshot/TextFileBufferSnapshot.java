@@ -93,7 +93,7 @@ public final class TextFileBufferSnapshot
             }
         };
 
-    private ISnapshot delegate;
+    private Snapshot delegate;
 
     /**
      * Constructs a new snapshot of the given text file buffer.
@@ -139,13 +139,10 @@ public final class TextFileBufferSnapshot
         if (delegate == null)
             return false; // expired
 
-        if (other instanceof TextFileBufferSnapshot)
-            return delegate.isEqualTo(((TextFileBufferSnapshot)other).delegate);
-
-        return delegate.isEqualTo(other);
+        return other.predictEquality(delegate);
     }
 
-    private synchronized boolean bufferSaved(ISnapshot fileSnapshot)
+    private synchronized boolean bufferSaved(Snapshot fileSnapshot)
     {
         if (delegate.isEqualTo(fileSnapshot))
         {
@@ -177,7 +174,7 @@ public final class TextFileBufferSnapshot
             buffer);
         if (snapshots == null || snapshots.isEmpty())
             return;
-        ISnapshot fileSnapshot = getFileSnapshot(buffer);
+        Snapshot fileSnapshot = getFileSnapshot(buffer);
         Iterator<TextFileBufferSnapshot> it = snapshots.iterator();
         while (it.hasNext())
         {
@@ -199,7 +196,7 @@ public final class TextFileBufferSnapshot
         }
     }
 
-    private static ISnapshot getFileSnapshot(ITextFileBuffer buffer)
+    private static Snapshot getFileSnapshot(ITextFileBuffer buffer)
     {
         IFile file = getFile(buffer);
         if (file != null)

@@ -100,15 +100,11 @@ final class TextFileSnapshotWs
     @Override
     protected Boolean predictEquality(Snapshot other)
     {
-        if (other instanceof TextFileSnapshot)
-            other = ((TextFileSnapshot)other).delegate;
-
         if (other instanceof TextFileSnapshotWs)
         {
             TextFileSnapshotWs otherSnapshot = (TextFileSnapshotWs)other;
-            if (file.equals(otherSnapshot.file)
-                && modificationStamp == otherSnapshot.modificationStamp)
-                return true;
+            if (file.equals(otherSnapshot.file))
+                return modificationStamp == otherSnapshot.modificationStamp;
         }
 
         if (!isCurrent())
