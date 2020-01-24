@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2020 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -38,8 +38,11 @@ public class TextFileSnapshotWsTest
     {
         assertEquals("hello", snapshot.getContents());
         assertEquals("hello", snapshot.getContents()); // another code path
+        long modificationStamp = file.getModificationStamp();
         file.touch(null);
         assertNull(snapshot.getContents());
+        file.revertModificationStamp(modificationStamp);
+        assertEquals("hello", snapshot.getContents());
     }
 
     public void test2()

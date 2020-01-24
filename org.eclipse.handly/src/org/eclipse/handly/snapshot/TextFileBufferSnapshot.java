@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,17 +12,21 @@
  *******************************************************************************/
 package org.eclipse.handly.snapshot;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.eclipse.core.filebuffers.IFileBuffer;
 import org.eclipse.core.filebuffers.IFileBufferListener;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jface.text.DocumentEvent;
-import org.eclipse.jface.text.IDocumentListener;
 
 /**
  * A snapshot of an {@link ITextFileBuffer}. Thread-safe.
@@ -30,11 +34,65 @@ import org.eclipse.jface.text.IDocumentListener;
 public final class TextFileBufferSnapshot
     extends Snapshot
 {
-    private ITextFileBuffer buffer;
-    private ITextFileBufferManager bufferManager;
-    private DocumentListener documentListener = new DocumentListener();
-    private BufferListener bufferListener = new BufferListener();
-    private Reference<String> contents;
+    private static final Map<ITextFileBuffer, Collection<TextFileBufferSnapshot>> bufferSnapshots =
+        new HashMap<>();
+    private static final IFileBufferListener bufferListener =
+        new IFileBufferListener()
+        {
+            @Override
+            public void bufferCreated(IFileBuffer buffer)
+            {
+            }
+
+            @Override
+            public void bufferDisposed(IFileBuffer buffer)
+            {
+                onBufferDisposed((ITextFileBuffer)buffer);
+            }
+
+            @Override
+            public void bufferContentAboutToBeReplaced(IFileBuffer buffer)
+            {
+            }
+
+            @Override
+            public void bufferContentReplaced(IFileBuffer buffer)
+            {
+            }
+
+            @Override
+            public void dirtyStateChanged(IFileBuffer buffer, boolean isDirty)
+            {
+                onBufferStateChanged((ITextFileBuffer)buffer, isDirty);
+            }
+
+            @Override
+            public void stateChanging(IFileBuffer buffer)
+            {
+            }
+
+            @Override
+            public void stateChangeFailed(IFileBuffer buffer)
+            {
+            }
+
+            @Override
+            public void stateValidationChanged(IFileBuffer buffer,
+                boolean isStateValidated)
+            {
+            }
+
+            @Override
+            public void underlyingFileDeleted(IFileBuffer buffer)
+            {
+            }
+
+            @Override
+            public void underlyingFileMoved(IFileBuffer buffer, IPath path)
+            {
+            }
+        };
+
     private ISnapshot delegate;
 
     /**
@@ -48,10 +106,22 @@ public final class TextFileBufferSnapshot
     public TextFileBufferSnapshot(ITextFileBuffer buffer,
         ITextFileBufferManager bufferManager)
     {
-        this.buffer = buffer;
-        this.bufferManager = bufferManager;
-        buffer.getDocument().addDocumentListener(documentListener);
-        bufferManager.addFileBufferListener(bufferListener);
+        if (buffer == null)
+            throw new IllegalArgumentException();
+        if (bufferManager == null)
+            throw new IllegalArgumentException();
+
+        if (!buffer.isDirty() && buffer.isSynchronized())
+        {
+            delegate = getFileSnapshot(buffer);
+        }
+        else
+        {
+            delegate = new DocumentSnapshot(buffer.getDocument());
+
+            trackSnapshot(buffer, this);
+            bufferManager.addFileBufferListener(bufferListener);
+        }
     }
 
     @Override
@@ -60,146 +130,91 @@ public final class TextFileBufferSnapshot
         if (delegate != null)
             return delegate.getContents();
 
-        String result = (contents != null) ? contents.get() : null;
-        if (result == null && buffer != null)
-        {
-            contents = new WeakReference<String>(result =
-                buffer.getDocument().get());
-        }
-        return result;
+        return null;
     }
 
     @Override
     protected synchronized Boolean predictEquality(Snapshot other)
     {
-        if (delegate != null)
-            return delegate.isEqualTo(other);
-
-        if (contents == null && buffer == null)
-            return false; // has expired
+        if (delegate == null)
+            return false; // expired
 
         if (other instanceof TextFileBufferSnapshot)
+            return delegate.isEqualTo(((TextFileBufferSnapshot)other).delegate);
+
+        return delegate.isEqualTo(other);
+    }
+
+    private synchronized boolean bufferSaved(ISnapshot fileSnapshot)
+    {
+        if (delegate.isEqualTo(fileSnapshot))
         {
-            if (buffer != null
-                && buffer == ((TextFileBufferSnapshot)other).buffer)
-                return true; // have the same buffer and not expired -> same contents
+            // change delegate from a document snapshot to a file snapshot
+            delegate = fileSnapshot;
+            return true;
         }
+        return false;
+    }
+
+    private synchronized void bufferDisposed()
+    {
+        delegate = null; // expire
+    }
+
+    private static synchronized void trackSnapshot(ITextFileBuffer buffer,
+        TextFileBufferSnapshot snapshot)
+    {
+        bufferSnapshots.computeIfAbsent(buffer, k -> Collections.newSetFromMap(
+            new WeakHashMap<>())).add(snapshot);
+    }
+
+    private static synchronized void onBufferStateChanged(
+        ITextFileBuffer buffer, boolean isDirty)
+    {
+        if (isDirty || !buffer.isSynchronized())
+            return;
+        Collection<TextFileBufferSnapshot> snapshots = bufferSnapshots.get(
+            buffer);
+        if (snapshots == null || snapshots.isEmpty())
+            return;
+        ISnapshot fileSnapshot = getFileSnapshot(buffer);
+        Iterator<TextFileBufferSnapshot> it = snapshots.iterator();
+        while (it.hasNext())
+        {
+            TextFileBufferSnapshot snapshot = it.next();
+            if (snapshot.bufferSaved(fileSnapshot))
+                it.remove();
+        }
+    }
+
+    private static synchronized void onBufferDisposed(ITextFileBuffer buffer)
+    {
+        Collection<TextFileBufferSnapshot> snapshots = bufferSnapshots.remove(
+            buffer);
+        if (snapshots == null)
+            return;
+        for (TextFileBufferSnapshot snapshot : snapshots)
+        {
+            snapshot.bufferDisposed();
+        }
+    }
+
+    private static ISnapshot getFileSnapshot(ITextFileBuffer buffer)
+    {
+        IFile file = getFile(buffer);
+        if (file != null)
+            return new TextFileSnapshotWs(file);
+
+        return new TextFileStoreSnapshot(buffer.getFileStore(), Charset.forName(
+            buffer.getEncoding()));
+    }
+
+    private static IFile getFile(IFileBuffer buffer)
+    {
+        if (buffer.computeCommitRule() != null) // => ResourceFileBuffer
+            return ResourcesPlugin.getWorkspace().getRoot().getFile(
+                buffer.getLocation());
 
         return null;
-    }
-
-    private synchronized void bufferChanged()
-    {
-        if (buffer == null)
-            return;
-
-        removeListeners();
-        bufferManager = null;
-        contents = null; // expire
-        buffer = null;
-    }
-
-    private synchronized void bufferClosed()
-    {
-        if (buffer == null)
-            return;
-
-        removeListeners();
-        bufferManager = null;
-        ISnapshot fileSnapshot = new TextFileStoreSnapshot(
-            buffer.getFileStore(), Charset.forName(buffer.getEncoding()));
-        if (!buffer.isDirty() && buffer.isSynchronized())
-        {
-            // the snapshot can be 'transcended' as file snapshot (no need to expire)
-            delegate = fileSnapshot;
-        }
-        contents = null; // if delegate == null, the snapshot expires
-        buffer = null;
-    }
-
-    private synchronized void removeListeners()
-    {
-        if (documentListener != null)
-        {
-            buffer.getDocument().removeDocumentListener(documentListener);
-            documentListener = null;
-        }
-        if (bufferListener != null)
-        {
-            bufferManager.removeFileBufferListener(bufferListener);
-            bufferListener = null;
-        }
-    }
-
-    private class DocumentListener
-        implements IDocumentListener
-    {
-        @Override
-        public void documentAboutToBeChanged(DocumentEvent event)
-        {
-            bufferChanged();
-        }
-
-        @Override
-        public void documentChanged(DocumentEvent event)
-        {
-        }
-    }
-
-    private class BufferListener
-        implements IFileBufferListener
-    {
-        @Override
-        public void bufferCreated(IFileBuffer buffer)
-        {
-        }
-
-        @Override
-        public void bufferDisposed(IFileBuffer buffer)
-        {
-            if (TextFileBufferSnapshot.this.buffer == buffer)
-                bufferClosed();
-        }
-
-        @Override
-        public void bufferContentAboutToBeReplaced(IFileBuffer buffer)
-        {
-        }
-
-        @Override
-        public void bufferContentReplaced(IFileBuffer buffer)
-        {
-        }
-
-        @Override
-        public void stateChanging(IFileBuffer buffer)
-        {
-        }
-
-        @Override
-        public void dirtyStateChanged(IFileBuffer buffer, boolean isDirty)
-        {
-        }
-
-        @Override
-        public void stateValidationChanged(IFileBuffer buffer,
-            boolean isStateValidated)
-        {
-        }
-
-        @Override
-        public void underlyingFileMoved(IFileBuffer buffer, IPath path)
-        {
-        }
-
-        @Override
-        public void underlyingFileDeleted(IFileBuffer buffer)
-        {
-        }
-
-        @Override
-        public void stateChangeFailed(IFileBuffer buffer)
-        {
-        }
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -27,7 +27,7 @@ import org.eclipse.handly.internal.Activator;
 public final class TextFileSnapshot
     extends TextFileSnapshotBase
 {
-    private final TextFileSnapshotBase delegate;
+    final TextFileSnapshotBase delegate;
 
     /**
      * Constructs a new snapshot of the given text {@link IFile}.
@@ -75,7 +75,7 @@ public final class TextFileSnapshot
         if (other instanceof TextFileSnapshot)
             return delegate.predictEquality(((TextFileSnapshot)other).delegate);
 
-        return null;
+        return delegate.predictEquality(other);
     }
 
     private static TextFileSnapshotBase createDelegate(IFile file, Layer layer)
