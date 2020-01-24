@@ -13,6 +13,7 @@
 package org.eclipse.handly.snapshot;
 
 import java.net.URI;
+import java.nio.charset.Charset;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -95,7 +96,17 @@ public final class TextFileSnapshot
                 Activator.logError(e);
                 return NON_EXISTING;
             }
-            return new TextFileStoreSnapshot(fileStore);
+            Charset charset = null;
+            try
+            {
+                charset = Charset.forName(TextFileSnapshotWs.getCharset(file));
+            }
+            catch (Exception e)
+            {
+                Activator.logError(e);
+            }
+            return charset == null ? new TextFileStoreSnapshot(fileStore)
+                : new TextFileStoreSnapshot(fileStore, charset);
         }
         return new TextFileSnapshotWs(file);
     }

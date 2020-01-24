@@ -125,10 +125,13 @@ final class TextFileSnapshotWs
 
     private void cacheCharset() throws CoreException
     {
-        if (charset != null)
-            return;
+        if (charset == null)
+            charset = getCharset(file);
+    }
 
-        charset = file.getCharset(false);
+    static String getCharset(IFile file) throws CoreException
+    {
+        String charset = file.getCharset(false);
         if (charset == null)
         {
             try (InputStream contents = file.getContents(false))
@@ -143,6 +146,7 @@ final class TextFileSnapshotWs
         }
         if (charset == null)
             charset = file.getParent().getDefaultCharset();
+        return charset;
     }
 
     private String readContents() throws CoreException
