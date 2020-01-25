@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-   Copyright (c) 2014, 2019 1C-Soft LLC and others.
+   Copyright (c) 2014, 2020 1C-Soft LLC and others.
 
    This program and the accompanying materials are made available under
    the terms of the Eclipse Public License 2.0 which is available at
@@ -17,7 +17,6 @@
    Currently, the Base Platform includes:
    * Eclipse Project SDK 4.7.1 (Oxygen.1)
    * Xtext SDK 2.12 and dependencies
-   * LSP4J 0.3/LSP4E 0.4 and dependencies
 -->
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
@@ -42,29 +41,6 @@
 <unit id="org.objectweb.asm" version="0.0.0"/>
 <unit id="com.google.guava" version="0.0.0"/>
 <unit id="com.google.inject" version="0.0.0"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/lsp4j/updates/releases/0.3.0"/>
-<unit id="org.eclipse.lsp4j" version="0.0.0"/>
-<unit id="org.eclipse.lsp4j.jsonrpc" version="0.0.0"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/lsp4e/releases/0.4.0"/>
-<unit id="org.eclipse.lsp4e" version="0.0.0"/>
-<unit id="com.google.gson" version="0.0.0"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<!-- LSP4E 0.4 requires mylyn.commons.notifications which requires mylyn.commons -->
-<repository location="http://download.eclipse.org/mylyn/drops/3.21.3/v20170505-2151"/>
-<unit id="org.eclipse.mylyn.commons.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.mylyn.commons.notifications.feature.group" version="0.0.0"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<!-- LSP4E 0.4 requires mylyn.wikitext and mylyn.wikitext.markdown 3.0 or greater -->
-<repository location="http://download.eclipse.org/mylyn/docs/releases/3.0.6"/>
-<unit id="org.eclipse.mylyn.wikitext" version="0.0.0"/>
-<unit id="org.eclipse.mylyn.wikitext.markdown" version="0.0.0"/>
-<unit id="org.jsoup" version="0.0.0"/>
 </location>
 </locations>
 </target>
