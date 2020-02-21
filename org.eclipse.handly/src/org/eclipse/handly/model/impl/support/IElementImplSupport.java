@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -66,7 +66,7 @@ public interface IElementImplSupport
      * for its name and its parent element. This method is specialized in {@link
      * ISourceConstructImplSupport} to include the element's occurrence count,
      * and in {@link ISourceFileImplSupport} to return the hash code for the
-     * underlying <code>IFile</code>, if there is one. This method is not intended
+     * underlying file object, if there is one. This method is not intended
      * to be replaced by clients; if necessary, clients should override <code>
      * hashCode</code> directly.
      * </p>
@@ -87,7 +87,7 @@ public interface IElementImplSupport
      * are identical or if they {@link #canEqual_(Object) can equal} each other
      * and do have equal names and equal parents. This method is specialized in
      * {@link ISourceConstructImplSupport} and {@link ISourceFileImplSupport}
-     * to also compare occurrence counts and underlying <code>IFile</code>s
+     * to also compare occurrence counts and underlying file objects
      * respectively. This method is not intended to be replaced by clients;
      * if necessary, clients should override <code>equals</code> directly.
      * <p>

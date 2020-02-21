@@ -25,6 +25,22 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/handly/model/impl/ISourceFileImpl.java" type="org.eclipse.handly.model.impl.ISourceFileImpl">
+        <filter id="404000815">
+            <message_arguments>
+                <message_argument value="org.eclipse.handly.model.impl.ISourceFileImpl"/>
+                <message_argument value="getFileStore_()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/handly/model/impl/support/ISourceFileImplSupport.java" type="org.eclipse.handly.model.impl.support.ISourceFileImplSupport">
+        <filter id="404000815">
+            <message_arguments>
+                <message_argument value="org.eclipse.handly.model.impl.support.ISourceFileImplSupport"/>
+                <message_argument value="getFileObject_()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/handly/refactoring/SourceFileChange.java" type="org.eclipse.handly.refactoring.SourceFileChange$PreviewEditProcessor">
         <filter id="571473929">
             <message_arguments>

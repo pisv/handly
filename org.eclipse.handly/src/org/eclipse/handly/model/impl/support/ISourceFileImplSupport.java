@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,6 +26,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -50,6 +51,7 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.ISnapshotProvider;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.handly.snapshot.TextFileSnapshot;
+import org.eclipse.handly.snapshot.TextFileStoreSnapshot;
 import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
@@ -57,7 +59,7 @@ import org.eclipse.handly.util.TextRange;
  * A "trait-like" interface providing a skeletal implementation of {@link
  * ISourceFileImplExtension} to minimize the effort required to implement
  * that interface. Clients may implement ("mix in") this interface directly or
- * extend {@link SourceFile}.
+ * extend a class in the {@link SourceFile} hierarchy.
  * <p>
  * In general, the members first defined in this interface are not intended
  * to be referenced outside the subtype hierarchy.
@@ -77,7 +79,7 @@ public interface ISourceFileImplSupport
     @Override
     default int defaultHashCode_()
     {
-        IFile file = getFile_();
+        Object file = getFileObject_();
         if (file != null)
             return file.hashCode();
         return ISourceElementImplSupport.super.defaultHashCode_();
@@ -88,10 +90,34 @@ public interface ISourceFileImplSupport
     {
         if (!(obj instanceof ISourceFileImplSupport))
             return false;
-        IFile file = getFile_();
+        Object file = getFileObject_();
         return (file == null || file.equals(
-            ((ISourceFileImplSupport)obj).getFile_()))
+            ((ISourceFileImplSupport)obj).getFileObject_()))
             && ISourceElementImplSupport.super.defaultEquals_(obj);
+    }
+
+    /**
+     * Returns the underlying file object, if any. The relationship between
+     * a source file and its underlying file object does not change.
+     * <p>
+     * This implementation returns the underlying <code>IFile</code>, if any.
+     * If there is no underlying <code>IFile</code>, this implementation returns
+     * the corresponding <code>IFileStore</code> (if any), on the assumption that
+     * the relationship between this source file and the file store does not change.
+     * </p>
+     *
+     * @return the underlying file object, or <code>null</code> if none
+     * @since 1.3
+     * @see #getFile_()
+     * @see #getFileStore_()
+     */
+    default Object getFileObject_()
+    {
+        IFile file = getFile_();
+        if (file != null)
+            return file;
+
+        return getFileStore_();
     }
 
     /**
@@ -370,9 +396,11 @@ public interface ISourceFileImplSupport
     /**
      * Returns whether the underlying file exists.
      * <p>
-     * This implementation returns <code>getFile_().exists()</code> if
-     * this source file has an underlying <code>IFile</code>; otherwise,
-     * it throws an assertion error.
+     * If this source file has an underlying <code>IFile</code>,
+     * this implementation returns <code>getFile_().exists()</code>.
+     * Otherwise, if this source file has a corresponding <code>IFileStore</code>,
+     * this implementation returns <code>getFileStore_().fetchInfo().exists()</code>.
+     * Otherwise, an assertion error is thrown.
      * </p>
      *
      * @return <code>true</code> if the underlying file exists,
@@ -381,9 +409,14 @@ public interface ISourceFileImplSupport
     default boolean fileExists_()
     {
         IFile file = getFile_();
-        if (file == null)
-            throw new AssertionError("Please override this method"); //$NON-NLS-1$
-        return file.exists();
+        if (file != null)
+            return file.exists();
+
+        IFileStore fileStore = getFileStore_();
+        if (fileStore != null)
+            return fileStore.fetchInfo().exists();
+
+        throw new AssertionError("Please override this method"); //$NON-NLS-1$
     }
 
     /**
@@ -396,8 +429,10 @@ public interface ISourceFileImplSupport
      * </p>
      * <p>
      * This implementation returns a snapshot provider for the stored contents
-     * of the underlying {@link #getFile_() IFile}; it throws an assertion error
-     * if this source file has no underlying file in the workspace.
+     * of the underlying <code>IFile</code> or, if this source file has no
+     * underlying file in the workspace, of the corresponding <code>IFileStore</code>
+     * (if any). If there is neither underlying <code>IFile</code> nor
+     * corresponding <code>IFileStore</code>, an assertion error is thrown.
      * </p>
      *
      * @return a snapshot provider for the underlying file's stored contents
@@ -406,23 +441,44 @@ public interface ISourceFileImplSupport
     default ISnapshotProvider getFileSnapshotProvider_()
     {
         IFile file = getFile_();
-        if (file == null)
-            throw new AssertionError("Please override this method"); //$NON-NLS-1$
-        return () ->
-        {
-            TextFileSnapshot result = new TextFileSnapshot(file,
-                TextFileSnapshot.Layer.FILESYSTEM);
-            if (!result.exists())
+        if (file != null)
+            return () ->
             {
-                throw new IllegalStateException(newDoesNotExistException_());
-            }
-            if (result.getContents() == null && !result.getStatus().isOK())
+                TextFileSnapshot result = new TextFileSnapshot(file,
+                    TextFileSnapshot.Layer.FILESYSTEM);
+                if (!result.exists())
+                {
+                    throw new IllegalStateException(
+                        newDoesNotExistException_());
+                }
+                if (result.getContents() == null && !result.getStatus().isOK())
+                {
+                    throw new IllegalStateException(new CoreException(
+                        result.getStatus()));
+                }
+                return result;
+            };
+
+        IFileStore fileStore = getFileStore_();
+        if (fileStore != null)
+            return () ->
             {
-                throw new IllegalStateException(new CoreException(
-                    result.getStatus()));
-            }
-            return result;
-        };
+                TextFileStoreSnapshot result = new TextFileStoreSnapshot(
+                    fileStore);
+                if (!result.exists())
+                {
+                    throw new IllegalStateException(
+                        newDoesNotExistException_());
+                }
+                if (result.getContents() == null && !result.getStatus().isOK())
+                {
+                    throw new IllegalStateException(new CoreException(
+                        result.getStatus()));
+                }
+                return result;
+            };
+
+        throw new AssertionError("Please override this method"); //$NON-NLS-1$
     }
 
     /**
@@ -451,11 +507,14 @@ public interface ISourceFileImplSupport
      * </li>
      * </ul>
      * <p>
-     * This implementation returns a buffer opened for the underlying {@link
-     * #getFile_() IFile}, or <code>null</code> if <code>CREATE_BUFFER</code> is
-     * <code>false</code> in the given context and there is currently no buffer
-     * opened for that file; it throws an assertion error if this source file
-     * has no underlying file in the workspace.
+     * This implementation returns a buffer opened for the underlying
+     * <code>IFile</code> or, if this source file has no underlying file
+     * in the workspace, for the corresponding <code>IFileStore</code> (if any).
+     * If there is neither underlying <code>IFile</code> nor corresponding
+     * <code>IFileStore</code>, an assertion error is thrown.
+     * If <code>CREATE_BUFFER</code> is <code>false</code> in the given context
+     * and there is currently no buffer opened for the file, <code>null</code>
+     * is returned.
      * </p>
      *
      * @param context the operation context (not <code>null</code>)
@@ -471,12 +530,25 @@ public interface ISourceFileImplSupport
     default IBuffer getFileBuffer_(IContext context, IProgressMonitor monitor)
         throws CoreException
     {
+        ICoreTextFileBufferProvider provider;
         IFile file = getFile_();
-        if (file == null)
-            throw new AssertionError("Please override this method"); //$NON-NLS-1$
-        ICoreTextFileBufferProvider provider =
-            ICoreTextFileBufferProvider.forLocation(file.getFullPath(),
-                LocationKind.IFILE, ITextFileBufferManager.DEFAULT);
+        if (file != null)
+        {
+            provider = ICoreTextFileBufferProvider.forLocation(
+                file.getFullPath(), LocationKind.IFILE,
+                ITextFileBufferManager.DEFAULT);
+        }
+        else
+        {
+            IFileStore fileStore = getFileStore_();
+            if (fileStore != null)
+            {
+                provider = ICoreTextFileBufferProvider.forFileStore(fileStore,
+                    ITextFileBufferManager.DEFAULT);
+            }
+            else
+                throw new AssertionError("Please override this method"); //$NON-NLS-1$
+        }
         if (!context.getOrDefault(CREATE_BUFFER)
             && provider.getBuffer() == null)
         {

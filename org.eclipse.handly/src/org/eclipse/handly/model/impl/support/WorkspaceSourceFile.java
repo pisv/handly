@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -24,6 +24,9 @@ import org.eclipse.handly.model.impl.ISourceFileImplExtension;
  * as well implement a workspace source file by extending {@link SourceFile} or
  * implementing ("mixing in") {@link ISourceFileImplSupport} directly
  * if extending this class is not possible/desirable for some reason.
+ *
+ * @see BaseSourceFile
+ * @see FsSourceFile
  */
 public abstract class WorkspaceSourceFile
     extends SourceFile
@@ -62,6 +65,18 @@ public abstract class WorkspaceSourceFile
      */
     @Override
     public final IFile getFile_()
+    {
+        return file;
+    }
+
+    /**
+     * Returns the underlying {@link IFile}. This is a handle-only method.
+     *
+     * @return the underlying <code>IFile</code> (never <code>null</code>)
+     * @since 1.3
+     */
+    @Override
+    public final Object getFileObject_()
     {
         return file;
     }

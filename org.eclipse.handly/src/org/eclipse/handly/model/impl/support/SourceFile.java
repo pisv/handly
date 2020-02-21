@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -21,6 +21,8 @@ import org.eclipse.handly.model.impl.ISourceFileImplExtension;
  * as well implement ("mix in") {@link ISourceFileImplSupport} directly
  * if extending this class is not possible/desirable for some reason.
  *
+ * @see BaseSourceFile
+ * @see FsSourceFile
  * @see WorkspaceSourceFile
  */
 public abstract class SourceFile

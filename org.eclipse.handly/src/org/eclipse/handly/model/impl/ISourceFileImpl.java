@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,6 +12,10 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl;
 
+import java.net.URI;
+
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,6 +47,34 @@ public interface ISourceFileImpl
     default IFile getFile_()
     {
         return (IFile)getResource_();
+    }
+
+    /**
+     * Returns the corresponding {@link IFileStore}, or <code>null</code>
+     * if this source file has no corresponding file store.
+     * <p>
+     * This implementation returns the file store corresponding to the
+     * {@link #getLocationUri_() location URI}, if any.
+     * </p>
+     *
+     * @return the corresponding <code>IFileStore</code>, or <code>null</code>
+     *  if this source file has no corresponding file store
+     * @since 1.3
+     */
+    default IFileStore getFileStore_()
+    {
+        URI uri = getLocationUri_();
+        if (uri != null)
+        {
+            try
+            {
+                return EFS.getStore(uri);
+            }
+            catch (CoreException e)
+            {
+            }
+        }
+        return null;
     }
 
     /**

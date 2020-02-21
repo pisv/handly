@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -132,11 +132,18 @@ public interface IElementImpl
      * for <code>null</code> even when <code>org.eclipse.core.resources</code>
      * bundle is not available.
      * </p>
+     * <p>
+     * Since 1.3, this method is no longer abstract. The default implementation
+     * always returns <code>null</code>.
+     * </p>
      *
      * @return the innermost resource enclosing this element, or <code>null</code>
      *  if this element is not enclosed in a workspace resource
      */
-    IResource getResource_();
+    default IResource getResource_()
+    {
+        return null;
+    }
 
     /**
      * Returns a file system location for this element. The resulting URI is

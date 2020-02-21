@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -58,6 +59,7 @@ import org.eclipse.handly.util.TextRange;
  * this class can safely be used even when <code>org.eclipse.core.resources</code>
  * bundle is not available. This is based on the "outward impression" of late
  * resolution of symbolic references a JVM must provide according to the JVMS.
+ * Since 1.3, there is also a similar dependency on {@link IFileStore}.
  * </p>
  */
 public class Elements
@@ -1331,6 +1333,20 @@ public class Elements
     public static IFile getFile(ISourceFile sourceFile)
     {
         return ((ISourceFileImpl)sourceFile).getFile_();
+    }
+
+    /**
+     * Returns the corresponding {@link IFileStore}, or <code>null</code>
+     * if the source file has no corresponding file store.
+     *
+     * @param sourceFile not <code>null</code>
+     * @return the corresponding <code>IFileStore</code>, or <code>null</code>
+     *  if this source file has no corresponding file store
+     * @since 1.3
+     */
+    public static IFileStore getFileStore(ISourceFile sourceFile)
+    {
+        return ((ISourceFileImpl)sourceFile).getFileStore_();
     }
 
     /**
