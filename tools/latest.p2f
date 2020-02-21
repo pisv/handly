@@ -2,7 +2,7 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='7'>
-    <iu id='org.eclipse.sdk.ide' version='4.15.0.I20200110-0905'>
+    <iu id='org.eclipse.sdk.ide' version='4.15.0.I20200129-1800'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2020-03/'/>
       </repositories>
@@ -17,7 +17,7 @@
         <repository location='http://download.eclipse.org/releases/2020-03/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.21.0.v20200113-1426'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.21.0.v20200203-1045'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2020-03/'/>
       </repositories>
@@ -32,7 +32,7 @@
         <repository location='http://download.eclipse.org/releases/2020-03/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.emf.sdk.feature.group' version='2.21.0.v20200103-0948'>
+    <iu id='org.eclipse.emf.sdk.feature.group' version='2.21.0.v20200127-1346'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2020-03/'/>
       </repositories>
