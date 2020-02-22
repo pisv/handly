@@ -25,6 +25,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/handly/buffer/IBuffer.java" type="org.eclipse.handly.buffer.IBuffer">
+        <filter id="404000815">
+            <message_arguments>
+                <message_argument value="org.eclipse.handly.buffer.IBuffer"/>
+                <message_argument value="getAnnotationModel()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/handly/model/impl/ISourceFileImpl.java" type="org.eclipse.handly.model.impl.ISourceFileImpl">
         <filter id="404000815">
             <message_arguments>

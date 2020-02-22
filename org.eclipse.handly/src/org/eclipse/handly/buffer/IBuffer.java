@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -21,6 +21,7 @@ import org.eclipse.handly.snapshot.NonExpiringSnapshot;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.handly.util.IReferenceCountable;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.IAnnotationModel;
 
 /**
  * Represents a potentially shared buffer that contains text contents of a
@@ -113,6 +114,20 @@ public interface IBuffer
      * @return the buffer's underlying document (never <code>null</code>)
      */
     IDocument getDocument();
+
+    /**
+     * Returns the annotation model of this buffer, if any.
+     * <p>
+     * The default method implementation always returns <code>null</code>.
+     * </p>
+     *
+     * @return the buffer's annotation model, or <code>null</code> if none
+     * @since 1.3
+     */
+    default IAnnotationModel getAnnotationModel()
+    {
+        return null;
+    }
 
     @Override
     void addRef();

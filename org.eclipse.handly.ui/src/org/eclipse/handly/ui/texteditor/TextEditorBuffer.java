@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,6 +26,7 @@ import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.util.UiSynchronizer;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -52,6 +53,7 @@ public final class TextEditorBuffer
     private final IEditorInput editorInput;
     private final IDocumentProvider documentProvider;
     private IDocument document;
+    private IAnnotationModel annotationModel;
     private int refCount = 1;
 
     /**
@@ -84,6 +86,7 @@ public final class TextEditorBuffer
         {
             if ((document = documentProvider.getDocument(editorInput)) == null)
                 throw new AssertionError();
+            annotationModel = documentProvider.getAnnotationModel(editorInput);
             f = true;
         }
         finally
@@ -102,6 +105,12 @@ public final class TextEditorBuffer
                 "Attempt to access a disconnected TextEditorBuffer for " //$NON-NLS-1$
                     + editorInput.getToolTipText());
         return result;
+    }
+
+    @Override
+    public IAnnotationModel getAnnotationModel()
+    {
+        return annotationModel;
     }
 
     @Override
@@ -162,6 +171,7 @@ public final class TextEditorBuffer
         if (--refCount == 0 && document != null)
         {
             document = null;
+            annotationModel = null;
             uiSynchronizer.asyncExec(new Runnable()
             {
                 public void run()
