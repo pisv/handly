@@ -15,10 +15,10 @@ package org.eclipse.handly.snapshot;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.core.filebuffers.IFileBuffer;
 import org.eclipse.core.filebuffers.IFileBufferListener;
@@ -34,8 +34,8 @@ import org.eclipse.core.runtime.IPath;
 public final class TextFileBufferSnapshot
     extends Snapshot
 {
-    private static final Map<ITextFileBuffer, Collection<TextFileBufferSnapshot>> bufferSnapshots =
-        new HashMap<>();
+    private static final ConcurrentMap<ITextFileBuffer, Collection<TextFileBufferSnapshot>> bufferSnapshots =
+        new ConcurrentHashMap<>();
     private static final IFileBufferListener bufferListener =
         new IFileBufferListener()
         {
@@ -93,7 +93,7 @@ public final class TextFileBufferSnapshot
             }
         };
 
-    private Snapshot delegate;
+    private volatile Snapshot delegate;
 
     /**
      * Constructs a new snapshot of the given text file buffer.
@@ -125,74 +125,89 @@ public final class TextFileBufferSnapshot
     }
 
     @Override
-    public synchronized String getContents()
+    public String getContents()
     {
-        if (delegate != null)
-            return delegate.getContents();
+        Snapshot d = delegate;
+        if (d == null)
+            return null; // expired
 
-        return null;
+        return d.getContents();
     }
 
     @Override
-    protected synchronized Boolean predictEquality(Snapshot other)
+    protected Boolean predictEquality(Snapshot other)
     {
-        if (delegate == null)
+        Snapshot d = delegate;
+        if (d == null)
             return false; // expired
 
-        return other.predictEquality(delegate);
+        return other.predictEquality(d);
     }
 
-    private synchronized boolean bufferSaved(Snapshot fileSnapshot)
+    private boolean bufferSaved(Snapshot fileSnapshot)
     {
-        if (delegate.isEqualTo(fileSnapshot))
-        {
-            // change delegate from a document snapshot to a file snapshot
-            delegate = fileSnapshot;
-            return true;
-        }
-        return false;
+        Snapshot d = delegate;
+        if (d == null || !d.isEqualTo(fileSnapshot))
+            return false;
+
+        // change delegate from a document snapshot to a file snapshot
+        delegate = fileSnapshot;
+        return true;
     }
 
-    private synchronized void bufferDisposed()
+    private void bufferDisposed()
     {
         delegate = null; // expire
     }
 
-    private static synchronized void trackSnapshot(ITextFileBuffer buffer,
+    private static void trackSnapshot(ITextFileBuffer buffer,
         TextFileBufferSnapshot snapshot)
     {
-        bufferSnapshots.computeIfAbsent(buffer, k -> Collections.newSetFromMap(
-            new WeakHashMap<>())).add(snapshot);
+        Collection<TextFileBufferSnapshot> snapshots =
+            bufferSnapshots.computeIfAbsent(buffer,
+                k -> Collections.newSetFromMap(new WeakHashMap<>()));
+        synchronized (snapshots)
+        {
+            snapshots.add(snapshot);
+        }
     }
 
-    private static synchronized void onBufferStateChanged(
-        ITextFileBuffer buffer, boolean isDirty)
+    private static void onBufferStateChanged(ITextFileBuffer buffer,
+        boolean isDirty)
     {
         if (isDirty || !buffer.isSynchronized())
             return;
         Collection<TextFileBufferSnapshot> snapshots = bufferSnapshots.get(
             buffer);
-        if (snapshots == null || snapshots.isEmpty())
+        if (snapshots == null)
             return;
-        Snapshot fileSnapshot = getFileSnapshot(buffer);
-        Iterator<TextFileBufferSnapshot> it = snapshots.iterator();
-        while (it.hasNext())
+        synchronized (snapshots)
         {
-            TextFileBufferSnapshot snapshot = it.next();
-            if (snapshot.bufferSaved(fileSnapshot))
-                it.remove();
+            if (snapshots.isEmpty())
+                return;
+            Snapshot fileSnapshot = getFileSnapshot(buffer);
+            Iterator<TextFileBufferSnapshot> it = snapshots.iterator();
+            while (it.hasNext())
+            {
+                TextFileBufferSnapshot snapshot = it.next();
+                if (snapshot.bufferSaved(fileSnapshot))
+                    it.remove();
+            }
         }
     }
 
-    private static synchronized void onBufferDisposed(ITextFileBuffer buffer)
+    private static void onBufferDisposed(ITextFileBuffer buffer)
     {
         Collection<TextFileBufferSnapshot> snapshots = bufferSnapshots.remove(
             buffer);
         if (snapshots == null)
             return;
-        for (TextFileBufferSnapshot snapshot : snapshots)
+        synchronized (snapshots)
         {
-            snapshot.bufferDisposed();
+            for (TextFileBufferSnapshot snapshot : snapshots)
+            {
+                snapshot.bufferDisposed();
+            }
         }
     }
 
