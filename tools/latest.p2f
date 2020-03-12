@@ -2,17 +2,17 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='7'>
-    <iu id='org.eclipse.sdk.ide' version='4.15.0.I20200226-1800'>
+    <iu id='org.eclipse.sdk.ide' version='4.15.0.I20200305-0155'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2020-03/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='5.7.0.202002241735-m3'>
+    <iu id='org.eclipse.egit.feature.group' version='5.7.0.202003110725-r'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2020-03/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='1.15.0.20200304-0718'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.15.0.20200310-1832'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2020-03/'/>
       </repositories>
