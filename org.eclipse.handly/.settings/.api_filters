@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.handly" version="2">
-    <resource path="src/org/eclipse/handly/ApiLevel.java" type="org.eclipse.handly.ApiLevel">
-        <filter id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.ApiLevel"/>
-                <message_argument value="CURRENT"/>
-                <message_argument value="2"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="src/org/eclipse/handly/buffer/BufferChange.java" type="org.eclipse.handly.buffer.BufferChange">
         <filter id="576725006">
             <message_arguments>
@@ -22,30 +13,6 @@
             <message_arguments>
                 <message_argument value="TextEditProcessor"/>
                 <message_argument value="ChangeEditProcessor"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/handly/buffer/IBuffer.java" type="org.eclipse.handly.buffer.IBuffer">
-        <filter id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.buffer.IBuffer"/>
-                <message_argument value="getAnnotationModel()"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/handly/model/impl/ISourceFileImpl.java" type="org.eclipse.handly.model.impl.ISourceFileImpl">
-        <filter id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.model.impl.ISourceFileImpl"/>
-                <message_argument value="getFileStore_()"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/handly/model/impl/support/ISourceFileImplSupport.java" type="org.eclipse.handly.model.impl.support.ISourceFileImplSupport">
-        <filter id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.model.impl.support.ISourceFileImplSupport"/>
-                <message_argument value="getFileObject_()"/>
             </message_arguments>
         </filter>
     </resource>
