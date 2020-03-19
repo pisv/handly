@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2019 1C-Soft LLC.
+ * Copyright (c) 2017, 2020 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -45,10 +45,17 @@ public final class ApiLevel
     public static final int _1_3 = 3;
 
     /**
+     * The 1.4 API level.
+     *
+     * @since 1.4
+     */
+    public static final int _1_4 = 4;
+
+    /**
      * Corresponds to the API level the code using this constant
      * was built against.
      */
-    public static final int CURRENT = _1_3;
+    public static final int CURRENT = _1_4;
 
     private ApiLevel()
     {
