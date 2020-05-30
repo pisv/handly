@@ -117,9 +117,6 @@ public interface IBuffer
 
     /**
      * Returns the annotation model of this buffer, if any.
-     * <p>
-     * The default method implementation always returns <code>null</code>.
-     * </p>
      *
      * @return the buffer's annotation model, or <code>null</code> if none
      * @since 1.3
@@ -127,6 +124,42 @@ public interface IBuffer
     default IAnnotationModel getAnnotationModel()
     {
         return null;
+    }
+
+    /**
+     * Returns a bit-mask describing the listener methods supported
+     * by this buffer. The buffer will never invoke a listener method
+     * it does not support.
+     *
+     * @return a bit-mask describing the supported listener methods
+     * @since 1.4
+     * @see IBufferListener
+     */
+    default int getSupportedListenerMethods()
+    {
+        return 0;
+    }
+
+    /**
+     * Adds the given listener to this buffer. Has no effect if the same listener
+     * is already registered.
+     *
+     * @param listener not <code>null</code>
+     * @since 1.4
+     */
+    default void addListener(IBufferListener listener)
+    {
+    }
+
+    /**
+     * Removes the given listener from this buffer. Has no effect if the same
+     * listener was not already registered.
+     *
+     * @param listener not <code>null</code>
+     * @since 1.4
+     */
+    default void removeListener(IBufferListener listener)
+    {
     }
 
     @Override

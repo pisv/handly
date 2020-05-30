@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.handly.buffer;
 
+import org.eclipse.core.filebuffers.IFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
@@ -20,8 +21,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.snapshot.ISnapshot;
@@ -49,6 +52,8 @@ public final class TextFileBuffer
     private final Object location;
     private ICoreTextFileBufferProvider coreTextFileBufferProvider;
     private int refCount = 1;
+    private ListenerList<IBufferListener> listeners;
+    private FileBufferListener fileBufferListener;
 
     /**
      * Returns a {@link TextFileBuffer} for the given file location.
@@ -231,6 +236,44 @@ public final class TextFileBuffer
     }
 
     @Override
+    public int getSupportedListenerMethods()
+    {
+        return IBufferListener.M_BUFFER_SAVED;
+    }
+
+    @Override
+    public synchronized void addListener(IBufferListener listener)
+    {
+        if (listeners != null)
+            listeners.add(listener);
+        else
+        {
+            ICoreTextFileBufferProvider provider =
+                getCoreTextFileBufferProvider();
+            listeners = new ListenerList<>();
+            listeners.add(listener);
+            fileBufferListener = new FileBufferListener(provider.getBuffer());
+            provider.getBufferManager().addFileBufferListener(
+                fileBufferListener);
+        }
+    }
+
+    @Override
+    public synchronized void removeListener(IBufferListener listener)
+    {
+        if (listeners == null)
+            return;
+        listeners.remove(listener);
+        if (listeners.isEmpty())
+        {
+            getCoreTextFileBufferProvider().getBufferManager().removeFileBufferListener(
+                fileBufferListener);
+            fileBufferListener = null;
+            listeners = null;
+        }
+    }
+
+    @Override
     public void addRef()
     {
         synchronized (this)
@@ -251,14 +294,66 @@ public final class TextFileBuffer
                 return;
             provider = coreTextFileBufferProvider;
             coreTextFileBufferProvider = null;
+            listeners = null;
         }
         try
         {
-            provider.disconnect(null);
+            if (fileBufferListener != null)
+            {
+                provider.getBufferManager().removeFileBufferListener(
+                    fileBufferListener);
+                fileBufferListener = null;
+            }
         }
-        catch (CoreException e)
+        finally
         {
-            Activator.logError(e);
+            try
+            {
+                provider.disconnect(null);
+            }
+            catch (CoreException e)
+            {
+                Activator.logError(e);
+            }
+        }
+    }
+
+    private void fireBufferSaved()
+    {
+        ListenerList<IBufferListener> listeners;
+        synchronized (this)
+        {
+            if (this.listeners == null)
+                return;
+            listeners = this.listeners;
+        }
+        for (IBufferListener listener : listeners)
+        {
+            SafeRunner.run(() -> listener.bufferSaved(this));
+        }
+    }
+
+    private class FileBufferListener
+        extends FileBufferListenerAdapter
+    {
+        private final ITextFileBuffer buffer;
+        private long modificationStamp;
+
+        FileBufferListener(ITextFileBuffer buffer)
+        {
+            this.buffer = buffer;
+            modificationStamp = buffer.getModificationStamp();
+        }
+
+        @Override
+        public void dirtyStateChanged(IFileBuffer buffer, boolean isDirty)
+        {
+            if (buffer == this.buffer && !isDirty && buffer.isSynchronized()
+                && modificationStamp != buffer.getModificationStamp())
+            {
+                modificationStamp = buffer.getModificationStamp();
+                fireBufferSaved();
+            }
         }
     }
 }

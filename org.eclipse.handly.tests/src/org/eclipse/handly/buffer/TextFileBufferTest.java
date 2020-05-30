@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 1C-Soft LLC.
+ * Copyright (c) 2016, 2020 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -11,6 +11,8 @@
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.handly.buffer;
+
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -52,7 +54,8 @@ public class TextFileBufferTest
 
         Throwable[] exception = new Throwable[1];
         Display display = PlatformUI.createDisplay();
-        try (DisplayAutoCloseable r1 = new DisplayAutoCloseable(display);
+        try (
+            DisplayAutoCloseable r1 = new DisplayAutoCloseable(display);
             WorkbenchAutoCloseable r2 = new WorkbenchAutoCloseable())
         {
             PlatformUI.createAndRunWorkbench(display, new WorkbenchAdvisor()
@@ -114,6 +117,44 @@ public class TextFileBufferTest
         assertEquals("dcba", buffer.getSnapshot().getContents());
     }
 
+    public void testSaveListener() throws Exception
+    {
+        SaveListener listener = new SaveListener();
+        buffer.addListener(listener);
+        try
+        {
+            buffer.applyChange(new BufferChange(new InsertEdit(0, "a")), null);
+            assertFalse(buffer.isDirty());
+            assertSame(buffer, listener.savedBuffer);
+            listener.savedBuffer = null;
+            // wait a second to allow for filesystem timestamp precision variances
+            Thread.sleep(1000);
+
+            buffer.save(EMPTY_CONTEXT, null); // noop
+            assertNull(listener.savedBuffer);
+
+            buffer.applyChange(new BufferChange(new InsertEdit(0, "b")), null);
+            assertFalse(buffer.isDirty());
+            assertSame(buffer, listener.savedBuffer);
+            listener.savedBuffer = null;
+            Thread.sleep(1000);
+
+            BufferChange change = new BufferChange(new InsertEdit(0, "c"));
+            change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+            IBufferChange undoChange = buffer.applyChange(change, null);
+            assertTrue(buffer.isDirty());
+            assertNull(listener.savedBuffer);
+
+            buffer.applyChange(undoChange, null);
+            assertFalse(buffer.isDirty());
+            assertNull(listener.savedBuffer);
+        }
+        finally
+        {
+            buffer.removeListener(listener);
+        }
+    }
+
     private static class DisplayAutoCloseable
         implements AutoCloseable
     {
@@ -139,6 +180,18 @@ public class TextFileBufferTest
         {
             if (PlatformUI.isWorkbenchRunning())
                 assertTrue(PlatformUI.getWorkbench().close());
+        }
+    }
+
+    private static class SaveListener
+        implements IBufferListener
+    {
+        IBuffer savedBuffer;
+
+        @Override
+        public void bufferSaved(IBuffer buffer)
+        {
+            savedBuffer = buffer;
         }
     }
 }

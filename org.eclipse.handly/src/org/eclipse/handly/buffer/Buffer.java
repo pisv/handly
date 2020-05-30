@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 1C-Soft LLC.
+ * Copyright (c) 2015, 2020 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,9 @@ import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.Activator;
 import org.eclipse.handly.snapshot.DocumentSnapshot;
@@ -41,6 +43,8 @@ public class Buffer
 {
     private final IDocument document;
     private volatile long synchronizationStamp;
+    private final ListenerList<IBufferListener> listeners =
+        new ListenerList<>();
 
     /**
      * Creates a new buffer instance that is initially empty.
@@ -120,12 +124,31 @@ public class Buffer
             synchronizationStamp =
                 ((IDocumentExtension4)document).getModificationStamp();
         }
+        fireBufferSaved();
     }
 
     @Override
     public boolean isDirty()
     {
         return ((IDocumentExtension4)document).getModificationStamp() != synchronizationStamp;
+    }
+
+    @Override
+    public int getSupportedListenerMethods()
+    {
+        return IBufferListener.M_BUFFER_SAVED;
+    }
+
+    @Override
+    public void addListener(IBufferListener listener)
+    {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(IBufferListener listener)
+    {
+        listeners.remove(listener);
     }
 
     @Override
@@ -154,11 +177,27 @@ public class Buffer
         // default implementation does nothing; subclasses may override
     }
 
+    /**
+     * @since 1.4
+     */
+    protected Iterable<IBufferListener> getListeners()
+    {
+        return listeners;
+    }
+
     final void initWithContents(String contents)
     {
         if (contents != null && !contents.isEmpty())
             document.set(contents);
         synchronizationStamp =
             ((IDocumentExtension4)document).getModificationStamp();
+    }
+
+    private void fireBufferSaved()
+    {
+        for (IBufferListener listener : getListeners())
+        {
+            SafeRunner.run(() -> listener.bufferSaved(this));
+        }
     }
 }

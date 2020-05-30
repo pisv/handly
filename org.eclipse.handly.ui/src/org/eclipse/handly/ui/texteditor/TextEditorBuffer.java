@@ -14,10 +14,13 @@ package org.eclipse.handly.ui.texteditor;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.buffer.BufferChangeOperation;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.buffer.IBufferChange;
+import org.eclipse.handly.buffer.IBufferListener;
 import org.eclipse.handly.buffer.UiBufferChangeRunner;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.internal.ui.Activator;
@@ -30,6 +33,8 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.IDocumentProviderExtension3;
+import org.eclipse.ui.texteditor.IElementStateListener;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
@@ -44,6 +49,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
  * <li>{@link #isDirty() isDirty}</li>
  * <li>{@link #applyChange(IBufferChange, IProgressMonitor) applyChange} -
  * if save is requested</li>
+ * <li>{@link #addListener(IBufferListener) addListener}</li>
+ * <li>{@link #removeListener(IBufferListener) removeListener}</li>
  * </ul>
  */
 public final class TextEditorBuffer
@@ -55,6 +62,8 @@ public final class TextEditorBuffer
     private IDocument document;
     private IAnnotationModel annotationModel;
     private int refCount = 1;
+    private ListenerList<IBufferListener> listeners;
+    private IElementStateListener elementStateListener;
 
     /**
      * Creates a new buffer instance and connects it to the given text editor.
@@ -160,6 +169,43 @@ public final class TextEditorBuffer
     }
 
     @Override
+    public int getSupportedListenerMethods()
+    {
+        return IBufferListener.M_BUFFER_SAVED;
+    }
+
+    @Override
+    public void addListener(IBufferListener listener)
+    {
+        checkThread();
+        if (listeners != null)
+            listeners.add(listener);
+        else
+        {
+            getDocument(); // check not disconnected
+            listeners = new ListenerList<>();
+            listeners.add(listener);
+            elementStateListener = new ElementStateListener();
+            documentProvider.addElementStateListener(elementStateListener);
+        }
+    }
+
+    @Override
+    public void removeListener(IBufferListener listener)
+    {
+        checkThread();
+        if (listeners == null)
+            return;
+        listeners.remove(listener);
+        if (listeners.isEmpty())
+        {
+            documentProvider.removeElementStateListener(elementStateListener);
+            elementStateListener = null;
+            listeners = null;
+        }
+    }
+
+    @Override
     public synchronized void addRef()
     {
         ++refCount;
@@ -172,9 +218,19 @@ public final class TextEditorBuffer
         {
             document = null;
             annotationModel = null;
-            uiSynchronizer.asyncExec(new Runnable()
+            uiSynchronizer.asyncExec(() ->
             {
-                public void run()
+                try
+                {
+                    listeners = null;
+                    if (elementStateListener != null)
+                    {
+                        documentProvider.removeElementStateListener(
+                            elementStateListener);
+                        elementStateListener = null;
+                    }
+                }
+                finally
                 {
                     documentProvider.disconnect(editorInput);
                 }
@@ -188,5 +244,49 @@ public final class TextEditorBuffer
             throw new IllegalStateException(
                 "Invalid thread access to TextEditorBuffer for " //$NON-NLS-1$
                     + editorInput.getToolTipText());
+    }
+
+    private long getModificationStamp()
+    {
+        return documentProvider.getModificationStamp(editorInput);
+    }
+
+    private boolean isSynchronized()
+    {
+        if (documentProvider instanceof IDocumentProviderExtension3)
+            return ((IDocumentProviderExtension3)documentProvider).isSynchronized(
+                editorInput);
+
+        return getModificationStamp() == documentProvider.getSynchronizationStamp(
+            editorInput);
+    }
+
+    private void fireBufferSaved()
+    {
+        for (IBufferListener listener : listeners)
+        {
+            SafeRunner.run(() -> listener.bufferSaved(this));
+        }
+    }
+
+    private class ElementStateListener
+        extends ElementStateListenerAdapter
+    {
+        private long modificationStamp = getModificationStamp();
+
+        @Override
+        public void elementDirtyStateChanged(Object element, boolean isDirty)
+        {
+            if (editorInput.equals(element) && !isDirty)
+            {
+                checkThread(); // assert it is always called in the UI thread
+                if (isSynchronized()
+                    && modificationStamp != getModificationStamp())
+                {
+                    modificationStamp = getModificationStamp();
+                    fireBufferSaved();
+                }
+            }
+        }
     }
 }
