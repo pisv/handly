@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -615,7 +615,7 @@ public abstract class AbstractWorkingSetPage
         IAdaptable[] elements = getAdaptables(selection.toArray());
         selectedElements.addAll(Arrays.asList(elements));
         table.add(elements);
-        tree.remove(elements);
+        tree.remove((Object[])elements);
         table.setSelection(selection);
         table.getControl().setFocus();
         validateInput();
