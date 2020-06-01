@@ -18,44 +18,44 @@
          point="org.eclipse.ui.newWizards">
       <category
             id="org.eclipse.handly.examples"
-            name="Handly Examples"
+            name="%category.name.examples"
             parentCategory="org.eclipse.ui.Examples">
       </category>
       <wizard
             id="org.eclipse.handly.examples.adapter"
-            name="Adapter Example"
+            name="%wizard.name.examples.adapter"
             class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true"
             icon="icons/ctool16/newprj_wiz.png">
-         <description>Create plug-in projects implementing a Handly-based model that adapts the JDT Java model</description>
+         <description>%wizard.description.examples.adapter</description>
       </wizard>
       <wizard
             id="org.eclipse.handly.examples.basic"
-            name="Basic Example"
+            name="%wizard.name.examples.basic"
             class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true"
             icon="icons/ctool16/newprj_wiz.png">
-         <description>Create plug-in projects implementing a Handly-based model for a simple Xtext-based language</description>
+         <description>%wizard.description.examples.basic</description>
       </wizard>
       <wizard
             id="org.eclipse.handly.examples.jmodel"
-            name="JModel Example"
+            name="%wizard.name.examples.jmodel"
             class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true"
             icon="icons/ctool16/newprj_wiz.png">
-         <description>Create plug-in projects implementing a Handly-based Java model</description>
+         <description>%wizard.description.examples.jmodel</description>
       </wizard>
       <wizard
             id="org.eclipse.handly.examples.xtext.xtext"
-            name="Xtext-Xtext Example"
+            name="%wizard.name.examples.xtext.xtext"
             class="org.eclipse.emf.common.ui.wizard.ExampleInstallerWizard"
             category="org.eclipse.ui.Examples/org.eclipse.handly.examples"
             project="true"
             icon="icons/ctool16/newprj_wiz.png">
-         <description>Create a project implementing a Handly-based call hierarchy view for the Xtext language</description>
+         <description>%wizard.description.examples.xtext.xtext</description>
       </wizard>
    </extension>
 
@@ -67,11 +67,11 @@
          <projectDescriptor
                name="org.eclipse.handly.examples.adapter"
                contentURI="contents/org.eclipse.handly.examples.adapter.zip"
-               description="This project implements a Handly-based model adapting the JDT Java model."/>
+               description="%projectDescriptor.description.examples.adapter"/>
          <projectDescriptor
                name="org.eclipse.handly.examples.adapter.ui"
                contentURI="contents/org.eclipse.handly.examples.adapter.ui.zip"
-               description="This project contains UI parts using the adapter model."/>
+               description="%projectDescriptor.description.examples.adapter.ui"/>
       </example>
       <example
             id="org.eclipse.handly.examples.basic"
@@ -79,19 +79,19 @@
          <projectDescriptor
                name="org.eclipse.handly.examples.basic"
                contentURI="contents/org.eclipse.handly.examples.basic.zip"
-               description="This project implements a simple language based on Xtext."/>
+               description="%projectDescriptor.description.examples.basic"/>
          <projectDescriptor
                name="org.eclipse.handly.examples.basic.ide"
                contentURI="contents/org.eclipse.handly.examples.basic.ide.zip"
-               description="This project contains Eclipse-independent IDE parts for the example language."/>
+               description="%projectDescriptor.description.examples.basic.ide"/>
          <projectDescriptor
                name="org.eclipse.handly.examples.basic.ui"
                contentURI="contents/org.eclipse.handly.examples.basic.ui.zip"
-               description="This project impelements a Handly-based model for the example language, complete with content outline and CNF-based navigator view."/>
+               description="%projectDescriptor.description.examples.basic.ui"/>
          <projectDescriptor
                name="org.eclipse.handly.examples.basic.ui.tests"
                contentURI="contents/org.eclipse.handly.examples.basic.ui.tests.zip"
-               description="This project contains plug-in tests."/>
+               description="%projectDescriptor.description.examples.basic.ui.tests"/>
       </example>
       <example
             id="org.eclipse.handly.examples.jmodel"
@@ -99,15 +99,15 @@
          <projectDescriptor
                name="org.eclipse.handly.examples.jmodel"
                contentURI="contents/org.eclipse.handly.examples.jmodel.zip"
-               description="This project implements a Handly-based Java model."/>
+               description="%projectDescriptor.description.examples.jmodel"/>
          <projectDescriptor
                name="org.eclipse.handly.examples.jmodel.tests"
                contentURI="contents/org.eclipse.handly.examples.jmodel.tests.zip"
-               description="This project contains plug-in tests."/>
+               description="%projectDescriptor.description.examples.jmodel.tests"/>
          <projectDescriptor
                name="org.eclipse.handly.examples.jmodel.ui"
                contentURI="contents/org.eclipse.handly.examples.jmodel.ui.zip"
-               description="This project contains UI parts using the Java model."/>
+               description="%projectDescriptor.description.examples.jmodel.ui"/>
       </example>
       <example
             id="org.eclipse.handly.examples.xtext.xtext"
@@ -115,7 +115,7 @@
          <projectDescriptor
                name="org.eclipse.handly.examples.xtext.xtext.ui"
                contentURI="contents/org.eclipse.handly.examples.xtext.xtext.ui.zip"
-               description="This project implements a Handly-based call hierarchy view for the Xtext language."/>
+               description="%projectDescriptor.description.examples.xtext.xtext"/>
       </example>
    </extension>
 

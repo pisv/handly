@@ -3,7 +3,7 @@ Basic Example
 
 The basic example (`o.e.handly.examples.basic*`) demonstrates a full-featured 
 Handly-based model for a simple Xtext-based language, complete with automated 
-tests, content outline, and a CNF-based navigator view.
+tests, content outline, and a navigator view.
 
 Launch runtime Eclipse and open the Resource perspective, then create a new
 project using the `Foo Project` wizard. The wizard is in the `Handly Examples`

@@ -41,7 +41,7 @@ with no syntax coloring, content assist, or reporting problems as you type.
 The goal has been to keep the example code comprehensible while demonstrating
 the relevant Handly-related functionality such as reconciling and outline.
 Similarly, the above-stated constraints of the example model are revealed
-in earnest in the JNavigator view. The view provides no actions for
+in earnest in the JNavigator view. Also, the view provides no actions for
 manipulating the model -- you can use the standard Package Explorer for that --
 but changes in the underlying model will, of course, be reflected in the view.
 
