@@ -22,6 +22,5 @@
   </parent>
   <groupId>org.eclipse.handly.bundles</groupId>
   <artifactId>org.eclipse.handly.xtext.ui</artifactId>
-  <version>0.13.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>
