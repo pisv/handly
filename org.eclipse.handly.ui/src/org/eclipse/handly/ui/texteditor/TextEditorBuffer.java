@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.texteditor;
 
+import static org.eclipse.handly.buffer.IBufferListener.BUFFER_SAVED;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
@@ -171,7 +173,7 @@ public final class TextEditorBuffer
     @Override
     public int getSupportedListenerMethods()
     {
-        return IBufferListener.M_BUFFER_SAVED;
+        return BUFFER_SAVED;
     }
 
     @Override

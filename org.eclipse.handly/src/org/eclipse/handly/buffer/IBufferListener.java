@@ -21,11 +21,12 @@ package org.eclipse.handly.buffer;
 public interface IBufferListener
 {
     /**
-     * Bit-mask for the {@link #bufferSaved(IBuffer) bufferSaved} method.
+     * Bit-mask indicating that the {@link #bufferSaved(IBuffer) bufferSaved}
+     * method is supported by the buffer.
      *
      * @see IBuffer#getSupportedListenerMethods()
      */
-    int M_BUFFER_SAVED = 1 << 0;
+    int BUFFER_SAVED = 1 << 0;
 
     /**
      * Informs this listener that the contents of the given buffer

@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.handly.buffer;
 
+import static org.eclipse.handly.buffer.IBufferListener.BUFFER_SAVED;
+
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.runtime.CoreException;
@@ -136,7 +138,7 @@ public class Buffer
     @Override
     public int getSupportedListenerMethods()
     {
-        return IBufferListener.M_BUFFER_SAVED;
+        return BUFFER_SAVED;
     }
 
     @Override
