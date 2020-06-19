@@ -5,7 +5,7 @@
             <message_arguments>
                 <message_argument value="org.eclipse.handly.ApiLevel"/>
                 <message_argument value="CURRENT"/>
-                <message_argument value="3"/>
+                <message_argument value="4"/>
             </message_arguments>
         </filter>
     </resource>
@@ -22,26 +22,6 @@
             <message_arguments>
                 <message_argument value="TextEditProcessor"/>
                 <message_argument value="ChangeEditProcessor"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/handly/buffer/IBuffer.java" type="org.eclipse.handly.buffer.IBuffer">
-        <filter id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.buffer.IBuffer"/>
-                <message_argument value="addListener(IBufferListener)"/>
-            </message_arguments>
-        </filter>
-        <filter id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.buffer.IBuffer"/>
-                <message_argument value="getSupportedListenerMethods()"/>
-            </message_arguments>
-        </filter>
-        <filter id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.buffer.IBuffer"/>
-                <message_argument value="removeListener(IBufferListener)"/>
             </message_arguments>
         </filter>
     </resource>
