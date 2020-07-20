@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -246,7 +246,9 @@ public class HandlyXtextEditorCallback
         ISourceFile sourceFile = getSourceFile(editor);
         if (sourceFile instanceof ISourceFileImplExtension)
         {
-            try (TextEditorBuffer buffer = new TextEditorBuffer(editor))
+            try (
+                TextEditorBuffer buffer = new TextEditorBuffer(
+                    editor.getDocumentProvider(), editor.getEditorInput()))
             {
                 ((ISourceFileImplExtension)sourceFile).becomeWorkingCopy_(with(
                     of(ISourceFileImplExtension.WORKING_COPY_BUFFER, buffer),

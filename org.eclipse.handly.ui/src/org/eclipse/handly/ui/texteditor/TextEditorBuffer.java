@@ -40,10 +40,10 @@ import org.eclipse.ui.texteditor.IElementStateListener;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
- * Implementation of {@link IBuffer} backed by an {@link ITextEditor}.
+ * Implementation of {@link IBuffer} backed by a text editor document.
  * <p>
  * An instance of this class is safe for use by multiple threads,
- * provided that the underlying text editor's document is thread-safe.
+ * provided that the underlying text editor document is thread-safe.
  * However, certain operations can only be executed by the UI thread:
  * </p>
  * <ul>
@@ -68,7 +68,13 @@ public final class TextEditorBuffer
     private IElementStateListener elementStateListener;
 
     /**
-     * Creates a new buffer instance and connects it to the given text editor.
+     * Creates a new buffer instance and connects it to the current document
+     * of the given text editor.
+     * <p>
+     * <b>Note:</b> The association between the buffer and the document will not
+     * change even if the association between the text editor and the document
+     * changes (e.g., when a new editor input is set).
+     * </p>
      * <p>
      * It is the client responsibility to {@link IBuffer#release() release}
      * the created buffer after it is no longer needed.
@@ -79,18 +85,40 @@ public final class TextEditorBuffer
      *
      * @param editor not <code>null</code>
      * @throws CoreException if the buffer could not be connected
+     * @deprecated Use {@link TextEditorBuffer#TextEditorBuffer(IDocumentProvider,
+     *  IEditorInput)} instead.
      */
     public TextEditorBuffer(ITextEditor editor) throws CoreException
     {
-        if (editor == null)
+        this(editor.getDocumentProvider(), editor.getEditorInput());
+    }
+
+    /**
+     * Creates a new buffer instance and connects it to the document provided
+     * for the given editor input via the given provider.
+     * <p>
+     * It is the client responsibility to {@link IBuffer#release() release}
+     * the created buffer after it is no longer needed.
+     * </p>
+     * <p>
+     * This constructor can only be executed by the UI thread.
+     * </p>
+     *
+     * @param provider a document provider (not <code>null</code>)
+     * @param input an editor input (not <code>null</code>)
+     * @throws CoreException if the buffer could not be connected
+     * @since 1.5
+     */
+    public TextEditorBuffer(IDocumentProvider provider, IEditorInput input)
+        throws CoreException
+    {
+        if ((editorInput = input) == null)
+            throw new IllegalArgumentException();
+        if ((documentProvider = provider) == null)
             throw new IllegalArgumentException();
         if ((uiSynchronizer = UiSynchronizer.getDefault()) == null)
             throw new AssertionError();
-        if ((editorInput = editor.getEditorInput()) == null)
-            throw new IllegalArgumentException();
         checkThread();
-        if ((documentProvider = editor.getDocumentProvider()) == null)
-            throw new IllegalArgumentException();
         documentProvider.connect(editorInput);
         boolean f = false;
         try
