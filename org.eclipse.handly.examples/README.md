@@ -23,4 +23,4 @@ the accompanying `example.target` file you can use to easily set a target platfo
 for the example. Where necessary, the `example.p2f` file is also provided that
 describes software items you need to have installed in your IDE to be able
 to play with the example most productively. To install it, use
-`File -> Import... -> Install Software Items From File`.
+`File -> Import... -> Install -> Install Software Items From File`.
