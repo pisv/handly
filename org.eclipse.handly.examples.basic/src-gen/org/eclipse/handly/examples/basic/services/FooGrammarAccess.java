@@ -21,15 +21,15 @@ import org.eclipse.xtext.service.GrammarProvider;
 @Singleton
 public class FooGrammarAccess extends AbstractGrammarElementFinder {
 	
-	public class ModuleElements extends AbstractParserRuleElementFinder {
-		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "org.eclipse.handly.examples.basic.Foo.Module");
+	public class UnitElements extends AbstractParserRuleElementFinder {
+		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "org.eclipse.handly.examples.basic.Foo.Unit");
 		private final Group cGroup = (Group)rule.eContents().get(1);
 		private final Assignment cVarsAssignment_0 = (Assignment)cGroup.eContents().get(0);
 		private final RuleCall cVarsVarParserRuleCall_0_0 = (RuleCall)cVarsAssignment_0.eContents().get(0);
 		private final Assignment cDefsAssignment_1 = (Assignment)cGroup.eContents().get(1);
 		private final RuleCall cDefsDefParserRuleCall_1_0 = (RuleCall)cDefsAssignment_1.eContents().get(0);
 		
-		//Module:
+		//Unit:
 		//	vars+=Var*
 		//	defs+=Def*;
 		@Override public ParserRule getRule() { return rule; }
@@ -141,7 +141,7 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 	}
 	
 	
-	private final ModuleElements pModule;
+	private final UnitElements pUnit;
 	private final VarElements pVar;
 	private final DefElements pDef;
 	
@@ -154,7 +154,7 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 			TerminalsGrammarAccess gaTerminals) {
 		this.grammar = internalFindGrammar(grammarProvider);
 		this.gaTerminals = gaTerminals;
-		this.pModule = new ModuleElements();
+		this.pUnit = new UnitElements();
 		this.pVar = new VarElements();
 		this.pDef = new DefElements();
 	}
@@ -186,15 +186,15 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 	}
 
 	
-	//Module:
+	//Unit:
 	//	vars+=Var*
 	//	defs+=Def*;
-	public ModuleElements getModuleAccess() {
-		return pModule;
+	public UnitElements getUnitAccess() {
+		return pUnit;
 	}
 	
-	public ParserRule getModuleRule() {
-		return getModuleAccess().getRule();
+	public ParserRule getUnitRule() {
+		return getUnitAccess().getRule();
 	}
 	
 	//Var:

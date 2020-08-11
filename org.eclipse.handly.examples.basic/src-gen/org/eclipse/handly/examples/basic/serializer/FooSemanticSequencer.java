@@ -9,7 +9,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.handly.examples.basic.foo.Def;
 import org.eclipse.handly.examples.basic.foo.FooPackage;
-import org.eclipse.handly.examples.basic.foo.Module;
+import org.eclipse.handly.examples.basic.foo.Unit;
 import org.eclipse.handly.examples.basic.foo.Var;
 import org.eclipse.handly.examples.basic.services.FooGrammarAccess;
 import org.eclipse.xtext.Action;
@@ -37,8 +37,8 @@ public class FooSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 			case FooPackage.DEF:
 				sequence_Def(context, (Def) semanticObject); 
 				return; 
-			case FooPackage.MODULE:
-				sequence_Module(context, (Module) semanticObject); 
+			case FooPackage.UNIT:
+				sequence_Unit(context, (Unit) semanticObject); 
 				return; 
 			case FooPackage.VAR:
 				sequence_Var(context, (Var) semanticObject); 
@@ -62,12 +62,12 @@ public class FooSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 	
 	/**
 	 * Contexts:
-	 *     Module returns Module
+	 *     Unit returns Unit
 	 *
 	 * Constraint:
 	 *     ((vars+=Var+ defs+=Def+) | defs+=Def+)?
 	 */
-	protected void sequence_Module(ISerializationContext context, Module semanticObject) {
+	protected void sequence_Unit(ISerializationContext context, Unit semanticObject) {
 		genericSequencer.createSequence(context, semanticObject);
 	}
 	

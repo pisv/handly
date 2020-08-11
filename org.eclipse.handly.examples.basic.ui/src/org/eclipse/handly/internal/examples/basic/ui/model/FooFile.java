@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -24,7 +24,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.handly.context.IContext;
-import org.eclipse.handly.examples.basic.foo.Module;
+import org.eclipse.handly.examples.basic.foo.Unit;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
@@ -118,11 +118,11 @@ public class FooFile
         if (parseResult != null)
         {
             EObject root = parseResult.getRootASTElement();
-            if (root instanceof Module)
+            if (root instanceof Unit)
             {
                 FooFileStructureBuilder builder = new FooFileStructureBuilder(
                     newElements, resource.getResourceServiceProvider());
-                builder.buildStructure(this, body, (Module)root, monitor);
+                builder.buildStructure(this, body, (Unit)root, monitor);
             }
         }
 

@@ -76,9 +76,9 @@ public class FooAdapterFactory extends AdapterFactoryImpl
     new FooSwitch<Adapter>()
     {
       @Override
-      public Adapter caseModule(Module object)
+      public Adapter caseUnit(Unit object)
       {
-        return createModuleAdapter();
+        return createUnitAdapter();
       }
       @Override
       public Adapter caseVar(Var object)
@@ -113,16 +113,16 @@ public class FooAdapterFactory extends AdapterFactoryImpl
 
 
   /**
-   * Creates a new adapter for an object of class '{@link org.eclipse.handly.examples.basic.foo.Module <em>Module</em>}'.
+   * Creates a new adapter for an object of class '{@link org.eclipse.handly.examples.basic.foo.Unit <em>Unit</em>}'.
    * <!-- begin-user-doc -->
    * This default implementation returns null so that we can easily ignore cases;
    * it's useful to ignore a case when inheritance will catch all the cases anyway.
    * <!-- end-user-doc -->
    * @return the new adapter.
-   * @see org.eclipse.handly.examples.basic.foo.Module
+   * @see org.eclipse.handly.examples.basic.foo.Unit
    * @generated
    */
-  public Adapter createModuleAdapter()
+  public Adapter createUnitAdapter()
   {
     return null;
   }

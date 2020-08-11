@@ -43,7 +43,7 @@ import org.eclipse.handly.examples.basic.services.FooGrammarAccess;
 
     @Override
     protected String getFirstRuleName() {
-    	return "Module";
+    	return "Unit";
    	}
 
    	@Override
@@ -60,15 +60,15 @@ import org.eclipse.handly.examples.basic.services.FooGrammarAccess;
     }
 }
 
-// Entry rule entryRuleModule
-entryRuleModule returns [EObject current=null]:
-	{ newCompositeNode(grammarAccess.getModuleRule()); }
-	iv_ruleModule=ruleModule
-	{ $current=$iv_ruleModule.current; }
+// Entry rule entryRuleUnit
+entryRuleUnit returns [EObject current=null]:
+	{ newCompositeNode(grammarAccess.getUnitRule()); }
+	iv_ruleUnit=ruleUnit
+	{ $current=$iv_ruleUnit.current; }
 	EOF;
 
-// Rule Module
-ruleModule returns [EObject current=null]
+// Rule Unit
+ruleUnit returns [EObject current=null]
 @init {
 	enterRule();
 }
@@ -79,12 +79,12 @@ ruleModule returns [EObject current=null]
 		(
 			(
 				{
-					newCompositeNode(grammarAccess.getModuleAccess().getVarsVarParserRuleCall_0_0());
+					newCompositeNode(grammarAccess.getUnitAccess().getVarsVarParserRuleCall_0_0());
 				}
 				lv_vars_0_0=ruleVar
 				{
 					if ($current==null) {
-						$current = createModelElementForParent(grammarAccess.getModuleRule());
+						$current = createModelElementForParent(grammarAccess.getUnitRule());
 					}
 					add(
 						$current,
@@ -98,12 +98,12 @@ ruleModule returns [EObject current=null]
 		(
 			(
 				{
-					newCompositeNode(grammarAccess.getModuleAccess().getDefsDefParserRuleCall_1_0());
+					newCompositeNode(grammarAccess.getUnitAccess().getDefsDefParserRuleCall_1_0());
 				}
 				lv_defs_1_0=ruleDef
 				{
 					if ($current==null) {
-						$current = createModelElementForParent(grammarAccess.getModuleRule());
+						$current = createModelElementForParent(grammarAccess.getUnitRule());
 					}
 					add(
 						$current,

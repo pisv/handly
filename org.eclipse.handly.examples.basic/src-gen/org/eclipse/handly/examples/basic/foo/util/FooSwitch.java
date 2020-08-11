@@ -73,10 +73,10 @@ public class FooSwitch<T> extends Switch<T>
   {
     switch (classifierID)
     {
-      case FooPackage.MODULE:
+      case FooPackage.UNIT:
       {
-        Module module = (Module)theEObject;
-        T result = caseModule(module);
+        Unit unit = (Unit)theEObject;
+        T result = caseUnit(unit);
         if (result == null) result = defaultCase(theEObject);
         return result;
       }
@@ -99,17 +99,17 @@ public class FooSwitch<T> extends Switch<T>
   }
 
   /**
-   * Returns the result of interpreting the object as an instance of '<em>Module</em>'.
+   * Returns the result of interpreting the object as an instance of '<em>Unit</em>'.
    * <!-- begin-user-doc -->
    * This implementation returns null;
    * returning a non-null result will terminate the switch.
    * <!-- end-user-doc -->
    * @param object the target of the switch.
-   * @return the result of interpreting the object as an instance of '<em>Module</em>'.
+   * @return the result of interpreting the object as an instance of '<em>Unit</em>'.
    * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
    * @generated
    */
-  public T caseModule(Module object)
+  public T caseUnit(Unit object)
   {
     return null;
   }

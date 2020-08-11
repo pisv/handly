@@ -13,7 +13,7 @@ import org.eclipse.emf.ecore.impl.EPackageImpl;
 import org.eclipse.handly.examples.basic.foo.Def;
 import org.eclipse.handly.examples.basic.foo.FooFactory;
 import org.eclipse.handly.examples.basic.foo.FooPackage;
-import org.eclipse.handly.examples.basic.foo.Module;
+import org.eclipse.handly.examples.basic.foo.Unit;
 import org.eclipse.handly.examples.basic.foo.Var;
 
 /**
@@ -29,7 +29,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
-  private EClass moduleEClass = null;
+  private EClass unitEClass = null;
 
   /**
    * <!-- begin-user-doc -->
@@ -113,9 +113,9 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
-  public EClass getModule()
+  public EClass getUnit()
   {
-    return moduleEClass;
+    return unitEClass;
   }
 
   /**
@@ -123,9 +123,9 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
-  public EReference getModule_Vars()
+  public EReference getUnit_Vars()
   {
-    return (EReference)moduleEClass.getEStructuralFeatures().get(0);
+    return (EReference)unitEClass.getEStructuralFeatures().get(0);
   }
 
   /**
@@ -133,9 +133,9 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
-  public EReference getModule_Defs()
+  public EReference getUnit_Defs()
   {
-    return (EReference)moduleEClass.getEStructuralFeatures().get(1);
+    return (EReference)unitEClass.getEStructuralFeatures().get(1);
   }
 
   /**
@@ -218,9 +218,9 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
     isCreated = true;
 
     // Create classes and their features
-    moduleEClass = createEClass(MODULE);
-    createEReference(moduleEClass, MODULE__VARS);
-    createEReference(moduleEClass, MODULE__DEFS);
+    unitEClass = createEClass(UNIT);
+    createEReference(unitEClass, UNIT__VARS);
+    createEReference(unitEClass, UNIT__DEFS);
 
     varEClass = createEClass(VAR);
     createEAttribute(varEClass, VAR__NAME);
@@ -261,9 +261,9 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
     // Add supertypes to classes
 
     // Initialize classes and features; add operations and parameters
-    initEClass(moduleEClass, Module.class, "Module", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-    initEReference(getModule_Vars(), this.getVar(), null, "vars", null, 0, -1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-    initEReference(getModule_Defs(), this.getDef(), null, "defs", null, 0, -1, Module.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+    initEClass(unitEClass, Unit.class, "Unit", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+    initEReference(getUnit_Vars(), this.getVar(), null, "vars", null, 0, -1, Unit.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+    initEReference(getUnit_Defs(), this.getDef(), null, "defs", null, 0, -1, Unit.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
     initEClass(varEClass, Var.class, "Var", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
     initEAttribute(getVar_Name(), ecorePackage.getEString(), "name", null, 0, 1, Var.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

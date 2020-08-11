@@ -24,13 +24,13 @@ public interface FooFactory extends EFactory
   FooFactory eINSTANCE = org.eclipse.handly.examples.basic.foo.impl.FooFactoryImpl.init();
 
   /**
-   * Returns a new object of class '<em>Module</em>'.
+   * Returns a new object of class '<em>Unit</em>'.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
-   * @return a new object of class '<em>Module</em>'.
+   * @return a new object of class '<em>Unit</em>'.
    * @generated
    */
-  Module createModule();
+  Unit createUnit();
 
   /**
    * Returns a new object of class '<em>Var</em>'.

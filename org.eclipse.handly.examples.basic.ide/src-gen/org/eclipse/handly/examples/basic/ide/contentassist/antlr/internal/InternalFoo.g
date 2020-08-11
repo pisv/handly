@@ -49,25 +49,25 @@ import org.eclipse.handly.examples.basic.services.FooGrammarAccess;
 	}
 }
 
-// Entry rule entryRuleModule
-entryRuleModule
+// Entry rule entryRuleUnit
+entryRuleUnit
 :
-{ before(grammarAccess.getModuleRule()); }
-	 ruleModule
-{ after(grammarAccess.getModuleRule()); } 
+{ before(grammarAccess.getUnitRule()); }
+	 ruleUnit
+{ after(grammarAccess.getUnitRule()); } 
 	 EOF 
 ;
 
-// Rule Module
-ruleModule 
+// Rule Unit
+ruleUnit 
 	@init {
 		int stackSize = keepStackSize();
 	}
 	:
 	(
-		{ before(grammarAccess.getModuleAccess().getGroup()); }
-		(rule__Module__Group__0)
-		{ after(grammarAccess.getModuleAccess().getGroup()); }
+		{ before(grammarAccess.getUnitAccess().getGroup()); }
+		(rule__Unit__Group__0)
+		{ after(grammarAccess.getUnitAccess().getGroup()); }
 	)
 ;
 finally {
@@ -124,53 +124,53 @@ finally {
 	restoreStackSize(stackSize);
 }
 
-rule__Module__Group__0
+rule__Unit__Group__0
 	@init {
 		int stackSize = keepStackSize();
 	}
 :
-	rule__Module__Group__0__Impl
-	rule__Module__Group__1
+	rule__Unit__Group__0__Impl
+	rule__Unit__Group__1
 ;
 finally {
 	restoreStackSize(stackSize);
 }
 
-rule__Module__Group__0__Impl
+rule__Unit__Group__0__Impl
 	@init {
 		int stackSize = keepStackSize();
 	}
 :
 (
-	{ before(grammarAccess.getModuleAccess().getVarsAssignment_0()); }
-	(rule__Module__VarsAssignment_0)*
-	{ after(grammarAccess.getModuleAccess().getVarsAssignment_0()); }
+	{ before(grammarAccess.getUnitAccess().getVarsAssignment_0()); }
+	(rule__Unit__VarsAssignment_0)*
+	{ after(grammarAccess.getUnitAccess().getVarsAssignment_0()); }
 )
 ;
 finally {
 	restoreStackSize(stackSize);
 }
 
-rule__Module__Group__1
+rule__Unit__Group__1
 	@init {
 		int stackSize = keepStackSize();
 	}
 :
-	rule__Module__Group__1__Impl
+	rule__Unit__Group__1__Impl
 ;
 finally {
 	restoreStackSize(stackSize);
 }
 
-rule__Module__Group__1__Impl
+rule__Unit__Group__1__Impl
 	@init {
 		int stackSize = keepStackSize();
 	}
 :
 (
-	{ before(grammarAccess.getModuleAccess().getDefsAssignment_1()); }
-	(rule__Module__DefsAssignment_1)*
-	{ after(grammarAccess.getModuleAccess().getDefsAssignment_1()); }
+	{ before(grammarAccess.getUnitAccess().getDefsAssignment_1()); }
+	(rule__Unit__DefsAssignment_1)*
+	{ after(grammarAccess.getUnitAccess().getDefsAssignment_1()); }
 )
 ;
 finally {
@@ -529,30 +529,30 @@ finally {
 }
 
 
-rule__Module__VarsAssignment_0
+rule__Unit__VarsAssignment_0
 	@init {
 		int stackSize = keepStackSize();
 	}
 :
 	(
-		{ before(grammarAccess.getModuleAccess().getVarsVarParserRuleCall_0_0()); }
+		{ before(grammarAccess.getUnitAccess().getVarsVarParserRuleCall_0_0()); }
 		ruleVar
-		{ after(grammarAccess.getModuleAccess().getVarsVarParserRuleCall_0_0()); }
+		{ after(grammarAccess.getUnitAccess().getVarsVarParserRuleCall_0_0()); }
 	)
 ;
 finally {
 	restoreStackSize(stackSize);
 }
 
-rule__Module__DefsAssignment_1
+rule__Unit__DefsAssignment_1
 	@init {
 		int stackSize = keepStackSize();
 	}
 :
 	(
-		{ before(grammarAccess.getModuleAccess().getDefsDefParserRuleCall_1_0()); }
+		{ before(grammarAccess.getUnitAccess().getDefsDefParserRuleCall_1_0()); }
 		ruleDef
-		{ after(grammarAccess.getModuleAccess().getDefsDefParserRuleCall_1_0()); }
+		{ after(grammarAccess.getUnitAccess().getDefsDefParserRuleCall_1_0()); }
 	)
 ;
 finally {
