@@ -31,12 +31,12 @@ public class FooParser extends AbstractContentAssistParser {
 			nameMappings = new HashMap<AbstractElement, String>() {
 				private static final long serialVersionUID = 1L;
 				{
-					put(grammarAccess.getModuleAccess().getGroup(), "rule__Module__Group__0");
+					put(grammarAccess.getUnitAccess().getGroup(), "rule__Unit__Group__0");
 					put(grammarAccess.getVarAccess().getGroup(), "rule__Var__Group__0");
 					put(grammarAccess.getDefAccess().getGroup(), "rule__Def__Group__0");
 					put(grammarAccess.getDefAccess().getGroup_4(), "rule__Def__Group_4__0");
-					put(grammarAccess.getModuleAccess().getVarsAssignment_0(), "rule__Module__VarsAssignment_0");
-					put(grammarAccess.getModuleAccess().getDefsAssignment_1(), "rule__Module__DefsAssignment_1");
+					put(grammarAccess.getUnitAccess().getVarsAssignment_0(), "rule__Unit__VarsAssignment_0");
+					put(grammarAccess.getUnitAccess().getDefsAssignment_1(), "rule__Unit__DefsAssignment_1");
 					put(grammarAccess.getVarAccess().getNameAssignment_1(), "rule__Var__NameAssignment_1");
 					put(grammarAccess.getDefAccess().getNameAssignment_1(), "rule__Def__NameAssignment_1");
 					put(grammarAccess.getDefAccess().getParamsAssignment_3(), "rule__Def__ParamsAssignment_3");

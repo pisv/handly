@@ -19,24 +19,24 @@ import org.eclipse.emf.ecore.util.InternalEList;
 
 import org.eclipse.handly.examples.basic.foo.Def;
 import org.eclipse.handly.examples.basic.foo.FooPackage;
-import org.eclipse.handly.examples.basic.foo.Module;
+import org.eclipse.handly.examples.basic.foo.Unit;
 import org.eclipse.handly.examples.basic.foo.Var;
 
 /**
  * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Module</b></em>'.
+ * An implementation of the model object '<em><b>Unit</b></em>'.
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * </p>
  * <ul>
- *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.ModuleImpl#getVars <em>Vars</em>}</li>
- *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.ModuleImpl#getDefs <em>Defs</em>}</li>
+ *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.UnitImpl#getVars <em>Vars</em>}</li>
+ *   <li>{@link org.eclipse.handly.examples.basic.foo.impl.UnitImpl#getDefs <em>Defs</em>}</li>
  * </ul>
  *
  * @generated
  */
-public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
+public class UnitImpl extends MinimalEObjectImpl.Container implements Unit
 {
   /**
    * The cached value of the '{@link #getVars() <em>Vars</em>}' containment reference list.
@@ -63,7 +63,7 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
    * <!-- end-user-doc -->
    * @generated
    */
-  protected ModuleImpl()
+  protected UnitImpl()
   {
     super();
   }
@@ -76,7 +76,7 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
   @Override
   protected EClass eStaticClass()
   {
-    return FooPackage.Literals.MODULE;
+    return FooPackage.Literals.UNIT;
   }
 
   /**
@@ -88,7 +88,7 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
   {
     if (vars == null)
     {
-      vars = new EObjectContainmentEList<Var>(Var.class, this, FooPackage.MODULE__VARS);
+      vars = new EObjectContainmentEList<Var>(Var.class, this, FooPackage.UNIT__VARS);
     }
     return vars;
   }
@@ -102,7 +102,7 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
   {
     if (defs == null)
     {
-      defs = new EObjectContainmentEList<Def>(Def.class, this, FooPackage.MODULE__DEFS);
+      defs = new EObjectContainmentEList<Def>(Def.class, this, FooPackage.UNIT__DEFS);
     }
     return defs;
   }
@@ -117,9 +117,9 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
   {
     switch (featureID)
     {
-      case FooPackage.MODULE__VARS:
+      case FooPackage.UNIT__VARS:
         return ((InternalEList<?>)getVars()).basicRemove(otherEnd, msgs);
-      case FooPackage.MODULE__DEFS:
+      case FooPackage.UNIT__DEFS:
         return ((InternalEList<?>)getDefs()).basicRemove(otherEnd, msgs);
     }
     return super.eInverseRemove(otherEnd, featureID, msgs);
@@ -135,9 +135,9 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
   {
     switch (featureID)
     {
-      case FooPackage.MODULE__VARS:
+      case FooPackage.UNIT__VARS:
         return getVars();
-      case FooPackage.MODULE__DEFS:
+      case FooPackage.UNIT__DEFS:
         return getDefs();
     }
     return super.eGet(featureID, resolve, coreType);
@@ -154,11 +154,11 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
   {
     switch (featureID)
     {
-      case FooPackage.MODULE__VARS:
+      case FooPackage.UNIT__VARS:
         getVars().clear();
         getVars().addAll((Collection<? extends Var>)newValue);
         return;
-      case FooPackage.MODULE__DEFS:
+      case FooPackage.UNIT__DEFS:
         getDefs().clear();
         getDefs().addAll((Collection<? extends Def>)newValue);
         return;
@@ -176,10 +176,10 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
   {
     switch (featureID)
     {
-      case FooPackage.MODULE__VARS:
+      case FooPackage.UNIT__VARS:
         getVars().clear();
         return;
-      case FooPackage.MODULE__DEFS:
+      case FooPackage.UNIT__DEFS:
         getDefs().clear();
         return;
     }
@@ -196,12 +196,12 @@ public class ModuleImpl extends MinimalEObjectImpl.Container implements Module
   {
     switch (featureID)
     {
-      case FooPackage.MODULE__VARS:
+      case FooPackage.UNIT__VARS:
         return vars != null && !vars.isEmpty();
-      case FooPackage.MODULE__DEFS:
+      case FooPackage.UNIT__DEFS:
         return defs != null && !defs.isEmpty();
     }
     return super.eIsSet(featureID);
   }
 
-} //ModuleImpl
+} //UnitImpl

@@ -58,14 +58,14 @@ public interface FooPackage extends EPackage
   FooPackage eINSTANCE = org.eclipse.handly.examples.basic.foo.impl.FooPackageImpl.init();
 
   /**
-   * The meta object id for the '{@link org.eclipse.handly.examples.basic.foo.impl.ModuleImpl <em>Module</em>}' class.
+   * The meta object id for the '{@link org.eclipse.handly.examples.basic.foo.impl.UnitImpl <em>Unit</em>}' class.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
-   * @see org.eclipse.handly.examples.basic.foo.impl.ModuleImpl
-   * @see org.eclipse.handly.examples.basic.foo.impl.FooPackageImpl#getModule()
+   * @see org.eclipse.handly.examples.basic.foo.impl.UnitImpl
+   * @see org.eclipse.handly.examples.basic.foo.impl.FooPackageImpl#getUnit()
    * @generated
    */
-  int MODULE = 0;
+  int UNIT = 0;
 
   /**
    * The feature id for the '<em><b>Vars</b></em>' containment reference list.
@@ -74,7 +74,7 @@ public interface FooPackage extends EPackage
    * @generated
    * @ordered
    */
-  int MODULE__VARS = 0;
+  int UNIT__VARS = 0;
 
   /**
    * The feature id for the '<em><b>Defs</b></em>' containment reference list.
@@ -83,16 +83,16 @@ public interface FooPackage extends EPackage
    * @generated
    * @ordered
    */
-  int MODULE__DEFS = 1;
+  int UNIT__DEFS = 1;
 
   /**
-   * The number of structural features of the '<em>Module</em>' class.
+   * The number of structural features of the '<em>Unit</em>' class.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @generated
    * @ordered
    */
-  int MODULE_FEATURE_COUNT = 2;
+  int UNIT_FEATURE_COUNT = 2;
 
   /**
    * The meta object id for the '{@link org.eclipse.handly.examples.basic.foo.impl.VarImpl <em>Var</em>}' class.
@@ -161,36 +161,36 @@ public interface FooPackage extends EPackage
 
 
   /**
-   * Returns the meta object for class '{@link org.eclipse.handly.examples.basic.foo.Module <em>Module</em>}'.
+   * Returns the meta object for class '{@link org.eclipse.handly.examples.basic.foo.Unit <em>Unit</em>}'.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
-   * @return the meta object for class '<em>Module</em>'.
-   * @see org.eclipse.handly.examples.basic.foo.Module
+   * @return the meta object for class '<em>Unit</em>'.
+   * @see org.eclipse.handly.examples.basic.foo.Unit
    * @generated
    */
-  EClass getModule();
+  EClass getUnit();
 
   /**
-   * Returns the meta object for the containment reference list '{@link org.eclipse.handly.examples.basic.foo.Module#getVars <em>Vars</em>}'.
+   * Returns the meta object for the containment reference list '{@link org.eclipse.handly.examples.basic.foo.Unit#getVars <em>Vars</em>}'.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @return the meta object for the containment reference list '<em>Vars</em>'.
-   * @see org.eclipse.handly.examples.basic.foo.Module#getVars()
-   * @see #getModule()
+   * @see org.eclipse.handly.examples.basic.foo.Unit#getVars()
+   * @see #getUnit()
    * @generated
    */
-  EReference getModule_Vars();
+  EReference getUnit_Vars();
 
   /**
-   * Returns the meta object for the containment reference list '{@link org.eclipse.handly.examples.basic.foo.Module#getDefs <em>Defs</em>}'.
+   * Returns the meta object for the containment reference list '{@link org.eclipse.handly.examples.basic.foo.Unit#getDefs <em>Defs</em>}'.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @return the meta object for the containment reference list '<em>Defs</em>'.
-   * @see org.eclipse.handly.examples.basic.foo.Module#getDefs()
-   * @see #getModule()
+   * @see org.eclipse.handly.examples.basic.foo.Unit#getDefs()
+   * @see #getUnit()
    * @generated
    */
-  EReference getModule_Defs();
+  EReference getUnit_Defs();
 
   /**
    * Returns the meta object for class '{@link org.eclipse.handly.examples.basic.foo.Var <em>Var</em>}'.
@@ -269,14 +269,14 @@ public interface FooPackage extends EPackage
   interface Literals
   {
     /**
-     * The meta object literal for the '{@link org.eclipse.handly.examples.basic.foo.impl.ModuleImpl <em>Module</em>}' class.
+     * The meta object literal for the '{@link org.eclipse.handly.examples.basic.foo.impl.UnitImpl <em>Unit</em>}' class.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
-     * @see org.eclipse.handly.examples.basic.foo.impl.ModuleImpl
-     * @see org.eclipse.handly.examples.basic.foo.impl.FooPackageImpl#getModule()
+     * @see org.eclipse.handly.examples.basic.foo.impl.UnitImpl
+     * @see org.eclipse.handly.examples.basic.foo.impl.FooPackageImpl#getUnit()
      * @generated
      */
-    EClass MODULE = eINSTANCE.getModule();
+    EClass UNIT = eINSTANCE.getUnit();
 
     /**
      * The meta object literal for the '<em><b>Vars</b></em>' containment reference list feature.
@@ -284,7 +284,7 @@ public interface FooPackage extends EPackage
      * <!-- end-user-doc -->
      * @generated
      */
-    EReference MODULE__VARS = eINSTANCE.getModule_Vars();
+    EReference UNIT__VARS = eINSTANCE.getUnit_Vars();
 
     /**
      * The meta object literal for the '<em><b>Defs</b></em>' containment reference list feature.
@@ -292,7 +292,7 @@ public interface FooPackage extends EPackage
      * <!-- end-user-doc -->
      * @generated
      */
-    EReference MODULE__DEFS = eINSTANCE.getModule_Defs();
+    EReference UNIT__DEFS = eINSTANCE.getUnit_Defs();
 
     /**
      * The meta object literal for the '{@link org.eclipse.handly.examples.basic.foo.impl.VarImpl <em>Var</em>}' class.

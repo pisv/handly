@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.handly.examples.basic.foo.Def;
-import org.eclipse.handly.examples.basic.foo.Module;
+import org.eclipse.handly.examples.basic.foo.Unit;
 import org.eclipse.handly.examples.basic.foo.Var;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
@@ -62,27 +62,27 @@ class FooFileStructureBuilder
 
     /**
      * Builds the structure for the given {@link FooFile} based on
-     * its {@link Module AST}.
+     * its {@link Unit AST}.
      *
      * @param handle the handle to a Foo file (not <code>null</code>)
      * @param body the body of the Foo file (not <code>null</code>)
-     * @param module the AST of the Foo file (not <code>null</code>)
+     * @param unit the AST of the Foo file (not <code>null</code>)
      * @param monitor a progress monitor, or <code>null</code>
      *  if progress reporting is not desired. The caller must not rely on
      *  {@link IProgressMonitor#done()} having been called by the receiver
      * @throws OperationCanceledException if this method is canceled
      */
-    void buildStructure(FooFile handle, SourceElementBody body, Module module,
+    void buildStructure(FooFile handle, SourceElementBody body, Unit unit,
         IProgressMonitor monitor)
     {
         SubMonitor subMonitor = SubMonitor.convert(monitor,
-            module.getVars().size() + module.getDefs().size());
-        for (Var var : module.getVars())
+            unit.getVars().size() + unit.getDefs().size());
+        for (Var var : unit.getVars())
         {
             buildStructure(handle, body, var);
             subMonitor.split(1);
         }
-        for (Def def : module.getDefs())
+        for (Def def : unit.getDefs())
         {
             buildStructure(handle, body, def);
             subMonitor.split(1);

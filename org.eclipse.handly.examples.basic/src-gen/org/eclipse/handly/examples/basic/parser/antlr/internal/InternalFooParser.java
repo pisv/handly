@@ -68,7 +68,7 @@ public class InternalFooParser extends AbstractInternalAntlrParser {
 
         @Override
         protected String getFirstRuleName() {
-        	return "Module";
+        	return "Unit";
        	}
 
        	@Override
@@ -79,25 +79,25 @@ public class InternalFooParser extends AbstractInternalAntlrParser {
 
 
 
-    // $ANTLR start "entryRuleModule"
-    // InternalFoo.g:64:1: entryRuleModule returns [EObject current=null] : iv_ruleModule= ruleModule EOF ;
-    public final EObject entryRuleModule() throws RecognitionException {
+    // $ANTLR start "entryRuleUnit"
+    // InternalFoo.g:64:1: entryRuleUnit returns [EObject current=null] : iv_ruleUnit= ruleUnit EOF ;
+    public final EObject entryRuleUnit() throws RecognitionException {
         EObject current = null;
 
-        EObject iv_ruleModule = null;
+        EObject iv_ruleUnit = null;
 
 
         try {
-            // InternalFoo.g:64:47: (iv_ruleModule= ruleModule EOF )
-            // InternalFoo.g:65:2: iv_ruleModule= ruleModule EOF
+            // InternalFoo.g:64:45: (iv_ruleUnit= ruleUnit EOF )
+            // InternalFoo.g:65:2: iv_ruleUnit= ruleUnit EOF
             {
-             newCompositeNode(grammarAccess.getModuleRule()); 
+             newCompositeNode(grammarAccess.getUnitRule()); 
             pushFollow(FOLLOW_1);
-            iv_ruleModule=ruleModule();
+            iv_ruleUnit=ruleUnit();
 
             state._fsp--;
 
-             current =iv_ruleModule; 
+             current =iv_ruleUnit; 
             match(input,EOF,FOLLOW_2); 
 
             }
@@ -112,12 +112,12 @@ public class InternalFooParser extends AbstractInternalAntlrParser {
         }
         return current;
     }
-    // $ANTLR end "entryRuleModule"
+    // $ANTLR end "entryRuleUnit"
 
 
-    // $ANTLR start "ruleModule"
-    // InternalFoo.g:71:1: ruleModule returns [EObject current=null] : ( ( (lv_vars_0_0= ruleVar ) )* ( (lv_defs_1_0= ruleDef ) )* ) ;
-    public final EObject ruleModule() throws RecognitionException {
+    // $ANTLR start "ruleUnit"
+    // InternalFoo.g:71:1: ruleUnit returns [EObject current=null] : ( ( (lv_vars_0_0= ruleVar ) )* ( (lv_defs_1_0= ruleDef ) )* ) ;
+    public final EObject ruleUnit() throws RecognitionException {
         EObject current = null;
 
         EObject lv_vars_0_0 = null;
@@ -154,7 +154,7 @@ public class InternalFooParser extends AbstractInternalAntlrParser {
             	    // InternalFoo.g:81:5: lv_vars_0_0= ruleVar
             	    {
 
-            	    					newCompositeNode(grammarAccess.getModuleAccess().getVarsVarParserRuleCall_0_0());
+            	    					newCompositeNode(grammarAccess.getUnitAccess().getVarsVarParserRuleCall_0_0());
             	    				
             	    pushFollow(FOLLOW_3);
             	    lv_vars_0_0=ruleVar();
@@ -163,7 +163,7 @@ public class InternalFooParser extends AbstractInternalAntlrParser {
 
 
             	    					if (current==null) {
-            	    						current = createModelElementForParent(grammarAccess.getModuleRule());
+            	    						current = createModelElementForParent(grammarAccess.getUnitRule());
             	    					}
             	    					add(
             	    						current,
@@ -203,7 +203,7 @@ public class InternalFooParser extends AbstractInternalAntlrParser {
             	    // InternalFoo.g:100:5: lv_defs_1_0= ruleDef
             	    {
 
-            	    					newCompositeNode(grammarAccess.getModuleAccess().getDefsDefParserRuleCall_1_0());
+            	    					newCompositeNode(grammarAccess.getUnitAccess().getDefsDefParserRuleCall_1_0());
             	    				
             	    pushFollow(FOLLOW_4);
             	    lv_defs_1_0=ruleDef();
@@ -212,7 +212,7 @@ public class InternalFooParser extends AbstractInternalAntlrParser {
 
 
             	    					if (current==null) {
-            	    						current = createModelElementForParent(grammarAccess.getModuleRule());
+            	    						current = createModelElementForParent(grammarAccess.getUnitRule());
             	    					}
             	    					add(
             	    						current,
@@ -252,7 +252,7 @@ public class InternalFooParser extends AbstractInternalAntlrParser {
         }
         return current;
     }
-    // $ANTLR end "ruleModule"
+    // $ANTLR end "ruleUnit"
 
 
     // $ANTLR start "entryRuleVar"

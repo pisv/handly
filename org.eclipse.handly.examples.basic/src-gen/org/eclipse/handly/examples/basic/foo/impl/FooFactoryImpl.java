@@ -65,7 +65,7 @@ public class FooFactoryImpl extends EFactoryImpl implements FooFactory
   {
     switch (eClass.getClassifierID())
     {
-      case FooPackage.MODULE: return createModule();
+      case FooPackage.UNIT: return createUnit();
       case FooPackage.VAR: return createVar();
       case FooPackage.DEF: return createDef();
       default:
@@ -78,10 +78,10 @@ public class FooFactoryImpl extends EFactoryImpl implements FooFactory
    * <!-- end-user-doc -->
    * @generated
    */
-  public Module createModule()
+  public Unit createUnit()
   {
-    ModuleImpl module = new ModuleImpl();
-    return module;
+    UnitImpl unit = new UnitImpl();
+    return unit;
   }
 
   /**

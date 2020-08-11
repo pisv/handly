@@ -6,9 +6,9 @@
     complianceLevel="6.0" copyrightFields="false" runtimeVersion="2.13">
   <genPackages prefix="Foo" basePackage="org.eclipse.handly.examples.basic" disposableProviderFactory="true"
       fileExtensions="foo" ecorePackage="Foo.ecore#/">
-    <genClasses ecoreClass="Foo.ecore#//Module">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Foo.ecore#//Module/vars"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Foo.ecore#//Module/defs"/>
+    <genClasses ecoreClass="Foo.ecore#//Unit">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Foo.ecore#//Unit/vars"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Foo.ecore#//Unit/defs"/>
     </genClasses>
     <genClasses ecoreClass="Foo.ecore#//Var">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Foo.ecore#//Var/name"/>

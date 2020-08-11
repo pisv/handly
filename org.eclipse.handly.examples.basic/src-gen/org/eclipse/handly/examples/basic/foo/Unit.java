@@ -9,22 +9,22 @@ import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>Module</b></em>'.
+ * A representation of the model object '<em><b>Unit</b></em>'.
  * <!-- end-user-doc -->
  *
  * <p>
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link org.eclipse.handly.examples.basic.foo.Module#getVars <em>Vars</em>}</li>
- *   <li>{@link org.eclipse.handly.examples.basic.foo.Module#getDefs <em>Defs</em>}</li>
+ *   <li>{@link org.eclipse.handly.examples.basic.foo.Unit#getVars <em>Vars</em>}</li>
+ *   <li>{@link org.eclipse.handly.examples.basic.foo.Unit#getDefs <em>Defs</em>}</li>
  * </ul>
  *
- * @see org.eclipse.handly.examples.basic.foo.FooPackage#getModule()
+ * @see org.eclipse.handly.examples.basic.foo.FooPackage#getUnit()
  * @model
  * @generated
  */
-public interface Module extends EObject
+public interface Unit extends EObject
 {
   /**
    * Returns the value of the '<em><b>Vars</b></em>' containment reference list.
@@ -36,7 +36,7 @@ public interface Module extends EObject
    * </p>
    * <!-- end-user-doc -->
    * @return the value of the '<em>Vars</em>' containment reference list.
-   * @see org.eclipse.handly.examples.basic.foo.FooPackage#getModule_Vars()
+   * @see org.eclipse.handly.examples.basic.foo.FooPackage#getUnit_Vars()
    * @model containment="true"
    * @generated
    */
@@ -52,10 +52,10 @@ public interface Module extends EObject
    * </p>
    * <!-- end-user-doc -->
    * @return the value of the '<em>Defs</em>' containment reference list.
-   * @see org.eclipse.handly.examples.basic.foo.FooPackage#getModule_Defs()
+   * @see org.eclipse.handly.examples.basic.foo.FooPackage#getUnit_Defs()
    * @model containment="true"
    * @generated
    */
   EList<Def> getDefs();
 
-} // Module
+} // Unit
