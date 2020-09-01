@@ -2,39 +2,39 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='7'>
-    <iu id='org.eclipse.sdk.ide' version='4.16.0.I20200604-0540'>
+    <iu id='org.eclipse.sdk.ide' version='4.17.0.I20200820-0230'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2020-06/'/>
+        <repository location='http://download.eclipse.org/releases/2020-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='5.8.0.202006091008-r'>
+    <iu id='org.eclipse.egit.feature.group' version='5.9.0.202008260805-m3'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2020-06/'/>
+        <repository location='http://download.eclipse.org/releases/2020-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='1.16.0.20200610-1735'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.16.1.20200710-1008'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2020-06/'/>
+        <repository location='http://download.eclipse.org/releases/2020-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.22.0.v20200602-1533'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.23.0.v20200824-1246'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2020-06/'/>
+        <repository location='http://download.eclipse.org/releases/2020-09/'/>
       </repositories>
     </iu>
     <iu id='org.eclipse.emf.mwe.sdk.feature.group' version='1.5.3.v20200520-0756'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2020-06/'/>
+        <repository location='http://download.eclipse.org/releases/2020-09/'/>
       </repositories>
     </iu>
     <iu id='org.eclipse.emf.mwe2.language.sdk.feature.group' version='2.11.3.v20200520-0756'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2020-06/'/>
+        <repository location='http://download.eclipse.org/releases/2020-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.emf.sdk.feature.group' version='2.22.0.v20200519-1135'>
+    <iu id='org.eclipse.emf.sdk.feature.group' version='2.23.0.v20200708-0547'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2020-06/'/>
+        <repository location='http://download.eclipse.org/releases/2020-09/'/>
       </repositories>
     </iu>
   </ius>
