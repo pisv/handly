@@ -43,7 +43,8 @@ Building locally
 
 The build is based on Maven and Tycho and is easy to run on a local machine:
 
- 1. Make sure you have JDK 8 and Maven 3 installed. Both should be on the path.
+ 1. Make sure you have Java SE 8 and Maven 3.5 (or later) installed.
+ Both should be on the path.
 
  2. Clone the Handly Git repository and pick the desired branch.
 
@@ -60,7 +61,11 @@ Setting up a developer workspace
 --------------------------------
 
 Handly currently uses `JavaSE-1.8` for compilation. Please add a matching JRE.
-Perfect match (i.e. JDK 1.8) is recommended to avoid build warnings.
+Perfect match (i.e. Java SE 8) is recommended to avoid build warnings.
+
+A number of the provided launch configurations use `JavaSE-11`. To use them,
+add a matching JRE. (That is, normally, you have both Java SE 8 and Java SE 11
+added.)
 
 Handly employs specific Java code formatting conventions. Please import and use
 the formatter profile from `tools/formatter.xml`. Note that the current profile
