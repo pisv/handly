@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -300,6 +300,12 @@ public class SourceElementLinkingHelper
         public void setSelection(ISelection selection)
         {
             this.selection = selection;
+        }
+
+        @Override
+        public boolean belongsTo(Object family)
+        {
+            return LinkToOutlineJob.class.getName().equals(family);
         }
 
         @Override
