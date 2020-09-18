@@ -3,8 +3,9 @@
  */
 package org.eclipse.handly.examples.basic.ide.contentassist.antlr;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import java.util.HashMap;
+import com.google.inject.Singleton;
 import java.util.Map;
 import org.eclipse.handly.examples.basic.ide.contentassist.antlr.internal.InternalFooParser;
 import org.eclipse.handly.examples.basic.services.FooGrammarAccess;
@@ -13,10 +14,41 @@ import org.eclipse.xtext.ide.editor.contentassist.antlr.AbstractContentAssistPar
 
 public class FooParser extends AbstractContentAssistParser {
 
+	@Singleton
+	public static final class NameMappings {
+		
+		private final Map<AbstractElement, String> mappings;
+		
+		@Inject
+		public NameMappings(FooGrammarAccess grammarAccess) {
+			ImmutableMap.Builder<AbstractElement, String> builder = ImmutableMap.builder();
+			init(builder, grammarAccess);
+			this.mappings = builder.build();
+		}
+		
+		public String getRuleName(AbstractElement element) {
+			return mappings.get(element);
+		}
+		
+		private static void init(ImmutableMap.Builder<AbstractElement, String> builder, FooGrammarAccess grammarAccess) {
+			builder.put(grammarAccess.getUnitAccess().getGroup(), "rule__Unit__Group__0");
+			builder.put(grammarAccess.getVarAccess().getGroup(), "rule__Var__Group__0");
+			builder.put(grammarAccess.getDefAccess().getGroup(), "rule__Def__Group__0");
+			builder.put(grammarAccess.getDefAccess().getGroup_4(), "rule__Def__Group_4__0");
+			builder.put(grammarAccess.getUnitAccess().getVarsAssignment_0(), "rule__Unit__VarsAssignment_0");
+			builder.put(grammarAccess.getUnitAccess().getDefsAssignment_1(), "rule__Unit__DefsAssignment_1");
+			builder.put(grammarAccess.getVarAccess().getNameAssignment_1(), "rule__Var__NameAssignment_1");
+			builder.put(grammarAccess.getDefAccess().getNameAssignment_1(), "rule__Def__NameAssignment_1");
+			builder.put(grammarAccess.getDefAccess().getParamsAssignment_3(), "rule__Def__ParamsAssignment_3");
+			builder.put(grammarAccess.getDefAccess().getParamsAssignment_4_1(), "rule__Def__ParamsAssignment_4_1");
+		}
+	}
+	
+	@Inject
+	private NameMappings nameMappings;
+
 	@Inject
 	private FooGrammarAccess grammarAccess;
-
-	private Map<AbstractElement, String> nameMappings;
 
 	@Override
 	protected InternalFooParser createParser() {
@@ -27,26 +59,9 @@ public class FooParser extends AbstractContentAssistParser {
 
 	@Override
 	protected String getRuleName(AbstractElement element) {
-		if (nameMappings == null) {
-			nameMappings = new HashMap<AbstractElement, String>() {
-				private static final long serialVersionUID = 1L;
-				{
-					put(grammarAccess.getUnitAccess().getGroup(), "rule__Unit__Group__0");
-					put(grammarAccess.getVarAccess().getGroup(), "rule__Var__Group__0");
-					put(grammarAccess.getDefAccess().getGroup(), "rule__Def__Group__0");
-					put(grammarAccess.getDefAccess().getGroup_4(), "rule__Def__Group_4__0");
-					put(grammarAccess.getUnitAccess().getVarsAssignment_0(), "rule__Unit__VarsAssignment_0");
-					put(grammarAccess.getUnitAccess().getDefsAssignment_1(), "rule__Unit__DefsAssignment_1");
-					put(grammarAccess.getVarAccess().getNameAssignment_1(), "rule__Var__NameAssignment_1");
-					put(grammarAccess.getDefAccess().getNameAssignment_1(), "rule__Def__NameAssignment_1");
-					put(grammarAccess.getDefAccess().getParamsAssignment_3(), "rule__Def__ParamsAssignment_3");
-					put(grammarAccess.getDefAccess().getParamsAssignment_4_1(), "rule__Def__ParamsAssignment_4_1");
-				}
-			};
-		}
-		return nameMappings.get(element);
+		return nameMappings.getRuleName(element);
 	}
-			
+
 	@Override
 	protected String[] getInitialHiddenTokens() {
 		return new String[] { "RULE_WS", "RULE_ML_COMMENT", "RULE_SL_COMMENT" };
@@ -58,5 +73,13 @@ public class FooParser extends AbstractContentAssistParser {
 
 	public void setGrammarAccess(FooGrammarAccess grammarAccess) {
 		this.grammarAccess = grammarAccess;
+	}
+	
+	public NameMappings getNameMappings() {
+		return nameMappings;
+	}
+	
+	public void setNameMappings(NameMappings nameMappings) {
+		this.nameMappings = nameMappings;
 	}
 }

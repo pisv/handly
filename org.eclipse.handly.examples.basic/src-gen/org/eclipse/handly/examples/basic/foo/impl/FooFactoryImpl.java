@@ -78,6 +78,7 @@ public class FooFactoryImpl extends EFactoryImpl implements FooFactory
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public Unit createUnit()
   {
     UnitImpl unit = new UnitImpl();
@@ -89,6 +90,7 @@ public class FooFactoryImpl extends EFactoryImpl implements FooFactory
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public Var createVar()
   {
     VarImpl var = new VarImpl();
@@ -100,6 +102,7 @@ public class FooFactoryImpl extends EFactoryImpl implements FooFactory
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public Def createDef()
   {
     DefImpl def = new DefImpl();
@@ -111,6 +114,7 @@ public class FooFactoryImpl extends EFactoryImpl implements FooFactory
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public FooPackage getFooPackage()
   {
     return (FooPackage)getEPackage();

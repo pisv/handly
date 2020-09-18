@@ -4,6 +4,7 @@
 package org.eclipse.handly.examples.basic.ui;
 
 import com.google.inject.Injector;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.handly.examples.basic.ui.internal.BasicActivator;
 import org.eclipse.xtext.ui.guice.AbstractGuiceAwareExecutableExtensionFactory;
 import org.osgi.framework.Bundle;
@@ -16,12 +17,13 @@ public class FooExecutableExtensionFactory extends AbstractGuiceAwareExecutableE
 
 	@Override
 	protected Bundle getBundle() {
-		return BasicActivator.getInstance().getBundle();
+		return Platform.getBundle(BasicActivator.PLUGIN_ID);
 	}
 	
 	@Override
 	protected Injector getInjector() {
-		return BasicActivator.getInstance().getInjector(BasicActivator.ORG_ECLIPSE_HANDLY_EXAMPLES_BASIC_FOO);
+		BasicActivator activator = BasicActivator.getInstance();
+		return activator != null ? activator.getInjector(BasicActivator.ORG_ECLIPSE_HANDLY_EXAMPLES_BASIC_FOO) : null;
 	}
-	
+
 }

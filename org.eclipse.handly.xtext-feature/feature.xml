@@ -34,7 +34,7 @@
 
    <requires>
       <import feature="org.eclipse.handly" version="1.5.0" match="equivalent"/>
-      <import feature="org.eclipse.xtext.ui" version="2.12.0" match="compatible"/>
+      <import feature="org.eclipse.xtext.ui" version="2.16.0" match="compatible"/>
    </requires>
 
    <plugin

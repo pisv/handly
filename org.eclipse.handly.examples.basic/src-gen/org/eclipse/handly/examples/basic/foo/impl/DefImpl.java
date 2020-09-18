@@ -91,6 +91,7 @@ public class DefImpl extends MinimalEObjectImpl.Container implements Def
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public String getName()
   {
     return name;
@@ -101,6 +102,7 @@ public class DefImpl extends MinimalEObjectImpl.Container implements Def
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public void setName(String newName)
   {
     String oldName = name;
@@ -114,6 +116,7 @@ public class DefImpl extends MinimalEObjectImpl.Container implements Def
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EList<String> getParams()
   {
     if (params == null)
@@ -211,7 +214,7 @@ public class DefImpl extends MinimalEObjectImpl.Container implements Def
   {
     if (eIsProxy()) return super.toString();
 
-    StringBuffer result = new StringBuffer(super.toString());
+    StringBuilder result = new StringBuilder(super.toString());
     result.append(" (name: ");
     result.append(name);
     result.append(", params: ");

@@ -10,6 +10,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.handly.examples.basic,
  org.eclipse.xtext.ide,
- org.antlr.runtime
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
 Export-Package: org.eclipse.handly.examples.basic.ide.contentassist.antlr.internal,
  org.eclipse.handly.examples.basic.ide.contentassist.antlr

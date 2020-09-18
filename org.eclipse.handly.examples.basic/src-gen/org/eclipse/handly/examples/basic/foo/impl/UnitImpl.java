@@ -84,6 +84,7 @@ public class UnitImpl extends MinimalEObjectImpl.Container implements Unit
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EList<Var> getVars()
   {
     if (vars == null)
@@ -98,6 +99,7 @@ public class UnitImpl extends MinimalEObjectImpl.Container implements Unit
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EList<Def> getDefs()
   {
     if (defs == null)

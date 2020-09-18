@@ -74,7 +74,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
 
   /**
    * Creates, registers, and initializes the <b>Package</b> for this model, and for any others upon which it depends.
-   * 
+   *
    * <p>This method is used to initialize {@link FooPackage#eINSTANCE} when that field is accessed.
    * Clients should not invoke it directly. Instead, they should simply access that field to obtain the package.
    * <!-- begin-user-doc -->
@@ -89,7 +89,8 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
     if (isInited) return (FooPackage)EPackage.Registry.INSTANCE.getEPackage(FooPackage.eNS_URI);
 
     // Obtain or create and register package
-    FooPackageImpl theFooPackage = (FooPackageImpl)(EPackage.Registry.INSTANCE.get(eNS_URI) instanceof FooPackageImpl ? EPackage.Registry.INSTANCE.get(eNS_URI) : new FooPackageImpl());
+    Object registeredFooPackage = EPackage.Registry.INSTANCE.get(eNS_URI);
+    FooPackageImpl theFooPackage = registeredFooPackage instanceof FooPackageImpl ? (FooPackageImpl)registeredFooPackage : new FooPackageImpl();
 
     isInited = true;
 
@@ -102,7 +103,6 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
     // Mark meta-data to indicate it can't be changed
     theFooPackage.freeze();
 
-  
     // Update the registry and return the package
     EPackage.Registry.INSTANCE.put(FooPackage.eNS_URI, theFooPackage);
     return theFooPackage;
@@ -113,6 +113,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EClass getUnit()
   {
     return unitEClass;
@@ -123,6 +124,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EReference getUnit_Vars()
   {
     return (EReference)unitEClass.getEStructuralFeatures().get(0);
@@ -133,6 +135,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EReference getUnit_Defs()
   {
     return (EReference)unitEClass.getEStructuralFeatures().get(1);
@@ -143,6 +146,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EClass getVar()
   {
     return varEClass;
@@ -153,6 +157,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EAttribute getVar_Name()
   {
     return (EAttribute)varEClass.getEStructuralFeatures().get(0);
@@ -163,6 +168,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EClass getDef()
   {
     return defEClass;
@@ -173,6 +179,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EAttribute getDef_Name()
   {
     return (EAttribute)defEClass.getEStructuralFeatures().get(0);
@@ -183,6 +190,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public EAttribute getDef_Params()
   {
     return (EAttribute)defEClass.getEStructuralFeatures().get(1);
@@ -193,6 +201,7 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  @Override
   public FooFactory getFooFactory()
   {
     return (FooFactory)getEFactoryInstance();
