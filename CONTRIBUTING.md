@@ -41,21 +41,23 @@ Coding standards, bugs lifecycle, and more
 Building locally
 ----------------
 
-The build is based on Maven and Tycho and is easy to run on a local machine:
+The build is based on [Apache Maven](https://maven.apache.org/) and
+[Eclipse Tycho](https://www.eclipse.org/tycho/) and is easy to run
+on a local machine:
 
- 1. Make sure you have Java SE 11 and Maven 3.5 (or later) installed.
+ 1. Make sure you have JDK 11 and Maven 3.5 or above installed.
  Both should be on the path.
 
- 2. Clone the Handly Git repository.
+ 2. Make sure you have a local clone of the Handly Git repository.
 
- 3. Open a shell to the Git workspace and execute
+ 3. Open a shell to the local clone of the Handly Git repository and execute
 
-    $ cd releng
+    `$ cd releng`
 
-    $ mvn clean verify
+    `$ mvn clean verify`
 
-Once the build completes, the `repository/target` folder in the Git workspace
-will contain a repository of build artifacts.
+Once the build completes, the `repository/target` folder will contain
+a repository of build artifacts.
 
 Setting up a developer workspace
 --------------------------------
