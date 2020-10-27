@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -175,16 +175,20 @@ public abstract class SourceFileDocumentProvider
                 {
                     if (!Elements.isWorkingCopy(workingCopy))
                         throw new AssertionError();
+                    boolean f2 = false;
                     try (IBuffer buffer = Elements.getBuffer(workingCopy))
                     {
                         IDocument document = null;
                         if (info.fTextFileBuffer != null)
                             document = info.fTextFileBuffer.getDocument();
                         if (!buffer.getDocument().equals(document))
-                        {
-                            releaseWorkingCopy(workingCopy, element, info);
                             throw new AssertionError();
-                        }
+                        f2 = true;
+                    }
+                    finally
+                    {
+                        if (!f2)
+                            releaseWorkingCopy(workingCopy, element, info);
                     }
                     ((SourceFileInfo)info).workingCopy = workingCopy;
                 }
