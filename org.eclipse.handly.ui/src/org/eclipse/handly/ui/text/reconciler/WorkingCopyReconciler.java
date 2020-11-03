@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 1C-Soft LLC.
+ * Copyright (c) 2015, 2020 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -17,6 +17,8 @@ import static org.eclipse.handly.model.IElementDeltaConstants.F_MARKERS;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_SYNC;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_UNDERLYING_RESOURCE;
 import static org.eclipse.handly.model.IElementDeltaConstants.F_WORKING_COPY;
+
+import java.util.function.Function;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
@@ -50,9 +52,9 @@ import org.eclipse.ui.PlatformUI;
 public abstract class WorkingCopyReconciler
     extends AbstractReconciler
 {
-    private IWorkingCopyManager workingCopyManager;
+    private Function<IDocument, ISourceFile> documentToSourceFile;
     private IReconcilingStrategy strategy;
-    private volatile ISourceFile workingCopy;
+    private volatile ISourceFile sourceFile;
     private volatile boolean active = true;
     private volatile boolean modelChanged = false;
     private volatile boolean initialProcessDone = false;
@@ -83,14 +85,30 @@ public abstract class WorkingCopyReconciler
      */
     public WorkingCopyReconciler(IWorkingCopyManager workingCopyManager)
     {
-        if (workingCopyManager == null)
+        this(workingCopyManager::getWorkingCopy);
+    }
+
+    /**
+     * Creates a new working copy reconciler with a function that is used to
+     * determine the source file for the reconciler's document. The reconciler
+     * is configured with a single reconciling strategy (by default, a {@link
+     * WorkingCopyReconcilingStrategy}) that is used irrespective of where a
+     * dirty region is located in the reconciler's document.
+     *
+     * @param documentToSourceFile not <code>null</code>
+     * @since 1.5
+     */
+    public WorkingCopyReconciler(
+        Function<IDocument, ISourceFile> documentToSourceFile)
+    {
+        if (documentToSourceFile == null)
             throw new IllegalArgumentException();
-        this.workingCopyManager = workingCopyManager;
+        this.documentToSourceFile = documentToSourceFile;
         // Just some reasonable defaults that can be overwritten:
         setIsIncrementalReconciler(false);
         setIsAllowedToModifyDocument(false);
         setReconcilingStrategy(new WorkingCopyReconcilingStrategy(
-            workingCopyManager));
+            documentToSourceFile));
     }
 
     /**
@@ -141,8 +159,7 @@ public abstract class WorkingCopyReconciler
     {
         super.install(textViewer);
 
-        setWorkingCopy(workingCopyManager.getWorkingCopy(
-            textViewer.getDocument()));
+        setSourceFile(documentToSourceFile.apply(textViewer.getDocument()));
 
         addElementChangeListener(elementChangeListener);
 
@@ -161,7 +178,7 @@ public abstract class WorkingCopyReconciler
 
         removeElementChangeListener(elementChangeListener);
 
-        setWorkingCopy(null);
+        setSourceFile(null);
 
         super.uninstall();
     }
@@ -228,7 +245,7 @@ public abstract class WorkingCopyReconciler
     @Override
     protected void reconcilerDocumentChanged(IDocument newDocument)
     {
-        setWorkingCopy(workingCopyManager.getWorkingCopy(newDocument));
+        setSourceFile(documentToSourceFile.apply(newDocument));
         strategy.setDocument(newDocument);
     }
 
@@ -268,7 +285,7 @@ public abstract class WorkingCopyReconciler
      * by the given element change event.
      * <p>
      * This implementation delegates to {@link #isAffectedBy(IElementDelta,
-     * ISourceFile)}, passing the working copy for the reconciler's document.
+     * ISourceFile)}, passing the source file for the reconciler's document.
      * </p>
      *
      * @param event never <code>null</code>
@@ -277,15 +294,14 @@ public abstract class WorkingCopyReconciler
      */
     protected boolean isAffectedBy(IElementChangeEvent event)
     {
-        return isAffectedBy(event.getDeltas(), getWorkingCopy());
+        return isAffectedBy(event.getDeltas(), getSourceFile());
     }
 
-    private boolean isAffectedBy(IElementDelta[] deltas,
-        ISourceFile workingCopy)
+    private boolean isAffectedBy(IElementDelta[] deltas, ISourceFile sourceFile)
     {
         for (IElementDelta delta : deltas)
         {
-            if (isAffectedBy(delta, workingCopy))
+            if (isAffectedBy(delta, sourceFile))
                 return true;
         }
         return false;
@@ -293,24 +309,24 @@ public abstract class WorkingCopyReconciler
 
     /**
      * Returns whether this reconciler is affected by the given element delta
-     * with regard to the given working copy.
+     * with regard to the given source file.
      *
      * @param delta never <code>null</code>
-     * @param workingCopy may be <code>null</code>
+     * @param sourceFile may be <code>null</code>
      * @return <code>true</code> if the reconciler is affected
      *  by the given delta, and <code>false</code> otherwise
      */
-    protected boolean isAffectedBy(IElementDelta delta, ISourceFile workingCopy)
+    protected boolean isAffectedBy(IElementDelta delta, ISourceFile sourceFile)
     {
         long flags = ElementDeltas.getFlags(delta);
         if (flags == F_SYNC || flags == F_WORKING_COPY)
             return false;
         IElement element = ElementDeltas.getElement(delta);
-        if (flags == F_UNDERLYING_RESOURCE && element.equals(workingCopy))
-            return false; // saving this reconciler's working copy
+        if (flags == F_UNDERLYING_RESOURCE && element.equals(sourceFile))
+            return false; // saving the working copy
         if (flags == F_MARKERS)
         {
-            if (element.equals(workingCopy))
+            if (element.equals(sourceFile))
             {
                 for (IMarkerDelta markerDelta : ElementDeltas.getMarkerDeltas(
                     delta))
@@ -325,7 +341,7 @@ public abstract class WorkingCopyReconciler
             return true;
         for (IElementDelta child : ElementDeltas.getAffectedChildren(delta))
         {
-            if (isAffectedBy(child, workingCopy))
+            if (isAffectedBy(child, sourceFile))
                 return true;
         }
         return false;
@@ -396,14 +412,14 @@ public abstract class WorkingCopyReconciler
             forceReconciling();
     }
 
-    private ISourceFile getWorkingCopy()
+    private ISourceFile getSourceFile()
     {
-        return workingCopy;
+        return sourceFile;
     }
 
-    private void setWorkingCopy(ISourceFile workingCopy)
+    private void setSourceFile(ISourceFile sourceFile)
     {
-        this.workingCopy = workingCopy;
+        this.sourceFile = sourceFile;
     }
 
     private boolean hasModelChanged()

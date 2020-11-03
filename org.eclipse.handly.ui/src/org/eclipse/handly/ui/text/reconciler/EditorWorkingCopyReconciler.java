@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 1C-Soft LLC.
+ * Copyright (c) 2015, 2020 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,7 +12,11 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.text.reconciler;
 
+import java.util.function.Function;
+
+import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.ui.IWorkingCopyManager;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
@@ -68,7 +72,25 @@ public abstract class EditorWorkingCopyReconciler
     public EditorWorkingCopyReconciler(IEditorPart editor,
         IWorkingCopyManager workingCopyManager)
     {
-        super(workingCopyManager);
+        this(editor, workingCopyManager::getWorkingCopy);
+    }
+
+    /**
+     * Creates a new working copy reconciler for the given editor and with
+     * a function that is used to determine the source file for the reconciler's
+     * document. The reconciler is configured with a single reconciling strategy
+     * (by default, a {@link WorkingCopyReconcilingStrategy}) that is used
+     * irrespective of where a dirty region is located in the reconciler's
+     * document.
+     *
+     * @param editor not <code>null</code>
+     * @param documentToSourceFile not <code>null</code>
+     * @since 1.5
+     */
+    public EditorWorkingCopyReconciler(IEditorPart editor,
+        Function<IDocument, ISourceFile> documentToSourceFile)
+    {
+        super(documentToSourceFile);
         if (editor == null)
             throw new IllegalArgumentException();
         this.editor = editor;

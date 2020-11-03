@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,6 +22,7 @@ import static org.eclipse.handly.model.impl.IReconcileStrategy.SOURCE_SNAPSHOT;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.NonExpiringSnapshot;
@@ -55,6 +56,9 @@ public class DefaultWorkingCopyCallback
 
         synchronized (reconcilingLock)
         {
+            if (monitor.isCanceled())
+                throw new OperationCanceledException();
+
             boolean needsReconciling = needsReconciling();
             if (needsReconciling || context.getOrDefault(FORCE_RECONCILING))
             {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,8 +12,10 @@
  *******************************************************************************/
 package org.eclipse.handly.internal.ui;
 
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
@@ -105,6 +107,23 @@ public class Activator
     public static ImageDescriptor getImageDescriptor(String symbolicName)
     {
         return plugin.getImageRegistry().getDescriptor(symbolicName);
+    }
+
+    public static boolean timedExec(String name, ICoreRunnable runnable,
+        long timeoutMillis)
+    {
+        Job job = Job.createSystem(name, runnable);
+        job.schedule();
+        try
+        {
+            if (job.join(timeoutMillis, null))
+                return true;
+        }
+        catch (InterruptedException e)
+        {
+        }
+        job.cancel();
+        return false;
     }
 
     @Override

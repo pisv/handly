@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 1C-Soft LLC.
+ * Copyright (c) 2015, 2020 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -11,6 +11,8 @@
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.handly.ui.text.reconciler;
+
+import java.util.function.Function;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,8 +34,8 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 public class WorkingCopyReconcilingStrategy
     implements IReconcilingStrategy, IReconcilingStrategyExtension
 {
-    private final IWorkingCopyManager workingCopyManager;
-    private volatile ISourceFile workingCopy;
+    private final Function<IDocument, ISourceFile> documentToSourceFile;
+    private volatile ISourceFile sourceFile;
     private volatile IProgressMonitor monitor;
 
     /**
@@ -46,15 +48,29 @@ public class WorkingCopyReconcilingStrategy
     public WorkingCopyReconcilingStrategy(
         IWorkingCopyManager workingCopyManager)
     {
-        if (workingCopyManager == null)
+        this(workingCopyManager::getWorkingCopy);
+    }
+
+    /**
+     * Creates a new working copy reconciling strategy with a function that
+     * is used to determine the source file for the reconciling strategy's
+     * document.
+     *
+     * @param documentToSourceFile not <code>null</code>
+     * @since 1.5
+     */
+    public WorkingCopyReconcilingStrategy(
+        Function<IDocument, ISourceFile> documentToSourceFile)
+    {
+        if (documentToSourceFile == null)
             throw new IllegalArgumentException();
-        this.workingCopyManager = workingCopyManager;
+        this.documentToSourceFile = documentToSourceFile;
     }
 
     @Override
     public void setDocument(IDocument document)
     {
-        setWorkingCopy(workingCopyManager.getWorkingCopy(document));
+        setSourceFile(documentToSourceFile.apply(document));
     }
 
     @Override
@@ -107,13 +123,15 @@ public class WorkingCopyReconcilingStrategy
     }
 
     /**
-     * Reconciles the given working copy.
+     * Reconciles the given source file. Does nothing if the source file is
+     * not in working copy mode or if its buffer has not been modified since
+     * the last time it was reconciled.
      * <p>
      * This implementation invokes <code>Elements.{@link Elements#reconcile(ISourceFile,
-     * IProgressMonitor) reconcile}(workingCopy, monitor)</code>.
+     * IProgressMonitor) reconcile}(sourceFile, monitor)</code>.
      * </p>
      *
-     * @param workingCopy never <code>null</code>
+     * @param sourceFile never <code>null</code>
      * @param initialReconcile <code>true</code> if this is the initial reconcile,
      *  and <code>false</code> otherwise
      * @param monitor a progress monitor, or <code>null</code>
@@ -122,22 +140,22 @@ public class WorkingCopyReconcilingStrategy
      * @throws CoreException if the working copy could not be reconciled
      * @throws OperationCanceledException if this method is canceled
      */
-    protected void reconcile(ISourceFile workingCopy, boolean initialReconcile,
+    protected void reconcile(ISourceFile sourceFile, boolean initialReconcile,
         IProgressMonitor monitor) throws CoreException
     {
-        Elements.reconcile(workingCopy, monitor);
+        Elements.reconcile(sourceFile, monitor);
     }
 
     private void reconcile(boolean initialReconcile)
     {
-        ISourceFile workingCopy = getWorkingCopy();
-        if (workingCopy == null)
+        ISourceFile sourceFile = getSourceFile();
+        if (sourceFile == null)
             return;
         SafeRunner.run(new ISafeRunnable()
         {
             public void run() throws Exception
             {
-                reconcile(workingCopy, initialReconcile, monitor);
+                reconcile(sourceFile, initialReconcile, monitor);
             }
 
             public void handleException(Throwable exception)
@@ -147,13 +165,13 @@ public class WorkingCopyReconcilingStrategy
         });
     }
 
-    private void setWorkingCopy(ISourceFile workingCopy)
+    private void setSourceFile(ISourceFile sourceFile)
     {
-        this.workingCopy = workingCopy;
+        this.sourceFile = sourceFile;
     }
 
-    private ISourceFile getWorkingCopy()
+    private ISourceFile getSourceFile()
     {
-        return workingCopy;
+        return sourceFile;
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2019 1C-Soft LLC.
+ * Copyright (c) 2016, 2020 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.handly.ui;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+
 import java.util.HashMap;
 
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -22,6 +24,8 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.Elements;
@@ -397,10 +401,13 @@ public class EditorUtility
                     editor.getEditorInput());
                 if (document != null && document.equals(buffer.getDocument()))
                 {
-                    Elements.ensureReconciled(element, null);
-
-                    TextRange identifyingRange = Elements.getSourceElementInfo2(
-                        element).getIdentifyingRange();
+                    TextRange[] result = new TextRange[1];
+                    Activator.timedExec("EditorUtility::revealSourceElement", //$NON-NLS-1$
+                        monitor ->
+                        {
+                            result[0] = getIdentifyingRange(element, monitor);
+                        }, 500);
+                    TextRange identifyingRange = result[0];
                     if (identifyingRange != null)
                     {
                         editor.selectAndReveal(identifyingRange.getOffset(),
@@ -411,5 +418,25 @@ public class EditorUtility
             }
         }
         return false;
+    }
+
+    private static TextRange getIdentifyingRange(ISourceElement element,
+        IProgressMonitor monitor)
+    {
+        SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+        Elements.ensureReconciled(element, subMonitor.split(1));
+        try
+        {
+            return Elements.getSourceElementInfo(element, EMPTY_CONTEXT,
+                subMonitor.split(1)).getIdentifyingRange();
+        }
+        catch (CoreException e)
+        {
+            if (!Elements.exists(element))
+                ; // this is considered normal
+            else
+                Activator.logError(e);
+        }
+        return null;
     }
 }

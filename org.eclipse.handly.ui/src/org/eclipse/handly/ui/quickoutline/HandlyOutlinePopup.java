@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,6 +12,12 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.quickoutline;
 
+import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceElement;
@@ -83,12 +89,35 @@ public abstract class HandlyOutlinePopup
         IElement input = getContentAdapter().adapt(getTreeViewer().getInput());
         if (!(input instanceof ISourceElement))
             return null;
-        ISourceElement sourceElement = (ISourceElement)input;
-        if (!Elements.ensureReconciled(sourceElement, null))
+        ISourceElement[] result = new ISourceElement[1];
+        Activator.timedExec("HandlyOutlinePopup::getCorrespondingElement", //$NON-NLS-1$
+            monitor ->
+            {
+                result[0] = getSourceElementAt((ISourceElement)input,
+                    ((ITextSelection)hostSelection).getOffset(), monitor);
+            }, 500);
+        return getContentAdapter().getCorrespondingElement(result[0]);
+    }
+
+    private static ISourceElement getSourceElementAt(ISourceElement element,
+        int offset, IProgressMonitor monitor)
+    {
+        SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+        if (!Elements.ensureReconciled(element, subMonitor.split(1)))
             return null;
-        return getContentAdapter().getCorrespondingElement(
-            Elements.getSourceElementAt2(sourceElement,
-                ((ITextSelection)hostSelection).getOffset(), null));
+        try
+        {
+            return Elements.getSourceElementAt(element, offset, EMPTY_CONTEXT,
+                subMonitor.split(1));
+        }
+        catch (CoreException e)
+        {
+            if (!Elements.exists(element))
+                ; // this is considered normal
+            else
+                Activator.logError(e);
+        }
+        return null;
     }
 
     /**

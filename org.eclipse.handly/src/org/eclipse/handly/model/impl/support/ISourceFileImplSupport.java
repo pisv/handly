@@ -135,7 +135,8 @@ public interface ISourceFileImplSupport
         throws CoreException
     {
         SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
-        if (!acquireExistingWorkingCopy_(subMonitor.split(10)))
+        if (!isWorkingCopy_() || !acquireExistingWorkingCopy_(subMonitor.split(
+            10)))
         {
             return getFileBuffer_(context, subMonitor.split(90));
         }
@@ -240,7 +241,7 @@ public interface ISourceFileImplSupport
     @Override
     default boolean needsReconciling_()
     {
-        if (!acquireExistingWorkingCopy_(null))
+        if (!isWorkingCopy_() || !acquireExistingWorkingCopy_(null))
             return false;
         else
         {
@@ -277,7 +278,8 @@ public interface ISourceFileImplSupport
         throws CoreException
     {
         SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
-        if (!acquireExistingWorkingCopy_(subMonitor.split(10)))
+        if (!isWorkingCopy_() || !acquireExistingWorkingCopy_(subMonitor.split(
+            10)))
             return; // not a working copy
         else
         {
