@@ -276,30 +276,43 @@ public class SourceElementLinkingHelper
     private void cancelLinkToOutlineJob()
     {
         linkToOutlineJob.cancel();
-        linkToOutlineJob.setSelection(null);
+        linkToOutlineJob.setArgs(null);
     }
 
     private void scheduleLinkToOutlineJob(ISelection selection)
     {
         linkToOutlineJob.cancel();
-        linkToOutlineJob.setSelection(selection);
+        linkToOutlineJob.setArgs(new LinkToOutlineArgs(selection,
+            isLinkingEnabled()));
         linkToOutlineJob.schedule();
+    }
+
+    private static class LinkToOutlineArgs
+    {
+        final ISelection selection;
+        final boolean isLinkingEnabled;
+
+        LinkToOutlineArgs(ISelection selection, boolean isLinkingEnabled)
+        {
+            this.selection = selection;
+            this.isLinkingEnabled = isLinkingEnabled;
+        }
     }
 
     private class LinkToOutlineJob
         extends Job
     {
-        private volatile ISelection selection;
+        private volatile LinkToOutlineArgs args;
 
         public LinkToOutlineJob()
         {
-            super(""); //$NON-NLS-1$
+            super(LinkToOutlineJob.class.getName());
             setSystem(true);
         }
 
-        public void setSelection(ISelection selection)
+        public void setArgs(LinkToOutlineArgs args)
         {
-            this.selection = selection;
+            this.args = args;
         }
 
         @Override
@@ -311,7 +324,11 @@ public class SourceElementLinkingHelper
         @Override
         protected IStatus run(IProgressMonitor monitor)
         {
-            final ISelection baseSelection = selection;
+            LinkToOutlineArgs args = this.args;
+            if (args == null)
+                return Status.OK_STATUS;
+
+            final ISelection baseSelection = args.selection;
             if (baseSelection == null || baseSelection.isEmpty())
                 return Status.OK_STATUS;
 
@@ -332,11 +349,14 @@ public class SourceElementLinkingHelper
                 @SuppressWarnings("unchecked")
                 public void run()
                 {
+                    LinkToOutlineArgs args = LinkToOutlineJob.this.args;
+                    if (args == null)
+                        return;
                     Control control = getOutlinePage().getControl();
                     TreeViewer treeViewer = getOutlinePage().getTreeViewer();
                     IEditorPart editor = getOutlinePage().getEditor();
                     if (control == null || control.isDisposed()
-                        || !baseSelection.equals(selection)
+                        || !baseSelection.equals(args.selection)
                         || !baseSelection.equals(
                             editor.getSite().getSelectionProvider().getSelection()))
                         return; // the world has changed -> no work needs to be done
@@ -346,7 +366,21 @@ public class SourceElementLinkingHelper
                         || !currentSelection.toList().containsAll(
                             linkedSelection.toList()))
                     {
-                        treeViewer.setSelection(linkedSelection, true);
+                        boolean isLinkingEnabled = isLinkingEnabled();
+                        try
+                        {
+                            // Temporarily restore the linking state as it was
+                            // when the job was scheduled. This will determine
+                            // whether linkToEditor is called in response to
+                            // selection change in treeViewer.
+                            setLinkingEnabled(args.isLinkingEnabled);
+
+                            treeViewer.setSelection(linkedSelection, true);
+                        }
+                        finally
+                        {
+                            setLinkingEnabled(isLinkingEnabled);
+                        }
                     }
                 }
             });

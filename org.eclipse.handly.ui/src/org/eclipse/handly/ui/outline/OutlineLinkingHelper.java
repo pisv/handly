@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2020 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -86,11 +86,10 @@ public abstract class OutlineLinkingHelper
     @Override
     public void setLinkWithEditor(boolean enabled)
     {
-        super.setLinkWithEditor(enabled);
-        isLinkingEnabled = enabled;
         if (enabled)
             linkToOutline(
                 outlinePage.getEditor().getSite().getSelectionProvider().getSelection());
+        setLinkingEnabled(enabled);
     }
 
     /**
@@ -133,4 +132,17 @@ public abstract class OutlineLinkingHelper
      *  (may be <code>null</code> or empty)
      */
     protected abstract void linkToOutline(ISelection selection);
+
+    final void setLinkingEnabled(boolean enabled)
+    {
+        if (enabled == isLinkingEnabled)
+            return;
+        super.setLinkWithEditor(enabled);
+        isLinkingEnabled = enabled;
+    }
+
+    final boolean isLinkingEnabled()
+    {
+        return isLinkingEnabled;
+    }
 }
