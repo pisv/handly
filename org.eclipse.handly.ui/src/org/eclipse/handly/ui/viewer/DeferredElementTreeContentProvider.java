@@ -14,6 +14,8 @@ package org.eclipse.handly.ui.viewer;
 
 import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 
+import java.util.Collection;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
@@ -21,6 +23,7 @@ import org.eclipse.handly.internal.ui.Activator;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.ISourceFile;
+import org.eclipse.handly.util.ICollector;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.progress.IElementCollector;
@@ -62,11 +65,10 @@ public class DeferredElementTreeContentProvider
     @Override
     public Object[] getChildren(Object parentElement)
     {
-        if (parentElement instanceof ISourceFile && !Elements.isWorkingCopy(
-            (ISourceFile)parentElement))
+        if (shouldDefer(parentElement))
             return getDeferredTreeContentManager().getChildren(parentElement);
 
-        return getChildren(parentElement, null);
+        return getImmediateChildren(parentElement);
     }
 
     @Override
@@ -81,43 +83,43 @@ public class DeferredElementTreeContentProvider
     @Override
     public boolean hasChildren(Object element)
     {
-        if (element instanceof ISourceFile && !Elements.isWorkingCopy(
-            (ISourceFile)element))
-            return true;
+        if (shouldDefer(element))
+            return getDeferredTreeContentManager().mayHaveChildren(element);
 
-        return getChildren(element, null).length > 0;
+        return getImmediateChildren(element).length > 0;
     }
 
-    @Override
-    protected void fetchDeferredChildren(Object parentElement,
-        IElementCollector collector, IProgressMonitor monitor)
+    /**
+     * Returns whether the given element should be processed
+     * via deferred tree content manager.
+     *
+     * @param element an element
+     * @return <code>true</code> if the given element should be processed
+     *  via deferred tree content manager, and <code>false</code> otherwise
+     */
+    protected boolean shouldDefer(Object element)
     {
-        collector.add(getChildren(parentElement, monitor), null);
-        collector.done();
+        return element instanceof ISourceFile && !Elements.isWorkingCopy(
+            (ISourceFile)element);
     }
 
     /**
      * Returns the child elements of the given parent element.
      * <p>
-     * Default implementation invokes <code>Elements.getChildren((IElement)parentElement,
-     * EMPTY_CONTEXT, monitor)</code> if the parent element is an IElement.
-     * Subclasses may override or extend.
+     * Default implementation invokes <code>Elements.getChildren((IElement)parentElement)</code>
+     * if the parent element is an IElement. Subclasses may override or extend.
      * </p>
      *
      * @param parentElement the parent element
-     * @param monitor a progress monitor to support reporting and cancellation
-     *  (may be <code>null</code>)
      * @return an array of child elements (not <code>null</code>)
      */
-    protected Object[] getChildren(Object parentElement,
-        IProgressMonitor monitor)
+    protected Object[] getImmediateChildren(Object parentElement)
     {
         if (parentElement instanceof IElement)
         {
             try
             {
-                return Elements.getChildren((IElement)parentElement,
-                    EMPTY_CONTEXT, monitor);
+                return Elements.getChildren((IElement)parentElement);
             }
             catch (CoreException e)
             {
@@ -125,6 +127,41 @@ public class DeferredElementTreeContentProvider
             }
         }
         return NO_CHILDREN;
+    }
+
+    @Override
+    protected void fetchDeferredChildren(Object parentElement,
+        IElementCollector collector, IProgressMonitor monitor)
+    {
+        if (parentElement instanceof IElement)
+        {
+            try
+            {
+                Elements.fetchChildren((IElement)parentElement, EMPTY_CONTEXT,
+                    new ICollector<Object>()
+                    {
+                        @Override
+                        public void add(Object e)
+                        {
+                            collector.add(e, null);
+                        }
+
+                        @Override
+                        public void addAll(Collection<? extends Object> c)
+                        {
+                            collector.add(c.toArray(), null);
+                        }
+                    }, monitor);
+            }
+            catch (CoreException e)
+            {
+                Activator.logError(e);
+            }
+            finally
+            {
+                collector.done();
+            }
+        }
     }
 
     /**

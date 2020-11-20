@@ -19,14 +19,17 @@ import static org.eclipse.handly.util.ToStringOptions.FORMAT_STYLE;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.handly.context.IContext;
 import org.eclipse.handly.model.Elements;
 import org.eclipse.handly.model.IElement;
 import org.eclipse.handly.model.IModel;
+import org.eclipse.handly.util.ICollector;
 import org.eclipse.handly.util.ToStringOptions.FormatStyle;
 
 /**
@@ -224,6 +227,52 @@ public interface IElementImpl
         @SuppressWarnings("unchecked")
         T[] result = (T[])Array.newInstance(type, list.size());
         return list.toArray(result);
+    }
+
+    /**
+     * Adds the immediate children of this element to the given collector.
+     * Unless otherwise specified by the implementing element, the children are
+     * added in no particular order.
+     *
+     * @param context the operation context (not <code>null</code>)
+     * @param collector the element collector (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
+     * @throws CoreException if this element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is canceled
+     * @since 1.5
+     */
+    default void fetchChildren_(IContext context,
+        ICollector<? super IElement> collector, IProgressMonitor monitor)
+        throws CoreException
+    {
+        collector.addAll(Arrays.asList(getChildren_(context, monitor)));
+    }
+
+    /**
+     * Adds the immediate children of this element that have the given type
+     * to the given collector. Unless otherwise specified by the implementing
+     * element, the children are added in no particular order.
+     *
+     * @param type not <code>null</code>
+     * @param context the operation context (not <code>null</code>)
+     * @param collector the element collector (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
+     * @throws CoreException if this element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is canceled
+     * @since 1.5
+     */
+    default <T> void fetchChildrenOfType_(Class<T> type, IContext context,
+        ICollector<? super T> collector, IProgressMonitor monitor)
+        throws CoreException
+    {
+        collector.addAll(Arrays.asList(getChildrenOfType_(type, context,
+            monitor)));
     }
 
     /**

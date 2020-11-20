@@ -44,6 +44,7 @@ import org.eclipse.handly.model.impl.ISourceElementImpl;
 import org.eclipse.handly.model.impl.ISourceFileImpl;
 import org.eclipse.handly.snapshot.ISnapshot;
 import org.eclipse.handly.snapshot.StaleSnapshotException;
+import org.eclipse.handly.util.ICollector;
 import org.eclipse.handly.util.Property;
 import org.eclipse.handly.util.TextRange;
 
@@ -987,6 +988,54 @@ public class Elements
         IContext context, IProgressMonitor monitor) throws CoreException
     {
         return ((IElementImpl)element).getChildrenOfType_(type, context,
+            monitor);
+    }
+
+    /**
+     * Adds the immediate children of the element to the given collector.
+     * Unless otherwise specified by the parent element, the children are
+     * added in no particular order.
+     *
+     * @param element not <code>null</code>
+     * @param context the operation context (not <code>null</code>)
+     * @param collector the element collector (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
+     * @throws CoreException if the element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is canceled
+     * @since 1.5
+     */
+    public static void fetchChildren(IElement element, IContext context,
+        ICollector<? super IElement> collector, IProgressMonitor monitor)
+        throws CoreException
+    {
+        ((IElementImpl)element).fetchChildren_(context, collector, monitor);
+    }
+
+    /**
+     * Adds the immediate children of the element that have the given type
+     * to the given collector. Unless otherwise specified by the parent element,
+     * the children are added in no particular order.
+     *
+     * @param element not <code>null</code>
+     * @param type not <code>null</code>
+     * @param context the operation context (not <code>null</code>)
+     * @param collector the element collector (not <code>null</code>)
+     * @param monitor a progress monitor, or <code>null</code>
+     *  if progress reporting is not desired. The caller must not rely on
+     *  {@link IProgressMonitor#done()} having been called by the receiver
+     * @throws CoreException if the element does not exist or if an
+     *  exception occurs while accessing its corresponding resource
+     * @throws OperationCanceledException if this method is canceled
+     * @since 1.5
+     */
+    public static <T> void fetchChildrenOfType(IElement element, Class<T> type,
+        IContext context, ICollector<? super T> collector,
+        IProgressMonitor monitor) throws CoreException
+    {
+        ((IElementImpl)element).fetchChildrenOfType_(type, context, collector,
             monitor);
     }
 
