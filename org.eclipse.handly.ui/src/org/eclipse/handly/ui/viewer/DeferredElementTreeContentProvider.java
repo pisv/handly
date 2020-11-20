@@ -133,34 +133,37 @@ public class DeferredElementTreeContentProvider
     protected void fetchDeferredChildren(Object parentElement,
         IElementCollector collector, IProgressMonitor monitor)
     {
-        if (parentElement instanceof IElement)
+        try
         {
-            try
+            if (parentElement instanceof IElement)
             {
-                Elements.fetchChildren((IElement)parentElement, EMPTY_CONTEXT,
-                    new ICollector<Object>()
-                    {
-                        @Override
-                        public void add(Object e)
+                try
+                {
+                    Elements.fetchChildren((IElement)parentElement,
+                        EMPTY_CONTEXT, new ICollector<Object>()
                         {
-                            collector.add(e, null);
-                        }
+                            @Override
+                            public void add(Object e)
+                            {
+                                collector.add(e, null);
+                            }
 
-                        @Override
-                        public void addAll(Collection<? extends Object> c)
-                        {
-                            collector.add(c.toArray(), null);
-                        }
-                    }, monitor);
+                            @Override
+                            public void addAll(Collection<? extends Object> c)
+                            {
+                                collector.add(c.toArray(), null);
+                            }
+                        }, monitor);
+                }
+                catch (CoreException e)
+                {
+                    Activator.logError(e);
+                }
             }
-            catch (CoreException e)
-            {
-                Activator.logError(e);
-            }
-            finally
-            {
-                collector.done();
-            }
+        }
+        finally
+        {
+            collector.done();
         }
     }
 
