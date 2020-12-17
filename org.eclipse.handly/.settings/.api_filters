@@ -5,7 +5,7 @@
             <message_arguments>
                 <message_argument value="org.eclipse.handly.ApiLevel"/>
                 <message_argument value="CURRENT"/>
-                <message_argument value="4"/>
+                <message_argument value="5"/>
             </message_arguments>
         </filter>
     </resource>
@@ -22,20 +22,6 @@
             <message_arguments>
                 <message_argument value="TextEditProcessor"/>
                 <message_argument value="ChangeEditProcessor"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/handly/model/impl/IElementImpl.java" type="org.eclipse.handly.model.impl.IElementImpl">
-        <filter id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.model.impl.IElementImpl"/>
-                <message_argument value="fetchChildrenOfType_(Class&lt;T&gt;, IContext, ICollector&lt;? super T&gt;, IProgressMonitor)"/>
-            </message_arguments>
-        </filter>
-        <filter id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.handly.model.impl.IElementImpl"/>
-                <message_argument value="fetchChildren_(IContext, ICollector&lt;? super IElement&gt;, IProgressMonitor)"/>
             </message_arguments>
         </filter>
     </resource>
