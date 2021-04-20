@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Copyright (c) 2014, 2020 1C-Soft LLC and others.
+   Copyright (c) 2014, 2021 1C-Soft LLC and others.
 
    This program and the accompanying materials are made available under
    the terms of the Eclipse Public License 2.0 which is available at
@@ -261,7 +261,7 @@
           <plugin>
             <groupId>org.eclipse.cbi.maven.plugins</groupId>
             <artifactId>eclipse-jarsigner-plugin</artifactId>
-            <version>1.1.5</version>
+            <version>1.3.1</version>
             <executions>
               <execution>
                 <id>sign</id>
