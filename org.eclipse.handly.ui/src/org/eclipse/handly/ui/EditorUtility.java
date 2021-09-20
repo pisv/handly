@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2020 1C-Soft LLC.
+ * Copyright (c) 2016, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -140,7 +140,7 @@ public class EditorUtility
      * IElement} and the adapter element is an {@link ISourceElement}, it is
      * additionally required for matching editors which could be adapted to an
      * {@link ITextEditor} that the text editor's document equals the document
-     * of the source element's {@link #getBuffer(ISourceElement) buffer}.
+     * of the source element's {@link #getBuffer(ISourceElement) buffer}, if any.
      * </p>
      *
      * @param page not <code>null</code>
@@ -161,6 +161,8 @@ public class EditorUtility
             IWorkbenchPage.MATCH_INPUT);
         if (references.length == 0)
             return null;
+        if (references.length == 1)
+            return references[0];
         IEditorReference result = references[0];
         IEditorPart editor = result.getEditor(false);
         if (editor instanceof ITextEditor)
@@ -185,7 +187,7 @@ public class EditorUtility
      * could be adapted to an {@link ITextEditor}, this implementation attempts
      * to select and reveal the source element's identifying range in the text
      * editor, provided that the text editor's document equals the document
-     * of the source element's {@link #getBuffer(ISourceElement) buffer}.
+     * of the source element's {@link #getBuffer(ISourceElement) buffer}, if any.
      * If all else fails, a structured selection containing a single object,
      * the given element, is passed to the selection provider of the given editor.
      * </p>
@@ -373,16 +375,11 @@ public class EditorUtility
                         continue;
                     ITextEditor textEditor = Adapters.adapt(editor,
                         ITextEditor.class, false);
-                    if (textEditor != null)
+                    if (textEditor != null && buffer.getDocument().equals(
+                        textEditor.getDocumentProvider().getDocument(
+                            textEditor.getEditorInput())))
                     {
-                        IDocument document =
-                            textEditor.getDocumentProvider().getDocument(
-                                textEditor.getEditorInput());
-                        if (document != null && document.equals(
-                            buffer.getDocument()))
-                        {
-                            return reference;
-                        }
+                        return reference;
                     }
                 }
             }
@@ -395,29 +392,23 @@ public class EditorUtility
     {
         try (IBuffer buffer = getBuffer(element))
         {
-            if (buffer != null)
-            {
-                IDocument document = editor.getDocumentProvider().getDocument(
-                    editor.getEditorInput());
-                if (document != null && document.equals(buffer.getDocument()))
-                {
-                    TextRange[] result = new TextRange[1];
-                    Activator.timedExec("EditorUtility::revealSourceElement", //$NON-NLS-1$
-                        monitor ->
-                        {
-                            result[0] = getIdentifyingRange(element, monitor);
-                        }, 500);
-                    TextRange identifyingRange = result[0];
-                    if (identifyingRange != null)
-                    {
-                        editor.selectAndReveal(identifyingRange.getOffset(),
-                            identifyingRange.getLength());
-                        return true;
-                    }
-                }
-            }
+            if (buffer != null && !buffer.getDocument().equals(
+                editor.getDocumentProvider().getDocument(
+                    editor.getEditorInput())))
+                return false;
         }
-        return false;
+        TextRange[] result = new TextRange[1];
+        Activator.timedExec("EditorUtility::revealSourceElement", //$NON-NLS-1$
+            monitor ->
+            {
+                result[0] = getIdentifyingRange(element, monitor);
+            }, 500);
+        TextRange identifyingRange = result[0];
+        if (identifyingRange == null)
+            return false;
+        editor.selectAndReveal(identifyingRange.getOffset(),
+            identifyingRange.getLength());
+        return true;
     }
 
     private static TextRange getIdentifyingRange(ISourceElement element,
