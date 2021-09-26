@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 1C-Soft LLC.
+ * Copyright (c) 2015, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -15,6 +15,7 @@ package org.eclipse.handly.internal.examples.adapter.ui;
 import org.eclipse.handly.examples.adapter.JavaModelAdapter;
 import org.eclipse.handly.internal.examples.adapter.ui.callhierarchy.OpenCallHierarchyAction;
 import org.eclipse.handly.internal.examples.adapter.ui.search.FindReferencesAction;
+import org.eclipse.handly.internal.examples.adapter.ui.typehierarchy.OpenTypeHierarchyAction;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.adapter.DefaultContentAdapter;
 import org.eclipse.handly.model.adapter.IContentAdapter;
@@ -49,6 +50,8 @@ public class JavaOutlinePage
     private static final String GROUP_OPEN = "group.open"; //$NON-NLS-1$
     private static final String GROUP_SEARCH = "group.search"; //$NON-NLS-1$
 
+    private final OpenTypeHierarchyAction openTypeHierarchyAction =
+        new OpenTypeHierarchyAction();
     private final OpenCallHierarchyAction openCallHierarchyAction =
         new OpenCallHierarchyAction();
     private final FindReferencesAction findReferencesAction =
@@ -117,6 +120,10 @@ public class JavaOutlinePage
 
                 IStructuredSelection selection =
                     (IStructuredSelection)getSelection();
+
+                openTypeHierarchyAction.selectionChanged(selection);
+                if (openTypeHierarchyAction.isEnabled())
+                    manager.appendToGroup(GROUP_OPEN, openTypeHierarchyAction);
 
                 openCallHierarchyAction.selectionChanged(selection);
                 if (openCallHierarchyAction.isEnabled())

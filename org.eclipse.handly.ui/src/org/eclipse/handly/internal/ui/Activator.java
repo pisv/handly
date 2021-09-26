@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2020 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -40,26 +40,34 @@ public class Activator
     public static final String IMG_DLCL_REFRESH = PLUGIN_ID + T_DLCL
         + "refresh.png"; //$NON-NLS-1$
 
-    public static final String IMG_ELCL_CH_AUTOMATIC = PLUGIN_ID + T_ELCL
-        + "ch_automatic.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_CH_CALLEES = PLUGIN_ID + T_ELCL
         + "ch_callees.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_CH_CALLERS = PLUGIN_ID + T_ELCL
         + "ch_callers.png"; //$NON-NLS-1$
-    public static final String IMG_ELCL_CH_HORIZONTAL = PLUGIN_ID + T_ELCL
-        + "ch_horizontal.png"; //$NON-NLS-1$
-    public static final String IMG_ELCL_CH_VERTICAL = PLUGIN_ID + T_ELCL
-        + "ch_vertical.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_EXPANDALL = PLUGIN_ID + T_ELCL
         + "expandall.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_HISTORY_LIST = PLUGIN_ID + T_ELCL
         + "history_list.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_LAYOUT_AUTOMATIC = PLUGIN_ID + T_ELCL
+        + "layout_automatic.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_LAYOUT_HORIZONTAL = PLUGIN_ID + T_ELCL
+        + "layout_horizontal.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_LAYOUT_SINGLE = PLUGIN_ID + T_ELCL
+        + "layout_single.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_LAYOUT_VERTICAL = PLUGIN_ID + T_ELCL
+        + "layout_vertical.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_LEXICAL_SORT = PLUGIN_ID + T_ELCL
         + "lexical_sort.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_PIN_VIEW = PLUGIN_ID + T_ELCL
         + "pin_view.png"; //$NON-NLS-1$
     public static final String IMG_ELCL_REFRESH = PLUGIN_ID + T_ELCL
         + "refresh.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_TH_SUPERTYPES = PLUGIN_ID + T_ELCL
+        + "th_supertypes.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_TH_SUBTYPES = PLUGIN_ID + T_ELCL
+        + "th_subtypes.png"; //$NON-NLS-1$
+    public static final String IMG_ELCL_TH_TYPES = PLUGIN_ID + T_ELCL
+        + "th_types.png"; //$NON-NLS-1$
 
     public static final String IMG_OBJ_SEARCH_OCCURRENCE = PLUGIN_ID + T_OBJ
         + "occ_match.png"; //$NON-NLS-1$
@@ -147,26 +155,34 @@ public class Activator
         reg.put(IMG_DLCL_REFRESH, imageDescriptorFromSymbolicName(
             IMG_DLCL_REFRESH));
 
-        reg.put(IMG_ELCL_CH_AUTOMATIC, imageDescriptorFromSymbolicName(
-            IMG_ELCL_CH_AUTOMATIC));
         reg.put(IMG_ELCL_CH_CALLEES, imageDescriptorFromSymbolicName(
             IMG_ELCL_CH_CALLEES));
         reg.put(IMG_ELCL_CH_CALLERS, imageDescriptorFromSymbolicName(
             IMG_ELCL_CH_CALLERS));
-        reg.put(IMG_ELCL_CH_HORIZONTAL, imageDescriptorFromSymbolicName(
-            IMG_ELCL_CH_HORIZONTAL));
-        reg.put(IMG_ELCL_CH_VERTICAL, imageDescriptorFromSymbolicName(
-            IMG_ELCL_CH_VERTICAL));
         reg.put(IMG_ELCL_EXPANDALL, imageDescriptorFromSymbolicName(
             IMG_ELCL_EXPANDALL));
         reg.put(IMG_ELCL_HISTORY_LIST, imageDescriptorFromSymbolicName(
             IMG_ELCL_HISTORY_LIST));
+        reg.put(IMG_ELCL_LAYOUT_AUTOMATIC, imageDescriptorFromSymbolicName(
+            IMG_ELCL_LAYOUT_AUTOMATIC));
+        reg.put(IMG_ELCL_LAYOUT_HORIZONTAL, imageDescriptorFromSymbolicName(
+            IMG_ELCL_LAYOUT_HORIZONTAL));
+        reg.put(IMG_ELCL_LAYOUT_SINGLE, imageDescriptorFromSymbolicName(
+            IMG_ELCL_LAYOUT_SINGLE));
+        reg.put(IMG_ELCL_LAYOUT_VERTICAL, imageDescriptorFromSymbolicName(
+            IMG_ELCL_LAYOUT_VERTICAL));
         reg.put(IMG_ELCL_LEXICAL_SORT, imageDescriptorFromSymbolicName(
             IMG_ELCL_LEXICAL_SORT));
         reg.put(IMG_ELCL_PIN_VIEW, imageDescriptorFromSymbolicName(
             IMG_ELCL_PIN_VIEW));
         reg.put(IMG_ELCL_REFRESH, imageDescriptorFromSymbolicName(
             IMG_ELCL_REFRESH));
+        reg.put(IMG_ELCL_TH_SUPERTYPES, imageDescriptorFromSymbolicName(
+            IMG_ELCL_TH_SUPERTYPES));
+        reg.put(IMG_ELCL_TH_SUBTYPES, imageDescriptorFromSymbolicName(
+            IMG_ELCL_TH_SUBTYPES));
+        reg.put(IMG_ELCL_TH_TYPES, imageDescriptorFromSymbolicName(
+            IMG_ELCL_TH_TYPES));
 
         reg.put(IMG_OBJ_SEARCH_OCCURRENCE, imageDescriptorFromSymbolicName(
             IMG_OBJ_SEARCH_OCCURRENCE));

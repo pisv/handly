@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2019 1C-Soft LLC.
+ * Copyright (c) 2018, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,6 +26,7 @@ import org.eclipse.handly.snapshot.StaleSnapshotException;
 import org.eclipse.handly.ui.DefaultEditorUtility;
 import org.eclipse.handly.ui.EditorOpener;
 import org.eclipse.handly.ui.EditorUtility;
+import org.eclipse.handly.ui.PartListenerAdapter;
 import org.eclipse.handly.ui.action.HistoryDropDownAction;
 import org.eclipse.handly.ui.viewer.ColumnDescription;
 import org.eclipse.handly.ui.viewer.DelegatingSelectionProvider;
@@ -141,7 +142,7 @@ public abstract class CallHierarchyViewPart
     private HistoryDropDownAction<HistoryEntry> historyDropDownAction;
     private final PinAction pinAction = new PinAction();
 
-    private final IPartListener partListener = new IPartListener()
+    private final IPartListener partListener = new PartListenerAdapter()
     {
         @Override
         public void partActivated(IWorkbenchPart part)
@@ -169,16 +170,6 @@ public abstract class CallHierarchyViewPart
 
             getViewManager().viewOpenedOrActivated(CallHierarchyViewPart.this);
             refresh();
-        }
-
-        @Override
-        public void partDeactivated(IWorkbenchPart part)
-        {
-        }
-
-        @Override
-        public void partBroughtToTop(IWorkbenchPart part)
-        {
         }
     };
 
@@ -662,8 +653,11 @@ public abstract class CallHierarchyViewPart
     public void setFocus()
     {
         pageBook.setFocus();
-        updateStatusLine(getViewSite().getActionBars().getStatusLineManager(),
-            (IStructuredSelection)getSite().getSelectionProvider().getSelection());
+        ISelection selection = getSite().getSelectionProvider().getSelection();
+        if (selection instanceof IStructuredSelection)
+            updateStatusLine(
+                getViewSite().getActionBars().getStatusLineManager(),
+                (IStructuredSelection)selection);
     }
 
     /**
@@ -1184,12 +1178,15 @@ public abstract class CallHierarchyViewPart
             if (editorRef != null)
             {
                 editor = editorRef.getEditor(true);
-                if (activate)
-                    page.activate(editor);
-                else
-                    page.bringToTop(editor);
-                if (callLocation == null)
-                    editorUtility.revealElement(editor, element);
+                if (editor != null)
+                {
+                    if (activate)
+                        page.activate(editor);
+                    else
+                        page.bringToTop(editor);
+                    if (callLocation == null)
+                        editorUtility.revealElement(editor, element);
+                }
             }
         }
         if (editor != null && callLocation != null)
@@ -1871,7 +1868,7 @@ public abstract class CallHierarchyViewPart
                 setToolTipText(
                     Messages.CallHierarchyViewPart_Layout_horizontal_action_tooltip);
                 setImageDescriptor(Activator.getImageDescriptor(
-                    Activator.IMG_ELCL_CH_HORIZONTAL));
+                    Activator.IMG_ELCL_LAYOUT_HORIZONTAL));
                 break;
             case SWT.VERTICAL:
                 setText(
@@ -1879,7 +1876,7 @@ public abstract class CallHierarchyViewPart
                 setToolTipText(
                     Messages.CallHierarchyViewPart_Layout_vertical_action_tooltip);
                 setImageDescriptor(Activator.getImageDescriptor(
-                    Activator.IMG_ELCL_CH_VERTICAL));
+                    Activator.IMG_ELCL_LAYOUT_VERTICAL));
                 break;
             default:
                 setText(
@@ -1887,7 +1884,7 @@ public abstract class CallHierarchyViewPart
                 setToolTipText(
                     Messages.CallHierarchyViewPart_Layout_automatic_action_tooltip);
                 setImageDescriptor(Activator.getImageDescriptor(
-                    Activator.IMG_ELCL_CH_AUTOMATIC));
+                    Activator.IMG_ELCL_LAYOUT_AUTOMATIC));
                 setChecked(true);
             }
         }

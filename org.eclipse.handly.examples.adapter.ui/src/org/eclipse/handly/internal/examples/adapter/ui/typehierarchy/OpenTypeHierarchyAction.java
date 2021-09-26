@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2021 1C-Soft LLC.
+ * Copyright (c) 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -10,11 +10,12 @@
  * Contributors:
  *     Vladimir Piskarev (1C) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.handly.internal.examples.adapter.ui.callhierarchy;
+package org.eclipse.handly.internal.examples.adapter.ui.typehierarchy;
 
 import org.eclipse.handly.internal.examples.adapter.ui.Activator;
-import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -22,21 +23,18 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 
 /**
- * An action that opens the {@link JavaCallHierarchyView} for the current
+ * An action that opens the {@link JavaTypeHierarchyView} for the current
  * selection.
  */
-public final class OpenCallHierarchyAction
+public final class OpenTypeHierarchyAction
     extends BaseSelectionListenerAction
 {
-    private static final Class<?>[] VALID_TYPES = new Class<?>[] {
-        IMethod.class };
-
     /**
-     * Creates a new <code>OpenCallHierarchyAction</code>.
+     * Creates a new <code>OpenTypeHierarchyAction</code>.
      */
-    public OpenCallHierarchyAction()
+    public OpenTypeHierarchyAction()
     {
-        super("Open Call Hierarchy");
+        super("Open Type Hierarchy");
     }
 
     @Override
@@ -51,8 +49,10 @@ public final class OpenCallHierarchyAction
             return;
         try
         {
-            JavaCallHierarchyViewManager.INSTANCE.openView(page,
-                getStructuredSelection().toArray());
+            IViewPart view = page.showView(JavaTypeHierarchyView.ID);
+            if (view instanceof JavaTypeHierarchyView)
+                ((JavaTypeHierarchyView)view).setInputElements(
+                    getStructuredSelection().toArray());
         }
         catch (PartInitException e)
         {
@@ -63,25 +63,9 @@ public final class OpenCallHierarchyAction
     @Override
     protected boolean updateSelection(IStructuredSelection selection)
     {
-        if (selection.isEmpty())
+        if (selection.isEmpty() || selection.size() > 1)
             return false;
 
-        Object[] elements = selection.toArray();
-        for (Object element : elements)
-        {
-            if (!canRunOn(element))
-                return false;
-        }
-        return true;
-    }
-
-    private boolean canRunOn(Object element)
-    {
-        for (Class<?> type : VALID_TYPES)
-        {
-            if (type.isInstance(element))
-                return true;
-        }
-        return false;
+        return selection.getFirstElement() instanceof IType;
     }
 }

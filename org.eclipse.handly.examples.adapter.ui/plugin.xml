@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <!--
-    Copyright (c) 2015, 2018 1C-Soft LLC.
+    Copyright (c) 2015, 2021 1C-Soft LLC.
 
     This program and the accompanying materials are made available under
     the terms of the Eclipse Public License 2.0 which is available at
@@ -34,9 +34,18 @@
             id="org.eclipse.handly.examples.adapter.ui.JavaCallHierarchyView"
             category="org.eclipse.handly.examples"
             class="org.eclipse.handly.internal.examples.adapter.ui.callhierarchy.JavaCallHierarchyView"
-            name="Method Calls"
+            name="Call Hierarchy"
             icon="icons/eview16/call_hierarchy.png"
             allowMultiple="true"
+            restorable="true">
+      </view>
+      <view
+            id="org.eclipse.handly.examples.adapter.ui.JavaTypeHierarchyView"
+            category="org.eclipse.handly.examples"
+            class="org.eclipse.handly.internal.examples.adapter.ui.typehierarchy.JavaTypeHierarchyView"
+            name="Type Hierarchy"
+            icon="icons/eview16/type_hierarchy.png"
+            allowMultiple="false"
             restorable="true">
       </view>
    </extension>
