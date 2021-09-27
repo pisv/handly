@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 1C LLC.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,13 +22,11 @@ import org.eclipse.ui.IPropertyListener;
 public abstract class EditorInputListenerContribution
     extends OutlineContribution
 {
-    private IPropertyListener editorInputListener = new IPropertyListener()
+    private IPropertyListener editorInputListener = (Object source,
+        int propId) ->
     {
-        public void propertyChanged(Object source, int propId)
-        {
-            if (propId == IEditorPart.PROP_INPUT)
-                editorInputChanged();
-        }
+        if (propId == IEditorPart.PROP_INPUT)
+            editorInputChanged();
     };
 
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.preference;
 
-import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -33,6 +32,7 @@ public abstract class AbstractPreference
     private final IPropertyChangeListener storeListener =
         new IPropertyChangeListener()
         {
+            @Override
             public void propertyChange(PropertyChangeEvent event)
             {
                 if (event.getProperty().equals(name))
@@ -129,23 +129,13 @@ public abstract class AbstractPreference
         }
     }
 
-    private void fireValueChangedEvent(final PreferenceChangeEvent event)
+    private void fireValueChangedEvent(PreferenceChangeEvent event)
     {
         Object[] listeners = listenerList.getListeners();
-        for (final Object listener : listeners)
+        for (Object listener : listeners)
         {
-            SafeRunner.run(new ISafeRunnable()
-            {
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-
-                public void run() throws Exception
-                {
-                    ((IPreferenceListener)listener).preferenceChanged(event);
-                }
-            });
+            SafeRunner.run(
+                () -> ((IPreferenceListener)listener).preferenceChanged(event));
         }
     }
 }

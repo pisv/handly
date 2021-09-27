@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2018 IBM Corporation and others.
+ * Copyright (c) 2004, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.NodeChangeEvent;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
@@ -257,6 +256,7 @@ public class ScopedPreferenceStore
             SafeRunner.run(new SafeRunnable(JFaceResources.getString(
                 "PreferenceStore.changeError")) //$NON-NLS-1$
             {
+                @Override
                 public void run()
                 {
                     listener.propertyChange(event);
@@ -677,6 +677,7 @@ public class ScopedPreferenceStore
         {
             nodeChangeListener = new IEclipsePreferences.INodeChangeListener()
             {
+                @Override
                 public void added(NodeChangeEvent event)
                 {
                     if (nodeQualifier.equals(event.getChild().name())
@@ -687,6 +688,7 @@ public class ScopedPreferenceStore
                     }
                 }
 
+                @Override
                 public void removed(NodeChangeEvent event)
                 {
                     // Do nothing as there are no events from removed node
@@ -725,32 +727,24 @@ public class ScopedPreferenceStore
     {
         if (preferencesListener == null)
         {
-            preferencesListener =
-                new IEclipsePreferences.IPreferenceChangeListener()
+            preferencesListener = event ->
+            {
+                if (silentRunning)
+                    return;
+
+                Object oldValue = event.getOldValue();
+                Object newValue = event.getNewValue();
+                String key = event.getKey();
+                if (newValue == null)
                 {
-                    public void preferenceChange(PreferenceChangeEvent event)
-                    {
-
-                        if (silentRunning)
-                        {
-                            return;
-                        }
-
-                        Object oldValue = event.getOldValue();
-                        Object newValue = event.getNewValue();
-                        String key = event.getKey();
-                        if (newValue == null)
-                        {
-                            newValue = getDefault(key, oldValue);
-                        }
-                        else if (oldValue == null)
-                        {
-                            oldValue = getDefault(key, newValue);
-                        }
-                        firePropertyChangeEvent(event.getKey(), oldValue,
-                            newValue);
-                    }
-                };
+                    newValue = getDefault(key, oldValue);
+                }
+                else if (oldValue == null)
+                {
+                    oldValue = getDefault(key, newValue);
+                }
+                firePropertyChangeEvent(event.getKey(), oldValue, newValue);
+            };
             getStorePreferences().addPreferenceChangeListener(
                 preferencesListener);
         }

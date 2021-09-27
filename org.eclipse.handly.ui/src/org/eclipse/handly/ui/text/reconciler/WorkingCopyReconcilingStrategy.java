@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2020 1C-Soft LLC.
+ * Copyright (c) 2015, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,6 @@ import java.util.function.Function;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.model.Elements;
@@ -151,18 +150,7 @@ public class WorkingCopyReconcilingStrategy
         ISourceFile sourceFile = getSourceFile();
         if (sourceFile == null)
             return;
-        SafeRunner.run(new ISafeRunnable()
-        {
-            public void run() throws Exception
-            {
-                reconcile(sourceFile, initialReconcile, monitor);
-            }
-
-            public void handleException(Throwable exception)
-            {
-                // already logged by Platform
-            }
-        });
+        SafeRunner.run(() -> reconcile(sourceFile, initialReconcile, monitor));
     }
 
     private void setSourceFile(ISourceFile sourceFile)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 1C-Soft LLC.
+ * Copyright (c) 2016, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -39,6 +39,7 @@ public interface IReferenceCountable
     /**
      * Alias for {@link #release()}.
      */
+    @Override
     default void close()
     {
         release();

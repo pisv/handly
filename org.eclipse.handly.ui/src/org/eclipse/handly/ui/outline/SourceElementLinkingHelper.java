@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2020 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -346,6 +346,7 @@ public class SourceElementLinkingHelper
                 return Status.CANCEL_STATUS;
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
             {
+                @Override
                 @SuppressWarnings("unchecked")
                 public void run()
                 {

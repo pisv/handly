@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -34,7 +34,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -71,14 +70,12 @@ public final class FooOutlinePage
 {
     private XtextEditor editor;
     private LinkingHelper linkingHelper;
-    private IPropertyListener editorInputListener = new IPropertyListener()
+    private IPropertyListener editorInputListener = (Object source,
+        int propId) ->
     {
-        public void propertyChanged(Object source, int propId)
+        if (propId == IEditorPart.PROP_INPUT)
         {
-            if (propId == IEditorPart.PROP_INPUT)
-            {
-                getTreeViewer().setInput(computeInput());
-            }
+            getTreeViewer().setInput(computeInput());
         }
     };
 
@@ -184,17 +181,13 @@ public final class FooOutlinePage
         extends OpenAndLinkWithEditorHelper
     {
         private LinkToOutlineJob linkToOutlineJob = new LinkToOutlineJob();
-        private ISelectionChangedListener editorListener =
-            new ISelectionChangedListener()
+        private ISelectionChangedListener editorListener = event ->
+        {
+            if (!getTreeViewer().getControl().isFocusControl())
             {
-                public void selectionChanged(SelectionChangedEvent event)
-                {
-                    if (!getTreeViewer().getControl().isFocusControl())
-                    {
-                        linkToOutline(event.getSelection());
-                    }
-                }
-            };
+                linkToOutline(event.getSelection());
+            }
+        };
 
         public LinkingHelper()
         {
@@ -319,24 +312,21 @@ public final class FooOutlinePage
                 if (monitor.isCanceled())
                     return Status.CANCEL_STATUS;
                 // note that reconciling will have asyncExec'ed #refresh by this time
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+                PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
                 {
-                    public void run()
+                    Control control = treeViewer.getControl();
+                    if (control == null || control.isDisposed()
+                        || !baseSelection.equals(selection)
+                        || !baseSelection.equals(
+                            editor.getSelectionProvider().getSelection()))
+                        return; // the world has changed -> no work needs to be done
+                    final IStructuredSelection currentSelection =
+                        (IStructuredSelection)treeViewer.getSelection();
+                    if (currentSelection == null
+                        || !currentSelection.toList().contains(element))
                     {
-                        Control control = treeViewer.getControl();
-                        if (control == null || control.isDisposed()
-                            || !baseSelection.equals(selection)
-                            || !baseSelection.equals(
-                                editor.getSelectionProvider().getSelection()))
-                            return; // the world has changed -> no work needs to be done
-                        final IStructuredSelection currentSelection =
-                            (IStructuredSelection)treeViewer.getSelection();
-                        if (currentSelection == null
-                            || !currentSelection.toList().contains(element))
-                        {
-                            treeViewer.setSelection(new StructuredSelection(
-                                element), true);
-                        }
+                        treeViewer.setSelection(new StructuredSelection(
+                            element), true);
                     }
                 });
                 return Status.OK_STATUS;

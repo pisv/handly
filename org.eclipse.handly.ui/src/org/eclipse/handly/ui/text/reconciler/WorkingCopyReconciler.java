@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2020 1C-Soft LLC.
+ * Copyright (c) 2015, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -367,14 +367,11 @@ public abstract class WorkingCopyReconciler
     protected void elementChanged(IElementChangeEvent event)
     {
         // run on the UI thread to synchronize with #setActive
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+        PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
         {
-            public void run()
-            {
-                setModelChanged(true);
-                if (isActive())
-                    forceReconciling();
-            }
+            setModelChanged(true);
+            if (isActive())
+                forceReconciling();
         });
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2020 1C-Soft LLC.
+ * Copyright (c) 2015, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,6 +16,7 @@ import java.util.function.Function;
 
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.ui.IWorkingCopyManager;
+import org.eclipse.handly.ui.PartListenerAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.ui.IEditorPart;
@@ -33,8 +34,9 @@ public abstract class EditorWorkingCopyReconciler
     extends WorkingCopyReconciler
 {
     private final IEditorPart editor;
-    private final IPartListener partListener = new IPartListener()
+    private final IPartListener partListener = new PartListenerAdapter()
     {
+        @Override
         public void partActivated(IWorkbenchPart part)
         {
             if (part == editor)
@@ -43,6 +45,7 @@ public abstract class EditorWorkingCopyReconciler
             }
         }
 
+        @Override
         public void partDeactivated(IWorkbenchPart part)
         {
             if (part == editor)
@@ -50,12 +53,6 @@ public abstract class EditorWorkingCopyReconciler
                 setActive(false);
             }
         }
-
-        // @formatter:off
-        public void partOpened(IWorkbenchPart part) {}
-        public void partClosed(IWorkbenchPart part) {}
-        public void partBroughtToTop(IWorkbenchPart part) {}
-        // @formatter:on
     };
 
     /**

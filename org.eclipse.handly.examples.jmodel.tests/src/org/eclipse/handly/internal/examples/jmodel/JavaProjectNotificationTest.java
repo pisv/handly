@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 1C-Soft LLC.
+ * Copyright (c) 2015, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -15,9 +15,6 @@ package org.eclipse.handly.internal.examples.jmodel;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.ICoreRunnable;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.examples.jmodel.IJavaModel;
 import org.eclipse.handly.examples.jmodel.JavaModelCore;
@@ -115,14 +112,11 @@ public class JavaProjectNotificationTest
     public void test003() throws Exception
     {
         // remove src-gen from classpath and delete the underlying folder
-        javaModel.getWorkspace().run(new ICoreRunnable()
+        javaModel.getWorkspace().run(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                classpathFile.setContents(classpath01File.getContents(), true,
-                    false, null);
-                srcGenFolder.delete(true, null);
-            }
+            classpathFile.setContents(classpath01File.getContents(), true,
+                false, null);
+            srcGenFolder.delete(true, null);
         }, null);
 
         //@formatter:off
@@ -153,14 +147,11 @@ public class JavaProjectNotificationTest
     public void test005() throws Exception
     {
         // rename src to src2
-        javaModel.getWorkspace().run(new ICoreRunnable()
+        javaModel.getWorkspace().run(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                classpathFile.setContents(classpath03File.getContents(), true,
-                    false, null);
-                srcFolder.move(new Path("src2"), true, null);
-            }
+            classpathFile.setContents(classpath03File.getContents(), true,
+                false, null);
+            srcFolder.move(new Path("src2"), true, null);
         }, null);
 
         //@formatter:off

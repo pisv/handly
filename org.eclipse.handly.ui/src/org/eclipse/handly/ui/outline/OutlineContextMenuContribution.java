@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.handly.ui.outline;
 
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -53,13 +52,7 @@ public class OutlineContextMenuContribution
 
         MenuManager manager = new MenuManager(null, getContextMenuId());
         manager.setRemoveAllWhenShown(true);
-        manager.addMenuListener(new IMenuListener()
-        {
-            public void menuAboutToShow(IMenuManager manager)
-            {
-                contextMenuAboutToShow(manager);
-            }
-        });
+        manager.addMenuListener(mgr -> contextMenuAboutToShow(mgr));
         Tree tree = outlinePage.getTreeViewer().getTree();
         menu = manager.createContextMenu(tree);
         oldMenu = tree.getMenu();

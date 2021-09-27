@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2020 1C-Soft LLC.
+ * Copyright (c) 2015, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -20,7 +20,6 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.ChildBuffer;
@@ -70,301 +69,257 @@ public class WorkingCopyTest
 
     public void test001() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
+            IType[] types = workingCopy.getTypes();
+            assertEquals(1, types.length);
+            IType typeX = workingCopy.getType("X");
+            assertEquals(typeX, types[0]);
+
+            TextRange r = typeX.getSourceElementInfo().getIdentifyingRange();
+            BufferChange change = new BufferChange(new ReplaceEdit(
+                r.getOffset(), r.getLength(), "Y"));
+            change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+            try (IBuffer buffer = workingCopy.getBuffer())
             {
-                IType[] types = workingCopy.getTypes();
-                assertEquals(1, types.length);
-                IType typeX = workingCopy.getType("X");
-                assertEquals(typeX, types[0]);
-
-                TextRange r =
-                    typeX.getSourceElementInfo().getIdentifyingRange();
-                BufferChange change = new BufferChange(new ReplaceEdit(
-                    r.getOffset(), r.getLength(), "Y"));
-                change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                try (IBuffer buffer = workingCopy.getBuffer())
-                {
-                    buffer.applyChange(change, null);
-                }
-
-                types = workingCopy.getTypes();
-                assertEquals(1, types.length);
-                assertEquals(typeX, types[0]);
-
-                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
-
-                assertFalse(typeX.exists());
-
-                types = workingCopy.getTypes();
-                assertEquals(1, types.length);
-                assertEquals(workingCopy.getType("Y"), types[0]);
+                buffer.applyChange(change, null);
             }
+
+            types = workingCopy.getTypes();
+            assertEquals(1, types.length);
+            assertEquals(typeX, types[0]);
+
+            workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
+
+            assertFalse(typeX.exists());
+
+            types = workingCopy.getTypes();
+            assertEquals(1, types.length);
+            assertEquals(workingCopy.getType("Y"), types[0]);
         });
     }
 
     public void test002() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
+            IType typeX = workingCopy.getType("X");
+
+            IField[] fields = typeX.getFields();
+            assertEquals(1, fields.length);
+            IField fieldX = typeX.getField("x");
+            assertEquals(fieldX, fields[0]);
+
+            TextRange r = fieldX.getSourceElementInfo().getFullRange();
+            BufferChange change = new BufferChange(new DeleteEdit(r.getOffset(),
+                r.getLength()));
+            change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+            try (IBuffer buffer = workingCopy.getBuffer())
             {
-                IType typeX = workingCopy.getType("X");
-
-                IField[] fields = typeX.getFields();
-                assertEquals(1, fields.length);
-                IField fieldX = typeX.getField("x");
-                assertEquals(fieldX, fields[0]);
-
-                TextRange r = fieldX.getSourceElementInfo().getFullRange();
-                BufferChange change = new BufferChange(new DeleteEdit(
-                    r.getOffset(), r.getLength()));
-                change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                try (IBuffer buffer = workingCopy.getBuffer())
-                {
-                    buffer.applyChange(change, null);
-                }
-
-                fields = typeX.getFields();
-                assertEquals(1, fields.length);
-                assertEquals(fieldX, fields[0]);
-
-                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
-
-                fields = typeX.getFields();
-                assertEquals(0, fields.length);
-                assertFalse(fieldX.exists());
-
-                change = new BufferChange(new InsertEdit(r.getOffset(),
-                    "int y;"));
-                change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                try (IBuffer buffer = workingCopy.getBuffer())
-                {
-                    buffer.applyChange(change, null);
-                }
-
-                fields = typeX.getFields();
-                assertEquals(0, fields.length);
-
-                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
-
-                fields = typeX.getFields();
-                assertEquals(1, fields.length);
-                assertEquals(typeX.getField("y"), fields[0]);
+                buffer.applyChange(change, null);
             }
+
+            fields = typeX.getFields();
+            assertEquals(1, fields.length);
+            assertEquals(fieldX, fields[0]);
+
+            workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
+
+            fields = typeX.getFields();
+            assertEquals(0, fields.length);
+            assertFalse(fieldX.exists());
+
+            change = new BufferChange(new InsertEdit(r.getOffset(), "int y;"));
+            change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+            try (IBuffer buffer = workingCopy.getBuffer())
+            {
+                buffer.applyChange(change, null);
+            }
+
+            fields = typeX.getFields();
+            assertEquals(0, fields.length);
+
+            workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
+
+            fields = typeX.getFields();
+            assertEquals(1, fields.length);
+            assertEquals(typeX.getField("y"), fields[0]);
         });
     }
 
     public void test003() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
+            IType typeX = workingCopy.getType("X");
+
+            IMethod[] methods = typeX.getMethods();
+            assertEquals(1, methods.length);
+            IMethod methodFI = typeX.getMethod("f", new String[] { "I" });
+            assertEquals(methodFI, methods[0]);
+
+            TextRange r = methodFI.getSourceElementInfo().getFullRange();
+            BufferChange change = new BufferChange(new ReplaceEdit(
+                r.getOffset(), r.getLength(), "void f() {}"));
+            change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+            try (IBuffer buffer = workingCopy.getBuffer())
             {
-                IType typeX = workingCopy.getType("X");
-
-                IMethod[] methods = typeX.getMethods();
-                assertEquals(1, methods.length);
-                IMethod methodFI = typeX.getMethod("f", new String[] { "I" });
-                assertEquals(methodFI, methods[0]);
-
-                TextRange r = methodFI.getSourceElementInfo().getFullRange();
-                BufferChange change = new BufferChange(new ReplaceEdit(
-                    r.getOffset(), r.getLength(), "void f() {}"));
-                change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                try (IBuffer buffer = workingCopy.getBuffer())
-                {
-                    buffer.applyChange(change, null);
-                }
-
-                methods = typeX.getMethods();
-                assertEquals(1, methods.length);
-                assertEquals(methodFI, methods[0]);
-
-                workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
-
-                assertFalse(methodFI.exists());
-
-                methods = typeX.getMethods();
-                assertEquals(1, methods.length);
-                assertEquals(typeX.getMethod("f", new String[0]), methods[0]);
+                buffer.applyChange(change, null);
             }
+
+            methods = typeX.getMethods();
+            assertEquals(1, methods.length);
+            assertEquals(methodFI, methods[0]);
+
+            workingCopy.reconcile(ICompilationUnit.NO_AST, 0, monitor);
+
+            assertFalse(methodFI.exists());
+
+            methods = typeX.getMethods();
+            assertEquals(1, methods.length);
+            assertEquals(typeX.getMethod("f", new String[0]), methods[0]);
         });
     }
 
     public void test004() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                org.eclipse.jdt.core.dom.CompilationUnit cu =
-                    workingCopy.reconcile(AST_LEVEL, 0, monitor);
-                assertNull(cu);
-            }
+            org.eclipse.jdt.core.dom.CompilationUnit cu = workingCopy.reconcile(
+                AST_LEVEL, 0, monitor);
+            assertNull(cu);
         });
     }
 
     public void test005() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                org.eclipse.jdt.core.dom.CompilationUnit cu =
-                    workingCopy.reconcile(AST_LEVEL,
-                        ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
-                assertNotNull(cu);
-            }
+            org.eclipse.jdt.core.dom.CompilationUnit cu = workingCopy.reconcile(
+                AST_LEVEL, ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
+            assertNotNull(cu);
         });
     }
 
     public void test006() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                org.eclipse.jdt.core.dom.CompilationUnit cu =
-                    workingCopy.reconcile(ICompilationUnit.NO_AST,
-                        ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
-                assertNull(cu);
-            }
+            org.eclipse.jdt.core.dom.CompilationUnit cu = workingCopy.reconcile(
+                ICompilationUnit.NO_AST,
+                ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
+            assertNull(cu);
         });
     }
 
     public void test007() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                org.eclipse.jdt.core.dom.CompilationUnit cu =
-                    workingCopy.reconcile(AST_LEVEL,
-                        ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
-                assertNotNull(cu);
-                assertTrue(cu.getAST().hasResolvedBindings());
-                assertFalse(cu.getAST().hasStatementsRecovery());
-                assertFalse(cu.getAST().hasBindingsRecovery());
-                List<?> types = cu.types();
-                assertEquals(1, types.size());
-                TypeDeclaration typeX = (TypeDeclaration)types.get(0);
-                assertEquals("X", typeX.getName().getIdentifier());
-                List<?> bodyDeclarations = typeX.bodyDeclarations();
-                assertEquals(2, bodyDeclarations.size());
-                MethodDeclaration methodF =
-                    (MethodDeclaration)bodyDeclarations.get(1);
-                assertEquals("f", methodF.getName().getIdentifier());
-                Block body = methodF.getBody();
-                assertNotNull(body);
-                assertEquals(1, body.statements().size());
-            }
+            org.eclipse.jdt.core.dom.CompilationUnit cu = workingCopy.reconcile(
+                AST_LEVEL, ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
+            assertNotNull(cu);
+            assertTrue(cu.getAST().hasResolvedBindings());
+            assertFalse(cu.getAST().hasStatementsRecovery());
+            assertFalse(cu.getAST().hasBindingsRecovery());
+            List<?> types = cu.types();
+            assertEquals(1, types.size());
+            TypeDeclaration typeX = (TypeDeclaration)types.get(0);
+            assertEquals("X", typeX.getName().getIdentifier());
+            List<?> bodyDeclarations = typeX.bodyDeclarations();
+            assertEquals(2, bodyDeclarations.size());
+            MethodDeclaration methodF = (MethodDeclaration)bodyDeclarations.get(
+                1);
+            assertEquals("f", methodF.getName().getIdentifier());
+            Block body = methodF.getBody();
+            assertNotNull(body);
+            assertEquals(1, body.statements().size());
         });
     }
 
     public void test008() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                org.eclipse.jdt.core.dom.CompilationUnit cu =
-                    workingCopy.reconcile(AST_LEVEL,
-                        ICompilationUnit.FORCE_PROBLEM_DETECTION
-                            | ICompilationUnit.ENABLE_STATEMENTS_RECOVERY
-                            | ICompilationUnit.ENABLE_BINDINGS_RECOVERY
-                            | ICompilationUnit.IGNORE_METHOD_BODIES, monitor);
-                assertNotNull(cu);
-                assertTrue(cu.getAST().hasResolvedBindings());
-                assertTrue(cu.getAST().hasStatementsRecovery());
-                assertTrue(cu.getAST().hasBindingsRecovery());
-                List<?> types = cu.types();
-                assertEquals(1, types.size());
-                TypeDeclaration typeX = (TypeDeclaration)types.get(0);
-                assertEquals("X", typeX.getName().getIdentifier());
-                List<?> bodyDeclarations = typeX.bodyDeclarations();
-                assertEquals(2, bodyDeclarations.size());
-                MethodDeclaration methodF =
-                    (MethodDeclaration)bodyDeclarations.get(1);
-                assertEquals("f", methodF.getName().getIdentifier());
-                Block body = methodF.getBody();
-                assertNotNull(body);
-                assertEquals(0, body.statements().size());
-            }
+            org.eclipse.jdt.core.dom.CompilationUnit cu = workingCopy.reconcile(
+                AST_LEVEL, ICompilationUnit.FORCE_PROBLEM_DETECTION
+                    | ICompilationUnit.ENABLE_STATEMENTS_RECOVERY
+                    | ICompilationUnit.ENABLE_BINDINGS_RECOVERY
+                    | ICompilationUnit.IGNORE_METHOD_BODIES, monitor);
+            assertNotNull(cu);
+            assertTrue(cu.getAST().hasResolvedBindings());
+            assertTrue(cu.getAST().hasStatementsRecovery());
+            assertTrue(cu.getAST().hasBindingsRecovery());
+            List<?> types = cu.types();
+            assertEquals(1, types.size());
+            TypeDeclaration typeX = (TypeDeclaration)types.get(0);
+            assertEquals("X", typeX.getName().getIdentifier());
+            List<?> bodyDeclarations = typeX.bodyDeclarations();
+            assertEquals(2, bodyDeclarations.size());
+            MethodDeclaration methodF = (MethodDeclaration)bodyDeclarations.get(
+                1);
+            assertEquals("f", methodF.getName().getIdentifier());
+            Block body = methodF.getBody();
+            assertNotNull(body);
+            assertEquals(0, body.statements().size());
         });
     }
 
     public void test009() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                workingCopy.reconcile(ICompilationUnit.NO_AST,
-                    ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
-                assertFalse(problems.isEmpty());
-            }
+            workingCopy.reconcile(ICompilationUnit.NO_AST,
+                ICompilationUnit.FORCE_PROBLEM_DETECTION, monitor);
+            assertFalse(problems.isEmpty());
         });
     }
 
     public void test010() throws Exception
     {
-        doWithWorkingCopy(new ICoreRunnable()
+        doWithWorkingCopy(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                final CompilationUnit privateCopy = new CompilationUnit(
-                    workingCopy.getParent(), workingCopy.getFile(),
-                    new WorkingCopyOwner()
-                    {
-                    });
-                assertFalse(privateCopy.equals(workingCopy));
-                try (
-                    IBuffer buffer = workingCopy.getBuffer();
-                    IBuffer privateBuffer = new ChildBuffer(buffer))
+            final CompilationUnit privateCopy = new CompilationUnit(
+                workingCopy.getParent(), workingCopy.getFile(),
+                new WorkingCopyOwner()
                 {
-                    doWithWorkingCopy(privateCopy, of(
-                        ISourceFileImplExtension.WORKING_COPY_BUFFER,
-                        privateBuffer), new ICoreRunnable()
-                        {
-                            public void run(IProgressMonitor monitor)
-                                throws CoreException
-                            {
-                                IType[] types = privateCopy.getTypes();
-                                assertEquals(1, types.length);
-                                IType typeX = privateCopy.getType("X");
-                                assertEquals(typeX, types[0]);
+                });
+            assertFalse(privateCopy.equals(workingCopy));
+            try (
+                IBuffer buffer = workingCopy.getBuffer();
+                IBuffer privateBuffer = new ChildBuffer(buffer))
+            {
+                doWithWorkingCopy(privateCopy, of(
+                    ISourceFileImplExtension.WORKING_COPY_BUFFER,
+                    privateBuffer), pm ->
+                    {
+                        IType[] types = privateCopy.getTypes();
+                        assertEquals(1, types.length);
+                        IType typeX = privateCopy.getType("X");
+                        assertEquals(typeX, types[0]);
 
-                                TextRange r =
-                                    typeX.getSourceElementInfo().getIdentifyingRange();
-                                BufferChange change = new BufferChange(
-                                    new ReplaceEdit(r.getOffset(),
-                                        r.getLength(), "Y"));
-                                change.setSaveMode(SaveMode.LEAVE_UNSAVED);
-                                privateBuffer.applyChange(change, null);
+                        TextRange r =
+                            typeX.getSourceElementInfo().getIdentifyingRange();
+                        BufferChange change = new BufferChange(new ReplaceEdit(
+                            r.getOffset(), r.getLength(), "Y"));
+                        change.setSaveMode(SaveMode.LEAVE_UNSAVED);
+                        privateBuffer.applyChange(change, null);
 
-                                privateCopy.reconcile(ICompilationUnit.NO_AST,
-                                    0, monitor);
+                        privateCopy.reconcile(ICompilationUnit.NO_AST, 0, pm);
 
-                                assertFalse(typeX.exists());
+                        assertFalse(typeX.exists());
 
-                                types = privateCopy.getTypes();
-                                assertEquals(1, types.length);
-                                assertEquals(privateCopy.getType("Y"),
-                                    types[0]);
+                        types = privateCopy.getTypes();
+                        assertEquals(1, types.length);
+                        assertEquals(privateCopy.getType("Y"), types[0]);
 
-                                workingCopy.reconcile(ICompilationUnit.NO_AST,
-                                    0, monitor);
+                        workingCopy.reconcile(ICompilationUnit.NO_AST, 0, pm);
 
-                                types = workingCopy.getTypes();
-                                assertEquals(1, types.length);
-                                assertEquals(workingCopy.getType("X"),
-                                    types[0]);
-                                assertFalse(typeX.equals(types[0]));
-                            }
-                        });
-                }
+                        types = workingCopy.getTypes();
+                        assertEquals(1, types.length);
+                        assertEquals(workingCopy.getType("X"), types[0]);
+                        assertFalse(typeX.equals(types[0]));
+                    });
             }
         });
     }

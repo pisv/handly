@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,7 +22,6 @@ import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Composite;
@@ -59,52 +58,47 @@ public class JavaNavigator
     private boolean emptyWorkingSet;
     private ResourceWorkingSetFilter workingSetFilter =
         new ResourceWorkingSetFilter();
-    private IPropertyChangeListener workingSetListener =
-        new IPropertyChangeListener()
-        {
-            public void propertyChange(PropertyChangeEvent event)
-            {
-                String property = event.getProperty();
-                Object newValue = event.getNewValue();
-                Object oldValue = event.getOldValue();
+    private IPropertyChangeListener workingSetListener = event ->
+    {
+        String property = event.getProperty();
+        Object newValue = event.getNewValue();
+        Object oldValue = event.getOldValue();
 
-                if (IWorkingSetManager.CHANGE_WORKING_SET_REMOVE.equals(
-                    property) && oldValue == workingSet)
+        if (IWorkingSetManager.CHANGE_WORKING_SET_REMOVE.equals(property)
+            && oldValue == workingSet)
+        {
+            setWorkingSet(null);
+        }
+        else if (IWorkingSetManager.CHANGE_WORKING_SET_NAME_CHANGE.equals(
+            property) && newValue == workingSet)
+        {
+            updateTitle();
+        }
+        else if (IWorkingSetManager.CHANGE_WORKING_SET_CONTENT_CHANGE.equals(
+            property) && newValue == workingSet)
+        {
+            if (workingSet.isAggregateWorkingSet() && workingSet.isEmpty())
+            {
+                // act as if the working set has been made null
+                if (!emptyWorkingSet)
                 {
-                    setWorkingSet(null);
-                }
-                else if (IWorkingSetManager.CHANGE_WORKING_SET_NAME_CHANGE.equals(
-                    property) && newValue == workingSet)
-                {
-                    updateTitle();
-                }
-                else if (IWorkingSetManager.CHANGE_WORKING_SET_CONTENT_CHANGE.equals(
-                    property) && newValue == workingSet)
-                {
-                    if (workingSet.isAggregateWorkingSet()
-                        && workingSet.isEmpty())
-                    {
-                        // act as if the working set has been made null
-                        if (!emptyWorkingSet)
-                        {
-                            emptyWorkingSet = true;
-                            workingSetFilter.setWorkingSet(null);
-                        }
-                    }
-                    else
-                    {
-                        // we've gone from empty to non-empty on our set.
-                        // Restore it.
-                        if (emptyWorkingSet)
-                        {
-                            emptyWorkingSet = false;
-                            workingSetFilter.setWorkingSet(workingSet);
-                        }
-                    }
-                    refresh();
+                    emptyWorkingSet = true;
+                    workingSetFilter.setWorkingSet(null);
                 }
             }
-        };
+            else
+            {
+                // we've gone from empty to non-empty on our set.
+                // Restore it.
+                if (emptyWorkingSet)
+                {
+                    emptyWorkingSet = false;
+                    workingSetFilter.setWorkingSet(workingSet);
+                }
+            }
+            refresh();
+        }
+    };
 
     /**
      * Constructs a new Java Navigator view.

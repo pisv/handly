@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -23,14 +23,10 @@ import org.eclipse.handly.ui.viewer.LabelComparator;
 import org.eclipse.handly.util.ArrayUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -38,8 +34,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -134,13 +128,7 @@ public abstract class AbstractWorkingSetPage
         workingSetName = new Text(composite, SWT.SINGLE | SWT.BORDER);
         workingSetName.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
             | GridData.HORIZONTAL_ALIGN_FILL));
-        workingSetName.addModifyListener(new ModifyListener()
-        {
-            public void modifyText(ModifyEvent e)
-            {
-                validateInput();
-            }
-        });
+        workingSetName.addModifyListener(e -> validateInput());
 
         Composite leftCenterRightComposite = new Composite(composite, SWT.NONE);
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -507,13 +495,8 @@ public abstract class AbstractWorkingSetPage
             Messages.AbstractWorkingSetPage_removeAll_button);
         removeAllButton.setEnabled(!selectedElements.isEmpty());
 
-        tree.addSelectionChangedListener(new ISelectionChangedListener()
-        {
-            public void selectionChanged(SelectionChangedEvent event)
-            {
-                addButton.setEnabled(!event.getSelection().isEmpty());
-            }
-        });
+        tree.addSelectionChangedListener(event -> addButton.setEnabled(
+            !event.getSelection().isEmpty()));
 
         addButton.addSelectionListener(new SelectionAdapter()
         {
@@ -527,24 +510,16 @@ public abstract class AbstractWorkingSetPage
             }
         });
 
-        tree.addDoubleClickListener(new IDoubleClickListener()
+        tree.addDoubleClickListener(event ->
         {
-            public void doubleClick(DoubleClickEvent event)
-            {
-                addTreeSelection();
+            addTreeSelection();
 
-                removeAllButton.setEnabled(true);
-                addAllButton.setEnabled(tree.getTree().getItems().length > 0);
-            }
+            removeAllButton.setEnabled(true);
+            addAllButton.setEnabled(tree.getTree().getItems().length > 0);
         });
 
-        table.addSelectionChangedListener(new ISelectionChangedListener()
-        {
-            public void selectionChanged(SelectionChangedEvent event)
-            {
-                removeButton.setEnabled(!event.getSelection().isEmpty());
-            }
-        });
+        table.addSelectionChangedListener(event -> removeButton.setEnabled(
+            !event.getSelection().isEmpty()));
 
         removeButton.addSelectionListener(new SelectionAdapter()
         {
@@ -558,15 +533,12 @@ public abstract class AbstractWorkingSetPage
             }
         });
 
-        table.addDoubleClickListener(new IDoubleClickListener()
+        table.addDoubleClickListener(event ->
         {
-            public void doubleClick(DoubleClickEvent event)
-            {
-                removeTableSelection();
+            removeTableSelection();
 
-                addAllButton.setEnabled(true);
-                removeAllButton.setEnabled(!selectedElements.isEmpty());
-            }
+            addAllButton.setEnabled(true);
+            removeAllButton.setEnabled(!selectedElements.isEmpty());
         });
 
         addAllButton.addSelectionListener(new SelectionAdapter()
@@ -668,15 +640,18 @@ public abstract class AbstractWorkingSetPage
 
         table.setContentProvider(new IStructuredContentProvider()
         {
+            @Override
             public Object[] getElements(Object inputElement)
             {
                 return selectedElements.toArray();
             }
 
+            @Override
             public void dispose()
             {
             }
 
+            @Override
             public void inputChanged(Viewer viewer, Object oldInput,
                 Object newInput)
             {

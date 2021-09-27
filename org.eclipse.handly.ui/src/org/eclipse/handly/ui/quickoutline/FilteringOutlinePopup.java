@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -28,8 +28,6 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -194,13 +192,8 @@ public abstract class FilteringOutlinePopup
         if (getInvokingKeyStroke() != null)
             filterText.addKeyListener(getInvokingKeyListener());
 
-        filterText.addModifyListener(new ModifyListener()
-        {
-            public void modifyText(ModifyEvent e)
-            {
-                updatePatternMatcher(((Text)e.widget).getText());
-            }
-        });
+        filterText.addModifyListener(e -> updatePatternMatcher(
+            ((Text)e.widget).getText()));
 
         return filterText;
     }

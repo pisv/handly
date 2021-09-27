@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -15,7 +15,6 @@ package org.eclipse.handly.ui.outline;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.model.adapter.IContentAdapterProvider;
@@ -62,14 +61,12 @@ public abstract class CommonOutlinePage
         new ListenerList<>();
     private ListenerList<ISelectionChangedListener> selectionChangedListeners =
         new ListenerList<>();
-    private IPropertyListener editorInputListener = new IPropertyListener()
+    private IPropertyListener editorInputListener = (Object source,
+        int propId) ->
     {
-        public void propertyChanged(Object source, int propId)
+        if (propId == IEditorPart.PROP_INPUT)
         {
-            if (propId == IEditorPart.PROP_INPUT)
-            {
-                editorInputChanged();
-            }
+            editorInputChanged();
         }
     };
 
@@ -148,13 +145,8 @@ public abstract class CommonOutlinePage
                 "init(IEditorPart) must be called before the outline page's control is created"); //$NON-NLS-1$
 
         treeViewer = createTreeViewer(parent);
-        treeViewer.addSelectionChangedListener(new ISelectionChangedListener()
-        {
-            public void selectionChanged(SelectionChangedEvent event)
-            {
-                fireSelectionChanged(event.getSelection());
-            }
-        });
+        treeViewer.addSelectionChangedListener(event -> fireSelectionChanged(
+            event.getSelection()));
         treeViewer.setUseHashlookup(shouldUseHashlookup());
         treeViewer.setContentProvider(getContentProvider());
         IBaseLabelProvider labelProvider = getLabelProvider();
@@ -382,18 +374,7 @@ public abstract class CommonOutlinePage
             contributionList);
         for (IOutlineContribution contribution : contributions)
         {
-            SafeRunner.run(new ISafeRunnable()
-            {
-                public void run() throws Exception
-                {
-                    contribution.init(CommonOutlinePage.this);
-                }
-
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-            });
+            SafeRunner.run(() -> contribution.init(CommonOutlinePage.this));
         }
     }
 
@@ -403,18 +384,7 @@ public abstract class CommonOutlinePage
             contributionList);
         for (IOutlineContribution contribution : contributions)
         {
-            SafeRunner.run(new ISafeRunnable()
-            {
-                public void run() throws Exception
-                {
-                    contribution.dispose();
-                }
-
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-            });
+            SafeRunner.run(() -> contribution.dispose());
         }
     }
 
@@ -423,19 +393,9 @@ public abstract class CommonOutlinePage
         Object[] listeners = inputChangeListeners.getListeners();
         for (Object listener : listeners)
         {
-            SafeRunner.run(new ISafeRunnable()
-            {
-                public void run()
-                {
-                    ((IOutlineInputChangeListener)listener).inputChanged(
-                        CommonOutlinePage.this, input, oldInput);
-                }
-
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-            });
+            SafeRunner.run(
+                () -> ((IOutlineInputChangeListener)listener).inputChanged(
+                    CommonOutlinePage.this, input, oldInput));
         }
     }
 
@@ -447,19 +407,9 @@ public abstract class CommonOutlinePage
         Object[] listeners = selectionChangedListeners.getListeners();
         for (Object listener : listeners)
         {
-            SafeRunner.run(new ISafeRunnable()
-            {
-                public void run()
-                {
-                    ((ISelectionChangedListener)listener).selectionChanged(
-                        event);
-                }
-
-                public void handleException(Throwable exception)
-                {
-                    // already logged by Platform
-                }
-            });
+            SafeRunner.run(
+                () -> ((ISelectionChangedListener)listener).selectionChanged(
+                    event));
         }
     }
 

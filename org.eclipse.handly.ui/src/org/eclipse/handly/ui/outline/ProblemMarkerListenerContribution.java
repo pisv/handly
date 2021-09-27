@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -43,15 +43,12 @@ public class ProblemMarkerListenerContribution
     @Override
     protected void resourceChanged(IResourceChangeEvent event)
     {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+        PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
         {
-            public void run()
+            TreeViewer treeViewer = getOutlinePage().getTreeViewer();
+            if (!treeViewer.getControl().isDisposed())
             {
-                TreeViewer treeViewer = getOutlinePage().getTreeViewer();
-                if (!treeViewer.getControl().isDisposed())
-                {
-                    treeViewer.refresh();
-                }
+                treeViewer.refresh();
             }
         });
     }

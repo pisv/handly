@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -14,7 +14,6 @@ package org.eclipse.handly.ui.outline;
 
 import org.eclipse.handly.ui.preference.IBooleanPreference;
 import org.eclipse.handly.ui.preference.IPreferenceListener;
-import org.eclipse.handly.ui.preference.PreferenceChangeEvent;
 import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 import org.eclipse.ui.PlatformUI;
 
@@ -33,21 +32,12 @@ public abstract class LinkWithEditorContribution
 {
     private OpenAndLinkWithEditorHelper linkingHelper;
     private IBooleanPreference preference;
-    private IPreferenceListener preferenceListener = new IPreferenceListener()
-    {
-        @Override
-        public void preferenceChanged(PreferenceChangeEvent event)
+    private IPreferenceListener preferenceListener =
+        event -> PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
         {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
-            {
-                public void run()
-                {
-                    if (linkingHelper != null && preference != null)
-                        linkingHelper.setLinkWithEditor(preference.getValue());
-                }
-            });
-        }
-    };
+            if (linkingHelper != null && preference != null)
+                linkingHelper.setLinkWithEditor(preference.getValue());
+        });
 
     @Override
     public void init(ICommonOutlinePage outlinePage)

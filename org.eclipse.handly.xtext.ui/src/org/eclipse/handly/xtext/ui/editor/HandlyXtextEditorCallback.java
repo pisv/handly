@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2020 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -37,6 +37,7 @@ import org.eclipse.handly.model.ISourceElement;
 import org.eclipse.handly.model.ISourceFile;
 import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 import org.eclipse.handly.ui.IInputElementProvider;
+import org.eclipse.handly.ui.PartListenerAdapter;
 import org.eclipse.handly.ui.texteditor.TextEditorBuffer;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jface.text.ITextSelection;
@@ -329,25 +330,21 @@ public class HandlyXtextEditorCallback
 
     private void connect(XtextEditor editor)
     {
-        IPartListener partListener = new IPartListener()
+        IPartListener partListener = new PartListenerAdapter()
         {
+            @Override
             public void partActivated(IWorkbenchPart part)
             {
                 if (part == editor || part == getContainer(editor))
                     connectWorkingCopy(editor);
             }
 
+            @Override
             public void partBroughtToTop(IWorkbenchPart part)
             {
                 // Treat this the same as part activation.
                 partActivated(part);
             }
-
-            // @formatter:off
-            public void partDeactivated(IWorkbenchPart part) {}
-            public void partOpened(IWorkbenchPart part) {}
-            public void partClosed(IWorkbenchPart part) {}
-            // @formatter:on
         };
         editor.getSite().getWorkbenchWindow().getPartService().addPartListener(
             partListener);
@@ -620,25 +617,19 @@ public class HandlyXtextEditorCallback
         private void setEditorHighlightRange(HighlightArgs args, int offset,
             int length)
         {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
             {
-                public void run()
-                {
-                    if (!hasWorldChanged(args))
-                        editor.setHighlightRange(offset, length, false);
-                }
+                if (!hasWorldChanged(args))
+                    editor.setHighlightRange(offset, length, false);
             });
         }
 
         private void resetEditorHighlightRange(HighlightArgs args)
         {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable()
+            PlatformUI.getWorkbench().getDisplay().asyncExec(() ->
             {
-                public void run()
-                {
-                    if (!hasWorldChanged(args))
-                        editor.resetHighlightRange();
-                }
+                if (!hasWorldChanged(args))
+                    editor.resetHighlightRange();
             });
         }
 

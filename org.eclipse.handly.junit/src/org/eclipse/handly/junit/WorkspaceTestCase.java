@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -29,8 +29,6 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.ICoreRunnable;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import junit.framework.TestCase;
@@ -160,15 +158,11 @@ public abstract class WorkspaceTestCase
 
         // create the project
         IProject project = getProject(name);
-        ICoreRunnable runnable = new ICoreRunnable()
+        getWorkspace().run(monitor ->
         {
-            public void run(IProgressMonitor monitor) throws CoreException
-            {
-                project.create(null);
-                project.open(null);
-            }
-        };
-        getWorkspace().run(runnable, null);
+            project.create(null);
+            project.open(null);
+        }, null);
         return project;
     }
 

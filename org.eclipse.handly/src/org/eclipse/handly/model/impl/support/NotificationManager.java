@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 1C-Soft LLC.
+ * Copyright (c) 2016, 2021 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.handly.model.impl.support;
 
-import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
@@ -84,18 +83,7 @@ public class NotificationManager
         {
             if ((eventType & entry.getEventMask()) != 0)
             {
-                SafeRunner.run(new ISafeRunnable()
-                {
-                    public void handleException(Throwable exception)
-                    {
-                        // already logged by Platform
-                    }
-
-                    public void run() throws Exception
-                    {
-                        entry.getListener().elementChanged(event);
-                    }
-                });
+                SafeRunner.run(() -> entry.getListener().elementChanged(event));
             }
         }
     }

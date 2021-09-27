@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2020 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2021 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,6 @@ import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 
 /**
@@ -29,18 +28,13 @@ public abstract class OutlineLinkingHelper
 {
     private ICommonOutlinePage outlinePage;
     private boolean isLinkingEnabled;
-    private ISelectionChangedListener editorListener =
-        new ISelectionChangedListener()
+    private ISelectionChangedListener editorListener = event ->
+    {
+        if (isLinkingEnabled && !outlinePage.getControl().isFocusControl())
         {
-            public void selectionChanged(SelectionChangedEvent event)
-            {
-                if (isLinkingEnabled
-                    && !outlinePage.getControl().isFocusControl())
-                {
-                    linkToOutline(event.getSelection());
-                }
-            }
-        };
+            linkToOutline(event.getSelection());
+        }
+    };
 
     /**
      * Creates a new linking helper for the given outline page.
