@@ -43,7 +43,8 @@ public abstract class AbstractPreference
                 }
             }
         };
-    private ListenerList<IPreferenceListener> listenerList;
+    private final ListenerList<IPreferenceListener> listeners =
+        new ListenerList<>();
 
     /**
      * Creates a new preference with the given name and the given store.
@@ -112,30 +113,24 @@ public abstract class AbstractPreference
     {
         if (listener == null)
             throw new IllegalArgumentException();
-        if (listenerList == null)
-            listenerList = new ListenerList<>();
-        listenerList.add(listener);
-        store.addPropertyChangeListener(storeListener);
+        if (listeners.isEmpty())
+            store.addPropertyChangeListener(storeListener);
+        listeners.add(listener);
     }
 
     @Override
     public final synchronized void removeListener(IPreferenceListener listener)
     {
-        listenerList.remove(listener);
-        if (listenerList.isEmpty())
-        {
+        listeners.remove(listener);
+        if (listeners.isEmpty())
             store.removePropertyChangeListener(storeListener);
-            listenerList = null;
-        }
     }
 
     private void fireValueChangedEvent(PreferenceChangeEvent event)
     {
-        Object[] listeners = listenerList.getListeners();
-        for (Object listener : listeners)
+        for (IPreferenceListener listener : listeners)
         {
-            SafeRunner.run(
-                () -> ((IPreferenceListener)listener).preferenceChanged(event));
+            SafeRunner.run(() -> listener.preferenceChanged(event));
         }
     }
 }
