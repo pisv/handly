@@ -1,8 +1,7 @@
-Handly Contributor Guide
-========================
+Contributing to Eclipse Handly™
+==============================
 
-Welcome to Handly, a technology project at Eclipse,
-and thanks for your interest in this project.
+Welcome to Eclipse Handly™, and thanks for your interest in this project. Big or small, every contribution matters.
 
 Project description
 -------------------
@@ -25,7 +24,7 @@ for IDE components to work in a generic way with any Handly-based model.
 
 For more information, visit the project's website
 
-- <https://www.eclipse.org/handly/>
+- <https://eclipse.org/handly>
 
 Developer resources
 -------------------
