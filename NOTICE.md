@@ -1,21 +1,25 @@
-# Notices for Handly
+Notices for Eclispe Handly™
+==========================
 
-This content is produced and maintained by the Eclipse Handly project.
+This content is produced and maintained by the Eclipse Handly™ project.
 
  * Project home: https://projects.eclipse.org/projects/technology.handly
 
-## Trademarks
+Trademarks
+----------
 
 Eclipse Handly, and Handly are trademarks of the Eclipse Foundation. Eclipse,
 and the Eclipse Logo are registered trademarks of the Eclipse Foundation.
 
-## Copyright
+Copyright
+---------
 
 All content is the property of the respective authors or their employers.
 For more information regarding authorship of content, please consult the
 listed source code repository logs.
 
-## Declared Project Licenses
+Declared Project Licenses
+-------------------------
 
 This program and the accompanying materials are made available under
 the terms of the Eclipse Public License 2.0 which is available at
@@ -23,13 +27,15 @@ https://www.eclipse.org/legal/epl-2.0/
 
 SPDX-License-Identifier: EPL-2.0
 
-## Source Code
+Source Code
+-----------
 
 The project maintains the following source code repositories:
 
  * http://git.eclipse.org/c/handly/org.eclipse.handly.git
 
-## Third-party Content
+Third-party Content
+-------------------
 
 ANTLR Runtime 3.2
 
@@ -43,7 +49,7 @@ Apache log4j 1.2.15
 
  * License: Apache-2.0
 
-Google Guava 27.1
+Google Guava 30.1
 
  * License: Apache-2.0
 
@@ -51,7 +57,7 @@ Google Guice / Inject Core API 3.0
 
  * License: Apache-2.0
 
-JUnit 4.12
+JUnit 4.13
 
  * License: EPL-1.0
 
