@@ -28,5 +28,10 @@ Things to note:
 
 Handly 1.1 introduced support for building a search result view page and
 a call hierarchy view. The adapter example demonstrates that support. Use
-"Show Calls" and "Find References" actions in the outline's context menu
-to open the example's call hierarchy view and search result page respectively.
+"Open Call Hierarchy" and "Find References" actions in the outline's context
+menu to open the example's call hierarchy view and search result page
+respectively.
+
+Handly 1.6 introduced support for building a type hierarchy view. The adapter
+example demonstrates that support. Use "Open Type Hierarchy" action in the
+outline's context menu to open the example's type hierarchy view.
