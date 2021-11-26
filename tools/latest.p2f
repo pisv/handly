@@ -2,7 +2,7 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='8'>
-    <iu id='org.eclipse.sdk.ide' version='4.22.0.I20211111-0910'>
+    <iu id='org.eclipse.sdk.ide' version='4.22.0.I20211117-1830'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2021-12/'/>
       </repositories>
@@ -12,12 +12,12 @@
         <repository location='http://download.eclipse.org/releases/2021-12/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='6.0.0.202111161950-m3'>
+    <iu id='org.eclipse.egit.feature.group' version='6.0.0.202111241155-rc1'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2021-12/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='1.18.2.20211011-2139'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='1.19.0.20211116-0804'>
       <repositories size='1'>
         <repository location='http://download.eclipse.org/releases/2021-12/'/>
       </repositories>
