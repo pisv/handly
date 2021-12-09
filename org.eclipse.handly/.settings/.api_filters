@@ -5,15 +5,7 @@
             <message_arguments>
                 <message_argument value="org.eclipse.handly.ApiLevel"/>
                 <message_argument value="CURRENT"/>
-                <message_argument value="5"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/handly/buffer/BufferChange.java" type="org.eclipse.handly.buffer.BufferChange">
-        <filter id="576725006">
-            <message_arguments>
-                <message_argument value="IBufferChange"/>
-                <message_argument value="BufferChange"/>
+                <message_argument value="6"/>
             </message_arguments>
         </filter>
     </resource>
@@ -30,22 +22,6 @@
             <message_arguments>
                 <message_argument value="TextEditProcessor"/>
                 <message_argument value="PreviewEditProcessor"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/handly/snapshot/Snapshot.java" type="org.eclipse.handly.snapshot.Snapshot">
-        <filter id="576725006">
-            <message_arguments>
-                <message_argument value="ISnapshot"/>
-                <message_argument value="Snapshot"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/handly/text/DocumentChange.java" type="org.eclipse.handly.text.DocumentChange">
-        <filter id="576725006">
-            <message_arguments>
-                <message_argument value="IDocumentChange"/>
-                <message_argument value="DocumentChange"/>
             </message_arguments>
         </filter>
     </resource>
