@@ -41,11 +41,11 @@ ANTLR Runtime 3.2
 
  * License: BSD-3-Clause
 
-Apache Commons Logging 1.1.1
+Apache Commons Logging 1.2.0
 
  * License: Apache-2.0
 
-Apache log4j 1.2.15
+reload4j 1.2.19
 
  * License: Apache-2.0
 
@@ -53,11 +53,11 @@ Google Guava 30.1
 
  * License: Apache-2.0
 
-Google Guice / Inject Core API 3.0
+Google Guice / Inject Core API 5.0.1
 
  * License: Apache-2.0
 
-JUnit 4.13
+JUnit 4.13.2
 
  * License: EPL-1.0
 
