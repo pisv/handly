@@ -106,7 +106,7 @@ public abstract class LinkHelper
         if (reference != null)
         {
             IEditorPart editor = reference.getEditor(true);
-            if (editor != null && editor != page.getActiveEditor())
+            if (editor != null && editor != page.getActivePart())
             {
                 page.bringToTop(editor);
                 editorUtility.revealElement(editor, element);
