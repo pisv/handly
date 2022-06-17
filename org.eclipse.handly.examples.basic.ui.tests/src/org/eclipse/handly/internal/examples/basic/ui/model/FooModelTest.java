@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2022 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -50,7 +50,7 @@ public class FooModelTest
         IFooFile fooFile = fooFiles[0];
         assertEquals("test.foo", fooFile.getName());
         IResource[] nonFooResources = fooProject.getNonFooResources();
-        assertEquals(3, nonFooResources.length);
+        assertEquals(4, nonFooResources.length);
 
         IFooProject fooProject2 = fooModel.getFooProject("Test002");
         assertFalse(fooProject2.exists());
@@ -65,7 +65,7 @@ public class FooModelTest
         IFooFile fooFile2 = fooFiles2[0];
         assertEquals("test.foo", fooFile2.getName());
         nonFooResources = fooProject2.getNonFooResources();
-        assertEquals(1, nonFooResources.length);
+        assertEquals(2, nonFooResources.length);
 
         fooFile.getFile().delete(true, null);
         assertFalse(fooFile.exists());

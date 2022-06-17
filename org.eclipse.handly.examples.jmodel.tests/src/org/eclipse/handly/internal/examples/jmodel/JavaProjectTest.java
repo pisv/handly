@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -43,8 +43,11 @@ public class JavaProjectTest
         assertEquals(0, roots.length);
 
         IResource[] nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(1, nonJavaResources.length);
-        assertEquals(project.getFile(".project"), nonJavaResources[0]);
+        assertEquals(2, nonJavaResources.length);
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
+            ".project")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFolder(
+            ".settings")));
     }
 
     public void test002() throws Exception
@@ -56,11 +59,13 @@ public class JavaProjectTest
         assertEquals(0, roots.length);
 
         IResource[] nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(2, nonJavaResources.length);
+        assertEquals(3, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
             ".project")));
         assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
             ".classpath")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFolder(
+            ".settings")));
     }
 
     public void test003() throws Exception
@@ -76,11 +81,13 @@ public class JavaProjectTest
         assertTrue(srcRoot.exists());
 
         IResource[] nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(4, nonJavaResources.length);
+        assertEquals(5, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
             ".project")));
         assertTrue(Arrays.asList(nonJavaResources).contains(project.getFile(
             ".classpath")));
+        assertTrue(Arrays.asList(nonJavaResources).contains(project.getFolder(
+            ".settings")));
         assertTrue(Arrays.asList(nonJavaResources).contains(project.getFolder(
             "abc")));
         assertTrue(Arrays.asList(nonJavaResources).contains(project.getFolder(
@@ -104,11 +111,13 @@ public class JavaProjectTest
         assertTrue(srcGenRoot.exists());
 
         IResource[] nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(3, nonJavaResources.length);
+        assertEquals(4, nonJavaResources.length);
         IFile projectFile = project.getFile(".project");
         assertTrue(Arrays.asList(nonJavaResources).contains(projectFile));
         IFile classpathFile = project.getFile(".classpath");
         assertTrue(Arrays.asList(nonJavaResources).contains(classpathFile));
+        IFolder settingsFolder = project.getFolder(".settings");
+        assertTrue(Arrays.asList(nonJavaResources).contains(settingsFolder));
         IFolder binFolder = project.getFolder("bin");
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
 
@@ -122,9 +131,10 @@ public class JavaProjectTest
         assertFalse(srcGenRoot.exists());
 
         nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(3, nonJavaResources.length);
+        assertEquals(4, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(projectFile));
         assertTrue(Arrays.asList(nonJavaResources).contains(classpathFile));
+        assertTrue(Arrays.asList(nonJavaResources).contains(settingsFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
 
         // (re-)create src-gen
@@ -138,9 +148,10 @@ public class JavaProjectTest
         assertTrue(srcGenRoot.exists());
 
         nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(3, nonJavaResources.length);
+        assertEquals(4, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(projectFile));
         assertTrue(Arrays.asList(nonJavaResources).contains(classpathFile));
+        assertTrue(Arrays.asList(nonJavaResources).contains(settingsFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
 
         // remove src-gen from classpath
@@ -154,9 +165,10 @@ public class JavaProjectTest
         assertFalse(srcGenRoot.exists());
 
         nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(4, nonJavaResources.length);
+        assertEquals(5, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(projectFile));
         assertTrue(Arrays.asList(nonJavaResources).contains(classpathFile));
+        assertTrue(Arrays.asList(nonJavaResources).contains(settingsFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(
             srcGenRoot.getResource()));
@@ -173,9 +185,10 @@ public class JavaProjectTest
         assertTrue(srcRoot.exists());
 
         nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(3, nonJavaResources.length);
+        assertEquals(4, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(projectFile));
         assertTrue(Arrays.asList(nonJavaResources).contains(classpathFile));
+        assertTrue(Arrays.asList(nonJavaResources).contains(settingsFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
 
         // delete src-gen (again)
@@ -188,9 +201,10 @@ public class JavaProjectTest
         assertFalse(srcGenRoot.exists());
 
         nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(3, nonJavaResources.length);
+        assertEquals(4, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(projectFile));
         assertTrue(Arrays.asList(nonJavaResources).contains(classpathFile));
+        assertTrue(Arrays.asList(nonJavaResources).contains(settingsFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
 
         // (re-)create src-gen and check it is still the first entry
@@ -204,9 +218,10 @@ public class JavaProjectTest
         assertTrue(srcRoot.exists());
 
         nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(3, nonJavaResources.length);
+        assertEquals(4, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(projectFile));
         assertTrue(Arrays.asList(nonJavaResources).contains(classpathFile));
+        assertTrue(Arrays.asList(nonJavaResources).contains(settingsFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
 
         // move src-gen
@@ -220,9 +235,10 @@ public class JavaProjectTest
         assertFalse(srcGenRoot.exists());
 
         nonJavaResources = javaProject.getNonJavaResources();
-        assertEquals(4, nonJavaResources.length);
+        assertEquals(5, nonJavaResources.length);
         assertTrue(Arrays.asList(nonJavaResources).contains(projectFile));
         assertTrue(Arrays.asList(nonJavaResources).contains(classpathFile));
+        assertTrue(Arrays.asList(nonJavaResources).contains(settingsFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(binFolder));
         assertTrue(Arrays.asList(nonJavaResources).contains(otherFolder));
     }
