@@ -75,7 +75,7 @@ import org.eclipse.ui.part.ViewPart;
 /**
  * An abstract base implementation of a type hierarchy view.
  *
- * @since 1.6 Provisional API
+ * @since 1.6
  */
 public abstract class TypeHierarchyViewPart
     extends ViewPart
