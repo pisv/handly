@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 1C-Soft LLC.
+ * Copyright (c) 2021, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -676,6 +676,8 @@ public abstract class TypeHierarchyViewPart
     {
         if (!isOpen())
             return;
+
+        setContentDescription(computeContentDescription());
 
         updateHierarchyPage();
     }
