@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-   Copyright (c) 2014, 2020 1C-Soft LLC and others.
+   Copyright (c) 2014, 2022 1C-Soft LLC and others.
 
    This program and the accompanying materials are made available under
    the terms of the Eclipse Public License 2.0 which is available at
@@ -15,8 +15,8 @@
 <target name="Base Platform">
 <!--
    Currently, the Base Platform includes:
-   * Eclipse Project SDK 4.10 (2018-12)
-   * Xtext SDK 2.16 and dependencies
+   * Eclipse Project SDK 4.20 (2021-06)
+   * Xtext SDK 2.25 and dependencies
 -->
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
@@ -24,7 +24,7 @@
 <unit id="org.eclipse.license.feature.group" version="0.0.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/2018-12/201812191000"/>
+<repository location="http://download.eclipse.org/releases/2021-06/202106161001"/>
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.draw2d" version="0.0.0"/>
 <unit id="org.eclipse.ecf" version="0.0.0"/>
@@ -41,6 +41,7 @@
 <unit id="org.objectweb.asm" version="0.0.0"/>
 <unit id="com.google.guava" version="0.0.0"/>
 <unit id="com.google.inject" version="0.0.0"/>
+<unit id="io.github.classgraph" version="0.0.0"/>
 </location>
 </locations>
 </target>

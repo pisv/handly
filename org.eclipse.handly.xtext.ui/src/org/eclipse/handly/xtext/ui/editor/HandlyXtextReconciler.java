@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2008, 2022 itemis AG (http://www.itemis.eu) and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.handly.internal.xtext.ui.Activator;
 import org.eclipse.jface.text.BadPositionCategoryException;
-import org.eclipse.jface.text.DefaultPositionUpdater;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IPositionUpdater;
@@ -40,6 +39,7 @@ import org.eclipse.jface.text.source.ISourceViewerExtension4;
 import org.eclipse.xtext.ui.editor.IXtextEditorCallback;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver;
+import org.eclipse.xtext.ui.editor.reconciler.TemplatePositionUpdater;
 import org.eclipse.xtext.ui.editor.reconciler.XtextReconciler;
 
 import com.google.inject.Binding;
@@ -425,34 +425,6 @@ public class HandlyXtextReconciler
                         facade.addCompletionListener(documentListener);
                     shouldInstallCompletionListener = false;
                 }
-            }
-        }
-
-        // Initially copied from <code>org.eclipse.xtext.ui.editor.reconciler.TemplatePositionUpdater</code>
-        // only because the original is a package-private class.
-        private static class TemplatePositionUpdater
-            extends DefaultPositionUpdater
-        {
-            public TemplatePositionUpdater(String category)
-            {
-                super(category);
-            }
-
-            @Override
-            protected void adaptToInsert()
-            {
-                int myStart = fPosition.offset;
-                int myEnd = fPosition.offset + fPosition.length - 1;
-                myEnd = Math.max(myStart, myEnd);
-
-                int yoursStart = fOffset;
-                int yoursEnd = fOffset + fReplaceLength - 1;
-                yoursEnd = Math.max(yoursStart, yoursEnd);
-
-                if (myEnd < yoursStart)
-                    return;
-
-                fPosition.length += fReplaceLength;
             }
         }
     }

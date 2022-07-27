@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2020 1C-Soft LLC.
+ * Copyright (c) 2015, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -242,7 +242,7 @@ public class CompilationUnit
 
     static final Property<Integer> AST_LEVEL = Property.get(
         CompilationUnit.class.getName() + ".astLevel", //$NON-NLS-1$
-        Integer.class).withDefault(AST.JLS11);
+        Integer.class).withDefault(AST.JLS_Latest);
     static final Property<Boolean> STRUCTURAL_AST = Property.get(
         CompilationUnit.class.getName() + ".structuralAst", //$NON-NLS-1$
         Boolean.class).withDefault(true);

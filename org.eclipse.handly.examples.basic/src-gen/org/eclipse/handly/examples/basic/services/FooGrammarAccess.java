@@ -15,11 +15,11 @@ import org.eclipse.xtext.ParserRule;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.TerminalRule;
 import org.eclipse.xtext.common.services.TerminalsGrammarAccess;
-import org.eclipse.xtext.service.AbstractElementFinder.AbstractGrammarElementFinder;
+import org.eclipse.xtext.service.AbstractElementFinder;
 import org.eclipse.xtext.service.GrammarProvider;
 
 @Singleton
-public class FooGrammarAccess extends AbstractGrammarElementFinder {
+public class FooGrammarAccess extends AbstractElementFinder.AbstractGrammarElementFinder {
 	
 	public class UnitElements extends AbstractParserRuleElementFinder {
 		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "org.eclipse.handly.examples.basic.Foo.Unit");
@@ -30,20 +30,22 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 		private final RuleCall cDefsDefParserRuleCall_1_0 = (RuleCall)cDefsAssignment_1.eContents().get(0);
 		
 		//Unit:
-		//	vars+=Var*
-		//	defs+=Def*;
+		//    vars += Var*
+		//    defs += Def*
+		//;
 		@Override public ParserRule getRule() { return rule; }
 		
-		//vars+=Var* defs+=Def*
+		//vars += Var*
+		//defs += Def*
 		public Group getGroup() { return cGroup; }
 		
-		//vars+=Var*
+		//vars += Var*
 		public Assignment getVarsAssignment_0() { return cVarsAssignment_0; }
 		
 		//Var
 		public RuleCall getVarsVarParserRuleCall_0_0() { return cVarsVarParserRuleCall_0_0; }
 		
-		//defs+=Def*
+		//defs += Def*
 		public Assignment getDefsAssignment_1() { return cDefsAssignment_1; }
 		
 		//Def
@@ -58,7 +60,8 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 		private final Keyword cSemicolonKeyword_2 = (Keyword)cGroup.eContents().get(2);
 		
 		//Var:
-		//	'var' name=ID ';';
+		//    'var' name=ID ';'
+		//;
 		@Override public ParserRule getRule() { return rule; }
 		
 		//'var' name=ID ';'
@@ -94,10 +97,11 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 		private final Keyword cRightCurlyBracketKeyword_7 = (Keyword)cGroup.eContents().get(7);
 		
 		//Def:
-		//	'def' name=ID '(' params+=ID? (',' params+=ID)* ')' '{' '}';
+		//    'def' name=ID '(' (params+=ID)? (',' params+=ID)* ')' '{' '}'
+		//;
 		@Override public ParserRule getRule() { return rule; }
 		
-		//'def' name=ID '(' params+=ID? (',' params+=ID)* ')' '{' '}'
+		//'def' name=ID '(' (params+=ID)? (',' params+=ID)* ')' '{' '}'
 		public Group getGroup() { return cGroup; }
 		
 		//'def'
@@ -112,7 +116,7 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 		//'('
 		public Keyword getLeftParenthesisKeyword_2() { return cLeftParenthesisKeyword_2; }
 		
-		//params+=ID?
+		//(params+=ID)?
 		public Assignment getParamsAssignment_3() { return cParamsAssignment_3; }
 		
 		//ID
@@ -187,8 +191,9 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 
 	
 	//Unit:
-	//	vars+=Var*
-	//	defs+=Def*;
+	//    vars += Var*
+	//    defs += Def*
+	//;
 	public UnitElements getUnitAccess() {
 		return pUnit;
 	}
@@ -198,7 +203,8 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 	}
 	
 	//Var:
-	//	'var' name=ID ';';
+	//    'var' name=ID ';'
+	//;
 	public VarElements getVarAccess() {
 		return pVar;
 	}
@@ -208,7 +214,8 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 	}
 	
 	//Def:
-	//	'def' name=ID '(' params+=ID? (',' params+=ID)* ')' '{' '}';
+	//    'def' name=ID '(' (params+=ID)? (',' params+=ID)* ')' '{' '}'
+	//;
 	public DefElements getDefAccess() {
 		return pDef;
 	}
@@ -217,45 +224,40 @@ public class FooGrammarAccess extends AbstractGrammarElementFinder {
 		return getDefAccess().getRule();
 	}
 	
-	//terminal ID:
-	//	'^'? ('a'..'z' | 'A'..'Z' | '_') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9')*;
+	//terminal ID: '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
 	public TerminalRule getIDRule() {
 		return gaTerminals.getIDRule();
 	}
 	
-	//terminal INT returns ecore::EInt:
-	//	'0'..'9'+;
+	//terminal INT returns ecore::EInt: ('0'..'9')+;
 	public TerminalRule getINTRule() {
 		return gaTerminals.getINTRule();
 	}
 	
 	//terminal STRING:
-	//	'"' ('\\' . | !('\\' | '"'))* '"' |
-	//	"'" ('\\' . | !('\\' | "'"))* "'";
+	//            '"' ( '\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\' */ | !('\\'|'"') )* '"' |
+	//            "'" ( '\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\' */ | !('\\'|"'") )* "'"
+	//        ;
 	public TerminalRule getSTRINGRule() {
 		return gaTerminals.getSTRINGRule();
 	}
 	
-	//terminal ML_COMMENT:
-	//	'/*'->'*/';
+	//terminal ML_COMMENT : '/*' -> '*/';
 	public TerminalRule getML_COMMENTRule() {
 		return gaTerminals.getML_COMMENTRule();
 	}
 	
-	//terminal SL_COMMENT:
-	//	'//' !('\n' | '\r')* ('\r'? '\n')?;
+	//terminal SL_COMMENT : '//' !('\n'|'\r')* ('\r'? '\n')?;
 	public TerminalRule getSL_COMMENTRule() {
 		return gaTerminals.getSL_COMMENTRule();
 	}
 	
-	//terminal WS:
-	//	' ' | '\t' | '\r' | '\n'+;
+	//terminal WS         : (' '|'\t'|'\r'|'\n')+;
 	public TerminalRule getWSRule() {
 		return gaTerminals.getWSRule();
 	}
 	
-	//terminal ANY_OTHER:
-	//	.;
+	//terminal ANY_OTHER: .;
 	public TerminalRule getANY_OTHERRule() {
 		return gaTerminals.getANY_OTHERRule();
 	}

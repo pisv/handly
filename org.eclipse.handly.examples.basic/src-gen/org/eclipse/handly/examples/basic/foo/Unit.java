@@ -30,10 +30,6 @@ public interface Unit extends EObject
    * Returns the value of the '<em><b>Vars</b></em>' containment reference list.
    * The list contents are of type {@link org.eclipse.handly.examples.basic.foo.Var}.
    * <!-- begin-user-doc -->
-   * <p>
-   * If the meaning of the '<em>Vars</em>' containment reference list isn't clear,
-   * there really should be more of a description here...
-   * </p>
    * <!-- end-user-doc -->
    * @return the value of the '<em>Vars</em>' containment reference list.
    * @see org.eclipse.handly.examples.basic.foo.FooPackage#getUnit_Vars()
@@ -46,10 +42,6 @@ public interface Unit extends EObject
    * Returns the value of the '<em><b>Defs</b></em>' containment reference list.
    * The list contents are of type {@link org.eclipse.handly.examples.basic.foo.Def}.
    * <!-- begin-user-doc -->
-   * <p>
-   * If the meaning of the '<em>Defs</em>' containment reference list isn't clear,
-   * there really should be more of a description here...
-   * </p>
    * <!-- end-user-doc -->
    * @return the value of the '<em>Defs</em>' containment reference list.
    * @see org.eclipse.handly.examples.basic.foo.FooPackage#getUnit_Defs()
