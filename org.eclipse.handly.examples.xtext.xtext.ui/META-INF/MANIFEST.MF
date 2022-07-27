@@ -7,6 +7,6 @@ Bundle-Name: %fragmentName
 Bundle-Vendor: %providerName
 Bundle-Localization: fragment
 Fragment-Host: org.eclipse.xtext.xtext.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.handly.ui,
  org.eclipse.handly.xtext.ui

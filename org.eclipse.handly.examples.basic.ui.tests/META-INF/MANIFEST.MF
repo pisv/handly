@@ -6,6 +6,6 @@ Bundle-Version: 1.7.0.qualifier
 Bundle-Name: Handly Basic Example Tests
 Bundle-Vendor: Eclipse Handly
 Fragment-Host: org.eclipse.handly.examples.basic.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.handly.junit
 Import-Package: junit.framework

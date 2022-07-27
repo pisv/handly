@@ -1,7 +1,8 @@
 Contributing to Eclipse Handly™
 ==============================
 
-Welcome to Eclipse Handly™, and thanks for your interest in this project. Big or small, every contribution matters.
+Welcome to Eclipse Handly™, and thanks for your interest in this project.
+Big or small, every contribution matters.
 
 Project description
 -------------------
@@ -61,18 +62,10 @@ a repository of build artifacts.
 Setting up a developer workspace
 --------------------------------
 
-Handly currently uses `JavaSE-1.8` for compilation. Please add a matching JRE.
-Perfect match (i.e. Java SE 8) is recommended to avoid build warnings.
-
-A number of the provided launch configurations use `JavaSE-11`. To use them,
-add a matching JRE. (That is, normally, you have both Java SE 8 and Java SE 11
-added.)
+Handly currently uses `JavaSE-11` for compilation. Please add a matching JRE.
 
 Handly employs specific Java code formatting conventions. Please import and use
-the formatter profile from `tools/formatter.xml`. Note that the current profile
-is intended to be used with the new formatter available since the Eclipse Oxygen
-(4.7) release, and may produce suboptimal results if used with previous
-Eclipse versions.
+the formatter profile from `tools/formatter.xml`.
 
 Import all projects from the Git workspace (don't search for nested projects)
 and set the target platform using a `.target` file provided within the
