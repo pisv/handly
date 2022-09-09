@@ -19,10 +19,11 @@
 <repository location="http://download.eclipse.org/cbi/updates/license/2.0.2.v20181016-2210"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<repository location="http://download.eclipse.org/releases/2022-06/202206151000"/>
+<repository location="http://download.eclipse.org/releases/2022-09/202209141001"/>
 <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.draw2d" version="0.0.0"/>
 <unit id="org.eclipse.e4.core.tools.feature.feature.group" version="0.0.0"/>
+<unit id="org.eclipse.e4.ui.progress" version="0.0.0"/>
 <unit id="org.eclipse.ecf" version="0.0.0"/>
 <unit id="org.eclipse.ecf.filetransfer" version="0.0.0"/>
 <unit id="org.eclipse.ecf.identity" version="0.0.0"/>
@@ -37,12 +38,14 @@
 <unit id="org.eclipse.xtext.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xtext.generator" version="0.0.0"/>
 <unit id="org.objectweb.asm" version="0.0.0"/>
-<unit id="com.google.guava" version="0.0.0"/>
+<unit id="com.google.guava" version="30.1.0.v20210127-2300"/>
 <unit id="com.google.inject" version="0.0.0"/>
+<unit id="com.ibm.icu" version="0.0.0"/>
 <unit id="io.github.classgraph" version="0.0.0"/>
 <unit id="org.apache.log4j" version="0.0.0"/>
 <unit id="org.aopalliance" version="0.0.0"/>
 <unit id="org.apache.commons.cli" version="0.0.0"/> <!-- required by MWE(2) -->
+<unit id="org.apache.commons.io" version="0.0.0"/>
 <unit id="org.sat4j.core" version="0.0.0"/> <!-- required by P2 director -->
 <unit id="org.sat4j.pb" version="0.0.0"/> <!-- required by P2 director -->
 <unit id="org.objectweb.asm.tree" version="0.0.0"/> <!-- required by PDE API tools -->
