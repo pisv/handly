@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2021 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2022 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -29,6 +29,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 
 import junit.framework.TestCase;
@@ -47,6 +48,13 @@ import junit.framework.TestCase;
  * <li>each test is responsible for setting up the necessary workspace state;</li>
  * <li>after running each test, the workspace is cleaned up.</li>
  * </ul>
+ * <p>
+ * Note that since version 1.7, there is also {@link NoJobsWorkspaceTestCase}
+ * that additionally ensures that no jobs will execute while a test is running,
+ * which helps avoid intermittent test failures due to unpredictable nature of
+ * resource change notifications when multiple threads access the workspace
+ * concurrently.
+ * </p>
  */
 public abstract class WorkspaceTestCase
     extends TestCase
@@ -222,6 +230,43 @@ public abstract class WorkspaceTestCase
     {
         getWorkspaceRoot().delete(IResource.ALWAYS_DELETE_PROJECT_CONTENT,
             null);
+    }
+
+    /**
+     * Suspends execution of all jobs.
+     *
+     * @since 1.7
+     * @see #resumeJobs()
+     */
+    protected final void suspendJobs()
+    {
+        IJobManager jobManager = Job.getJobManager();
+        jobManager.suspend();
+        boolean wasInterrupted;
+        do
+        {
+            wasInterrupted = false;
+            try
+            {
+                jobManager.join(null, null);
+            }
+            catch (InterruptedException e)
+            {
+                wasInterrupted = true;
+            }
+        }
+        while (wasInterrupted);
+    }
+
+    /**
+     * Resumes execution of jobs.
+     *
+     * @since 1.7
+     * @see #suspendJobs()
+     */
+    protected final void resumeJobs()
+    {
+        Job.getJobManager().resume();
     }
 
     /*

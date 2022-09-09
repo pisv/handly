@@ -21,7 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.handly.examples.jmodel.IJavaProject;
 import org.eclipse.handly.examples.jmodel.IPackageFragmentRoot;
 import org.eclipse.handly.examples.jmodel.JavaModelCore;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 
 /**
  * <code>JavaProject</code> tests.
@@ -32,7 +32,7 @@ import org.eclipse.handly.junit.WorkspaceTestCase;
  * </p>
  */
 public class JavaProjectTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     public void test001() throws Exception
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2022 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -27,7 +27,7 @@ import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooDef;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
 import org.eclipse.handly.examples.basic.ui.model.IFooVar;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.IElementImplExtension;
 import org.eclipse.handly.model.impl.ISourceFileImplExtension;
@@ -40,7 +40,7 @@ import org.eclipse.text.edits.ReplaceEdit;
  * <code>FooFile</code> working copy tests.
  */
 public class FooWorkingCopyTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private FooFile workingCopy;
 

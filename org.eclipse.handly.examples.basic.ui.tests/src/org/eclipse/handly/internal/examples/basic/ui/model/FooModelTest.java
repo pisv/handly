@@ -21,13 +21,13 @@ import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 
 /**
  * <code>FooModel</code> tests.
  */
 public class FooModelTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private IFooModel fooModel = FooModelCore.getFooModel();
 

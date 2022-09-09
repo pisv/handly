@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,13 +26,14 @@ import org.eclipse.handly.examples.jmodel.IPackageFragment;
 import org.eclipse.handly.examples.jmodel.IPackageFragmentRoot;
 import org.eclipse.handly.examples.jmodel.IType;
 import org.eclipse.handly.examples.jmodel.JavaModelCore;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+
+import junit.framework.TestCase;
 
 /**
  * Java element handle memento tests.
  */
 public class MementoTests
-    extends WorkspaceTestCase
+    extends TestCase
 {
     /**
      * Tests that a compilation unit can be persisted and restored using its memento.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,7 +22,7 @@ import org.eclipse.handly.buffer.Buffer;
 import org.eclipse.handly.buffer.BufferChange;
 import org.eclipse.handly.buffer.IBuffer;
 import org.eclipse.handly.context.IContext;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 import org.eclipse.handly.model.ISourceConstruct;
 import org.eclipse.handly.model.ISourceElementInfo;
 import org.eclipse.handly.model.impl.ISourceFileImplExtension;
@@ -37,7 +37,7 @@ import org.eclipse.text.edits.InsertEdit;
  * Source file tests.
  */
 public class SourceFileTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private SimpleSourceFile sourceFile;
     private SimpleSourceConstruct aChild;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 1C-Soft LLC.
+ * Copyright (c) 2018, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -20,13 +20,13 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 
 /**
  * <code>TextFileSnapshot</code> and <code>TextFileStoreSnapshot</code> tests.
  */
 public class TextFileSnapshotTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private IFile fileX;
     private IFile fileY;

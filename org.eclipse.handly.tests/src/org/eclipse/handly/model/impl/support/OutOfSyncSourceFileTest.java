@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 1C-Soft LLC.
+ * Copyright (c) 2015, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -23,14 +23,14 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 
 /**
  * Regression test for bug 470336 -
  * AssertionError when building structure for out-of-sync source file.
  */
 public class OutOfSyncSourceFileTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private IEclipsePreferences preferences;
     private boolean autoRefresh;

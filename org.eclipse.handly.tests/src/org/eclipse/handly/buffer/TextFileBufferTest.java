@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2020 1C-Soft LLC.
+ * Copyright (c) 2016, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -16,7 +16,7 @@ import static org.eclipse.handly.context.Contexts.EMPTY_CONTEXT;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.ui.PlatformUI;
@@ -26,7 +26,7 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
  * <code>TextFileBuffer</code> tests.
  */
 public class TextFileBufferTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private TextFileBuffer buffer;
 

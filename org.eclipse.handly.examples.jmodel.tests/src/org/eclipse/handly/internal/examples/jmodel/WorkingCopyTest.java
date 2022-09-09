@@ -31,7 +31,7 @@ import org.eclipse.handly.examples.jmodel.IField;
 import org.eclipse.handly.examples.jmodel.IMethod;
 import org.eclipse.handly.examples.jmodel.IType;
 import org.eclipse.handly.examples.jmodel.JavaModelCore;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 import org.eclipse.handly.model.impl.ISourceFileImplExtension;
 import org.eclipse.handly.util.TextRange;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -49,7 +49,7 @@ import org.eclipse.text.edits.ReplaceEdit;
  * Working copy tests.
  */
 public class WorkingCopyTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private static final int AST_LEVEL = AST.JLS_Latest;
 

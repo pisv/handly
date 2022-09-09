@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 1C-Soft LLC.
+ * Copyright (c) 2015, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -22,13 +22,13 @@ import org.eclipse.handly.examples.jmodel.IJavaProject;
 import org.eclipse.handly.examples.jmodel.IPackageFragment;
 import org.eclipse.handly.examples.jmodel.IPackageFragmentRoot;
 import org.eclipse.handly.examples.jmodel.JavaModelCore;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 
 /**
  * <code>PackageFragmentRoot</code> tests.
  */
 public class PackageFragmentRootTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private IPackageFragmentRoot root;
     private IPackageFragment defaultPkg;

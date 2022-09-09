@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 1C-Soft LLC.
+ * Copyright (c) 2020, 2022 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -17,14 +17,14 @@ import org.eclipse.core.filebuffers.ITextFileBufferManager;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 import org.eclipse.jface.text.IDocument;
 
 /**
  * Snapshot equality prediction tests.
  */
 public class EqualityPredictionTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private IFile fileX, fileY;
     private ITextFileBuffer bufferX, bufferY;

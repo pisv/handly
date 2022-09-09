@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 1C-Soft LLC and others.
+ * Copyright (c) 2014, 2022 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -26,7 +26,7 @@ import org.eclipse.handly.examples.basic.ui.model.FooModelCore;
 import org.eclipse.handly.examples.basic.ui.model.IFooFile;
 import org.eclipse.handly.examples.basic.ui.model.IFooModel;
 import org.eclipse.handly.examples.basic.ui.model.IFooProject;
-import org.eclipse.handly.junit.WorkspaceTestCase;
+import org.eclipse.handly.junit.NoJobsWorkspaceTestCase;
 import org.eclipse.handly.model.IElementChangeEvent;
 import org.eclipse.handly.model.IElementChangeListener;
 import org.eclipse.handly.model.impl.support.ElementDelta;
@@ -35,7 +35,7 @@ import org.eclipse.handly.model.impl.support.ElementDelta;
  * Foo element change notification tests.
  */
 public class FooModelNotificationTest
-    extends WorkspaceTestCase
+    extends NoJobsWorkspaceTestCase
 {
     private IFooModel fooModel = FooModelCore.getFooModel();
     private FooModelListener listener = new FooModelListener();
