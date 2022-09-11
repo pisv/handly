@@ -5,7 +5,7 @@
             <message_arguments>
                 <message_argument value="org.eclipse.handly.ApiLevel"/>
                 <message_argument value="CURRENT"/>
-                <message_argument value="6"/>
+                <message_argument value="7"/>
             </message_arguments>
         </filter>
     </resource>
