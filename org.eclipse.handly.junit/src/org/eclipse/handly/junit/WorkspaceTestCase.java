@@ -242,20 +242,33 @@ public abstract class WorkspaceTestCase
     {
         IJobManager jobManager = Job.getJobManager();
         jobManager.suspend();
-        boolean wasInterrupted;
-        do
+        jobManager.sleep(null);
+        join(jobManager);
+    }
+
+    private static void join(IJobManager jobManager)
+    {
+        Job[] jobs = jobManager.find(null);
+        for (Job job : jobs)
         {
-            wasInterrupted = false;
-            try
+            if (!job.shouldSchedule())
+                continue; // don't join implicit jobs (can hang!)
+
+            boolean wasInterrupted;
+            do
             {
-                jobManager.join(null, null);
+                wasInterrupted = false;
+                try
+                {
+                    job.join();
+                }
+                catch (InterruptedException e)
+                {
+                    wasInterrupted = true;
+                }
             }
-            catch (InterruptedException e)
-            {
-                wasInterrupted = true;
-            }
+            while (wasInterrupted);
         }
-        while (wasInterrupted);
     }
 
     /**
@@ -266,7 +279,9 @@ public abstract class WorkspaceTestCase
      */
     protected final void resumeJobs()
     {
-        Job.getJobManager().resume();
+        IJobManager jobManager = Job.getJobManager();
+        jobManager.resume();
+        jobManager.wakeUp(null);
     }
 
     /*
