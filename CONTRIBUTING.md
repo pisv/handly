@@ -45,7 +45,7 @@ The build is based on [Apache Maven](https://maven.apache.org/) and
 [Eclipse Tycho](https://www.eclipse.org/tycho/) and is easy to run
 on a local machine:
 
- 1. Make sure you have JDK 11 and Maven 3.8.2 or above installed.
+ 1. Make sure you have JDK 17 and Maven 3.8.2 or newer installed.
  Both should be on the path.
 
  2. Make sure you have a local clone of the Handly Git repository.
@@ -62,7 +62,12 @@ a repository of build artifacts.
 Setting up a developer workspace
 --------------------------------
 
-Handly currently uses `JavaSE-11` for compilation. Please add a matching JRE.
+Handly currently uses `JavaSE-11` for compilation. Please add a matching JDK.
+Perfect match (i.e. Java SE 11) is recommended to avoid build warnings.
+
+A number of the provided launch configurations use `JavaSE-17`. To use them,
+add a matching JDK. (That is, normally, you have both Java SE 11 and Java SE 17
+added.)
 
 Handly employs specific Java code formatting conventions. Please import and use
 the formatter profile from `tools/formatter.xml`.
