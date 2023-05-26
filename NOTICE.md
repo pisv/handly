@@ -61,6 +61,6 @@ hamcrest-core 1.3
 
  * License: BSD-3-Clause
 
-reload4j 1.2.19
+reload4j 1.2.24
 
  * License: Apache-2.0
