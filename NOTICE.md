@@ -45,11 +45,11 @@ Apache Commons Logging 1.2.0
 
  * License: Apache-2.0
 
-Google Guava 30.1
+Google Guava 32.1.2
 
  * License: Apache-2.0
 
-Google Guice / Inject Core API 5.0.1
+Google Inject 7.0.0
 
  * License: Apache-2.0
 
@@ -57,7 +57,7 @@ JUnit 4.13.2
 
  * License: EPL-1.0
 
-hamcrest-core 1.3
+hamcrest-core 2.2
 
  * License: BSD-3-Clause
 
