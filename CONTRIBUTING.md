@@ -45,7 +45,7 @@ The build is based on [Apache Maven](https://maven.apache.org/) and
 [Eclipse Tycho](https://www.eclipse.org/tycho/) and is easy to run
 on a local machine:
 
- 1. Make sure you have JDK 17 and Maven 3.8.2 or newer installed.
+ 1. Make sure you have JDK 17 and Maven 3.9.0 or newer installed.
  Both should be on the path.
 
  2. Make sure you have a local clone of the Handly Git repository.
