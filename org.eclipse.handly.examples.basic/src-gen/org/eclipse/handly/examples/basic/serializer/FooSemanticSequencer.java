@@ -49,11 +49,13 @@ public class FooSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 	}
 	
 	/**
+	 * <pre>
 	 * Contexts:
 	 *     Def returns Def
 	 *
 	 * Constraint:
 	 *     (name=ID params+=ID? params+=ID*)
+	 * </pre>
 	 */
 	protected void sequence_Def(ISerializationContext context, Def semanticObject) {
 		genericSequencer.createSequence(context, semanticObject);
@@ -61,11 +63,13 @@ public class FooSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 	
 	
 	/**
+	 * <pre>
 	 * Contexts:
 	 *     Unit returns Unit
 	 *
 	 * Constraint:
 	 *     ((vars+=Var+ defs+=Def+) | defs+=Def+)?
+	 * </pre>
 	 */
 	protected void sequence_Unit(ISerializationContext context, Unit semanticObject) {
 		genericSequencer.createSequence(context, semanticObject);
@@ -73,11 +77,13 @@ public class FooSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 	
 	
 	/**
+	 * <pre>
 	 * Contexts:
 	 *     Var returns Var
 	 *
 	 * Constraint:
 	 *     name=ID
+	 * </pre>
 	 */
 	protected void sequence_Var(ISerializationContext context, Var semanticObject) {
 		if (errorAcceptor != null) {

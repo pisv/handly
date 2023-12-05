@@ -64,7 +64,6 @@ public class FooPackageImpl extends EPackageImpl implements FooPackage
   {
     super(eNS_URI, FooFactory.eINSTANCE);
   }
-
   /**
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->

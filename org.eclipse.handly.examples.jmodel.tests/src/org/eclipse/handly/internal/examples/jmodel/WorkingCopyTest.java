@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2022 1C-Soft LLC.
+ * Copyright (c) 2015, 2023 1C-Soft LLC.
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
@@ -51,7 +51,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 public class WorkingCopyTest
     extends NoJobsWorkspaceTestCase
 {
-    private static final int AST_LEVEL = AST.JLS_Latest;
+    private static final int AST_LEVEL = AST.getJLSLatest();
 
     private CompilationUnit workingCopy;
     private List<IProblem> problems;
