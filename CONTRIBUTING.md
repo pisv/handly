@@ -62,12 +62,7 @@ a repository of build artifacts.
 Setting up a developer workspace
 --------------------------------
 
-Handly currently uses `JavaSE-11` for compilation. Please add a matching JDK.
-Perfect match (i.e. Java SE 11) is recommended to avoid build warnings.
-
-A number of the provided launch configurations use `JavaSE-17`. To use them,
-add a matching JDK. (That is, normally, you have both Java SE 11 and Java SE 17
-added.)
+Handly currently uses `JavaSE-17` for compilation. Please add a matching JDK.
 
 Handly employs specific Java code formatting conventions. Please import and use
 the formatter profile from `tools/formatter.xml`.
