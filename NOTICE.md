@@ -45,7 +45,7 @@ Apache Commons Logging 1.2.0
 
  * License: Apache-2.0
 
-Google Guava 33.0.0
+Google Guava 33.2.0
 
  * License: Apache-2.0
 
@@ -61,6 +61,6 @@ hamcrest-core 2.2
 
  * License: BSD-3-Clause
 
-reload4j 1.2.24
+reload4j 1.2.25
 
  * License: Apache-2.0
