@@ -2,39 +2,39 @@
 <?p2f version='1.0.0'?>
 <p2f version='1.0.0'>
   <ius size='7'>
-    <iu id='org.eclipse.sdk.ide' version='4.32.0.I20240601-0610'>
+    <iu id='org.eclipse.sdk.ide' version='4.33.0.I20240903-0240'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2024-06/'/>
+        <repository location='http://download.eclipse.org/releases/2024-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.feature.group' version='6.10.0.202406032230-r'>
+    <iu id='org.eclipse.egit.feature.group' version='7.0.0.202409031743-r'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2024-06/'/>
+        <repository location='http://download.eclipse.org/releases/2024-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.m2e.feature.feature.group' version='2.6.1.20240602-2342'>
+    <iu id='org.eclipse.m2e.feature.feature.group' version='2.6.2.20240828-1954'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2024-06/'/>
+        <repository location='http://download.eclipse.org/releases/2024-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.35.0.v20240528-1523'>
+    <iu id='org.eclipse.xtext.sdk.feature.group' version='2.36.0.v20240825-0714'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2024-06/'/>
+        <repository location='http://download.eclipse.org/releases/2024-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.emf.mwe.sdk.feature.group' version='1.12.0.v20240525-1058'>
+    <iu id='org.eclipse.emf.mwe.sdk.feature.group' version='1.13.0.v20240823-1107'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2024-06/'/>
+        <repository location='http://download.eclipse.org/releases/2024-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.emf.mwe2.language.sdk.feature.group' version='2.18.0.v20240525-1058'>
+    <iu id='org.eclipse.emf.mwe2.language.sdk.feature.group' version='2.19.0.v20240823-1107'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2024-06/'/>
+        <repository location='http://download.eclipse.org/releases/2024-09/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.emf.sdk.feature.group' version='2.38.0.v20240314-1003'>
+    <iu id='org.eclipse.emf.sdk.feature.group' version='2.39.0.v20240731-0952'>
       <repositories size='1'>
-        <repository location='http://download.eclipse.org/releases/2024-06/'/>
+        <repository location='http://download.eclipse.org/releases/2024-09/'/>
       </repositories>
     </iu>
   </ius>
