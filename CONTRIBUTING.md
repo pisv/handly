@@ -25,7 +25,14 @@ for IDE components to work in a generic way with any Handly-based model.
 
 For more information, visit the project's website
 
-- <https://eclipse.org/handly>
+- <https://projects.eclipse.org/projects/technology.handly>
+
+Terms of Use
+------------
+
+This repository is subject to the Terms of Use of the Eclipse Foundation
+
+- <https://www.eclipse.org/legal/termsofuse.php>
 
 Developer resources
 -------------------
@@ -34,9 +41,15 @@ Information regarding source code management and builds
 
 - <https://projects.eclipse.org/projects/technology.handly/developer>
 
-Coding standards, bugs lifecycle, and more
+The project issues and source code are maintained in the following
+GitHub repository
 
-- <https://wiki.eclipse.org/Handly/Committer_FAQ>
+- <https://github.com/eclipse-handly/handly>
+
+In the past, the project used Bugzilla to track ongoing development and
+issues, which is preserved for the sake of history
+
+- <https://bugs.eclipse.org/bugs/buglist.cgi?product=Handly>
 
 Building locally
 ----------------
@@ -94,52 +107,36 @@ to assist developers in API maintenance by reporting API defects. This requires
 setting an API baseline for the workspace. Please use the target platform defined
 in the `baseline.target` file as the source of the default API baseline.
 
-Contributing
-------------
+Eclipse Development Process
+---------------------------
 
-General process and policy for making a contribution
+This project is governed by the Eclipse Foundation Development Process and
+operates under the terms of the Eclipse IP Policy.
 
-- <https://wiki.eclipse.org/Development_Resources/Contributing_via_Git>
+- <https://eclipse.org/projects/dev_process>
 
-Project-specific details and further references
-
-- <https://wiki.eclipse.org/Handly/Committer_FAQ>
+- <https://www.eclipse.org/org/documents/Eclipse_IP_Policy.pdf>
 
 Eclipse Contributor Agreement
 -----------------------------
 
-Before your contribution can be accepted by the project, you need to have
-signed the Eclipse Contributor Agreement (ECA)
+In order to be able to contribute to Eclipse Foundation projects you must
+electronically sign the Eclipse Contributor Agreement (ECA)
 
 - <https://www.eclipse.org/legal/ECA.php>
 
-For more information, see ECA FAQ
+The ECA provides the Eclipse Foundation with a permanent record that you agree
+that each of your contributions will comply with the commitments documented in
+the Developer Certificate of Origin (DCO). Having an ECA on file associated with
+the email address matching the "Author" field of your contribution's Git commits
+fulfils the DCO's requirement that you sign-off on your contributions.
 
-- <https://www.eclipse.org/legal/ecafaq.php>
+For more information, please see the Eclipse Committer Handbook:
+<https://www.eclipse.org/projects/handbook/#resources-commit>
 
 Contact
 -------
 
-Contact the project developers via the project's "dev" list
+Contact the project developers via the project's "dev" list.
 
 - <https://dev.eclipse.org/mailman/listinfo/handly-dev>
-
-Search for bugs
----------------
-
-This project uses Bugzilla to track ongoing development and issues
-
-- <https://bugs.eclipse.org/bugs/buglist.cgi?product=Handly>
-
-Create a new bug
-----------------
-
-Bug reporting FAQ
-
-- <https://wiki.eclipse.org/Bug_Reporting_FAQ>
-
-Be sure to search for existing bugs before you create another one
-
-- <https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Handly>
-
-Remember that contributions are always welcome!

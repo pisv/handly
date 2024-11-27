@@ -1,9 +1,9 @@
-Notices for Eclispe Handly™
+Notices for Eclipse Handly™
 ==========================
 
 This content is produced and maintained by the Eclipse Handly™ project.
 
- * Project home: https://projects.eclipse.org/projects/technology.handly
+ * Project home: <https://projects.eclipse.org/projects/technology.handly>
 
 Trademarks
 ----------
@@ -23,7 +23,7 @@ Declared Project Licenses
 
 This program and the accompanying materials are made available under
 the terms of the Eclipse Public License 2.0 which is available at
-https://www.eclipse.org/legal/epl-2.0/
+<https://www.eclipse.org/legal/epl-2.0/>.
 
 SPDX-License-Identifier: EPL-2.0
 
@@ -32,7 +32,7 @@ Source Code
 
 The project maintains the following source code repositories:
 
- * http://git.eclipse.org/c/handly/org.eclipse.handly.git
+ * <https://github.com/eclipse-handly/handly>
 
 Third-party Content
 -------------------
