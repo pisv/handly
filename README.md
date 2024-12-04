@@ -132,7 +132,7 @@ Contacts
 
 - Website: <https://eclipse.org/handly>
 
-- Community Discussions: <https://eclipse.org/forums/eclipse.handly>
+- Community Discussions: <https://github.com/eclipse-handly/handly/discussions>
 
 - Developer Mailing List: <https://dev.eclipse.org/mailman/listinfo/handly-dev>
 
