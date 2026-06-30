@@ -11,6 +11,7 @@ If you think you have found a vulnerability in this repository, please report it
 Instead, report it using one of the following ways:
 
 * Create a [confidential issue](https://gitlab.eclipse.org/security/vulnerability-reports/-/issues/new?issuable_template=new_vulnerability) in the Eclipse Foundation Vulnerability Reporting Tracker
+* Report a [vulnerability](https://github.com/eclipse-handly/handly/security/advisories/new) directly via private vulnerability reporting on GitHub
 
 You can find more information about reporting and disclosure at the [Eclipse Foundation Security page](https://www.eclipse.org/security/).
 
