@@ -32,4 +32,4 @@ This information will help us triage your report more quickly.
 
 Supported versions are:
 
-- The latest version in https://github.com/eclipse-handly/handly/releases
+- [The latest version](https://github.com/eclipse-handly/handly/releases/latest)
